@@ -139,7 +139,7 @@
   .btn-success { background: #2ecc71; color: #fff; }
   .btn-default { background: #f0f0f0; color: #333; }
 
-  /* 【重点修改：高亮数据备份区域】 */
+  /* 数据备份高亮 */
   .highlight-card {
     border: 2px solid #4b7bec;
     background: #f0f6ff;
@@ -340,11 +340,15 @@
   .bg-pink2 { background-color: #f8bbd0; }
   .bg-lightpink { background-color: #fce4ec; }
   .empty-cell { opacity: 0; pointer-events: none; }
+  
+  /* 【核心修改：双击编辑文字样式，由蓝色虚线改为灰色背景，无阴影】 */
   .editable-text[contenteditable="true"] {
-    outline: 2px dashed #4b7bec;
-    outline-offset: 2px;
+    background-color: #f0f0f0;
+    outline: none;
     border-radius: 4px;
-    background: rgba(75, 123, 236, 0.05);
+    padding: 2px 6px;
+    box-shadow: none;
+    color: #333;
     cursor: text;
     user-select: text;
   }
@@ -449,7 +453,8 @@
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" />
               </svg>
             </div>
-            <span class="widget-label" id="label-wechat">微信</span>
+            <!-- 名字改为 简讯 -->
+            <span class="widget-label" id="label-wechat">简讯</span>
           </div>
 
           <div class="widget-item">
@@ -468,7 +473,8 @@
                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
               </svg>
             </div>
-            <span class="widget-label" id="label-qqmusic">QQ音乐</span>
+            <!-- 名字改为 音乐 -->
+            <span class="widget-label" id="label-qqmusic">音乐</span>
           </div>
 
           <div class="widget-item">
@@ -509,7 +515,8 @@
 
           <div class="widget-item">
             <div class="icon-box bg-skyblue" id="app-icon-play"></div>
-            <span class="widget-label" id="label-play">玩法</span>
+            <!-- 名字改为 多功能 -->
+            <span class="widget-label" id="label-play">多功能</span>
           </div>
 
           <div class="widget-item empty-cell">
@@ -544,7 +551,6 @@
       </div>
 
       <div class="beautify-body">
-        <!-- 【重点：移到了最前面并加上了边框高亮】 -->
         <!-- 1. 数据备份（导入/导出JSON） -->
         <div class="section-card highlight-card">
           <h4>📦 数据备份（美化文件）</h4>
@@ -566,7 +572,7 @@
           <input type="file" id="wallpaperInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- 3. App图标与名字（只有真正的App，不含组件） -->
+        <!-- 3. App图标与名字 -->
         <div class="section-card">
           <h4>📱 App图标与名字</h4>
           <div id="appEditList">
@@ -606,6 +612,20 @@
   const mainScreen = document.getElementById('mainScreen');
   const beautifyScreen = document.getElementById('beautifyScreen');
 
+  // 【核心兼容：如果本地存储里有旧名字，强行升级为新名字】
+  if(localStorage.getItem('app_name_wechat') === '微信' || localStorage.getItem('edit_label_wechat') === '微信') {
+      localStorage.setItem('app_name_wechat', '简讯');
+      localStorage.removeItem('edit_label_wechat'); // 清理旧键
+  }
+  if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐' || localStorage.getItem('edit_label_qqmusic') === 'QQ音乐') {
+      localStorage.setItem('app_name_qqmusic', '音乐');
+      localStorage.removeItem('edit_label_qqmusic');
+  }
+  if(localStorage.getItem('app_name_play') === '玩法' || localStorage.getItem('edit_label_play') === '玩法') {
+      localStorage.setItem('app_name_play', '多功能');
+      localStorage.removeItem('edit_label_play');
+  }
+
   const savedWallpaper = localStorage.getItem('saved_wallpaper');
   if (savedWallpaper) mainScreen.style.backgroundImage = `url(${savedWallpaper})`;
 
@@ -619,13 +639,14 @@
   const APP_ICON_KEY_PREFIX = 'app_icon_';
   const APP_NAME_KEY_PREFIX = 'app_name_';
   
+  // 注意：这里的默认名字已更新
   const appList = [
     { id: 'beautify', name: '美化' },
-    { id: 'wechat', name: '微信' },
-    { id: 'qqmusic', name: 'QQ音乐' },
+    { id: 'wechat', name: '简讯' },
+    { id: 'qqmusic', name: '音乐' },
     { id: 'persona', name: '人设' },
     { id: 'book', name: '世界书' },
-    { id: 'play', name: '玩法' },
+    { id: 'play', name: '多功能' },
     { id: 'clock', name: 'Clock' },
     { id: 'instagram', name: 'Instagram' }
   ];
@@ -637,6 +658,10 @@
       if (savedName) {
         const labelEl = document.getElementById('label-' + app.id);
         if (labelEl) labelEl.innerText = savedName;
+      } else {
+        // 如果本地没有保存，使用新默认名字
+        const labelEl = document.getElementById('label-' + app.id);
+        if (labelEl) labelEl.innerText = app.name;
       }
       const savedIcon = localStorage.getItem(APP_ICON_KEY_PREFIX + app.id);
       if (savedIcon) {
@@ -737,21 +762,23 @@
   const savedImage = localStorage.getItem('uploaded_captcha_image');
   if (savedImage) { defaultIllustration.style.display = 'none'; uploadedImage.src = savedImage; uploadedImage.style.display = 'block'; }
 
-  // 顶部文字双击
+  // ================= 7. 顶部文字双击编辑（含输入框） =================
   const editableElements = document.querySelectorAll('.editable-text');
   editableElements.forEach(el => {
     el.addEventListener('dblclick', function() {
-      this.contentEditable = "true"; this.focus();
+      this.contentEditable = "true"; 
+      this.focus();
     });
     el.addEventListener('blur', function() {
       this.contentEditable = "false";
       try { localStorage.setItem('edit_' + this.id, this.innerText); } catch (e) {}
     });
+    // 加载保存的文字
     const savedValue = localStorage.getItem('edit_' + el.id);
     if (savedValue) el.innerText = savedValue;
   });
 
-  // ================= 7. 美化界面：App列表生成 =================
+  // ================= 8. 美化界面：App列表生成 =================
   const appEditList = document.getElementById('appEditList');
 
   function renderAppEditList() {
@@ -838,7 +865,7 @@
 
   renderAppEditList();
 
-  // ================= 8. 预设管理 =================
+  // ================= 9. 预设管理 =================
   const presetSelect = document.getElementById('presetSelect');
 
   function updatePresetList() {
@@ -892,12 +919,11 @@
     } catch (e) { alert('预设数据损坏'); }
   });
 
-  // ================= 9. 数据备份（导入/导出JSON）【已修复并移到了顶部】 =================
+  // ================= 10. 数据备份（导入/导出JSON） =================
   document.getElementById('exportDataBtn').addEventListener('click', () => {
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      // 过滤出所有美化相关的键
       if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
           key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX)) {
         data[key] = localStorage.getItem(key);
@@ -906,7 +932,7 @@
     
     const json = JSON.stringify(data, null, 2);
     
-    // 1. 尝试以文件形式下载（适合电脑和部分手机）
+    // 尝试下载
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -915,7 +941,7 @@
     a.click();
     URL.revokeObjectURL(url);
 
-    // 2. 【重要】提供弹窗，让用户能够手动复制 JSON 代码（适合无法直接下载的手机浏览器）
+    // 备选方案：弹窗让用户复制
     setTimeout(() => {
       const userConfirmed = confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击“确定”后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）");
       if (userConfirmed) {
@@ -937,7 +963,6 @@
         const data = JSON.parse(event.target.result);
         if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON format');
         
-        // 写入新数据（覆盖同名键）
         for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
             localStorage.setItem(key, data[key]);
@@ -951,7 +976,7 @@
       }
     };
     reader.readAsText(file);
-    this.value = ''; // 允许重复导入同一个文件
+    this.value = ''; 
   });
 </script>
 
