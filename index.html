@@ -125,18 +125,16 @@
   
   .vinyl-ring-2, .vinyl-ring-3 { width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
   
-  /* 去除黑点，只保留图片 */
   .vinyl-center {
     width: 220px; height: 220px; border-radius: 50%; background: #555;
     overflow: hidden; cursor: pointer; position: relative;
     display: flex; justify-content: center; align-items: center;
-    border: 2px solid #fff; /* 保留白边，增强视觉效果 */
+    border: 2px solid #fff;
   }
   .vinyl-center img { 
     width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display: block; 
   }
   .vinyl-center svg { width: 40px; height: 40px; fill: #fff; opacity: 0.5; position: absolute; pointer-events: none; }
-  /* 删除了 .vinyl-hole 样式 */
 
   .player-info { text-align: center; margin-bottom: 30px; }
   .player-info h2 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 6px; }
@@ -155,7 +153,55 @@
   .play-pause-btn { width: 60px; height: 60px; background: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
   .play-pause-btn svg { width: 28px; height: 28px; fill: #fff; }
 
-  /* ============ 4. 美化界面 ============ */
+  /* ============ 4. 人设界面 ============ */
+  #personaScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .persona-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+  .persona-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
+  .persona-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
+  .persona-body { padding: 16px; }
+  .persona-toolbar { display: flex; gap: 10px; margin-bottom: 16px; }
+  .persona-toolbar .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
+  .btn-primary { background: #4b7bec; color: #fff; }
+  .btn-outline { background: #fff; border: 1px solid #4b7bec; color: #4b7bec; }
+  .persona-list { display: flex; flex-direction: column; gap: 12px; }
+  .persona-card {
+    background: #fff; border-radius: 12px; padding: 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .persona-card:active { transform: scale(0.98); }
+  .persona-card .avatar { width: 50px; height: 50px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .persona-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .persona-card .avatar svg { width: 24px; height: 24px; fill: #ccc; }
+  .persona-card .info { flex: 1; overflow: hidden; }
+  .persona-card .info h4 { font-size: 15px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-card .info p { font-size: 12px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-card .arrow { color: #ccc; font-size: 20px; }
+
+  /* 人设编辑表单 */
+  .persona-edit-view { display: none; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+  .persona-edit-view.active { display: block; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+  .form-group input, .form-group textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
+  .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
+  .form-group textarea { height: 100px; resize: vertical; }
+  .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #eee; }
+  .avatar-edit-box img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-edit-box svg { width: 30px; height: 30px; fill: #ccc; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .form-actions .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-save { background: #4b7bec; color: #fff; }
+  .btn-delete { background: #ff4757; color: #fff; }
+  .btn-cancel { background: #f0f0f0; color: #333; }
+
+  /* 空状态 */
+  .empty-state { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
+
+  /* ============ 5. 美化界面 ============ */
   #beautifyScreen { background: #f7f8fa; padding-bottom: 30px; }
   .beautify-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
   .beautify-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
@@ -263,7 +309,7 @@
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-blue" id="app-icon-persona">
+            <div class="icon-box bg-blue" id="app-icon-persona" onclick="openPersonaApp()">
               <svg viewBox="0 0 24 24" fill="#2196f3"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
             <span class="widget-label" id="label-persona">人设</span>
@@ -388,7 +434,6 @@
                 <svg id="vinylCoverSvg" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
                 <input type="file" id="vinylCoverInput" accept="image/*" style="display: none;">
               </div>
-              <!-- 删除了 vinyl-hole 黑点 -->
             </div>
           </div>
         </div>
@@ -427,7 +472,70 @@
       </div>
     </div>
 
-    <!-- ================= 4. 美化界面 ================= -->
+    <!-- ================= 4. 人设界面 ================= -->
+    <div id="personaScreen" class="screen">
+      <div class="persona-header">
+        <button class="back-btn" onclick="closeScreen('personaScreen')">← 返回</button>
+        <h3>人设管理</h3>
+      </div>
+      <div class="persona-body">
+        <!-- 顶部工具栏 -->
+        <div class="persona-toolbar">
+          <button class="btn btn-outline" onclick="document.getElementById('personaFileInput').click()">上传文件</button>
+          <button class="btn btn-primary" onclick="openPersonaEdit(null)">创建空白</button>
+          <input type="file" id="personaFileInput" accept=".docx,.json,.txt" style="display: none;">
+        </div>
+
+        <!-- 人物列表 -->
+        <div class="persona-list" id="personaList">
+          <!-- 动态生成 -->
+        </div>
+
+        <!-- 编辑表单（初始隐藏） -->
+        <div class="persona-edit-view" id="personaEditView">
+          <div class="form-group" style="text-align: center;">
+            <label>头像</label>
+            <div class="avatar-edit-box" onclick="document.getElementById('personaAvatarInput').click()">
+              <img id="personaAvatarImg" src="" alt="" style="display: none;">
+              <svg id="personaAvatarSvg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              <input type="file" id="personaAvatarInput" accept="image/*" style="display: none;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>名字</label>
+            <input type="text" id="personaName" placeholder="输入角色名字">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>网名</label>
+              <input type="text" id="personaNickname" placeholder="输入网名">
+            </div>
+            <div class="form-group">
+              <label>性别</label>
+              <input type="text" id="personaGender" placeholder="输入性别">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>年龄</label>
+            <input type="text" id="personaAge" placeholder="输入年龄">
+          </div>
+          <div class="form-group">
+            <label>详细人设</label>
+            <textarea id="personaDetails" placeholder="输入详细人设描述..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-cancel" onclick="cancelPersonaEdit()">取消</button>
+            <button class="btn btn-delete" id="personaDeleteBtn" onclick="deletePersona()">删除</button>
+            <button class="btn btn-save" onclick="savePersona()">保存</button>
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="personaEmptyState">暂无人设，点击上方按钮上传文件或创建空白</div>
+      </div>
+    </div>
+
+    <!-- ================= 5. 美化界面 ================= -->
     <div id="beautifyScreen" class="screen">
       <div class="beautify-header">
         <button class="back-btn" onclick="closeScreen('beautifyScreen')">← 返回</button>
@@ -481,25 +589,7 @@
 </div>
 
 <script>
-  // ================= 页面初始化与状态恢复 =================
-  const isFullscreen = localStorage.getItem('is_fullscreen') === 'true';
-  const phoneCase = document.getElementById('phoneCase');
-  if (isFullscreen) {
-    phoneCase.classList.add('is-fullscreen');
-    document.getElementById('fullscreenToggleBtn').innerText = '关闭全屏';
-  } else {
-    document.getElementById('fullscreenToggleBtn').innerText = '开启全屏';
-  }
-
-  const APP_ICON_KEY_PREFIX = 'app_icon_';
-  const APP_NAME_KEY_PREFIX = 'app_name_';
-  const MUSIC_KEY_PREFIX = 'music_';
-
-  if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
-  if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
-  if(localStorage.getItem('app_name_wechat') === '微信') localStorage.setItem('app_name_wechat', '简讯');
-
-  // ================= 界面切换逻辑 =================
+  // ================= 全局界面管理 =================
   function openScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
@@ -510,6 +600,20 @@
   }
   function openMusicApp() { openScreen('musicScreen'); }
   function openPlayerScreen() { openScreen('playerScreen'); }
+  function openPersonaApp() { 
+    openScreen('personaScreen'); 
+    renderPersonaList();
+  }
+
+  // ================= 本地存储数据初始化 =================
+  const APP_ICON_KEY_PREFIX = 'app_icon_';
+  const APP_NAME_KEY_PREFIX = 'app_name_';
+  const MUSIC_KEY_PREFIX = 'music_';
+  const PERSONA_KEY = 'persona_list';
+
+  if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
+  if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
+  if(localStorage.getItem('app_name_wechat') === '微信') localStorage.setItem('app_name_wechat', '简讯');
 
   // ================= 主屏幕App图标与名字逻辑 =================
   const appList = [
@@ -776,6 +880,248 @@
     });
   }
 
+  // ================= 人设App 专属逻辑 =================
+  let personaList = [];
+  let editingPersonaId = null;
+  let tempAvatarBase64 = ''; // 临时存储正在编辑的头像
+
+  // 加载人设列表
+  function loadPersonaList() {
+    const data = localStorage.getItem(PERSONA_KEY);
+    if (data) {
+      try { personaList = JSON.parse(data); } catch(e) { personaList = []; }
+    } else {
+      personaList = [];
+    }
+  }
+  loadPersonaList();
+
+  // 渲染人设列表
+  function renderPersonaList() {
+    const container = document.getElementById('personaList');
+    const emptyState = document.getElementById('personaEmptyState');
+    container.innerHTML = '';
+    
+    if (personaList.length === 0) {
+      emptyState.style.display = 'block';
+      container.style.display = 'none';
+      document.getElementById('personaEditView').classList.remove('active');
+      return;
+    }
+    
+    emptyState.style.display = 'none';
+    container.style.display = 'flex';
+    
+    personaList.forEach((persona, index) => {
+      const card = document.createElement('div');
+      card.className = 'persona-card';
+      card.onclick = () => openPersonaEdit(index);
+      
+      let avatarHtml = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+      if (persona.avatar) {
+        avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
+      }
+      
+      card.innerHTML = `
+        <div class="avatar">${avatarHtml}</div>
+        <div class="info">
+          <h4>${persona.name || '未命名角色'}</h4>
+          <p>${persona.nickname || '无网名'} · ${persona.gender || '未知'} · ${persona.age || '未知年龄'}</p>
+        </div>
+        <div class="arrow">›</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  // 打开编辑表单
+  function openPersonaEdit(index) {
+    const view = document.getElementById('personaEditView');
+    const listContainer = document.getElementById('personaList');
+    const emptyState = document.getElementById('personaEmptyState');
+    
+    listContainer.style.display = 'none';
+    emptyState.style.display = 'none';
+    view.classList.add('active');
+
+    if (index === null) {
+      // 创建空白
+      editingPersonaId = null;
+      document.getElementById('personaName').value = '';
+      document.getElementById('personaNickname').value = '';
+      document.getElementById('personaGender').value = '';
+      document.getElementById('personaAge').value = '';
+      document.getElementById('personaDetails').value = '';
+      tempAvatarBase64 = '';
+      document.getElementById('personaAvatarImg').style.display = 'none';
+      document.getElementById('personaAvatarSvg').style.display = 'block';
+      document.getElementById('personaDeleteBtn').style.display = 'none'; // 新建时隐藏删除按钮
+    } else {
+      // 编辑现有
+      editingPersonaId = index;
+      const persona = personaList[index];
+      document.getElementById('personaName').value = persona.name || '';
+      document.getElementById('personaNickname').value = persona.nickname || '';
+      document.getElementById('personaGender').value = persona.gender || '';
+      document.getElementById('personaAge').value = persona.age || '';
+      document.getElementById('personaDetails').value = persona.details || '';
+      
+      if (persona.avatar) {
+        tempAvatarBase64 = persona.avatar;
+        document.getElementById('personaAvatarImg').src = persona.avatar;
+        document.getElementById('personaAvatarImg').style.display = 'block';
+        document.getElementById('personaAvatarSvg').style.display = 'none';
+      } else {
+        tempAvatarBase64 = '';
+        document.getElementById('personaAvatarImg').style.display = 'none';
+        document.getElementById('personaAvatarSvg').style.display = 'block';
+      }
+      document.getElementById('personaDeleteBtn').style.display = 'block'; // 编辑时显示删除按钮
+    }
+  }
+
+  // 取消编辑
+  function cancelPersonaEdit() {
+    document.getElementById('personaEditView').classList.remove('active');
+    renderPersonaList(); // 重新渲染列表
+  }
+
+  // 保存人设
+  function savePersona() {
+    const name = document.getElementById('personaName').value.trim();
+    const nickname = document.getElementById('personaNickname').value.trim();
+    const gender = document.getElementById('personaGender').value.trim();
+    const age = document.getElementById('personaAge').value.trim();
+    const details = document.getElementById('personaDetails').value.trim();
+    
+    if (!name) {
+      alert('请至少填写名字');
+      return;
+    }
+
+    const personaData = {
+      avatar: tempAvatarBase64,
+      name: name,
+      nickname: nickname,
+      gender: gender,
+      age: age,
+      details: details
+    };
+
+    if (editingPersonaId === null) {
+      // 新建
+      personaList.push(personaData);
+    } else {
+      // 更新
+      personaList[editingPersonaId] = personaData;
+    }
+
+    localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
+    cancelPersonaEdit();
+  }
+
+  // 删除人设
+  function deletePersona() {
+    if (editingPersonaId === null) return;
+    if (!confirm('确定要删除这个人设吗？')) return;
+    
+    personaList.splice(editingPersonaId, 1);
+    localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
+    cancelPersonaEdit();
+  }
+
+  // 处理文件上传
+  document.getElementById('personaFileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const content = ev.target.result;
+      let parsedData = {
+        avatar: '',
+        name: file.name.replace(/\.[^/.]+$/, ""), // 默认使用文件名作为名字
+        nickname: '',
+        gender: '',
+        age: '',
+        details: ''
+      };
+
+      if (file.name.endsWith('.json')) {
+        try {
+          const jsonData = JSON.parse(content);
+          // 尝试智能匹配字段
+          parsedData.name = jsonData.name || jsonData.char_name || parsedData.name;
+          parsedData.nickname = jsonData.nickname || jsonData.net_name || '';
+          parsedData.gender = jsonData.gender || jsonData.sex || '';
+          parsedData.age = jsonData.age || '';
+          parsedData.details = jsonData.details || jsonData.description || jsonData.persona || content;
+        } catch (err) {
+          parsedData.details = content;
+        }
+      } else if (file.name.endsWith('.txt')) {
+        parsedData.details = content;
+      } else if (file.name.endsWith('.docx')) {
+        // 对于docx，直接读取为文本可能会有乱码，这里作为演示，提示用户手动编辑详情
+        parsedData.details = `[上传了文件：${file.name}]\n请手动编辑详细人设，或直接在此处粘贴内容。`;
+      }
+
+      // 将解析后的数据填入编辑表单
+      editingPersonaId = null; // 新建模式
+      document.getElementById('personaName').value = parsedData.name;
+      document.getElementById('personaNickname').value = parsedData.nickname;
+      document.getElementById('personaGender').value = parsedData.gender;
+      document.getElementById('personaAge').value = parsedData.age;
+      document.getElementById('personaDetails').value = parsedData.details;
+      tempAvatarBase64 = '';
+      document.getElementById('personaAvatarImg').style.display = 'none';
+      document.getElementById('personaAvatarSvg').style.display = 'block';
+      document.getElementById('personaDeleteBtn').style.display = 'none';
+
+      document.getElementById('personaEditView').classList.add('active');
+      document.getElementById('personaList').style.display = 'none';
+      document.getElementById('personaEmptyState').style.display = 'none';
+    };
+    
+    // 根据文件类型读取
+    if (file.name.endsWith('.docx')) {
+      // docx 是二进制文件，reader.readAsText 会乱码，这里只获取文件名作为提示
+      // 为了显示进度，简单模拟一下
+      parsedData = { name: file.name.replace('.docx', ''), details: '请手动编辑文档内容' };
+      // 直接弹出提示
+      alert('暂不支持直接解析 docx 文件内容，已为您创建空白模板，请手动填写详细信息。');
+      document.getElementById('personaName').value = parsedData.name;
+      document.getElementById('personaDetails').value = parsedData.details;
+      editingPersonaId = null;
+      tempAvatarBase64 = '';
+      document.getElementById('personaAvatarImg').style.display = 'none';
+      document.getElementById('personaAvatarSvg').style.display = 'block';
+      document.getElementById('personaDeleteBtn').style.display = 'none';
+      document.getElementById('personaEditView').classList.add('active');
+      document.getElementById('personaList').style.display = 'none';
+      document.getElementById('personaEmptyState').style.display = 'none';
+    } else {
+      reader.readAsText(file);
+    }
+    
+    this.value = ''; // 允许重复上传同一个文件
+  });
+
+  // 上传人设头像
+  document.getElementById('personaAvatarInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      tempAvatarBase64 = ev.target.result;
+      document.getElementById('personaAvatarImg').src = tempAvatarBase64;
+      document.getElementById('personaAvatarImg').style.display = 'block';
+      document.getElementById('personaAvatarSvg').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+
   // ================= 美化界面 逻辑 =================
   const wallpaperInput = document.getElementById('wallpaperInput');
   document.getElementById('changeWallpaperBtn').addEventListener('click', () => wallpaperInput.click());
@@ -909,7 +1255,8 @@
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX)) {
+          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || 
+          key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY) {
         presetData[key] = localStorage.getItem(key);
       }
     }
@@ -930,7 +1277,8 @@
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-            key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX)) {
+            key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || 
+            key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY) {
           localStorage.removeItem(key);
         }
       }
@@ -949,7 +1297,8 @@
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX)) {
+          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || 
+          key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY) {
         data[key] = localStorage.getItem(key);
       }
     }
