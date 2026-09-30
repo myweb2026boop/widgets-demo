@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TuTooth</title>
+<title>AI 小手机</title>
 <style>
   * {
     box-sizing: border-box;
@@ -109,15 +109,13 @@
     font-size: 15px;
     color: #b0b0b0;
     background-color: #fff;
-    margin-bottom: 16px; /* 【调整】从原来的 30px 减小到 16px，加上删除了标题，整体自然上移 */
+    margin-bottom: 16px; 
   }
   .input-box svg {
     width: 20px;
     height: 20px;
     stroke: #b0b0b0;
   }
-  
-  /* 【修改】原本的标题样式和 HTML 已删除，不再占用空间 */
   
   /* 网格布局 */
   .widget-grid {
@@ -221,7 +219,7 @@
     display: none;
   }
 
-  /* 美化 App 弹窗样式 */
+  /* --- 美化 App 弹窗样式 --- */
   .modal-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -244,6 +242,8 @@
     border-radius: 16px;
     width: 85%;
     max-width: 320px;
+    max-height: 80vh; /* 防止屏幕小的时候溢出 */
+    overflow-y: auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
   .modal-content h3 {
@@ -266,6 +266,13 @@
     font-size: 14px;
     color: #333;
   }
+  .setting-item .sub-text {
+    font-size: 12px;
+    color: #999;
+    flex: 1;
+    text-align: right;
+    margin-left: 10px;
+  }
   .modal-btn {
     background: #4b7bec;
     color: #fff;
@@ -274,6 +281,7 @@
     border-radius: 6px;
     font-size: 13px;
     cursor: pointer;
+    margin-left: 8px;
   }
   .modal-btn.close-btn {
     background: #f0f0f0;
@@ -289,6 +297,10 @@
     color: #999;
     margin-top: 12px;
     line-height: 1.4;
+  }
+  .data-btns {
+    display: flex;
+    gap: 8px;
   }
 </style>
 </head>
@@ -332,10 +344,9 @@
         </svg>
       </div>
 
-      <!-- 【删除】原本的 "Top Widgets+" 标题已在此处删除 -->
-
       <div class="widget-grid">
         <div class="widget-item">
+          <!-- 触发美化面板 -->
           <div class="icon-box bg-pink" id="beautifyApp">
             <svg viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/>
@@ -438,24 +449,40 @@
     </div>
   </div>
   
-  <!-- 美化设置弹窗 -->
+  <!-- 美化设置弹窗（从上到下依次满足要求） -->
   <div class="modal-overlay" id="beautifyModal">
     <div class="modal-content">
       <h3>✨ 美化设置</h3>
+      
+      <!-- 1. 主页壁纸 -->
       <div class="setting-item">
-        <span>更换桌面壁纸</span>
-        <button class="modal-btn" id="uploadWallpaperBtn">选择图片</button>
+        <span>主页壁纸</span>
+        <button class="modal-btn" id="uploadWallpaperBtn">更换壁纸</button>
         <input type="file" id="wallpaperInput" accept="image/*" style="display: none;">
       </div>
+      
+      <!-- 2. App可更改图标和编辑名字（提供提示） -->
+      <div class="setting-item">
+        <span>App图标与名字</span>
+        <span class="sub-text">点击图标换图，双击名字修改</span>
+      </div>
+      
+      <!-- 3. 全屏模式 -->
       <div class="setting-item">
         <span>全屏模式</span>
         <button class="modal-btn" id="fullscreenToggleBtn">开启全屏</button>
       </div>
-      <p class="hint-text">
-        💡 提示：<br>
-        • 双击页面上的文字可直接修改。<br>
-        • 点击顶部大图、小猪、哭脸图标可直接替换图片。
-      </p>
+
+      <!-- 4. 导出/导入 JSON 文件 -->
+      <div class="setting-item">
+        <span>数据备份</span>
+        <div class="data-btns">
+          <button class="modal-btn" id="exportDataBtn">导出JSON</button>
+          <button class="modal-btn" id="importDataBtn" style="background:#2ecc71;">导入JSON</button>
+        </div>
+        <input type="file" id="importDataInput" accept=".json,application/json" style="display: none;">
+      </div>
+
       <button class="modal-btn close-btn" id="closeModalBtn">关闭</button>
     </div>
   </div>
@@ -610,6 +637,58 @@
       imgElement.src = savedIconImage;
       imgElement.style.display = 'block';
     }
+  });
+
+  // ================= 8. 导出 JSON 逻辑 =================
+  document.getElementById('exportDataBtn').addEventListener('click', () => {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      // 过滤出美化相关的键，避免导出无关数据
+      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || key === 'is_fullscreen') {
+        data[key] = localStorage.getItem(key);
+      }
+    }
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ai_phone_beautify_${new Date().getTime()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ================= 9. 导入 JSON 逻辑 =================
+  document.getElementById('importDataBtn').addEventListener('click', () => {
+    document.getElementById('importDataInput').click();
+  });
+
+  document.getElementById('importDataInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON format');
+        
+        // 将数据写回 LocalStorage
+        for (const key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            localStorage.setItem(key, data[key]);
+          }
+        }
+        alert('导入成功！页面即将重新加载以应用新的美化配置。');
+        location.reload(); // 重新加载页面使配置生效
+      } catch (err) {
+        alert('导入失败，文件内容可能损坏或不是合法的 JSON 文件。');
+        console.error('Import error:', err);
+      }
+    };
+    reader.readAsText(file);
+    // 清空 input 以便同一文件可以再次被选择
+    this.value = '';
   });
 </script>
 
