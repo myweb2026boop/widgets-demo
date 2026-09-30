@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TuTooth</title>
+<title>AI 小手机</title>
 <style>
   * {
     box-sizing: border-box;
@@ -43,7 +43,6 @@
     box-shadow: none;
   }
 
-  /* 屏幕内容管理 */
   .phone-content {
     width: 100%;
     height: 100%;
@@ -309,10 +308,19 @@
     justify-content: center;
     margin-bottom: 8px;
     position: relative;
+    overflow: hidden; /* 确保上传的图片圆角不溢出 */
   }
   .icon-box svg {
     width: 30px;
     height: 30px;
+  }
+  /* 主屏幕App图标被替换为图片时的样式 */
+  .icon-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    display: block;
   }
   .widget-label {
     font-size: 12px;
@@ -336,13 +344,14 @@
     cursor: text;
     user-select: text;
   }
+  
+  /* 组件专用样式（不参与App列表） */
   .icon-box.uploadable-icon {
     width: 100%;           
     aspect-ratio: 1 / 1;   
     height: auto;          
     border-radius: 20px;   
     cursor: pointer;
-    overflow: hidden;
     margin-bottom: 0;      
   }
   .icon-box.uploadable-icon svg {
@@ -361,7 +370,6 @@
     height: 110px;
     border-radius: 20px;
     cursor: pointer;
-    overflow: hidden;
     transform: translateY(60px);
   }
   .pig-icon svg {
@@ -421,25 +429,27 @@
         </div>
 
         <div class="widget-grid">
+          <!-- 给App图标加上专属ID，方便美化App替换 -->
           <div class="widget-item">
-            <div class="icon-box bg-pink" id="beautifyApp">
+            <div class="icon-box bg-pink" id="app-icon-beautify" onclick="openBeautifyApp(event)">
               <svg viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/>
                 <line x1="5" y1="5" x2="19" y2="19" stroke="#f8bbd0" stroke-width="3" stroke-linecap="round"/>
               </svg>
             </div>
-            <span class="widget-label" id="label_beautify">美化</span>
+            <span class="widget-label" id="label-beautify">美化</span>
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-green">
+            <div class="icon-box bg-green" id="app-icon-wechat">
               <svg viewBox="0 0 24 24" fill="#ffffff">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" />
               </svg>
             </div>
-            <span class="widget-label" id="label_wechat">微信</span>
+            <span class="widget-label" id="label-wechat">微信</span>
           </div>
 
+          <!-- 小猪组件 -->
           <div class="widget-item">
             <div class="icon-box pig-icon uploadable-icon" data-key="icon_1">
               <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -451,27 +461,28 @@
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-yellow">
+            <div class="icon-box bg-yellow" id="app-icon-qqmusic">
               <svg viewBox="0 0 24 24" fill="#000000">
                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
               </svg>
             </div>
-            <span class="widget-label" id="label_qqmusic">QQ音乐</span>
+            <span class="widget-label" id="label-qqmusic">QQ音乐</span>
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-blue">
+            <div class="icon-box bg-blue" id="app-icon-persona">
               <svg viewBox="0 0 24 24" fill="#2196f3">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
               </svg>
             </div>
-            <span class="widget-label" id="label_persona">人设</span>
+            <span class="widget-label" id="label-persona">人设</span>
           </div>
 
           <div class="widget-item empty-cell">
             <div class="icon-box"></div>
           </div>
 
+          <!-- 哭脸组件 -->
           <div class="widget-item">
             <div class="icon-box uploadable-icon" data-key="icon_2">
               <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -483,7 +494,7 @@
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-purple">
+            <div class="icon-box bg-purple" id="app-icon-book">
               <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="5" y="3" width="14" height="18" rx="2"/>
                 <path d="M12 3v18"/>
@@ -492,12 +503,12 @@
                 <path d="M9 15h6"/>
               </svg>
             </div>
-            <span class="widget-label" id="label_book">世界书</span>
+            <span class="widget-label" id="label-book">世界书</span>
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-skyblue"></div>
-            <span class="widget-label" id="label_play">玩法</span>
+            <div class="icon-box bg-skyblue" id="app-icon-play"></div>
+            <span class="widget-label" id="label-play">玩法</span>
           </div>
 
           <div class="widget-item empty-cell">
@@ -505,7 +516,7 @@
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-pink2">
+            <div class="icon-box bg-pink2" id="app-icon-clock">
               <svg viewBox="0 0 24 24" fill="#f48fb1">
                 <circle cx="12" cy="12" r="10"/>
                 <circle cx="8" cy="10" r="1.5" fill="#333333"/>
@@ -513,12 +524,12 @@
                 <ellipse cx="12" cy="15" rx="3" ry="2" fill="#333333"/>
               </svg>
             </div>
-            <span class="widget-label" id="label_clock">Clock</span>
+            <span class="widget-label" id="label-clock">Clock</span>
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-lightpink"></div>
-            <span class="widget-label" id="label_instagram">Instagram</span>
+            <div class="icon-box bg-lightpink" id="app-icon-instagram"></div>
+            <span class="widget-label" id="label-instagram">Instagram</span>
           </div>
         </div>
       </div>
@@ -542,15 +553,15 @@
           <input type="file" id="wallpaperInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- 2. App图标与名字（严格剔除组件） -->
+        <!-- 2. App图标与名字（只有真正的App） -->
         <div class="section-card">
           <h4>📱 App图标与名字</h4>
           <div id="appEditList">
-            <!-- 动态生成，仅包含真实的App，不包含小猪、哭脸等组件 -->
+            <!-- 动态生成 -->
           </div>
         </div>
 
-        <!-- 3. 全屏模式 (从原本的逻辑移到这里，保持功能完整) -->
+        <!-- 3. 全屏模式 -->
         <div class="section-card">
           <h4>📺 全屏模式</h4>
           <button class="btn btn-primary" id="fullscreenToggleBtn" style="width:100%">开启/关闭全屏</button>
@@ -577,17 +588,14 @@
 </div>
 
 <script>
-  // ================= 1. 数据与本地存储初始化 =================
+  // ================= 1. 初始化与数据加载 =================
   const phoneCase = document.getElementById('phoneCase');
-  const phoneContent = document.getElementById('phoneContent');
   const mainScreen = document.getElementById('mainScreen');
   const beautifyScreen = document.getElementById('beautifyScreen');
 
   // 恢复壁纸
   const savedWallpaper = localStorage.getItem('saved_wallpaper');
-  if (savedWallpaper) {
-    mainScreen.style.backgroundImage = `url(${savedWallpaper})`;
-  }
+  if (savedWallpaper) mainScreen.style.backgroundImage = `url(${savedWallpaper})`;
 
   // 恢复全屏状态
   const isFullscreen = localStorage.getItem('is_fullscreen') === 'true';
@@ -597,21 +605,62 @@
     if(fsBtn) fsBtn.innerText = '关闭全屏';
   }
 
-  // ================= 2. 界面切换逻辑 =================
-  document.getElementById('beautifyApp').addEventListener('click', () => {
+  // 主屏幕App图标的存储键名前缀
+  const APP_ICON_KEY_PREFIX = 'app_icon_';
+  const APP_NAME_KEY_PREFIX = 'app_name_';
+  
+  // 定义需要管理的 App 列表（排除组件）
+  const appList = [
+    { id: 'beautify', name: '美化' },
+    { id: 'wechat', name: '微信' },
+    { id: 'qqmusic', name: 'QQ音乐' },
+    { id: 'persona', name: '人设' },
+    { id: 'book', name: '世界书' },
+    { id: 'play', name: '玩法' },
+    { id: 'clock', name: 'Clock' },
+    { id: 'instagram', name: 'Instagram' }
+  ];
+
+  // ================= 2. 初始化主屏幕 App 图标与名字 =================
+  function applyAppConfig() {
+    appList.forEach(app => {
+      // 1. 应用名字
+      const savedName = localStorage.getItem(APP_NAME_KEY_PREFIX + app.id);
+      if (savedName) {
+        const labelEl = document.getElementById('label-' + app.id);
+        if (labelEl) labelEl.innerText = savedName;
+      }
+      // 2. 应用图标
+      const savedIcon = localStorage.getItem(APP_ICON_KEY_PREFIX + app.id);
+      if (savedIcon) {
+        const iconBox = document.getElementById('app-icon-' + app.id);
+        if (iconBox) {
+          iconBox.innerHTML = `<img src="${savedIcon}" alt="${app.name}">`;
+        }
+      }
+    });
+  }
+  applyAppConfig();
+
+  // ================= 3. 界面切换逻辑 =================
+  window.openBeautifyApp = function(event) {
+    // 阻止事件冒泡（如果图标被替换为img，可能触发了原生点击）
+    event.stopPropagation(); 
     mainScreen.style.display = 'none';
     beautifyScreen.style.display = 'block';
-  });
+    
+    // 打开美化App时，重新渲染App列表，确保数据最新
+    renderAppEditList();
+  };
 
   document.getElementById('backToMainBtn').addEventListener('click', () => {
     beautifyScreen.style.display = 'none';
     mainScreen.style.display = 'block';
   });
 
-  // ================= 3. 壁纸更换与清除 =================
+  // ================= 4. 壁纸更换与清除 =================
   const wallpaperInput = document.getElementById('wallpaperInput');
   document.getElementById('changeWallpaperBtn').addEventListener('click', () => wallpaperInput.click());
-  
   wallpaperInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -623,13 +672,12 @@
     };
     reader.readAsDataURL(file);
   });
-
   document.getElementById('clearWallpaperBtn').addEventListener('click', () => {
     mainScreen.style.backgroundImage = '';
     localStorage.removeItem('saved_wallpaper');
   });
 
-  // ================= 4. 全屏切换逻辑 =================
+  // ================= 5. 全屏切换逻辑 =================
   document.getElementById('fullscreenToggleBtn').addEventListener('click', () => {
     const isNowFullscreen = phoneCase.classList.toggle('is-fullscreen');
     localStorage.setItem('is_fullscreen', isNowFullscreen);
@@ -643,42 +691,7 @@
     }
   });
 
-  // ================= 5. 主屏幕双击编辑文字与图片上传 =================
-  // 5.1 文字双击
-  const editableElements = document.querySelectorAll('.editable-text');
-  editableElements.forEach(el => {
-    el.addEventListener('dblclick', function() {
-      this.contentEditable = "true"; this.focus();
-    });
-    el.addEventListener('blur', function() {
-      this.contentEditable = "false";
-      try { localStorage.setItem('edit_' + this.id, this.innerText); } catch (e) {}
-    });
-    const savedValue = localStorage.getItem('edit_' + el.id);
-    if (savedValue) el.innerText = savedValue;
-  });
-
-  // 5.2 顶部大图
-  const captchaBox = document.getElementById('captchaBox');
-  const defaultIllustration = document.getElementById('defaultIllustration');
-  const fileInput = document.getElementById('fileInput');
-  const uploadedImage = document.getElementById('uploadedImage');
-  captchaBox.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const base64Image = event.target.result;
-      defaultIllustration.style.display = 'none';
-      uploadedImage.src = base64Image; uploadedImage.style.display = 'block';
-      try { localStorage.setItem('uploaded_captcha_image', base64Image); } catch (err) {}
-    };
-    reader.readAsDataURL(file);
-  });
-  const savedImage = localStorage.getItem('uploaded_captcha_image');
-  if (savedImage) { defaultIllustration.style.display = 'none'; uploadedImage.src = savedImage; uploadedImage.style.display = 'block'; }
-
-  // 5.3 哭脸、小猪等组件上传（保留主屏幕功能，但不在美化列表出现）
+  // ================= 6. 主屏幕组件上传（保留原有逻辑） =================
   const uploadableIcons = document.querySelectorAll('.uploadable-icon');
   uploadableIcons.forEach(iconBox => {
     const fileInputIcon = iconBox.querySelector('.icon-file-input');
@@ -700,96 +713,147 @@
     if (savedIconImage) { svgElement.style.display = 'none'; imgElement.src = savedIconImage; imgElement.style.display = 'block'; }
   });
 
-  // ================= 6. 美化界面：App列表动态生成 =================
-  // 严格限制为只有真正的App，不包括任何组件
-  const appList = [
-    { id: 'beautify', name: '美化' },
-    { id: 'wechat', name: '微信' },
-    { id: 'qqmusic', name: 'QQ音乐' },
-    { id: 'persona', name: '人设' },
-    { id: 'book', name: '世界书' },
-    { id: 'play', name: '玩法' },
-    { id: 'clock', name: 'Clock' },
-    { id: 'instagram', name: 'Instagram' }
-  ];
+  // 顶部大图上传
+  const captchaBox = document.getElementById('captchaBox');
+  const defaultIllustration = document.getElementById('defaultIllustration');
+  const fileInput = document.getElementById('fileInput');
+  const uploadedImage = document.getElementById('uploadedImage');
+  captchaBox.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const base64Image = event.target.result;
+      defaultIllustration.style.display = 'none';
+      uploadedImage.src = base64Image; uploadedImage.style.display = 'block';
+      try { localStorage.setItem('uploaded_captcha_image', base64Image); } catch (err) {}
+    };
+    reader.readAsDataURL(file);
+  });
+  const savedImage = localStorage.getItem('uploaded_captcha_image');
+  if (savedImage) { defaultIllustration.style.display = 'none'; uploadedImage.src = savedImage; uploadedImage.style.display = 'block'; }
 
+  // 顶部文字双击
+  const editableElements = document.querySelectorAll('.editable-text');
+  editableElements.forEach(el => {
+    el.addEventListener('dblclick', function() {
+      this.contentEditable = "true"; this.focus();
+    });
+    el.addEventListener('blur', function() {
+      this.contentEditable = "false";
+      try { localStorage.setItem('edit_' + this.id, this.innerText); } catch (e) {}
+    });
+    const savedValue = localStorage.getItem('edit_' + el.id);
+    if (savedValue) el.innerText = savedValue;
+  });
+
+  // ================= 7. 美化界面：动态生成App列表 =================
   const appEditList = document.getElementById('appEditList');
-  let htmlContent = '';
 
-  appList.forEach(app => {
-    const savedName = localStorage.getItem('edit_label_' + app.id) || app.name;
-    const savedIcon = localStorage.getItem('uploaded_app_icon_' + app.id);
-    // 因为主屏幕里没有直接给App定义可换的图片，我们这里仅提供名字修改。如果用户想要改App图标，我可以提供逻辑。
-    // 根据用户需求：“依次出现可以替换的app图标，图标旁边是可以编辑的名字”
-    // 我们把App图标做成可替换的，但主屏幕的App目前是SVG，为了能替换成图片，我们需要改变主屏幕App的DOM结构（加一个img标签）。
-    // 为了不破坏主屏幕结构，且符合用户对App的要求，我们在这里生成对应的UI。并在主屏幕点击保存时，对应修改主屏幕的DOM。
-    
-    htmlContent += `
-      <div class="app-edit-item">
-        <div class="app-edit-preview" data-id="${app.id}">
-          ${savedIcon ? `<img src="${savedIcon}" style="display:block;">` : `<svg viewBox="0 0 24 24" fill="none" stroke="#4b7bec" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg>`}
-        </div>
-        <div class="app-edit-info">
-          <input type="text" class="app-name-edit" data-id="${app.id}" value="${savedName}" placeholder="App名称">
-        </div>
-        <div class="app-edit-actions">
-          <button class="upload-trigger" data-id="${app.id}">换图标</button>
-        </div>
-      </div>
-    `;
-  });
-
-  appEditList.innerHTML = htmlContent;
-
-  // 绑定预览点击上传（改App图标）
-  document.querySelectorAll('.app-edit-preview').forEach(preview => {
-    preview.addEventListener('click', () => {
-      const id = preview.getAttribute('data-id');
-      const input = document.createElement('input');
-      input.type = 'file'; input.accept = 'image/*';
-      input.onchange = (e) => {
-        const file = e.target.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const base64 = ev.target.result;
-          preview.innerHTML = `<img src="${base64}" style="display:block;">`;
-          try { localStorage.setItem('uploaded_app_icon_' + id, base64); } catch (err) { alert("图片太大"); }
-          
-          // 同步修改主屏幕对应App的图标
-          // 主屏幕对应App的图标我们只需要把外层 icon-box 里的 svg 替换掉即可
-          // 注意：美化App本身也是可以改的，但为了能继续点击进入美化，我们保留它的点击事件
-          const mainIconBox = document.querySelector(`#label_${id}`).previousElementSibling;
-          if (mainIconBox) {
-            mainIconBox.innerHTML = `<img src="${base64}" style="width:100%; height:100%; object-fit:cover; border-radius:14px; display:block;">`;
+  function renderAppEditList() {
+    let html = '';
+    appList.forEach(app => {
+      const savedName = localStorage.getItem(APP_NAME_KEY_PREFIX + app.id) || app.name;
+      const savedIcon = localStorage.getItem(APP_ICON_KEY_PREFIX + app.id);
+      
+      // 图标预览
+      let previewContent = '';
+      if (savedIcon) {
+        previewContent = `<img src="${savedIcon}" style="display:block;">`;
+      } else {
+        // 默认预览：从主屏幕克隆一份SVG，或者给个通用图标
+        // 这里为了简单，我们生成一个通用的方框图标，或者尝试从主屏幕获取
+        const mainIconBox = document.getElementById('app-icon-' + app.id);
+        if (mainIconBox) {
+          // 如果是空框（如玩法、Instagram），就显示空框提示
+          if (mainIconBox.innerHTML.trim() === '') {
+            previewContent = `<svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg>`;
+          } else {
+            previewContent = mainIconBox.innerHTML;
           }
-        };
-        reader.readAsDataURL(file);
+        }
+      }
+
+      html += `
+        <div class="app-edit-item">
+          <div class="app-edit-preview" data-id="${app.id}">
+            ${previewContent}
+          </div>
+          <div class="app-edit-info">
+            <input type="text" class="app-name-edit" data-id="${app.id}" value="${savedName}" placeholder="App名称">
+          </div>
+          <div class="app-edit-actions">
+            <button class="upload-trigger" data-id="${app.id}">换图标</button>
+          </div>
+        </div>
+      `;
+    });
+    appEditList.innerHTML = html;
+
+    // 绑定预览点击上传
+    document.querySelectorAll('.app-edit-preview').forEach(preview => {
+      preview.addEventListener('click', () => {
+        const id = preview.getAttribute('data-id');
+        triggerAppIconUpload(id, preview);
+      });
+    });
+
+    // 绑定“换图标”按钮点击
+    document.querySelectorAll('.upload-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const preview = document.querySelector(`.app-edit-preview[data-id="${id}"]`);
+        triggerAppIconUpload(id, preview);
+      });
+    });
+
+    // 绑定名字编辑
+    document.querySelectorAll('.app-name-edit').forEach(input => {
+      input.addEventListener('input', function() {
+        const id = this.getAttribute('data-id');
+        const newName = this.value;
+        try { localStorage.setItem(APP_NAME_KEY_PREFIX + id, newName); } catch(e) {}
+        // 同步更新主屏幕名字
+        const mainLabel = document.getElementById('label-' + id);
+        if (mainLabel) mainLabel.innerText = newName;
+      });
+    });
+  }
+
+  // 触发上传照片并替换App图标
+  function triggerAppIconUpload(appId, previewElement) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const base64 = ev.target.result;
+        
+        // 1. 保存到本地
+        try { localStorage.setItem(APP_ICON_KEY_PREFIX + appId, base64); } catch (err) { alert("图片过大，存储失败"); return; }
+        
+        // 2. 更新美化界面的预览图
+        previewElement.innerHTML = `<img src="${base64}" style="display:block;">`;
+        
+        // 3. 立即替换主屏幕上的App图标
+        const mainIconBox = document.getElementById('app-icon-' + appId);
+        if (mainIconBox) {
+          mainIconBox.innerHTML = `<img src="${base64}" alt="App Icon">`;
+        }
       };
-      input.click();
-    });
-  });
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
 
-  // 绑定换图标按钮
-  document.querySelectorAll('.upload-trigger').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-id');
-      document.querySelector(`.app-edit-preview[data-id="${id}"]`).click();
-    });
-  });
+  // 初始化列表
+  renderAppEditList();
 
-  // 绑定名字编辑
-  document.querySelectorAll('.app-name-edit').forEach(input => {
-    input.addEventListener('input', function() {
-      const id = this.getAttribute('data-id');
-      const newName = this.value;
-      try { localStorage.setItem('edit_label_' + id, newName); } catch(e) {}
-      // 同步修改主屏幕的名字
-      const mainLabel = document.getElementById('label_' + id);
-      if (mainLabel) mainLabel.innerText = newName;
-    });
-  });
-
-  // ================= 7. 预设管理 =================
+  // ================= 8. 预设管理 =================
   const presetSelect = document.getElementById('presetSelect');
 
   function updatePresetList() {
@@ -808,11 +872,12 @@
     const name = document.getElementById('presetNameInput').value.trim();
     if (!name) return alert('请输入预设名称');
     
-    // 收集所有美化相关数据（包括组件、App、壁纸）
     const presetData = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_')) {
+      // 过滤出所有美化相关的数据（包含App图标、名字、组件图片、壁纸）
+      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
+          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX)) {
         presetData[key] = localStorage.getItem(key);
       }
     }
@@ -837,7 +902,8 @@
       // 清空当前所有美化数据
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_')) {
+        if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
+            key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX)) {
           localStorage.removeItem(key);
         }
       }
