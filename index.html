@@ -28,7 +28,7 @@
   .screen::-webkit-scrollbar { display: none; }
   .screen.active { display: block; }
 
-  /* ============ 1. 主屏幕 (Main Screen) ============ */
+  /* ============ 1. 主屏幕 ============ */
   #mainScreen { padding: 20px 0; }
   .container { width: 100%; max-width: 400px; padding: 0 16px; margin: 0 auto; }
   .top-nav { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #4b7bec; margin-bottom: 16px; font-weight: 500; }
@@ -61,13 +61,12 @@
   .pig-icon svg { width: 55%; height: 55%; }
   .pig-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; }
 
-  /* ============ 2. 音乐主页 (Music Main Screen) ============ */
-  /* 修复底部太靠下：调整内边距 */
-  #musicScreen { background: #f8f9fa; padding-bottom: 70px; }
+  /* ============ 2. 音乐主页 ============ */
+  /* 增加底部内边距，防止被悬浮底栏遮挡 */
+  #musicScreen { background: #f8f9fa; padding-bottom: 120px; }
   .music-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; position: relative; z-index: 10; }
   .music-top-bar svg { width: 24px; height: 24px; cursor: pointer; fill: #333; }
   
-  /* 修复背景阴影：删除 ::after 遮罩 */
   .music-bg-area { height: 180px; position: relative; background: #eef0f3; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; cursor: pointer; }
   
   .profile-card {
@@ -79,14 +78,12 @@
   .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-box svg { width: 30px; height: 30px; fill: #ccc; }
   
-  /* 修复签名位置：强制垂直布局 */
   .profile-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
   .profile-info h2 { font-size: 18px; color: #333; display: inline-block; }
   .profile-info p { font-size: 12px; color: #666; display: block; }
   
   .edit-btn { background: #f0f0f0; border: none; border-radius: 12px; padding: 6px 12px; font-size: 12px; color: #333; cursor: pointer; }
 
-  /* 统计数字可编辑 */
   .stats-row { display: flex; justify-content: space-around; padding-top: 12px; border-top: 1px solid #f0f0f0; text-align: center; }
   .stat-item { display: flex; flex-direction: column; align-items: center; }
   .stat-item .num { font-size: 16px; font-weight: bold; color: #333; min-width: 20px; }
@@ -99,12 +96,14 @@
   .upload-btn svg { width: 14px; height: 14px; fill: #333; }
   .music-list-empty { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
 
+  /* 【修复：底栏悬浮且上移，不再紧贴底部】 */
   .music-player-bar {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 70px; background: #fff; border-top: 1px solid #f0f0f0;
+    position: absolute; bottom: 20px; left: 16px; right: 16px; height: 70px; 
+    background: #fff; border-radius: 20px;
     display: flex; align-items: center; padding: 0 16px; z-index: 20;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1); cursor: pointer;
   }
-  .bar-cover { width: 44px; height: 44px; border-radius: 8px; background: #f0f0f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .bar-cover { width: 44px; height: 44px; border-radius: 8px; background: #f0f0f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
   .bar-cover svg { width: 20px; height: 20px; fill: #ccc; }
   .bar-info { flex: 1; }
   .bar-info .title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 2px; display: block; }
@@ -112,12 +111,11 @@
   .bar-controls { display: flex; align-items: center; gap: 16px; }
   .bar-controls svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
 
-  /* ============ 3. 全屏播放器 (Player Screen) ============ */
+  /* ============ 3. 全屏播放器 ============ */
   #playerScreen { background: #fff; color: #333; padding: 16px; }
   .player-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
   .player-top-bar svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
   
-  /* 修复间距：加大唱片与下方元素的间距 */
   .vinyl-container { display: flex; justify-content: center; align-items: center; margin: 30px 0 40px 0; }
   .vinyl-disc {
     width: 300px; height: 300px; border-radius: 50%; background: #111;
@@ -127,17 +125,19 @@
   }
   @keyframes spin { 100% { transform: rotate(360deg); } }
   
-  .vinyl-ring-2 { width: 240px; height: 240px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center; }
-  .vinyl-ring-3 { width: 140px; height: 140px; border-radius: 50%; background: #333; display: flex; justify-content: center; align-items: center; }
+  /* 【修复：删除灰黑色的内部圆环背景，让图片占满】
+     中心图片区域从 100px 扩大到 220px */
+  .vinyl-ring-2 { width: 240px; height: 240px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+  .vinyl-ring-3 { width: 140px; height: 140px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
   
   .vinyl-center {
-    width: 100px; height: 100px; border-radius: 50%; background: #555;
+    width: 220px; height: 220px; border-radius: 50%; background: #555;
     overflow: hidden; cursor: pointer; position: relative;
     display: flex; justify-content: center; align-items: center;
   }
-  .vinyl-center img { width: 100%; height: 100%; object-fit: cover; }
+  .vinyl-center img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
   .vinyl-center svg { width: 40px; height: 40px; fill: #fff; opacity: 0.5; position: absolute; pointer-events: none; }
-  .vinyl-hole { width: 10px; height: 10px; border-radius: 50%; background: #fff; position: absolute; pointer-events: none; }
+  .vinyl-hole { width: 10px; height: 10px; border-radius: 50%; background: #fff; position: absolute; z-index: 10; pointer-events: none; }
 
   .player-info { text-align: center; margin-bottom: 30px; }
   .player-info h2 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 6px; }
@@ -156,7 +156,7 @@
   .play-pause-btn { width: 60px; height: 60px; background: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
   .play-pause-btn svg { width: 28px; height: 28px; fill: #fff; }
 
-  /* ============ 4. 美化界面 (Beautify Screen) ============ */
+  /* ============ 4. 美化界面 ============ */
   #beautifyScreen { background: #f7f8fa; padding-bottom: 30px; }
   .beautify-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
   .beautify-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
@@ -312,36 +312,28 @@
     <!-- ================= 2. 音乐主页 ================= -->
     <div id="musicScreen" class="screen">
       <div class="music-top-bar">
-        <!-- 返回按钮 -->
         <svg viewBox="0 0 24 24" onclick="closeScreen('musicScreen')"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-        <!-- 个人资料图标 -->
         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       </div>
 
-      <!-- 背景图 -->
       <div class="music-bg-area" id="musicBgArea" onclick="document.getElementById('musicBgInput').click()">
         <input type="file" id="musicBgInput" accept="image/*" style="display: none;">
       </div>
 
-      <!-- 个人资料卡片 -->
       <div class="profile-card">
         <div class="profile-header">
-          <!-- 头像 -->
           <div class="avatar-box" onclick="document.getElementById('musicAvatarInput').click()">
             <img id="musicAvatar" src="" alt="">
             <svg id="musicAvatarSvg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             <input type="file" id="musicAvatarInput" accept="image/*" style="display: none;">
           </div>
           <div class="profile-info">
-            <!-- 名字 -->
             <h2 id="musicName" class="editable-text" data-placeholder="点击输入名字">snow</h2>
-            <!-- 个性签名（在名字下方） -->
             <p id="musicSignature" class="editable-text" data-placeholder="点击输入签名">点击这里输入个性签名</p>
           </div>
           <button class="edit-btn" onclick="alert('双击文字即可编辑头像、名字和个性签名')">编辑资料</button>
         </div>
         
-        <!-- 统计数据 (双击可编辑) -->
         <div class="stats-row">
           <div class="stat-item"><span class="num editable-text" id="stat-following" data-placeholder="0">1</span><span class="label">关注</span></div>
           <div class="stat-item"><span class="num editable-text" id="stat-followers" data-placeholder="0">0</span><span class="label">粉丝</span></div>
@@ -350,24 +342,24 @@
         </div>
       </div>
 
-      <!-- 我的音乐列表 -->
       <div class="music-list-card">
         <div class="music-list-header">
           <h3>我的音乐</h3>
           <button class="upload-btn" onclick="document.getElementById('mp3Input').click()">
             <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg> 上传 MP3
           </button>
-          <!-- 修复MP3选择问题 -->
           <input type="file" id="mp3Input" accept=".mp3,audio/mpeg" style="display: none;">
         </div>
         <div class="music-list-empty" id="musicListEmpty">暂未上传音乐</div>
         <div id="musicListContainer" style="display:none;"></div>
       </div>
 
-      <!-- 底部播放控制条 -->
+      <!-- 悬浮底栏 -->
       <div class="music-player-bar" onclick="openPlayerScreen()">
         <div class="bar-cover">
-          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <!-- 【新增】用于同步显示唱片封面的图片标签 -->
+          <img id="barCoverImg" src="" alt="" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+          <svg id="barCoverSvg" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
         </div>
         <div class="bar-info">
           <span class="title" id="currentSongTitle">心许百年-王天戈</span>
@@ -384,7 +376,6 @@
     <!-- ================= 3. 全屏播放器 ================= -->
     <div id="playerScreen" class="screen">
       <div class="player-top-bar">
-        <!-- 修复返回逻辑：返回音乐主页 -->
         <svg viewBox="0 0 24 24" onclick="closeScreen('playerScreen', 'musicScreen')"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         <svg viewBox="0 0 24 24" onclick="closeScreen('playerScreen', 'musicScreen')"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
@@ -395,7 +386,7 @@
         <div class="vinyl-disc" id="vinylDisc">
           <div class="vinyl-ring-2">
             <div class="vinyl-ring-3">
-              <!-- 唱盘中心自定义图片 -->
+              <!-- 【修改】扩大中心图片区域，使其覆盖内部灰圈 -->
               <div class="vinyl-center" onclick="document.getElementById('vinylCoverInput').click()">
                 <img id="vinylCoverImg" src="" alt="" style="display: none;">
                 <svg id="vinylCoverSvg" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
@@ -408,7 +399,6 @@
       </div>
 
       <div class="player-info">
-        <!-- 标题和歌手可编辑 -->
         <h2 id="playerSongTitle" class="editable-text" data-placeholder="歌曲名">心许百年-王天戈</h2>
         <p id="playerSongArtist" class="editable-text" data-placeholder="歌手">本地音乐</p>
       </div>
@@ -500,7 +490,6 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
   }
-  // 修复返回逻辑：支持指定返回的目标界面
   function closeScreen(currentScreenId, targetScreenId = 'mainScreen') {
     document.getElementById(currentScreenId).classList.remove('active');
     document.getElementById(targetScreenId).classList.add('active');
@@ -513,7 +502,6 @@
   const APP_NAME_KEY_PREFIX = 'app_name_';
   const MUSIC_KEY_PREFIX = 'music_';
 
-  // 迁移旧数据
   if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
   if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
   if(localStorage.getItem('app_name_wechat') === '微信') localStorage.setItem('app_name_wechat', '简讯');
@@ -540,7 +528,7 @@
   }
   applyAppConfig();
 
-  // ================= 双击编辑文字逻辑 (含防清空机制，支持统计数字) =================
+  // ================= 双击编辑文字逻辑 =================
   function initEditableTexts() {
     document.querySelectorAll('.editable-text').forEach(el => {
       const key = 'edit_' + el.id;
@@ -628,12 +616,21 @@
     musicAvatarSvg.style.display = 'none';
   }
 
-  // 恢复唱盘封面
+  // 恢复唱盘封面，并同步到底栏
   const savedVinylCover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover');
+  const barCoverImg = document.getElementById('barCoverImg');
+  const barCoverSvg = document.getElementById('barCoverSvg');
   if (savedVinylCover) {
+    // 唱盘
     vinylCoverImg.src = savedVinylCover;
     vinylCoverImg.style.display = 'block';
     vinylCoverSvg.style.display = 'none';
+    // 底栏
+    if (barCoverImg) {
+      barCoverImg.src = savedVinylCover;
+      barCoverImg.style.display = 'block';
+      if (barCoverSvg) barCoverSvg.style.display = 'none';
+    }
   }
 
   // 音乐背景上传
@@ -662,15 +659,22 @@
     reader.readAsDataURL(file);
   });
 
-  // 唱盘封面上传
+  // 唱盘封面上传，同步到底栏
   vinylCoverInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const base64 = ev.target.result;
+      // 更新唱盘
       vinylCoverImg.src = base64;
       vinylCoverImg.style.display = 'block';
       vinylCoverSvg.style.display = 'none';
+      // 更新底栏
+      if (barCoverImg) {
+        barCoverImg.src = base64;
+        barCoverImg.style.display = 'block';
+        if (barCoverSvg) barCoverSvg.style.display = 'none';
+      }
       try { localStorage.setItem(MUSIC_KEY_PREFIX + 'vinyl_cover', base64); } catch(err){ alert('图片过大'); }
     };
     reader.readAsDataURL(file);
@@ -682,7 +686,6 @@
   let currentSongIndex = 0;
   let playlist = []; 
 
-  // 播放/暂停切换
   function togglePlay() {
     if (!audio.src) {
       alert('请先在“我的音乐”中上传MP3文件');
@@ -702,7 +705,6 @@
     isPlaying = !isPlaying;
   }
 
-  // 进度条更新
   audio.addEventListener('timeupdate', () => {
     const current = audio.currentTime;
     const total = audio.duration || 0;
@@ -714,7 +716,6 @@
     }
   });
 
-  // 进度条点击跳转
   document.getElementById('progressBarContainer').addEventListener('click', (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -729,7 +730,6 @@
     return `${m}:${s}`;
   }
 
-  // 处理MP3上传
   document.getElementById('mp3Input').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -744,7 +744,6 @@
         url: base64
       });
 
-      // 更新界面
       document.getElementById('musicListEmpty').style.display = 'none';
       const listContainer = document.getElementById('musicListContainer');
       listContainer.style.display = 'block';
@@ -755,7 +754,6 @@
         </div>
       `).join('');
 
-      // 自动播放第一首
       if (playlist.length === 1) {
         playSong(0);
       }
@@ -785,7 +783,6 @@
   }
 
   // ================= 美化界面 逻辑 =================
-  // 壁纸
   const wallpaperInput = document.getElementById('wallpaperInput');
   document.getElementById('changeWallpaperBtn').addEventListener('click', () => wallpaperInput.click());
   wallpaperInput.addEventListener('change', function(e) {
@@ -806,7 +803,6 @@
     document.getElementById('mainScreen').style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
   }
 
-  // 全屏模式
   document.getElementById('fullscreenToggleBtn').addEventListener('click', () => {
     const phoneCase = document.getElementById('phoneCase');
     const isNowFullscreen = phoneCase.classList.toggle('is-fullscreen');
@@ -821,7 +817,6 @@
     }
   });
 
-  // 渲染App列表
   function renderAppEditList() {
     const appEditList = document.getElementById('appEditList');
     let html = '';
@@ -902,7 +897,6 @@
     input.click();
   }
 
-  // 预设管理与导入导出逻辑
   const presetSelect = document.getElementById('presetSelect');
   function updatePresetList() {
     presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
