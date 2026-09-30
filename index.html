@@ -139,6 +139,15 @@
   .btn-success { background: #2ecc71; color: #fff; }
   .btn-default { background: #f0f0f0; color: #333; }
 
+  /* 【重点修改：高亮数据备份区域】 */
+  .highlight-card {
+    border: 2px solid #4b7bec;
+    background: #f0f6ff;
+  }
+  .highlight-card h4 {
+    color: #4b7bec;
+  }
+
   .app-edit-item {
     display: flex;
     align-items: center;
@@ -443,7 +452,6 @@
             <span class="widget-label" id="label-wechat">微信</span>
           </div>
 
-          <!-- 小猪组件（不参与App列表） -->
           <div class="widget-item">
             <div class="icon-box pig-icon uploadable-icon" data-key="icon_1">
               <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -476,7 +484,6 @@
             <div class="icon-box"></div>
           </div>
 
-          <!-- 哭脸组件（不参与App列表） -->
           <div class="widget-item">
             <div class="icon-box uploadable-icon" data-key="icon_2">
               <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -537,7 +544,19 @@
       </div>
 
       <div class="beautify-body">
-        <!-- 1. 主页壁纸 -->
+        <!-- 【重点：移到了最前面并加上了边框高亮】 -->
+        <!-- 1. 数据备份（导入/导出JSON） -->
+        <div class="section-card highlight-card">
+          <h4>📦 数据备份（美化文件）</h4>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="exportDataBtn">📤 导出 JSON</button>
+            <button class="btn btn-success" id="importDataBtn">📥 导入 JSON</button>
+          </div>
+          <input type="file" id="importDataInput" accept=".json,application/json" style="display: none;">
+          <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：导出可以备份当前所有美化数据。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
+        </div>
+
+        <!-- 2. 主页壁纸 -->
         <div class="section-card">
           <h4>🖼️ 主页壁纸</h4>
           <div class="btn-row">
@@ -547,7 +566,7 @@
           <input type="file" id="wallpaperInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- 2. App图标与名字（只有真正的App，不含组件） -->
+        <!-- 3. App图标与名字（只有真正的App，不含组件） -->
         <div class="section-card">
           <h4>📱 App图标与名字</h4>
           <div id="appEditList">
@@ -555,13 +574,13 @@
           </div>
         </div>
 
-        <!-- 3. 全屏模式 -->
+        <!-- 4. 全屏模式 -->
         <div class="section-card">
           <h4>📺 全屏模式</h4>
           <button class="btn btn-primary" id="fullscreenToggleBtn" style="width:100%">开启/关闭全屏</button>
         </div>
 
-        <!-- 4. 预设管理 -->
+        <!-- 5. 预设管理 -->
         <div class="section-card">
           <h4>💾 预设管理</h4>
           <div class="preset-input-row">
@@ -574,16 +593,6 @@
             </select>
             <button class="btn btn-primary" id="loadPresetBtn">替换预设</button>
           </div>
-        </div>
-
-        <!-- 5. 数据备份（【重点修复】加回了导入导出JSON功能） -->
-        <div class="section-card">
-          <h4>📦 数据备份</h4>
-          <div class="btn-row">
-            <button class="btn btn-primary" id="exportDataBtn">导出 JSON</button>
-            <button class="btn btn-success" id="importDataBtn">导入 JSON</button>
-          </div>
-          <input type="file" id="importDataInput" accept=".json,application/json" style="display: none;">
         </div>
       </div>
     </div>
@@ -883,7 +892,7 @@
     } catch (e) { alert('预设数据损坏'); }
   });
 
-  // ================= 9. 数据备份（导入/导出JSON）【核心恢复区】 =================
+  // ================= 9. 数据备份（导入/导出JSON）【已修复并移到了顶部】 =================
   document.getElementById('exportDataBtn').addEventListener('click', () => {
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
@@ -894,7 +903,10 @@
         data[key] = localStorage.getItem(key);
       }
     }
+    
     const json = JSON.stringify(data, null, 2);
+    
+    // 1. 尝试以文件形式下载（适合电脑和部分手机）
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -902,6 +914,14 @@
     a.download = `ai_phone_beautify_${new Date().getTime()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+
+    // 2. 【重要】提供弹窗，让用户能够手动复制 JSON 代码（适合无法直接下载的手机浏览器）
+    setTimeout(() => {
+      const userConfirmed = confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击“确定”后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）");
+      if (userConfirmed) {
+        prompt("请长按复制以下美化配置代码（建议保存到备忘录）：", json);
+      }
+    }, 500);
   });
 
   document.getElementById('importDataBtn').addEventListener('click', () => {
@@ -917,7 +937,7 @@
         const data = JSON.parse(event.target.result);
         if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON format');
         
-        // 写入新数据（不清空旧的，只覆盖同名键，保证安全）
+        // 写入新数据（覆盖同名键）
         for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
             localStorage.setItem(key, data[key]);
