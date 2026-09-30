@@ -139,7 +139,6 @@
   .btn-success { background: #2ecc71; color: #fff; }
   .btn-default { background: #f0f0f0; color: #333; }
 
-  /* 数据备份高亮 */
   .highlight-card {
     border: 2px solid #4b7bec;
     background: #f0f6ff;
@@ -341,7 +340,21 @@
   .bg-lightpink { background-color: #fce4ec; }
   .empty-cell { opacity: 0; pointer-events: none; }
   
-  /* 【核心修改：双击编辑文字样式，由蓝色虚线改为灰色背景，无阴影】 */
+  /* 【核心修复1：为可编辑文字增加最小点击区域与占位符样式】 */
+  .editable-text {
+    display: inline-block;
+    min-width: 20px;
+    min-height: 20px;
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  /* 当文字被清空时，显示占位符，且仍然占据可点击区域 */
+  .editable-text:empty::before {
+    content: attr(data-placeholder);
+    color: #b0b0b0;
+  }
+  
+  /* 双击编辑时的样式（灰色背景，无阴影） */
   .editable-text[contenteditable="true"] {
     background-color: #f0f0f0;
     outline: none;
@@ -351,6 +364,7 @@
     color: #333;
     cursor: text;
     user-select: text;
+    min-width: 20px;
   }
   
   /* 组件专用样式 */
@@ -402,11 +416,12 @@
     <div id="mainScreen">
       <div class="container">
         <div class="top-nav">
-          <span id="nav-skip" class="editable-text">Skip</span>
+          <!-- 增加 data-placeholder 属性，确保删空后仍有显示和点击区域 -->
+          <span id="nav-skip" class="editable-text" data-placeholder="点击输入">Skip</span>
           <span class="divider">|</span>
-          <span id="nav-help" class="editable-text">Help</span>
+          <span id="nav-help" class="editable-text" data-placeholder="点击输入">Help</span>
           <span class="divider">|</span>
-          <span id="nav-robot" class="editable-text">I ??? a robot</span>
+          <span id="nav-robot" class="editable-text" data-placeholder="点击输入">I ??? a robot</span>
         </div>
 
         <div class="captcha-box" id="captchaBox">
@@ -429,7 +444,8 @@
         </div>
 
         <div class="input-box">
-          <span id="input-text" class="editable-text">Enter the code</span>
+          <!-- 输入框文字同样支持双击编辑，并给了一个默认的占位符 -->
+          <span id="input-text" class="editable-text" data-placeholder="Enter the code">Enter the code</span>
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 14L4 9l5-5"/>
             <path d="M4 9h10a6 6 0 0 1 6 6v2"/>
@@ -453,7 +469,6 @@
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" />
               </svg>
             </div>
-            <!-- 名字改为 简讯 -->
             <span class="widget-label" id="label-wechat">简讯</span>
           </div>
 
@@ -473,7 +488,6 @@
                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
               </svg>
             </div>
-            <!-- 名字改为 音乐 -->
             <span class="widget-label" id="label-qqmusic">音乐</span>
           </div>
 
@@ -515,7 +529,6 @@
 
           <div class="widget-item">
             <div class="icon-box bg-skyblue" id="app-icon-play"></div>
-            <!-- 名字改为 多功能 -->
             <span class="widget-label" id="label-play">多功能</span>
           </div>
 
@@ -551,7 +564,6 @@
       </div>
 
       <div class="beautify-body">
-        <!-- 1. 数据备份（导入/导出JSON） -->
         <div class="section-card highlight-card">
           <h4>📦 数据备份（美化文件）</h4>
           <div class="btn-row">
@@ -562,7 +574,6 @@
           <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：导出可以备份当前所有美化数据。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
         </div>
 
-        <!-- 2. 主页壁纸 -->
         <div class="section-card">
           <h4>🖼️ 主页壁纸</h4>
           <div class="btn-row">
@@ -572,7 +583,6 @@
           <input type="file" id="wallpaperInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- 3. App图标与名字 -->
         <div class="section-card">
           <h4>📱 App图标与名字</h4>
           <div id="appEditList">
@@ -580,13 +590,11 @@
           </div>
         </div>
 
-        <!-- 4. 全屏模式 -->
         <div class="section-card">
           <h4>📺 全屏模式</h4>
           <button class="btn btn-primary" id="fullscreenToggleBtn" style="width:100%">开启/关闭全屏</button>
         </div>
 
-        <!-- 5. 预设管理 -->
         <div class="section-card">
           <h4>💾 预设管理</h4>
           <div class="preset-input-row">
@@ -612,10 +620,9 @@
   const mainScreen = document.getElementById('mainScreen');
   const beautifyScreen = document.getElementById('beautifyScreen');
 
-  // 【核心兼容：如果本地存储里有旧名字，强行升级为新名字】
   if(localStorage.getItem('app_name_wechat') === '微信' || localStorage.getItem('edit_label_wechat') === '微信') {
       localStorage.setItem('app_name_wechat', '简讯');
-      localStorage.removeItem('edit_label_wechat'); // 清理旧键
+      localStorage.removeItem('edit_label_wechat');
   }
   if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐' || localStorage.getItem('edit_label_qqmusic') === 'QQ音乐') {
       localStorage.setItem('app_name_qqmusic', '音乐');
@@ -639,7 +646,6 @@
   const APP_ICON_KEY_PREFIX = 'app_icon_';
   const APP_NAME_KEY_PREFIX = 'app_name_';
   
-  // 注意：这里的默认名字已更新
   const appList = [
     { id: 'beautify', name: '美化' },
     { id: 'wechat', name: '简讯' },
@@ -659,7 +665,6 @@
         const labelEl = document.getElementById('label-' + app.id);
         if (labelEl) labelEl.innerText = savedName;
       } else {
-        // 如果本地没有保存，使用新默认名字
         const labelEl = document.getElementById('label-' + app.id);
         if (labelEl) labelEl.innerText = app.name;
       }
@@ -762,20 +767,39 @@
   const savedImage = localStorage.getItem('uploaded_captcha_image');
   if (savedImage) { defaultIllustration.style.display = 'none'; uploadedImage.src = savedImage; uploadedImage.style.display = 'block'; }
 
-  // ================= 7. 顶部文字双击编辑（含输入框） =================
+  // ================= 7. 顶部文字双击编辑（含输入框，含防清空机制） =================
   const editableElements = document.querySelectorAll('.editable-text');
   editableElements.forEach(el => {
+    // 加载保存的文字
+    const savedValue = localStorage.getItem('edit_' + el.id);
+    if (savedValue) {
+      el.innerText = savedValue;
+    } else {
+      // 如果本地没有值，但 html 里初始写了默认值，采用 html 默认值
+      // 如果本地有值但为空字符串，也走这里（表示用户清空过）
+    }
+
     el.addEventListener('dblclick', function() {
       this.contentEditable = "true"; 
       this.focus();
     });
+    
+    // 【核心修复2：失去焦点时，如果用户把文字删空了，就自动恢复为默认提示词】
     el.addEventListener('blur', function() {
       this.contentEditable = "false";
-      try { localStorage.setItem('edit_' + this.id, this.innerText); } catch (e) {}
+      let finalText = this.innerText.trim();
+      
+      // 如果被清空，自动恢复为 data-placeholder 的属性值
+      if (finalText === '') {
+        const placeholder = this.getAttribute('data-placeholder') || '点击输入';
+        this.innerText = placeholder;
+        finalText = placeholder;
+      }
+      
+      try { 
+        localStorage.setItem('edit_' + this.id, finalText); 
+      } catch (e) {}
     });
-    // 加载保存的文字
-    const savedValue = localStorage.getItem('edit_' + el.id);
-    if (savedValue) el.innerText = savedValue;
   });
 
   // ================= 8. 美化界面：App列表生成 =================
@@ -932,7 +956,6 @@
     
     const json = JSON.stringify(data, null, 2);
     
-    // 尝试下载
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -941,7 +964,6 @@
     a.click();
     URL.revokeObjectURL(url);
 
-    // 备选方案：弹窗让用户复制
     setTimeout(() => {
       const userConfirmed = confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击“确定”后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）");
       if (userConfirmed) {
