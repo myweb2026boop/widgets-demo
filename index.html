@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 小手机</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 外部背景：深色/灰色，突出手机壳 */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #e5e5e5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* 手机外壳（未开启全屏时） */
+  .phone-case {
+    width: 100%;
+    max-width: 400px;
+    height: 800px;
+    max-height: 95vh;
+    background-color: #fff;
+    border-radius: 40px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  /* 全屏状态 */
+  .phone-case.is-fullscreen {
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* 手机屏幕内容区（支持上传壁纸） */
+  .phone-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px 0;
+    background-size: cover;
+    background-position: center;
+    background-color: #fff; /* 默认底色 */
+  }
+  
+  /* 滚动条隐藏 */
+  .phone-content::-webkit-scrollbar { display: none; }
+
+  .container {
+    width: 100%;
+    max-width: 400px;
+    padding: 0 16px;
+    margin: 0 auto;
+  }
+  
+  /* 顶部导航（双击可编辑） */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #4b7bec;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .top-nav .divider {
+    color: #c8d6e5;
+    font-weight: 300;
+  }
+  
+  /* 验证码区域（支持点击上传图片） */
+  .captcha-box {
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .captcha-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  
+  /* 输入框区域（双击可编辑） */
+  .input-box {
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: #b0b0b0;
+    background-color: #fff;
+    margin-bottom: 30px;
+  }
+  .input-box svg {
+    width: 20px;
+    height: 20px;
+    stroke: #b0b0b0;
+  }
+  
+  /* 标题（双击可编辑） */
+  .section-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 24px;
+  }
+  
+  /* 网格布局 */
+  .widget-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 12px;
+    text-align: center;
+    align-items: center; 
+  }
+  .widget-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .icon-box svg {
+    width: 30px;
+    height: 30px;
+  }
+  .widget-label {
+    font-size: 12px;
+    color: #2d3436;
+    margin-top: 4px;
+  }
+  
+  /* 特定图标颜色和样式 */
+  .bg-pink { background-color: #fde8ed; }
+  .bg-green { background-color: #5cb85c; }
+  .bg-yellow { background-color: #fdd835; }
+  .bg-blue { background-color: #e3f2fd; }
+  .bg-purple { background-color: #e1bee7; }
+  .bg-skyblue { background-color: #bbdefb; }
+  .bg-pink2 { background-color: #f8bbd0; }
+  .bg-lightpink { background-color: #fce4ec; }
+  
+  /* 空白占位 */
+  .empty-cell {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* 双击编辑时的视觉反馈 */
+  .editable-text[contenteditable="true"] {
+    outline: 2px dashed #4b7bec;
+    outline-offset: 2px;
+    border-radius: 4px;
+    background: rgba(75, 123, 236, 0.05);
+    cursor: text;
+    user-select: text;
+  }
+
+  /* 普通上传图标（哭脸等） */
+  .icon-box.uploadable-icon {
+    width: 100%;           
+    aspect-ratio: 1 / 1;   
+    height: auto;          
+    border-radius: 20px;   
+    cursor: pointer;
+    overflow: hidden;
+    margin-bottom: 0;      
+  }
+  .icon-box.uploadable-icon svg {
+    width: 55%; 
+    height: 55%;
+  }
+  .icon-box.uploadable-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 20px;
+    display: none;
+  }
+
+  /* 小猪图标保持原位置下移（绝对不影响其他元素） */
+  .pig-icon {
+    width: 110px;
+    height: 110px;
+    border-radius: 20px;
+    cursor: pointer;
+    overflow: hidden;
+    transform: translateY(60px); /* 向下平移 60px */
+  }
+  .pig-icon svg {
+    width: 55%; 
+    height: 55%;
+  }
+  .pig-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 20px;
+    display: none;
+  }
+
+  /* --- 美化 App 弹窗样式 --- */
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    border-radius: 40px; /* 跟随手机外壳 */
+  }
+  .phone-case.is-fullscreen .modal-overlay {
+    border-radius: 0;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    width: 85%;
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .modal-content h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #333;
+  }
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .setting-item:last-of-type {
+    border-bottom: none;
+  }
+  .setting-item span {
+    font-size: 14px;
+    color: #333;
+  }
+  .modal-btn {
+    background: #4b7bec;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .modal-btn.close-btn {
+    background: #f0f0f0;
+    color: #333;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .hint-text {
+    font-size: 12px;
+    color: #999;
+    margin-top: 12px;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-case" id="phoneCase">
+  <div class="phone-content" id="phoneContent">
+    <div class="container">
+      <div class="top-nav">
+        <span id="nav-skip" class="editable-text">Skip</span>
+        <span class="divider">|</span>
+        <span id="nav-help" class="editable-text">Help</span>
+        <span class="divider">|</span>
+        <span id="nav-robot" class="editable-text">I ??? a robot</span>
+      </div>
+
+      <div class="captcha-box" id="captchaBox">
+        <svg id="defaultIllustration" width="120" height="120" viewBox="0 0 120 120">
+          <path d="M40 70 C30 70 25 80 25 95 L95 95 C95 80 90 70 80 70 Z" fill="#8b5a2b"/>
+          <circle cx="60" cy="65" r="22" fill="#fce4ec"/>
+          <path d="M38 65 C38 45 45 35 60 35 C75 35 82 45 82 65 C82 70 78 72 75 72 C78 60 75 50 60 50 C45 50 42 60 45 72 C42 72 38 70 38 65 Z" fill="#8b5a2b"/>
+          <path d="M48 62 Q53 58 58 62" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M62 62 Q67 58 72 62" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle cx="45" cy="68" r="5" fill="#ffcdd2" opacity="0.6"/>
+          <circle cx="75" cy="68" r="5" fill="#ffcdd2" opacity="0.6"/>
+          <polygon points="45,85 75,85 65,115 55,115" fill="#2c3e50"/>
+          <rect x="15" y="74" width="25" height="6" fill="#bdc3c7" rx="2"/>
+          <rect x="15" y="68" width="6" height="18" fill="#bdc3c7" rx="1"/>
+          <rect x="25" y="68" width="4" height="12" fill="#bdc3c7" rx="1"/>
+          <path d="M45 85 L35 80" stroke="#fce4ec" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+        <img id="uploadedImage" alt="User Uploaded Image">
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+      </div>
+
+      <div class="input-box">
+        <span id="input-text" class="editable-text">Enter the code</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 14L4 9l5-5"/>
+          <path d="M4 9h10a6 6 0 0 1 6 6v2"/>
+        </svg>
+      </div>
+
+      <div class="section-title" id="section-title" class="editable-text">Top Widgets+</div>
+
+      <div class="widget-grid">
+        <div class="widget-item">
+          <!-- 触发美化面板 -->
+          <div class="icon-box bg-pink" id="beautifyApp">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/>
+              <line x1="5" y1="5" x2="19" y2="19" stroke="#f8bbd0" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="widget-label">美化</span>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-green">
+            <svg viewBox="0 0 24 24" fill="#ffffff">
+              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" />
+            </svg>
+          </div>
+          <span class="widget-label">微信</span>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box pig-icon uploadable-icon" data-key="icon_1">
+            <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 C10 6 6 14 6 22 C6 28 10 32 14 34 L14 38 L26 38 L26 34 C30 32 34 28 34 22 C34 14 30 6 20 6 Z" />
+            </svg>
+            <img class="uploaded-icon-img" alt="Uploaded Icon">
+            <input type="file" class="icon-file-input" accept="image/*" style="display: none;">
+          </div>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-yellow">
+            <svg viewBox="0 0 24 24" fill="#000000">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+          </div>
+          <span class="widget-label">QQ音乐</span>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-blue">
+            <svg viewBox="0 0 24 24" fill="#2196f3">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <span class="widget-label">人设</span>
+        </div>
+
+        <div class="widget-item empty-cell">
+          <div class="icon-box"></div>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box uploadable-icon" data-key="icon_2">
+            <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 C10 6 6 14 6 22 C6 28 10 32 14 34 L14 38 L26 38 L26 34 C30 32 34 28 34 22 C34 14 30 6 20 6 Z" />
+            </svg>
+            <img class="uploaded-icon-img" alt="Uploaded Icon">
+            <input type="file" class="icon-file-input" accept="image/*" style="display: none;">
+          </div>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="3" width="14" height="18" rx="2"/>
+              <path d="M12 3v18"/>
+              <path d="M9 7h6"/>
+              <path d="M9 11h6"/>
+              <path d="M9 15h6"/>
+            </svg>
+          </div>
+          <span class="widget-label">世界书</span>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-skyblue"></div>
+          <span class="widget-label">玩法</span>
+        </div>
+
+        <div class="widget-item empty-cell">
+          <div class="icon-box"></div>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-pink2">
+            <svg viewBox="0 0 24 24" fill="#f48fb1">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="8" cy="10" r="1.5" fill="#333333"/>
+              <circle cx="16" cy="10" r="1.5" fill="#333333"/>
+              <ellipse cx="12" cy="15" rx="3" ry="2" fill="#333333"/>
+            </svg>
+          </div>
+          <span class="widget-label">Clock</span>
+        </div>
+
+        <div class="widget-item">
+          <div class="icon-box bg-lightpink"></div>
+          <span class="widget-label">Instagram</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 美化设置弹窗 -->
+  <div class="modal-overlay" id="beautifyModal">
+    <div class="modal-content">
+      <h3>✨ 美化设置</h3>
+      <div class="setting-item">
+        <span>更换桌面壁纸</span>
+        <button class="modal-btn" id="uploadWallpaperBtn">选择图片</button>
+        <input type="file" id="wallpaperInput" accept="image/*" style="display: none;">
+      </div>
+      <div class="setting-item">
+        <span>全屏模式</span>
+        <button class="modal-btn" id="fullscreenToggleBtn">开启全屏</button>
+      </div>
+      <p class="hint-text">
+        💡 提示：<br>
+        • 双击页面上的文字可直接修改。<br>
+        • 点击顶部大图、小猪、哭脸图标可直接替换图片。
+      </p>
+      <button class="modal-btn close-btn" id="closeModalBtn">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ================= 1. 核心数据与本地存储 =================
+  const phoneCase = document.getElementById('phoneCase');
+  const phoneContent = document.getElementById('phoneContent');
+  
+  // 恢复壁纸
+  const savedWallpaper = localStorage.getItem('saved_wallpaper');
+  if (savedWallpaper) {
+    phoneContent.style.backgroundImage = `url(${savedWallpaper})`;
+  }
+
+  // 恢复全屏状态
+  const isFullscreen = localStorage.getItem('is_fullscreen') === 'true';
+  if (isFullscreen) {
+    phoneCase.classList.add('is-fullscreen');
+    document.getElementById('fullscreenToggleBtn').innerText = '关闭全屏';
+  }
+
+  // ================= 2. 美化App 弹窗控制 =================
+  const beautifyModal = document.getElementById('beautifyModal');
+  document.getElementById('beautifyApp').addEventListener('click', () => {
+    beautifyModal.classList.add('active');
+  });
+  document.getElementById('closeModalBtn').addEventListener('click', () => {
+    beautifyModal.classList.remove('active');
+  });
+
+  // ================= 3. 壁纸更换逻辑 =================
+  const wallpaperInput = document.getElementById('wallpaperInput');
+  document.getElementById('uploadWallpaperBtn').addEventListener('click', () => {
+    wallpaperInput.click();
+  });
+  
+  wallpaperInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const base64Image = event.target.result;
+      phoneContent.style.backgroundImage = `url(${base64Image})`;
+      try {
+        localStorage.setItem('saved_wallpaper', base64Image);
+      } catch (err) {
+        alert("壁纸图片过大，本地缓存空间不足，可能无法在后台保留。");
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ================= 4. 全屏切换逻辑 =================
+  const fullscreenBtn = document.getElementById('fullscreenToggleBtn');
+  fullscreenBtn.addEventListener('click', () => {
+    const isNowFullscreen = phoneCase.classList.toggle('is-fullscreen');
+    localStorage.setItem('is_fullscreen', isNowFullscreen);
+    
+    if (isNowFullscreen) {
+      fullscreenBtn.innerText = '关闭全屏';
+      // 尝试调用浏览器原生全屏
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } else {
+      fullscreenBtn.innerText = '开启全屏';
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  });
+
+  // ================= 5. 保留：双击编辑文字 =================
+  const editableElements = document.querySelectorAll('.editable-text');
+  editableElements.forEach(el => {
+    el.addEventListener('dblclick', function() {
+      this.contentEditable = "true";
+      this.focus();
+    });
+    el.addEventListener('blur', function() {
+      this.contentEditable = "false";
+      const key = 'edit_' + this.id;
+      try { localStorage.setItem(key, this.innerText); } catch (e) {}
+    });
+  });
+  editableElements.forEach(el => {
+    const savedValue = localStorage.getItem('edit_' + el.id);
+    if (savedValue) el.innerText = savedValue;
+  });
+
+  // ================= 6. 保留：顶部大图上传 =================
+  const captchaBox = document.getElementById('captchaBox');
+  const defaultIllustration = document.getElementById('defaultIllustration');
+  const fileInput = document.getElementById('fileInput');
+  const uploadedImage = document.getElementById('uploadedImage');
+
+  captchaBox.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const base64Image = event.target.result;
+      defaultIllustration.style.display = 'none';
+      uploadedImage.src = base64Image;
+      uploadedImage.style.display = 'block';
+      try { localStorage.setItem('uploaded_captcha_image', base64Image); } catch (err) {
+        alert("图片过大，本地缓存空间不足，可能无法在后台保留图片。");
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  const savedImage = localStorage.getItem('uploaded_captcha_image');
+  if (savedImage) {
+    defaultIllustration.style.display = 'none';
+    uploadedImage.src = savedImage;
+    uploadedImage.style.display = 'block';
+  }
+
+  // ================= 7. 保留：小猪、哭脸等图标上传 =================
+  const uploadableIcons = document.querySelectorAll('.uploadable-icon');
+  uploadableIcons.forEach(iconBox => {
+    const fileInputIcon = iconBox.querySelector('.icon-file-input');
+    const imgElement = iconBox.querySelector('.uploaded-icon-img');
+    const svgElement = iconBox.querySelector('svg');
+    const storageKey = 'uploaded_' + iconBox.getAttribute('data-key');
+
+    iconBox.addEventListener('click', (e) => {
+      if (e.target !== fileInputIcon) fileInputIcon.click();
+    });
+
+    fileInputIcon.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64Image = event.target.result;
+        svgElement.style.display = 'none';
+        imgElement.src = base64Image;
+        imgElement.style.display = 'block';
+        try { localStorage.setItem(storageKey, base64Image); } catch (err) {
+          alert("图片过大，可能无法保留。");
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const savedIconImage = localStorage.getItem(storageKey);
+    if (savedIconImage) {
+      svgElement.style.display = 'none';
+      imgElement.src = savedIconImage;
+      imgElement.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
