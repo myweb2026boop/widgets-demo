@@ -11,7 +11,6 @@
     padding: 0;
   }
   
-  /* 外部背景：深色/灰色，突出手机壳 */
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #e5e5e5;
@@ -23,7 +22,6 @@
     overflow: hidden;
   }
 
-  /* 手机外壳（未开启全屏时） */
   .phone-case {
     width: 100%;
     max-width: 400px;
@@ -37,7 +35,6 @@
     transition: all 0.3s ease;
   }
 
-  /* 全屏状态 */
   .phone-case.is-fullscreen {
     max-width: 100%;
     height: 100vh;
@@ -46,7 +43,6 @@
     box-shadow: none;
   }
 
-  /* 手机屏幕内容区（支持上传壁纸） */
   .phone-content {
     width: 100%;
     height: 100%;
@@ -54,10 +50,9 @@
     padding: 20px 0;
     background-size: cover;
     background-position: center;
-    background-color: #fff; /* 默认底色 */
+    background-color: #fff;
   }
   
-  /* 滚动条隐藏 */
   .phone-content::-webkit-scrollbar { display: none; }
 
   .container {
@@ -103,7 +98,7 @@
     display: none;
   }
   
-  /* 输入框区域（双击可编辑） */
+  /* 输入框区域（双击可编辑，此处调整 margin-bottom 让其整体上移） */
   .input-box {
     border: 1px solid #e1e1e1;
     border-radius: 6px;
@@ -114,7 +109,7 @@
     font-size: 15px;
     color: #b0b0b0;
     background-color: #fff;
-    margin-bottom: 30px;
+    margin-bottom: 16px; /* 【调整】从原来的 30px 减小到 16px，加上删除了标题，整体自然上移 */
   }
   .input-box svg {
     width: 20px;
@@ -122,14 +117,7 @@
     stroke: #b0b0b0;
   }
   
-  /* 标题（双击可编辑） */
-  .section-title {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: #2d3436;
-    margin-bottom: 24px;
-  }
+  /* 【修改】原本的标题样式和 HTML 已删除，不再占用空间 */
   
   /* 网格布局 */
   .widget-grid {
@@ -190,7 +178,7 @@
     user-select: text;
   }
 
-  /* 普通上传图标（哭脸等） */
+  /* 普通上传图标 */
   .icon-box.uploadable-icon {
     width: 100%;           
     aspect-ratio: 1 / 1;   
@@ -212,14 +200,14 @@
     display: none;
   }
 
-  /* 小猪图标保持原位置下移（绝对不影响其他元素） */
+  /* 小猪图标下移 */
   .pig-icon {
     width: 110px;
     height: 110px;
     border-radius: 20px;
     cursor: pointer;
     overflow: hidden;
-    transform: translateY(60px); /* 向下平移 60px */
+    transform: translateY(60px);
   }
   .pig-icon svg {
     width: 55%; 
@@ -233,7 +221,7 @@
     display: none;
   }
 
-  /* --- 美化 App 弹窗样式 --- */
+  /* 美化 App 弹窗样式 */
   .modal-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -242,7 +230,7 @@
     justify-content: center;
     align-items: center;
     z-index: 999;
-    border-radius: 40px; /* 跟随手机外壳 */
+    border-radius: 40px;
   }
   .phone-case.is-fullscreen .modal-overlay {
     border-radius: 0;
@@ -344,11 +332,10 @@
         </svg>
       </div>
 
-      <div class="section-title" id="section-title" class="editable-text">Top Widgets+</div>
+      <!-- 【删除】原本的 "Top Widgets+" 标题已在此处删除 -->
 
       <div class="widget-grid">
         <div class="widget-item">
-          <!-- 触发美化面板 -->
           <div class="icon-box bg-pink" id="beautifyApp">
             <svg viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/>
@@ -531,7 +518,6 @@
     
     if (isNowFullscreen) {
       fullscreenBtn.innerText = '关闭全屏';
-      // 尝试调用浏览器原生全屏
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
       }
@@ -543,7 +529,7 @@
     }
   });
 
-  // ================= 5. 保留：双击编辑文字 =================
+  // ================= 5. 双击编辑文字 =================
   const editableElements = document.querySelectorAll('.editable-text');
   editableElements.forEach(el => {
     el.addEventListener('dblclick', function() {
@@ -561,7 +547,7 @@
     if (savedValue) el.innerText = savedValue;
   });
 
-  // ================= 6. 保留：顶部大图上传 =================
+  // ================= 6. 顶部大图上传 =================
   const captchaBox = document.getElementById('captchaBox');
   const defaultIllustration = document.getElementById('defaultIllustration');
   const fileInput = document.getElementById('fileInput');
@@ -590,7 +576,7 @@
     uploadedImage.style.display = 'block';
   }
 
-  // ================= 7. 保留：小猪、哭脸等图标上传 =================
+  // ================= 7. 小猪、哭脸等图标上传 =================
   const uploadableIcons = document.querySelectorAll('.uploadable-icon');
   uploadableIcons.forEach(iconBox => {
     const fileInputIcon = iconBox.querySelector('.icon-file-input');
