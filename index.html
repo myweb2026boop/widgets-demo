@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TuTooth</title>
+<!-- 引入 mammoth.js 用于解析 docx 文件，不包含任何 Emoji -->
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -27,6 +29,9 @@
   .screen { display: none; width: 100%; height: 100%; overflow-y: auto; position: absolute; top: 0; left: 0; background: #fff; }
   .screen::-webkit-scrollbar { display: none; }
   .screen.active { display: block; }
+
+  /* 通用 SVG 样式 */
+  .icon-svg { width: 16px; height: 16px; fill: currentColor; display: inline-block; vertical-align: middle; margin-right: 4px; }
 
   /* ============ 1. 主屏幕 ============ */
   #mainScreen { padding: 20px 0; }
@@ -186,7 +191,7 @@
   .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
   .form-group input, .form-group textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
   .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
-  .form-group textarea { height: 100px; resize: vertical; }
+  .form-group textarea { height: 120px; resize: vertical; }
   .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #eee; }
   .avatar-edit-box img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-edit-box svg { width: 30px; height: 30px; fill: #ccc; }
@@ -208,7 +213,7 @@
   .beautify-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
   .beautify-body { padding: 16px; }
   .section-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-  .section-card h4 { font-size: 15px; color: #333; margin-bottom: 12px; font-weight: 600; }
+  .section-card h4 { font-size: 15px; color: #333; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .btn-row { display: flex; gap: 10px; }
   .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
   .btn-primary { background: #4b7bec; color: #fff; }
@@ -542,18 +547,19 @@
         <h3>美化设置</h3>
       </div>
       <div class="beautify-body">
+        <!-- 数据备份模块，移除Emoji，替换为SVG -->
         <div class="section-card highlight-card">
-          <h4>📦 数据备份（美化文件）</h4>
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 数据备份（美化文件）</h4>
           <div class="btn-row">
-            <button class="btn btn-primary" id="exportDataBtn">📤 导出 JSON</button>
-            <button class="btn btn-success" id="importDataBtn">📥 导入 JSON</button>
+            <button class="btn btn-primary" id="exportDataBtn">导出 JSON</button>
+            <button class="btn btn-success" id="importDataBtn">导入 JSON</button>
           </div>
           <input type="file" id="importDataInput" accept=".json,application/json" style="display: none;">
           <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：导出可以备份当前所有美化数据。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
         </div>
 
         <div class="section-card">
-          <h4>🖼️ 主页壁纸</h4>
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> 主页壁纸</h4>
           <div class="btn-row">
             <button class="btn btn-primary" id="changeWallpaperBtn">更换壁纸</button>
             <button class="btn btn-danger" id="clearWallpaperBtn">清除壁纸</button>
@@ -562,17 +568,17 @@
         </div>
 
         <div class="section-card">
-          <h4>📱 App图标与名字</h4>
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 6h18V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 9h-4v-7h4v7z"/></svg> App图标与名字</h4>
           <div id="appEditList"></div>
         </div>
 
         <div class="section-card">
-          <h4>📺 全屏模式</h4>
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg> 全屏模式</h4>
           <button class="btn btn-primary" id="fullscreenToggleBtn" style="width:100%">开启/关闭全屏</button>
         </div>
 
         <div class="section-card">
-          <h4>💾 预设管理</h4>
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> 预设管理</h4>
           <div class="preset-input-row">
             <input type="text" id="presetNameInput" placeholder="输入预设名称">
             <button class="btn btn-success" id="savePresetBtn">保存预设</button>
@@ -883,9 +889,8 @@
   // ================= 人设App 专属逻辑 =================
   let personaList = [];
   let editingPersonaId = null;
-  let tempAvatarBase64 = ''; // 临时存储正在编辑的头像
+  let tempAvatarBase64 = ''; 
 
-  // 加载人设列表
   function loadPersonaList() {
     const data = localStorage.getItem(PERSONA_KEY);
     if (data) {
@@ -896,7 +901,6 @@
   }
   loadPersonaList();
 
-  // 渲染人设列表
   function renderPersonaList() {
     const container = document.getElementById('personaList');
     const emptyState = document.getElementById('personaEmptyState');
@@ -934,7 +938,6 @@
     });
   }
 
-  // 打开编辑表单
   function openPersonaEdit(index) {
     const view = document.getElementById('personaEditView');
     const listContainer = document.getElementById('personaList');
@@ -945,7 +948,6 @@
     view.classList.add('active');
 
     if (index === null) {
-      // 创建空白
       editingPersonaId = null;
       document.getElementById('personaName').value = '';
       document.getElementById('personaNickname').value = '';
@@ -955,9 +957,8 @@
       tempAvatarBase64 = '';
       document.getElementById('personaAvatarImg').style.display = 'none';
       document.getElementById('personaAvatarSvg').style.display = 'block';
-      document.getElementById('personaDeleteBtn').style.display = 'none'; // 新建时隐藏删除按钮
+      document.getElementById('personaDeleteBtn').style.display = 'none';
     } else {
-      // 编辑现有
       editingPersonaId = index;
       const persona = personaList[index];
       document.getElementById('personaName').value = persona.name || '';
@@ -976,17 +977,15 @@
         document.getElementById('personaAvatarImg').style.display = 'none';
         document.getElementById('personaAvatarSvg').style.display = 'block';
       }
-      document.getElementById('personaDeleteBtn').style.display = 'block'; // 编辑时显示删除按钮
+      document.getElementById('personaDeleteBtn').style.display = 'block';
     }
   }
 
-  // 取消编辑
   function cancelPersonaEdit() {
     document.getElementById('personaEditView').classList.remove('active');
-    renderPersonaList(); // 重新渲染列表
+    renderPersonaList();
   }
 
-  // 保存人设
   function savePersona() {
     const name = document.getElementById('personaName').value.trim();
     const nickname = document.getElementById('personaNickname').value.trim();
@@ -999,20 +998,11 @@
       return;
     }
 
-    const personaData = {
-      avatar: tempAvatarBase64,
-      name: name,
-      nickname: nickname,
-      gender: gender,
-      age: age,
-      details: details
-    };
+    const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details };
 
     if (editingPersonaId === null) {
-      // 新建
       personaList.push(personaData);
     } else {
-      // 更新
       personaList[editingPersonaId] = personaData;
     }
 
@@ -1020,7 +1010,6 @@
     cancelPersonaEdit();
   }
 
-  // 删除人设
   function deletePersona() {
     if (editingPersonaId === null) return;
     if (!confirm('确定要删除这个人设吗？')) return;
@@ -1030,44 +1019,20 @@
     cancelPersonaEdit();
   }
 
-  // 处理文件上传
+  // 人设文件上传逻辑（修复 docx 解析）
   document.getElementById('personaFileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const content = ev.target.result;
-      let parsedData = {
-        avatar: '',
-        name: file.name.replace(/\.[^/.]+$/, ""), // 默认使用文件名作为名字
-        nickname: '',
-        gender: '',
-        age: '',
-        details: ''
-      };
+    // 准备默认数据
+    let parsedData = {
+      name: file.name.replace(/\.[^/.]+$/, ""),
+      nickname: '', gender: '', age: '', details: ''
+    };
 
-      if (file.name.endsWith('.json')) {
-        try {
-          const jsonData = JSON.parse(content);
-          // 尝试智能匹配字段
-          parsedData.name = jsonData.name || jsonData.char_name || parsedData.name;
-          parsedData.nickname = jsonData.nickname || jsonData.net_name || '';
-          parsedData.gender = jsonData.gender || jsonData.sex || '';
-          parsedData.age = jsonData.age || '';
-          parsedData.details = jsonData.details || jsonData.description || jsonData.persona || content;
-        } catch (err) {
-          parsedData.details = content;
-        }
-      } else if (file.name.endsWith('.txt')) {
-        parsedData.details = content;
-      } else if (file.name.endsWith('.docx')) {
-        // 对于docx，直接读取为文本可能会有乱码，这里作为演示，提示用户手动编辑详情
-        parsedData.details = `[上传了文件：${file.name}]\n请手动编辑详细人设，或直接在此处粘贴内容。`;
-      }
-
-      // 将解析后的数据填入编辑表单
-      editingPersonaId = null; // 新建模式
+    // 显示编辑表单并填充基础数据
+    const showEditForm = () => {
+      editingPersonaId = null;
       document.getElementById('personaName').value = parsedData.name;
       document.getElementById('personaNickname').value = parsedData.nickname;
       document.getElementById('personaGender').value = parsedData.gender;
@@ -1082,29 +1047,61 @@
       document.getElementById('personaList').style.display = 'none';
       document.getElementById('personaEmptyState').style.display = 'none';
     };
-    
-    // 根据文件类型读取
+
     if (file.name.endsWith('.docx')) {
-      // docx 是二进制文件，reader.readAsText 会乱码，这里只获取文件名作为提示
-      // 为了显示进度，简单模拟一下
-      parsedData = { name: file.name.replace('.docx', ''), details: '请手动编辑文档内容' };
-      // 直接弹出提示
-      alert('暂不支持直接解析 docx 文件内容，已为您创建空白模板，请手动填写详细信息。');
-      document.getElementById('personaName').value = parsedData.name;
-      document.getElementById('personaDetails').value = parsedData.details;
-      editingPersonaId = null;
-      tempAvatarBase64 = '';
-      document.getElementById('personaAvatarImg').style.display = 'none';
-      document.getElementById('personaAvatarSvg').style.display = 'block';
-      document.getElementById('personaDeleteBtn').style.display = 'none';
-      document.getElementById('personaEditView').classList.add('active');
-      document.getElementById('personaList').style.display = 'none';
-      document.getElementById('personaEmptyState').style.display = 'none';
-    } else {
+      // 【核心修复：引入 mammoth 库直接解析 docx 内容】
+      if (typeof mammoth === 'undefined') {
+        alert('docx 解析库未加载，无法直接解析，请手动填写人设内容。');
+        parsedData.details = '请手动粘贴或输入文档内容。';
+        showEditForm();
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const arrayBuffer = evt.target.result;
+        mammoth.extractRawText({arrayBuffer: arrayBuffer})
+          .then(function(result) {
+            parsedData.details = result.value;
+            showEditForm();
+          })
+          .catch(function(err) {
+            console.error('Docx解析失败:', err);
+            alert('docx 解析失败，可能文件损坏，请手动输入内容。');
+            parsedData.details = '请手动粘贴或输入文档内容。';
+            showEditForm();
+          });
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (file.name.endsWith('.json')) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const content = ev.target.result;
+        try {
+          const jsonData = JSON.parse(content);
+          parsedData.name = jsonData.name || jsonData.char_name || parsedData.name;
+          parsedData.nickname = jsonData.nickname || jsonData.net_name || '';
+          parsedData.gender = jsonData.gender || jsonData.sex || '';
+          parsedData.age = jsonData.age || '';
+          parsedData.details = jsonData.details || jsonData.description || jsonData.persona || content;
+        } catch (err) {
+          parsedData.details = content;
+        }
+        showEditForm();
+      };
       reader.readAsText(file);
+    } else if (file.name.endsWith('.txt')) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        parsedData.details = ev.target.result;
+        showEditForm();
+      };
+      reader.readAsText(file);
+    } else {
+      alert('仅支持 docx, json, txt 文件格式');
     }
     
-    this.value = ''; // 允许重复上传同一个文件
+    this.value = ''; 
   });
 
   // 上传人设头像
