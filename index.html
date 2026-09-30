@@ -123,21 +123,20 @@
   }
   @keyframes spin { 100% { transform: rotate(360deg); } }
   
-  /* 修复：去除内部多余的灰/黑环，纯粹作为一个圆形遮罩 */
   .vinyl-ring-2, .vinyl-ring-3 { width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
   
-  /* 修复：强制图片为圆形 */
+  /* 去除黑点，只保留图片 */
   .vinyl-center {
     width: 220px; height: 220px; border-radius: 50%; background: #555;
     overflow: hidden; cursor: pointer; position: relative;
     display: flex; justify-content: center; align-items: center;
-    border: 2px solid #fff; /* 加上白边让图片更立体 */
+    border: 2px solid #fff; /* 保留白边，增强视觉效果 */
   }
   .vinyl-center img { 
     width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display: block; 
   }
   .vinyl-center svg { width: 40px; height: 40px; fill: #fff; opacity: 0.5; position: absolute; pointer-events: none; }
-  .vinyl-hole { width: 10px; height: 10px; border-radius: 50%; background: #111; position: absolute; z-index: 10; pointer-events: none; }
+  /* 删除了 .vinyl-hole 样式 */
 
   .player-info { text-align: center; margin-bottom: 30px; }
   .player-info h2 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 6px; }
@@ -389,7 +388,7 @@
                 <svg id="vinylCoverSvg" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
                 <input type="file" id="vinylCoverInput" accept="image/*" style="display: none;">
               </div>
-              <div class="vinyl-hole"></div>
+              <!-- 删除了 vinyl-hole 黑点 -->
             </div>
           </div>
         </div>
@@ -483,7 +482,6 @@
 
 <script>
   // ================= 页面初始化与状态恢复 =================
-  // 1. 恢复全屏状态
   const isFullscreen = localStorage.getItem('is_fullscreen') === 'true';
   const phoneCase = document.getElementById('phoneCase');
   if (isFullscreen) {
@@ -493,12 +491,10 @@
     document.getElementById('fullscreenToggleBtn').innerText = '开启全屏';
   }
 
-  // 2. 初始化所有数据
   const APP_ICON_KEY_PREFIX = 'app_icon_';
   const APP_NAME_KEY_PREFIX = 'app_name_';
   const MUSIC_KEY_PREFIX = 'music_';
 
-  // 旧数据迁移（名字更新）
   if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
   if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
   if(localStorage.getItem('app_name_wechat') === '微信') localStorage.setItem('app_name_wechat', '简讯');
@@ -524,12 +520,10 @@
   ];
   function applyAppConfig() {
     appList.forEach(app => {
-      // 名字
       const savedName = localStorage.getItem(APP_NAME_KEY_PREFIX + app.id) || app.name;
       const labelEl = document.getElementById('label-' + app.id);
       if (labelEl) labelEl.innerText = savedName;
       
-      // 图标
       const savedIcon = localStorage.getItem(APP_ICON_KEY_PREFIX + app.id);
       if (savedIcon) {
         const iconBox = document.getElementById('app-icon-' + app.id);
@@ -581,7 +575,6 @@
       };
       reader.readAsDataURL(file);
     });
-    // 恢复状态
     const savedIconImage = localStorage.getItem(storageKey);
     if (savedIconImage) { svgElement.style.display = 'none'; imgElement.src = savedIconImage; imgElement.style.display = 'block'; }
   });
@@ -618,11 +611,9 @@
   const barCoverImg = document.getElementById('barCoverImg');
   const barCoverSvg = document.getElementById('barCoverSvg');
   
-  // 恢复音乐背景
   const savedMusicBg = localStorage.getItem(MUSIC_KEY_PREFIX + 'bg');
   if (savedMusicBg) musicBgArea.style.backgroundImage = `url(${savedMusicBg})`;
 
-  // 恢复音乐头像
   const savedMusicAvatar = localStorage.getItem(MUSIC_KEY_PREFIX + 'avatar');
   if (savedMusicAvatar) {
     musicAvatar.src = savedMusicAvatar;
@@ -630,7 +621,6 @@
     musicAvatarSvg.style.display = 'none';
   }
 
-  // 恢复唱盘封面，并同步到底栏
   const savedVinylCover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover');
   if (savedVinylCover) {
     vinylCoverImg.src = savedVinylCover;
@@ -642,7 +632,6 @@
     barCoverSvg.style.display = 'none';
   }
 
-  // 音乐背景上传
   musicBgInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -654,7 +643,6 @@
     reader.readAsDataURL(file);
   });
 
-  // 音乐头像上传
   musicAvatarInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -668,17 +656,15 @@
     reader.readAsDataURL(file);
   });
 
-  // 唱盘封面上传，同步到底栏
   vinylCoverInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const base64 = ev.target.result;
-      // 更新唱盘
       vinylCoverImg.src = base64;
       vinylCoverImg.style.display = 'block';
       vinylCoverSvg.style.display = 'none';
-      // 更新底栏
+      
       barCoverImg.src = base64;
       barCoverImg.style.display = 'block';
       barCoverSvg.style.display = 'none';
