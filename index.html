@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- 修改点：网页标题，以及添加到主屏幕时的应用名 -->
 <title>TuTooth</title>
-<meta name="apple-mobile-web-app-title" content="TuTooth">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
   * {
     box-sizing: border-box;
@@ -112,13 +109,15 @@
     font-size: 15px;
     color: #b0b0b0;
     background-color: #fff;
-    margin-bottom: 16px; /* 整体上移 */
+    margin-bottom: 16px; /* 【调整】从原来的 30px 减小到 16px，加上删除了标题，整体自然上移 */
   }
   .input-box svg {
     width: 20px;
     height: 20px;
     stroke: #b0b0b0;
   }
+  
+  /* 【修改】原本的标题样式和 HTML 已删除，不再占用空间 */
   
   /* 网格布局 */
   .widget-grid {
@@ -332,6 +331,8 @@
           <path d="M4 9h10a6 6 0 0 1 6 6v2"/>
         </svg>
       </div>
+
+      <!-- 【删除】原本的 "Top Widgets+" 标题已在此处删除 -->
 
       <div class="widget-grid">
         <div class="widget-item">
