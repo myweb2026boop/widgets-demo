@@ -5,331 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TuTooth</title>
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #e5e5e5;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
+    background-color: #e5e5e5; color: #333;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; overflow: hidden;
   }
 
+  /* 手机外壳 */
   .phone-case {
-    width: 100%;
-    max-width: 400px;
-    height: 800px;
-    max-height: 95vh;
-    background-color: #fff;
-    border-radius: 40px;
+    width: 100%; max-width: 400px; height: 800px; max-height: 95vh;
+    background-color: #fff; border-radius: 40px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-    overflow: hidden;
-    position: relative;
-    transition: all 0.3s ease;
+    overflow: hidden; position: relative; transition: all 0.3s ease;
   }
+  .phone-case.is-fullscreen { max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; box-shadow: none; }
+  .phone-content { width: 100%; height: 100%; position: relative; background-color: #fff; }
 
-  .phone-case.is-fullscreen {
-    max-width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
-    box-shadow: none;
-  }
+  /* 通用界面隐藏类 */
+  .screen { display: none; width: 100%; height: 100%; overflow-y: auto; position: absolute; top: 0; left: 0; background: #fff; }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: block; }
 
-  .phone-content {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    background-color: #fff;
-  }
-
-  #mainScreen {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    padding: 20px 0;
-    background-size: cover;
-    background-position: center;
-    background-color: #fff;
-    display: block;
-  }
-  
-  #mainScreen::-webkit-scrollbar { display: none; }
-
-  #beautifyScreen {
-    display: none;
-    width: 100%;
-    height: 100%;
-    background-color: #f7f8fa;
-    overflow-y: auto;
-    padding-bottom: 30px;
-    position: absolute;
-    top: 0; left: 0;
-  }
-  #beautifyScreen::-webkit-scrollbar { display: none; }
-
-  .beautify-header {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .beautify-header .back-btn {
-    background: none;
-    border: none;
-    color: #4b7bec;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 4px 8px;
-    font-weight: 500;
-  }
-  .beautify-header h3 {
-    flex: 1;
-    text-align: center;
-    font-size: 17px;
-    font-weight: 600;
-    padding-right: 48px;
-  }
-
-  .beautify-body {
-    padding: 16px;
-  }
-
-  .section-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-  }
-  .section-card h4 {
-    font-size: 15px;
-    color: #333;
-    margin-bottom: 12px;
-    font-weight: 600;
-  }
-
-  .btn-row {
-    display: flex;
-    gap: 10px;
-  }
-  .btn {
-    flex: 1;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
-  }
-  .btn-primary { background: #4b7bec; color: #fff; }
-  .btn-danger { background: #ff4757; color: #fff; }
-  .btn-success { background: #2ecc71; color: #fff; }
-  .btn-default { background: #f0f0f0; color: #333; }
-
-  .highlight-card {
-    border: 2px solid #4b7bec;
-    background: #f0f6ff;
-  }
-  .highlight-card h4 {
-    color: #4b7bec;
-  }
-
-  .app-edit-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .app-edit-item:last-child { border-bottom: none; }
-  
-  .app-edit-preview {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    cursor: pointer;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
-  .app-edit-preview img {
-    width: 100%; height: 100%; object-fit: cover; display: none;
-  }
-  .app-edit-preview svg {
-    width: 24px; height: 24px;
-  }
-
-  .app-edit-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .app-edit-info input {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 13px;
-    width: 100%;
-    outline: none;
-  }
-  .app-edit-info input:focus { border-color: #4b7bec; }
-
-  .app-edit-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-left: 8px;
-  }
-  .app-edit-actions button {
-    font-size: 11px;
-    padding: 4px 8px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: #eef2ff;
-    color: #4b7bec;
-    white-space: nowrap;
-  }
-
-  .preset-input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .preset-input-row input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
-  }
-  .preset-select-row {
-    display: flex;
-    gap: 8px;
-  }
-  .preset-select-row select {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
-    background: #fff;
-  }
-
-  /* 主屏幕原有样式 */
-  .container {
-    width: 100%;
-    max-width: 400px;
-    padding: 0 16px;
-    margin: 0 auto;
-  }
-  .top-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: #4b7bec;
-    margin-bottom: 16px;
-    font-weight: 500;
-  }
-  .top-nav .divider {
-    color: #c8d6e5;
-    font-weight: 300;
-  }
-  .captcha-box {
-    border: 1px solid #e1e1e1;
-    border-radius: 6px;
-    height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #fff;
-    margin-bottom: 12px;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-  .captcha-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-  }
-  .input-box {
-    border: 1px solid #e1e1e1;
-    border-radius: 6px;
-    padding: 14px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    color: #b0b0b0;
-    background-color: #fff;
-    margin-bottom: 16px; 
-  }
-  .input-box svg {
-    width: 20px;
-    height: 20px;
-    stroke: #b0b0b0;
-  }
-  .widget-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px 12px;
-    text-align: center;
-    align-items: center; 
-  }
-  .widget-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .icon-box {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-    position: relative;
-    overflow: hidden; 
-  }
-  .icon-box svg {
-    width: 30px;
-    height: 30px;
-  }
-  .icon-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 14px;
-    display: block;
-  }
-  .widget-label {
-    font-size: 12px;
-    color: #2d3436;
-    margin-top: 4px;
-  }
+  /* ============ 1. 主屏幕 (Main Screen) ============ */
+  #mainScreen { padding: 20px 0; }
+  .container { width: 100%; max-width: 400px; padding: 0 16px; margin: 0 auto; }
+  .top-nav { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #4b7bec; margin-bottom: 16px; font-weight: 500; }
+  .top-nav .divider { color: #c8d6e5; font-weight: 300; }
+  .captcha-box { border: 1px solid #e1e1e1; border-radius: 6px; height: 150px; display: flex; align-items: center; justify-content: center; background-color: #fff; margin-bottom: 12px; position: relative; overflow: hidden; cursor: pointer; }
+  .captcha-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
+  .input-box { border: 1px solid #e1e1e1; border-radius: 6px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #b0b0b0; background-color: #fff; margin-bottom: 16px; }
+  .input-box svg { width: 20px; height: 20px; stroke: #b0b0b0; }
+  .widget-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 12px; text-align: center; align-items: center; }
+  .widget-item { display: flex; flex-direction: column; align-items: center; }
+  .icon-box { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; overflow: hidden; }
+  .icon-box svg { width: 30px; height: 30px; }
+  .icon-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; display: block; }
+  .widget-label { font-size: 12px; color: #2d3436; margin-top: 4px; }
   .bg-pink { background-color: #fde8ed; }
   .bg-green { background-color: #5cb85c; }
   .bg-yellow { background-color: #fdd835; }
@@ -339,72 +52,144 @@
   .bg-pink2 { background-color: #f8bbd0; }
   .bg-lightpink { background-color: #fce4ec; }
   .empty-cell { opacity: 0; pointer-events: none; }
+
+  /* 组件样式（小猪、哭脸） */
+  .icon-box.uploadable-icon { width: 100%; aspect-ratio: 1 / 1; height: auto; border-radius: 20px; cursor: pointer; margin-bottom: 0; }
+  .icon-box.uploadable-icon svg { width: 55%; height: 55%; }
+  .icon-box.uploadable-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; }
+  .pig-icon { width: 110px; height: 110px; border-radius: 20px; cursor: pointer; transform: translateY(60px); }
+  .pig-icon svg { width: 55%; height: 55%; }
+  .pig-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; }
+
+  /* ============ 2. 音乐主页 (Music Main Screen - 仿图1) ============ */
+  #musicScreen { background: #f8f9fa; padding-bottom: 80px; }
+  .music-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; position: relative; z-index: 10; }
+  .music-top-bar svg { width: 24px; height: 24px; cursor: pointer; fill: #333; }
   
-  /* 【核心修复1：为可编辑文字增加最小点击区域与占位符样式】 */
-  .editable-text {
-    display: inline-block;
-    min-width: 20px;
-    min-height: 20px;
-    cursor: pointer;
-    line-height: 1.5;
+  .music-bg-area { height: 180px; position: relative; background: #eef0f3; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; cursor: pointer; }
+  .music-bg-area::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.1); }
+  /* 删除了图1背景上的英文 */
+
+  .profile-card {
+    background: #fff; border-radius: 20px; margin: -30px 16px 16px 16px; padding: 16px; position: relative; z-index: 5;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   }
-  /* 当文字被清空时，显示占位符，且仍然占据可点击区域 */
-  .editable-text:empty::before {
-    content: attr(data-placeholder);
-    color: #b0b0b0;
-  }
+  .profile-header { display: flex; align-items: center; margin-bottom: 16px; }
+  .avatar-box { width: 60px; height: 60px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 12px; overflow: hidden; cursor: pointer; flex-shrink: 0; }
+  .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-box svg { width: 30px; height: 30px; fill: #ccc; }
+  .profile-info { flex: 1; }
+  .profile-info h2 { font-size: 18px; margin-bottom: 4px; color: #333; }
+  .profile-info p { font-size: 12px; color: #666; margin-bottom: 2px; }
   
-  /* 双击编辑时的样式（灰色背景，无阴影） */
-  .editable-text[contenteditable="true"] {
-    background-color: #f0f0f0;
-    outline: none;
-    border-radius: 4px;
-    padding: 2px 6px;
-    box-shadow: none;
-    color: #333;
-    cursor: text;
-    user-select: text;
-    min-width: 20px;
-  }
+  /* 编辑资料按钮 */
+  .edit-btn { background: #f0f0f0; border: none; border-radius: 12px; padding: 6px 12px; font-size: 12px; color: #333; cursor: pointer; }
+
+  .stats-row { display: flex; justify-content: space-around; padding-top: 12px; border-top: 1px solid #f0f0f0; text-align: center; }
+  .stat-item { display: flex; flex-direction: column; }
+  .stat-item .num { font-size: 16px; font-weight: bold; color: #333; }
+  .stat-item .label { font-size: 11px; color: #999; margin-top: 2px; }
+
+  .music-list-card { background: #fff; border-radius: 20px; margin: 0 16px 16px 16px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+  .music-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .music-list-header h3 { font-size: 16px; color: #333; }
+  .upload-btn { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: #333; }
+  .upload-btn svg { width: 14px; height: 14px; fill: #333; }
   
-  /* 组件专用样式 */
-  .icon-box.uploadable-icon {
-    width: 100%;           
-    aspect-ratio: 1 / 1;   
-    height: auto;          
-    border-radius: 20px;   
-    cursor: pointer;
-    margin-bottom: 0;      
+  .music-list-empty { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
+
+  /* 底部播放条 (仿图1底部) */
+  .music-player-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 70px; background: #fff; border-top: 1px solid #f0f0f0;
+    display: flex; align-items: center; padding: 0 16px; z-index: 20;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); cursor: pointer;
   }
-  .icon-box.uploadable-icon svg {
-    width: 55%; 
-    height: 55%;
+  .bar-cover { width: 44px; height: 44px; border-radius: 8px; background: #f0f0f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .bar-cover svg { width: 20px; height: 20px; fill: #ccc; }
+  .bar-info { flex: 1; }
+  .bar-info .title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 2px; display: block; }
+  .bar-info .subtitle { font-size: 11px; color: #999; display: block; }
+  .bar-controls { display: flex; align-items: center; gap: 16px; }
+  .bar-controls svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
+
+  /* ============ 3. 全屏播放器 (Player Screen - 仿图2) ============ */
+  #playerScreen { background: #fff; color: #333; padding: 16px; }
+  .player-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
+  .player-top-bar svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
+  
+  .vinyl-container { display: flex; justify-content: center; align-items: center; margin: 40px 0; }
+  .vinyl-disc {
+    width: 300px; height: 300px; border-radius: 50%; background: #111;
+    position: relative; display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 0 60px rgba(0,0,0,0.4);
+    animation: spin 20s linear infinite; animation-play-state: paused;
   }
-  .icon-box.uploadable-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; 
-    border-radius: 20px;
-    display: none;
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  
+  .vinyl-ring-2 { width: 240px; height: 240px; border-radius: 50%; background: #222; display: flex; justify-content: center; align-items: center; }
+  .vinyl-ring-3 { width: 140px; height: 140px; border-radius: 50%; background: #333; display: flex; justify-content: center; align-items: center; }
+  
+  /* 唱盘中间自定义照片区域 */
+  .vinyl-center {
+    width: 100px; height: 100px; border-radius: 50%; background: #555;
+    overflow: hidden; cursor: pointer; position: relative;
+    display: flex; justify-content: center; align-items: center;
   }
-  .pig-icon {
-    width: 110px;
-    height: 110px;
-    border-radius: 20px;
-    cursor: pointer;
-    transform: translateY(60px);
-  }
-  .pig-icon svg {
-    width: 55%; 
-    height: 55%;
-  }
-  .pig-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; 
-    border-radius: 20px;
-    display: none;
-  }
+  .vinyl-center img { width: 100%; height: 100%; object-fit: cover; }
+  .vinyl-center svg { width: 40px; height: 40px; fill: #fff; opacity: 0.5; position: absolute; pointer-events: none; }
+  /* 唱盘中间的孔 */
+  .vinyl-hole { width: 10px; height: 10px; border-radius: 50%; background: #fff; position: absolute; pointer-events: none; }
+
+  .player-info { text-align: center; margin-bottom: 30px; }
+  .player-info h2 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 6px; }
+  .player-info p { font-size: 14px; color: #999; }
+
+  .player-tools { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-bottom: 20px; }
+  .player-tools svg { width: 22px; height: 22px; fill: #333; cursor: pointer; }
+
+  .progress-area { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 12px; color: #999; }
+  .progress-bar-container { flex: 1; height: 4px; background: #e0e0e0; border-radius: 2px; position: relative; cursor: pointer; }
+  .progress-bar-fill { height: 100%; background: #333; border-radius: 2px; width: 0%; position: relative; }
+  .progress-bar-fill::after { content: ''; position: absolute; right: -6px; top: -4px; width: 12px; height: 12px; background: #333; border-radius: 50%; }
+
+  .player-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+  .player-controls svg { width: 28px; height: 28px; fill: #333; cursor: pointer; }
+  .play-pause-btn { width: 60px; height: 60px; background: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+  .play-pause-btn svg { width: 28px; height: 28px; fill: #fff; }
+
+  /* ============ 4. 美化界面 (Beautify Screen) ============ */
+  #beautifyScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .beautify-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+  .beautify-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
+  .beautify-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
+  .beautify-body { padding: 16px; }
+  .section-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+  .section-card h4 { font-size: 15px; color: #333; margin-bottom: 12px; font-weight: 600; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
+  .btn-primary { background: #4b7bec; color: #fff; }
+  .btn-danger { background: #ff4757; color: #fff; }
+  .btn-success { background: #2ecc71; color: #fff; }
+  .highlight-card { border: 2px solid #4b7bec; background: #f0f6ff; }
+  .highlight-card h4 { color: #4b7bec; }
+  .app-edit-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+  .app-edit-item:last-child { border-bottom: none; }
+  .app-edit-preview { width: 44px; height: 44px; border-radius: 10px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; margin-right: 12px; flex-shrink: 0; }
+  .app-edit-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
+  .app-edit-preview svg { width: 24px; height: 24px; }
+  .app-edit-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .app-edit-info input { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; outline: none; }
+  .app-edit-actions { display: flex; flex-direction: column; gap: 4px; margin-left: 8px; }
+  .app-edit-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; background: #eef2ff; color: #4b7bec; white-space: nowrap; }
+  .preset-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .preset-input-row input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; }
+  .preset-select-row { display: flex; gap: 8px; }
+  .preset-select-row select { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; background: #fff; }
+
+  /* 可编辑文字通用样式 */
+  .editable-text { display: inline-block; min-width: 20px; min-height: 20px; cursor: pointer; line-height: 1.5; }
+  .editable-text:empty::before { content: attr(data-placeholder); color: #b0b0b0; }
+  .editable-text[contenteditable="true"] { background-color: #f0f0f0; outline: none; border-radius: 4px; padding: 2px 6px; box-shadow: none; color: #333; cursor: text; user-select: text; }
 </style>
 </head>
 <body>
@@ -412,11 +197,10 @@
 <div class="phone-case" id="phoneCase">
   <div class="phone-content" id="phoneContent">
     
-    <!-- ================= 主屏幕 ================= -->
-    <div id="mainScreen">
+    <!-- ================= 1. 主屏幕 ================= -->
+    <div id="mainScreen" class="screen active">
       <div class="container">
         <div class="top-nav">
-          <!-- 增加 data-placeholder 属性，确保删空后仍有显示和点击区域 -->
           <span id="nav-skip" class="editable-text" data-placeholder="点击输入">Skip</span>
           <span class="divider">|</span>
           <span id="nav-help" class="editable-text" data-placeholder="点击输入">Help</span>
@@ -444,71 +228,55 @@
         </div>
 
         <div class="input-box">
-          <!-- 输入框文字同样支持双击编辑，并给了一个默认的占位符 -->
           <span id="input-text" class="editable-text" data-placeholder="Enter the code">Enter the code</span>
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 14L4 9l5-5"/>
-            <path d="M4 9h10a6 6 0 0 1 6 6v2"/>
+            <path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v2"/>
           </svg>
         </div>
 
         <div class="widget-grid">
           <div class="widget-item">
-            <div class="icon-box bg-pink" id="app-icon-beautify" onclick="openBeautifyApp(event)">
-              <svg viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/>
-                <line x1="5" y1="5" x2="19" y2="19" stroke="#f8bbd0" stroke-width="3" stroke-linecap="round"/>
-              </svg>
+            <div class="icon-box bg-pink" id="app-icon-beautify" onclick="openScreen('beautifyScreen')">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/><line x1="5" y1="5" x2="19" y2="19" stroke="#f8bbd0" stroke-width="3" stroke-linecap="round"/></svg>
             </div>
             <span class="widget-label" id="label-beautify">美化</span>
           </div>
 
           <div class="widget-item">
             <div class="icon-box bg-green" id="app-icon-wechat">
-              <svg viewBox="0 0 24 24" fill="#ffffff">
-                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" />
-              </svg>
+              <svg viewBox="0 0 24 24" fill="#ffffff"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" /></svg>
             </div>
             <span class="widget-label" id="label-wechat">简讯</span>
           </div>
 
           <div class="widget-item">
             <div class="icon-box pig-icon uploadable-icon" data-key="icon_1">
-              <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 6 C10 6 6 14 6 22 C6 28 10 32 14 34 L14 38 L26 38 L26 34 C30 32 34 28 34 22 C34 14 30 6 20 6 Z" />
-              </svg>
+              <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 C10 6 6 14 6 22 C6 28 10 32 14 34 L14 38 L26 38 L26 34 C30 32 34 28 34 22 C34 14 30 6 20 6 Z" /></svg>
               <img class="uploaded-icon-img" alt="Uploaded Icon">
               <input type="file" class="icon-file-input" accept="image/*" style="display: none;">
             </div>
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-yellow" id="app-icon-qqmusic">
-              <svg viewBox="0 0 24 24" fill="#000000">
-                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-              </svg>
+            <!-- 【核心修改：点击音乐App进入音乐主界面】 -->
+            <div class="icon-box bg-yellow" id="app-icon-qqmusic" onclick="openMusicApp()">
+              <svg viewBox="0 0 24 24" fill="#000000"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
             </div>
             <span class="widget-label" id="label-qqmusic">音乐</span>
           </div>
 
           <div class="widget-item">
             <div class="icon-box bg-blue" id="app-icon-persona">
-              <svg viewBox="0 0 24 24" fill="#2196f3">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
+              <svg viewBox="0 0 24 24" fill="#2196f3"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
             <span class="widget-label" id="label-persona">人设</span>
           </div>
 
-          <div class="widget-item empty-cell">
-            <div class="icon-box"></div>
-          </div>
+          <div class="widget-item empty-cell"><div class="icon-box"></div></div>
 
           <div class="widget-item">
             <div class="icon-box uploadable-icon" data-key="icon_2">
-              <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 6 C10 6 6 14 6 22 C6 28 10 32 14 34 L14 38 L26 38 L26 34 C30 32 34 28 34 22 C34 14 30 6 20 6 Z" />
-              </svg>
+              <svg viewBox="0 0 40 40" fill="none" stroke="#bcaaa4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 C10 6 6 14 6 22 C6 28 10 32 14 34 L14 38 L26 38 L26 34 C30 32 34 28 34 22 C34 14 30 6 20 6 Z" /></svg>
               <img class="uploaded-icon-img" alt="Uploaded Icon">
               <input type="file" class="icon-file-input" accept="image/*" style="display: none;">
             </div>
@@ -516,13 +284,7 @@
 
           <div class="widget-item">
             <div class="icon-box bg-purple" id="app-icon-book">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="5" y="3" width="14" height="18" rx="2"/>
-                <path d="M12 3v18"/>
-                <path d="M9 7h6"/>
-                <path d="M9 11h6"/>
-                <path d="M9 15h6"/>
-              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 3v18"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h6"/></svg>
             </div>
             <span class="widget-label" id="label-book">世界书</span>
           </div>
@@ -532,18 +294,11 @@
             <span class="widget-label" id="label-play">多功能</span>
           </div>
 
-          <div class="widget-item empty-cell">
-            <div class="icon-box"></div>
-          </div>
+          <div class="widget-item empty-cell"><div class="icon-box"></div></div>
 
           <div class="widget-item">
             <div class="icon-box bg-pink2" id="app-icon-clock">
-              <svg viewBox="0 0 24 24" fill="#f48fb1">
-                <circle cx="12" cy="12" r="10"/>
-                <circle cx="8" cy="10" r="1.5" fill="#333333"/>
-                <circle cx="16" cy="10" r="1.5" fill="#333333"/>
-                <ellipse cx="12" cy="15" rx="3" ry="2" fill="#333333"/>
-              </svg>
+              <svg viewBox="0 0 24 24" fill="#f48fb1"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.5" fill="#333333"/><circle cx="16" cy="10" r="1.5" fill="#333333"/><ellipse cx="12" cy="15" rx="3" ry="2" fill="#333333"/></svg>
             </div>
             <span class="widget-label" id="label-clock">Clock</span>
           </div>
@@ -556,13 +311,143 @@
       </div>
     </div>
 
-    <!-- ================= 全屏美化界面 ================= -->
-    <div id="beautifyScreen">
-      <div class="beautify-header">
-        <button class="back-btn" id="backToMainBtn">← 返回</button>
-        <h3>美化设置</h3>
+    <!-- ================= 2. 音乐主页 (仿图1) ================= -->
+    <div id="musicScreen" class="screen">
+      <div class="music-top-bar">
+        <!-- 返回按钮 -->
+        <svg viewBox="0 0 24 24" onclick="closeScreen('musicScreen')"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        <!-- 个人资料图标 -->
+        <svg viewBox="0 0 24 24" onclick="alert('点击右上角头像可双击修改名字等信息')"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       </div>
 
+      <!-- 背景图 (点击可换，删除了英文) -->
+      <div class="music-bg-area" id="musicBgArea" onclick="document.getElementById('musicBgInput').click()">
+        <input type="file" id="musicBgInput" accept="image/*" style="display: none;">
+      </div>
+
+      <!-- 个人资料卡片 -->
+      <div class="profile-card">
+        <div class="profile-header">
+          <!-- 头像 (点击可换) -->
+          <div class="avatar-box" onclick="document.getElementById('musicAvatarInput').click()">
+            <img id="musicAvatar" src="" alt="">
+            <svg id="musicAvatarSvg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <input type="file" id="musicAvatarInput" accept="image/*" style="display: none;">
+          </div>
+          <div class="profile-info">
+            <!-- 名字 -->
+            <h2 id="musicName" class="editable-text" data-placeholder="点击输入名字">snow</h2>
+            <!-- 个性签名（替换了女处女座山东ENFJ） -->
+            <p id="musicSignature" class="editable-text" data-placeholder="点击输入签名">点击这里输入个性签名</p>
+          </div>
+          <button class="edit-btn" onclick="alert('双击文字即可编辑头像、名字和个性签名')">编辑资料</button>
+        </div>
+        
+        <!-- 统计数据 -->
+        <div class="stats-row">
+          <div class="stat-item"><span class="num" id="stat-following" class="editable-text" data-placeholder="0">1</span><span class="label">关注</span></div>
+          <div class="stat-item"><span class="num" id="stat-followers" class="editable-text" data-placeholder="0">0</span><span class="label">粉丝</span></div>
+          <div class="stat-item"><span class="num" id="stat-visitors" class="editable-text" data-placeholder="0">144</span><span class="label">访客</span></div>
+          <div class="stat-item"><span class="num" id="stat-partners" class="editable-text" data-placeholder="0">0</span><span class="label">搭子</span></div>
+        </div>
+      </div>
+
+      <!-- 我的音乐列表 -->
+      <div class="music-list-card">
+        <div class="music-list-header">
+          <h3>我的音乐</h3>
+          <button class="upload-btn" onclick="document.getElementById('mp3Input').click()">
+            <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg> 上传 MP3
+          </button>
+          <input type="file" id="mp3Input" accept="audio/*" style="display: none;">
+        </div>
+        <div class="music-list-empty" id="musicListEmpty">暂未上传音乐</div>
+        <div id="musicListContainer" style="display:none;"></div>
+      </div>
+
+      <!-- 底部播放控制条 (点击进入全屏) -->
+      <div class="music-player-bar" onclick="openPlayerScreen()">
+        <div class="bar-cover">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="bar-info">
+          <!-- 删除了日语，改为默认显示的歌曲名 -->
+          <span class="title" id="currentSongTitle">心许百年-王天戈</span>
+          <span class="subtitle">本地音乐</span>
+        </div>
+        <div class="bar-controls">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 3. 全屏播放器 (仿图2) ================= -->
+    <div id="playerScreen" class="screen">
+      <div class="player-top-bar">
+        <svg viewBox="0 0 24 24" onclick="closeScreen('playerScreen')"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        <svg viewBox="0 0 24 24" onclick="closeScreen('playerScreen')"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+      </div>
+
+      <div class="vinyl-container">
+        <div class="vinyl-disc" id="vinylDisc">
+          <div class="vinyl-ring-2">
+            <div class="vinyl-ring-3">
+              <!-- 唱盘中心，可自定义图片 -->
+              <div class="vinyl-center" onclick="document.getElementById('vinylCoverInput').click()">
+                <img id="vinylCoverImg" src="" alt="" style="display: none;">
+                <svg id="vinylCoverSvg" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                <input type="file" id="vinylCoverInput" accept="image/*" style="display: none;">
+              </div>
+              <div class="vinyl-hole"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="player-info">
+        <!-- 删除了日语，标题和艺术家可编辑 -->
+        <h2 id="playerSongTitle" class="editable-text" data-placeholder="歌曲名">心许百年-王天戈</h2>
+        <p id="playerSongArtist" class="editable-text" data-placeholder="歌手">本地音乐</p>
+      </div>
+
+      <div class="player-tools">
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+
+      <div class="progress-area">
+        <span id="currentTime">00:00</span>
+        <div class="progress-bar-container" id="progressBarContainer">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <span id="totalTime">03:31</span>
+      </div>
+
+      <div class="player-controls">
+        <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        <div class="play-pause-btn" id="playPauseBtn" onclick="togglePlay()">
+          <svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+          <svg viewBox="0 0 24 24" id="pauseIcon" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </div>
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </div>
+    </div>
+
+    <!-- ================= 4. 美化界面 ================= -->
+    <div id="beautifyScreen" class="screen">
+      <div class="beautify-header">
+        <button class="back-btn" onclick="closeScreen('beautifyScreen')">← 返回</button>
+        <h3>美化设置</h3>
+      </div>
       <div class="beautify-body">
         <div class="section-card highlight-card">
           <h4>📦 数据备份（美化文件）</h4>
@@ -585,9 +470,7 @@
 
         <div class="section-card">
           <h4>📱 App图标与名字</h4>
-          <div id="appEditList">
-            <!-- 动态生成 -->
-          </div>
+          <div id="appEditList"></div>
         </div>
 
         <div class="section-card">
@@ -602,9 +485,7 @@
             <button class="btn btn-success" id="savePresetBtn">保存预设</button>
           </div>
           <div class="preset-select-row">
-            <select id="presetSelect">
-              <option value="">-- 选择预设 --</option>
-            </select>
+            <select id="presetSelect"><option value="">-- 选择预设 --</option></select>
             <button class="btn btn-primary" id="loadPresetBtn">替换预设</button>
           </div>
         </div>
@@ -615,117 +496,75 @@
 </div>
 
 <script>
-  // ================= 1. 初始化与数据加载 =================
-  const phoneCase = document.getElementById('phoneCase');
-  const mainScreen = document.getElementById('mainScreen');
-  const beautifyScreen = document.getElementById('beautifyScreen');
-
-  if(localStorage.getItem('app_name_wechat') === '微信' || localStorage.getItem('edit_label_wechat') === '微信') {
-      localStorage.setItem('app_name_wechat', '简讯');
-      localStorage.removeItem('edit_label_wechat');
+  // ================= 全局界面管理 =================
+  function openScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
   }
-  if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐' || localStorage.getItem('edit_label_qqmusic') === 'QQ音乐') {
-      localStorage.setItem('app_name_qqmusic', '音乐');
-      localStorage.removeItem('edit_label_qqmusic');
+  function closeScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('mainScreen').classList.add('active');
   }
-  if(localStorage.getItem('app_name_play') === '玩法' || localStorage.getItem('edit_label_play') === '玩法') {
-      localStorage.setItem('app_name_play', '多功能');
-      localStorage.removeItem('edit_label_play');
-  }
+  function openMusicApp() { openScreen('musicScreen'); }
+  function openPlayerScreen() { openScreen('playerScreen'); }
 
-  const savedWallpaper = localStorage.getItem('saved_wallpaper');
-  if (savedWallpaper) mainScreen.style.backgroundImage = `url(${savedWallpaper})`;
-
-  const isFullscreen = localStorage.getItem('is_fullscreen') === 'true';
-  if (isFullscreen) {
-    phoneCase.classList.add('is-fullscreen');
-    const fsBtn = document.getElementById('fullscreenToggleBtn');
-    if(fsBtn) fsBtn.innerText = '关闭全屏';
-  }
-
+  // ================= 本地存储数据初始化 =================
   const APP_ICON_KEY_PREFIX = 'app_icon_';
   const APP_NAME_KEY_PREFIX = 'app_name_';
-  
-  const appList = [
-    { id: 'beautify', name: '美化' },
-    { id: 'wechat', name: '简讯' },
-    { id: 'qqmusic', name: '音乐' },
-    { id: 'persona', name: '人设' },
-    { id: 'book', name: '世界书' },
-    { id: 'play', name: '多功能' },
-    { id: 'clock', name: 'Clock' },
-    { id: 'instagram', name: 'Instagram' }
-  ];
+  const MUSIC_KEY_PREFIX = 'music_';
 
-  // ================= 2. 初始化主屏幕 App 图标与名字 =================
+  // 迁移旧数据
+  if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
+  if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
+  if(localStorage.getItem('app_name_wechat') === '微信') localStorage.setItem('app_name_wechat', '简讯');
+
+  // ================= 主屏幕App图标与名字逻辑 =================
+  const appList = [
+    { id: 'beautify', name: '美化' }, { id: 'wechat', name: '简讯' },
+    { id: 'qqmusic', name: '音乐' }, { id: 'persona', name: '人设' },
+    { id: 'book', name: '世界书' }, { id: 'play', name: '多功能' },
+    { id: 'clock', name: 'Clock' }, { id: 'instagram', name: 'Instagram' }
+  ];
   function applyAppConfig() {
     appList.forEach(app => {
-      const savedName = localStorage.getItem(APP_NAME_KEY_PREFIX + app.id);
-      if (savedName) {
-        const labelEl = document.getElementById('label-' + app.id);
-        if (labelEl) labelEl.innerText = savedName;
-      } else {
-        const labelEl = document.getElementById('label-' + app.id);
-        if (labelEl) labelEl.innerText = app.name;
-      }
+      const savedName = localStorage.getItem(APP_NAME_KEY_PREFIX + app.id) || app.name;
+      const labelEl = document.getElementById('label-' + app.id);
+      if (labelEl) labelEl.innerText = savedName;
+      
       const savedIcon = localStorage.getItem(APP_ICON_KEY_PREFIX + app.id);
       if (savedIcon) {
         const iconBox = document.getElementById('app-icon-' + app.id);
-        if (iconBox) {
-          iconBox.innerHTML = `<img src="${savedIcon}" alt="${app.name}">`;
-        }
+        if (iconBox) iconBox.innerHTML = `<img src="${savedIcon}" alt="${app.name}">`;
       }
     });
   }
   applyAppConfig();
 
-  // ================= 3. 界面切换逻辑 =================
-  window.openBeautifyApp = function(event) {
-    event.stopPropagation(); 
-    mainScreen.style.display = 'none';
-    beautifyScreen.style.display = 'block';
-    renderAppEditList();
-  };
+  // ================= 双击编辑文字逻辑 (含防清空机制) =================
+  function initEditableTexts() {
+    document.querySelectorAll('.editable-text').forEach(el => {
+      const key = 'edit_' + el.id;
+      const savedValue = localStorage.getItem(key);
+      if (savedValue) el.innerText = savedValue;
 
-  document.getElementById('backToMainBtn').addEventListener('click', () => {
-    beautifyScreen.style.display = 'none';
-    mainScreen.style.display = 'block';
-  });
+      el.addEventListener('dblclick', function() {
+        this.contentEditable = "true"; this.focus();
+      });
+      
+      el.addEventListener('blur', function() {
+        this.contentEditable = "false";
+        let finalText = this.innerText.trim();
+        if (finalText === '') {
+          finalText = this.getAttribute('data-placeholder') || '点击输入';
+          this.innerText = finalText;
+        }
+        try { localStorage.setItem(key, finalText); } catch(e){}
+      });
+    });
+  }
+  initEditableTexts();
 
-  // ================= 4. 壁纸更换与清除 =================
-  const wallpaperInput = document.getElementById('wallpaperInput');
-  document.getElementById('changeWallpaperBtn').addEventListener('click', () => wallpaperInput.click());
-  wallpaperInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const base64Image = event.target.result;
-      mainScreen.style.backgroundImage = `url(${base64Image})`;
-      try { localStorage.setItem('saved_wallpaper', base64Image); } catch (err) { alert("壁纸图片过大"); }
-    };
-    reader.readAsDataURL(file);
-  });
-  document.getElementById('clearWallpaperBtn').addEventListener('click', () => {
-    mainScreen.style.backgroundImage = '';
-    localStorage.removeItem('saved_wallpaper');
-  });
-
-  // ================= 5. 全屏切换逻辑 =================
-  document.getElementById('fullscreenToggleBtn').addEventListener('click', () => {
-    const isNowFullscreen = phoneCase.classList.toggle('is-fullscreen');
-    localStorage.setItem('is_fullscreen', isNowFullscreen);
-    const btn = document.getElementById('fullscreenToggleBtn');
-    if (isNowFullscreen) {
-      btn.innerText = '关闭全屏';
-      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-    } else {
-      btn.innerText = '开启全屏';
-      if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
-    }
-  });
-
-  // ================= 6. 主屏幕组件上传 =================
+  // ================= 组件图片上传 =================
   const uploadableIcons = document.querySelectorAll('.uploadable-icon');
   uploadableIcons.forEach(iconBox => {
     const fileInputIcon = iconBox.querySelector('.icon-file-input');
@@ -767,45 +606,228 @@
   const savedImage = localStorage.getItem('uploaded_captcha_image');
   if (savedImage) { defaultIllustration.style.display = 'none'; uploadedImage.src = savedImage; uploadedImage.style.display = 'block'; }
 
-  // ================= 7. 顶部文字双击编辑（含输入框，含防清空机制） =================
-  const editableElements = document.querySelectorAll('.editable-text');
-  editableElements.forEach(el => {
-    // 加载保存的文字
-    const savedValue = localStorage.getItem('edit_' + el.id);
-    if (savedValue) {
-      el.innerText = savedValue;
-    } else {
-      // 如果本地没有值，但 html 里初始写了默认值，采用 html 默认值
-      // 如果本地有值但为空字符串，也走这里（表示用户清空过）
-    }
+  // ================= 音乐App 专属逻辑 =================
+  const musicBgArea = document.getElementById('musicBgArea');
+  const musicBgInput = document.getElementById('musicBgInput');
+  const musicAvatarInput = document.getElementById('musicAvatarInput');
+  const musicAvatar = document.getElementById('musicAvatar');
+  const musicAvatarSvg = document.getElementById('musicAvatarSvg');
+  const vinylCoverInput = document.getElementById('vinylCoverInput');
+  const vinylCoverImg = document.getElementById('vinylCoverImg');
+  const vinylCoverSvg = document.getElementById('vinylCoverSvg');
+  
+  // 恢复音乐背景
+  const savedMusicBg = localStorage.getItem(MUSIC_KEY_PREFIX + 'bg');
+  if (savedMusicBg) musicBgArea.style.backgroundImage = `url(${savedMusicBg})`;
 
-    el.addEventListener('dblclick', function() {
-      this.contentEditable = "true"; 
-      this.focus();
-    });
-    
-    // 【核心修复2：失去焦点时，如果用户把文字删空了，就自动恢复为默认提示词】
-    el.addEventListener('blur', function() {
-      this.contentEditable = "false";
-      let finalText = this.innerText.trim();
-      
-      // 如果被清空，自动恢复为 data-placeholder 的属性值
-      if (finalText === '') {
-        const placeholder = this.getAttribute('data-placeholder') || '点击输入';
-        this.innerText = placeholder;
-        finalText = placeholder;
-      }
-      
-      try { 
-        localStorage.setItem('edit_' + this.id, finalText); 
-      } catch (e) {}
-    });
+  // 恢复音乐头像
+  const savedMusicAvatar = localStorage.getItem(MUSIC_KEY_PREFIX + 'avatar');
+  if (savedMusicAvatar) {
+    musicAvatar.src = savedMusicAvatar;
+    musicAvatar.style.display = 'block';
+    musicAvatarSvg.style.display = 'none';
+  }
+
+  // 恢复唱盘封面
+  const savedVinylCover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover');
+  if (savedVinylCover) {
+    vinylCoverImg.src = savedVinylCover;
+    vinylCoverImg.style.display = 'block';
+    vinylCoverSvg.style.display = 'none';
+  }
+
+  // 音乐背景上传
+  musicBgInput.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      musicBgArea.style.backgroundImage = `url(${base64})`;
+      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'bg', base64); } catch(err){ alert('图片过大'); }
+    };
+    reader.readAsDataURL(file);
   });
 
-  // ================= 8. 美化界面：App列表生成 =================
-  const appEditList = document.getElementById('appEditList');
+  // 音乐头像上传
+  musicAvatarInput.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      musicAvatar.src = base64;
+      musicAvatar.style.display = 'block';
+      musicAvatarSvg.style.display = 'none';
+      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'avatar', base64); } catch(err){ alert('图片过大'); }
+    };
+    reader.readAsDataURL(file);
+  });
 
+  // 唱盘封面上传
+  vinylCoverInput.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      vinylCoverImg.src = base64;
+      vinylCoverImg.style.display = 'block';
+      vinylCoverSvg.style.display = 'none';
+      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'vinyl_cover', base64); } catch(err){ alert('图片过大'); }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // 音乐播放器逻辑
+  let audio = new Audio();
+  let isPlaying = false;
+  let currentSongIndex = 0;
+  let playlist = []; // 存储上传的歌曲
+
+  // 播放/暂停切换
+  function togglePlay() {
+    if (!audio.src) {
+      alert('请先在“我的音乐”中上传MP3文件');
+      return;
+    }
+    if (isPlaying) {
+      audio.pause();
+      document.getElementById('playIcon').style.display = 'block';
+      document.getElementById('pauseIcon').style.display = 'none';
+      document.getElementById('vinylDisc').style.animationPlayState = 'paused';
+    } else {
+      audio.play();
+      document.getElementById('playIcon').style.display = 'none';
+      document.getElementById('pauseIcon').style.display = 'block';
+      document.getElementById('vinylDisc').style.animationPlayState = 'running';
+    }
+    isPlaying = !isPlaying;
+  }
+
+  // 进度条更新
+  audio.addEventListener('timeupdate', () => {
+    const current = audio.currentTime;
+    const total = audio.duration || 0;
+    if (total > 0) {
+      const percent = (current / total) * 100;
+      document.getElementById('progressBarFill').style.width = percent + '%';
+      document.getElementById('currentTime').innerText = formatTime(current);
+      document.getElementById('totalTime').innerText = formatTime(total);
+    }
+  });
+
+  // 进度条点击跳转
+  document.getElementById('progressBarContainer').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    if (audio.duration) {
+      audio.currentTime = percent * audio.duration;
+    }
+  });
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  // 处理MP3上传
+  document.getElementById('mp3Input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      // 注意：由于MP3可能非常大，这里只是为了演示UI，实际存储到本地可能会有空间限制
+      // 为了不爆掉LocalStorage，这里不保存Base64到本地，只保存在内存中供当前播放使用
+      // 如果要保存，用户需要自行承担空间不足的风险
+      
+      playlist.push({
+        name: file.name.replace('.mp3', ''),
+        artist: '本地音乐',
+        url: base64
+      });
+
+      // 更新界面
+      document.getElementById('musicListEmpty').style.display = 'none';
+      const listContainer = document.getElementById('musicListContainer');
+      listContainer.style.display = 'block';
+      listContainer.innerHTML = playlist.map((song, index) => `
+        <div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display:flex; justify-content:space-between;" onclick="playSong(${index})">
+          <span style="font-size:14px; color:#333;">${song.name}</span>
+          <span style="font-size:12px; color:#999;">${song.artist}</span>
+        </div>
+      `).join('');
+
+      // 自动播放第一首
+      if (playlist.length === 1) {
+        playSong(0);
+      }
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+
+  function playSong(index) {
+    currentSongIndex = index;
+    const song = playlist[index];
+    audio.src = song.url;
+    document.getElementById('currentSongTitle').innerText = song.name;
+    document.getElementById('playerSongTitle').innerText = song.name;
+    document.getElementById('playerSongArtist').innerText = song.artist;
+    
+    // 默认给一个时长显示，实际时长会在loadedmetadata后更新
+    document.getElementById('totalTime').innerText = '--:--';
+    
+    audio.play().then(() => {
+      isPlaying = true;
+      document.getElementById('playIcon').style.display = 'none';
+      document.getElementById('pauseIcon').style.display = 'block';
+      document.getElementById('vinylDisc').style.animationPlayState = 'running';
+    }).catch(err => {
+      console.log('播放失败:', err);
+    });
+  }
+
+  // ================= 美化界面 逻辑 =================
+  // 壁纸
+  const wallpaperInput = document.getElementById('wallpaperInput');
+  document.getElementById('changeWallpaperBtn').addEventListener('click', () => wallpaperInput.click());
+  wallpaperInput.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      document.getElementById('mainScreen').style.backgroundImage = `url(${base64})`;
+      try { localStorage.setItem('saved_wallpaper', base64); } catch(err){ alert('壁纸图片过大'); }
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('clearWallpaperBtn').addEventListener('click', () => {
+    document.getElementById('mainScreen').style.backgroundImage = '';
+    localStorage.removeItem('saved_wallpaper');
+  });
+  if (localStorage.getItem('saved_wallpaper')) {
+    document.getElementById('mainScreen').style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
+  }
+
+  // 全屏模式
+  document.getElementById('fullscreenToggleBtn').addEventListener('click', () => {
+    const phoneCase = document.getElementById('phoneCase');
+    const isNowFullscreen = phoneCase.classList.toggle('is-fullscreen');
+    localStorage.setItem('is_fullscreen', isNowFullscreen);
+    const btn = document.getElementById('fullscreenToggleBtn');
+    if (isNowFullscreen) {
+      btn.innerText = '关闭全屏';
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+    } else {
+      btn.innerText = '开启全屏';
+      if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+    }
+  });
+
+  // 渲染App列表
   function renderAppEditList() {
+    const appEditList = document.getElementById('appEditList');
     let html = '';
     appList.forEach(app => {
       const savedName = localStorage.getItem(APP_NAME_KEY_PREFIX + app.id) || app.name;
@@ -847,7 +869,6 @@
         triggerAppIconUpload(id, preview);
       });
     });
-
     document.querySelectorAll('.upload-trigger').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
@@ -855,7 +876,6 @@
         triggerAppIconUpload(id, preview);
       });
     });
-
     document.querySelectorAll('.app-name-edit').forEach(input => {
       input.addEventListener('input', function() {
         const id = this.getAttribute('data-id');
@@ -866,6 +886,7 @@
       });
     });
   }
+  renderAppEditList();
 
   function triggerAppIconUpload(appId, previewElement) {
     const input = document.createElement('input');
@@ -878,20 +899,15 @@
         try { localStorage.setItem(APP_ICON_KEY_PREFIX + appId, base64); } catch (err) { alert("图片过大，存储失败"); return; }
         previewElement.innerHTML = `<img src="${base64}" style="display:block;">`;
         const mainIconBox = document.getElementById('app-icon-' + appId);
-        if (mainIconBox) {
-          mainIconBox.innerHTML = `<img src="${base64}" alt="App Icon">`;
-        }
+        if (mainIconBox) mainIconBox.innerHTML = `<img src="${base64}" alt="App Icon">`;
       };
       reader.readAsDataURL(file);
     };
     input.click();
   }
 
-  renderAppEditList();
-
-  // ================= 9. 预设管理 =================
+  // 预设管理与导入导出逻辑 (保留原有逻辑)
   const presetSelect = document.getElementById('presetSelect');
-
   function updatePresetList() {
     presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
     for (let i = 0; i < localStorage.length; i++) {
@@ -909,7 +925,8 @@
     const presetData = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX)) {
+      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
+          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX)) {
         presetData[key] = localStorage.getItem(key);
       }
     }
@@ -929,7 +946,8 @@
       const data = JSON.parse(dataStr);
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX)) {
+        if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
+            key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX)) {
           localStorage.removeItem(key);
         }
       }
@@ -943,19 +961,16 @@
     } catch (e) { alert('预设数据损坏'); }
   });
 
-  // ================= 10. 数据备份（导入/导出JSON） =================
   document.getElementById('exportDataBtn').addEventListener('click', () => {
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX)) {
+          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX)) {
         data[key] = localStorage.getItem(key);
       }
     }
-    
     const json = JSON.stringify(data, null, 2);
-    
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -963,10 +978,8 @@
     a.download = `ai_phone_beautify_${new Date().getTime()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-
     setTimeout(() => {
-      const userConfirmed = confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击“确定”后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）");
-      if (userConfirmed) {
+      if (confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击“确定”后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）")) {
         prompt("请长按复制以下美化配置代码（建议保存到备忘录）：", json);
       }
     }, 500);
@@ -984,7 +997,6 @@
       try {
         const data = JSON.parse(event.target.result);
         if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON format');
-        
         for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
             localStorage.setItem(key, data[key]);
@@ -994,7 +1006,6 @@
         location.reload();
       } catch (err) {
         alert('导入失败，文件内容可能损坏或不是合法的 JSON 文件。');
-        console.error('Import error:', err);
       }
     };
     reader.readAsText(file);
