@@ -50,7 +50,7 @@
   #musicScreen { background: #f8f9fa; padding-bottom: 120px; }
   .music-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; position: relative; z-index: 10; }
   .music-top-bar svg { width: 24px; height: 24px; cursor: pointer; fill: #333; }
-  .music-bg-area { height: 180px; position: relative; background: #eef0f3; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; cursor: pointer; }
+  .music-bg-area { height: 180px; position: relative; background: #eef0f3; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; background-repeat: no-repeat; cursor: pointer; }
   .profile-card { background: #fff; border-radius: 20px; margin: -30px 16px 16px 16px; padding: 16px; position: relative; z-index: 5; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
   .profile-header { display: flex; align-items: center; margin-bottom: 16px; }
   .avatar-box { width: 60px; height: 60px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 12px; overflow: hidden; cursor: pointer; flex-shrink: 0; }
@@ -351,6 +351,7 @@
   .jx-msg-bubble.media { padding: 4px !important; background: transparent !important; }
   .jx-msg-bubble.media::after, .jx-msg-bubble.media::before { display: none !important; }
   .jx-msg-bubble img { max-width: 190px; max-height: 240px; border-radius: 6px; display: block; }
+  .jx-msg-bubble .sticker-img { max-width: 120px; max-height: 120px; }
   .jx-chat-input-bar { display: flex; align-items: center; padding: 8px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); box-sizing: content-box; }
   .jx-chat-input-bar .icon { width: 30px; height: 30px; fill: #333; cursor: pointer; flex-shrink: 0; }
   .jx-chat-input-bar .icon-voice { margin-right: 8px; }
@@ -358,6 +359,48 @@
   .jx-chat-input-bar .icon-plus { margin-left: 8px; }
   .jx-chat-input-bar input { flex: 1; border: none; border-radius: 4px; padding: 8px 12px; font-size: 15px; outline: none; background: #fff; }
   .jx-chat-input-bar input::placeholder { color: #bbb; }
+
+  /* 多选栏 */
+  .jx-multi-bar { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .jx-multi-bar.show { display: flex; }
+  .jx-multi-bar span { font-size: 15px; color: #333; cursor: pointer; padding: 4px 8px; }
+  .jx-multi-bar span.danger { color: #e74c3c; }
+  .jx-multi-bar span.primary { color: #07c160; font-weight: 600; }
+  .jx-multi-bar .count { font-size: 13px; color: #888; }
+
+  .msg-checkbox { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; flex-shrink: 0; align-self: center; margin: 0 8px; box-sizing: border-box; background: #fff; }
+  .msg-checkbox.checked { background: #07c160; border-color: #07c160; position: relative; }
+  .msg-checkbox.checked::after { content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+  /* 合并转发卡片 */
+  .merged-card { min-width: 140px; max-width: 210px; }
+  .merged-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .merged-line { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+
+  /* 表情面板 */
+  .sticker-panel { display: none; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; height: 230px; flex-direction: column; }
+  .sticker-panel.show { display: flex; }
+  .sticker-panel-body { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start; }
+  .sticker-panel-tip { font-size: 11px; color: #999; text-align: center; padding: 6px 0 12px; flex-shrink: 0; }
+  .sticker-cell { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #eee; }
+  .sticker-cell img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+  .sticker-bind { position: absolute; top: 0px; right: 2px; font-size: 15px; color: #ccc; cursor: pointer; text-shadow: 0 0 4px #fff, 0 0 4px #fff; padding: 2px; line-height: 1; user-select: none; }
+  .sticker-bind.on { color: #ffb400; }
+  .sticker-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #bbb; font-size: 13px; line-height: 1.8; }
+
+  /* 表情管理页 */
+  .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sticker-item { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 1px solid #eee; }
+  .sticker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sticker-item .sticker-del { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff; font-size: 13px; line-height: 17px; text-align: center; cursor: pointer; }
+
+  /* 长按菜单 */
+  .jx-msg-menu { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: flex-end; justify-content: center; z-index: 50000; }
+  .jx-msg-menu.show { display: flex; }
+  .jx-msg-menu-inner { background: #fff; width: 100%; max-width: 400px; border-radius: 14px 14px 0 0; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
+  .jx-msg-menu-item { padding: 15px; text-align: center; font-size: 16px; color: #333; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+  .jx-msg-menu-item:last-child { border-bottom: none; }
+  .jx-msg-menu-item.cancel { color: #888; margin-top: 6px; background: #f7f7f7; }
 
   #jxChatInfoScreen { display: none; flex-direction: column; background: #ededed; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1001; }
   #jxChatInfoScreen.active { display: flex; }
@@ -433,6 +476,7 @@
   .wb-modal-tag.global { color: #2e7d32; background: #e8f5e9; }
   .wb-modal-tag.local { color: #e65100; background: #fff3e0; }
 
+  /* 深色模式 */
   .phone-case.dark-mode { background-color: #0d0d0d; }
   .phone-case.dark-mode .phone-content { background-color: #0d0d0d; }
   .phone-case.dark-mode .screen { background: #121212; color: #ddd; }
@@ -562,6 +606,12 @@
   .phone-case.dark-mode .jx-chat-input-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .jx-chat-input-bar input { background: #2c2c2e; color: #eee; }
   .phone-case.dark-mode .jx-chat-input-bar .icon { fill: #ddd; }
+  .phone-case.dark-mode .sticker-panel { background: #1c1c1e; border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .sticker-cell { background: #2c2c2e; border-color: #3a3a3c; }
+  .phone-case.dark-mode .jx-multi-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-multi-bar span { color: #ddd; }
+  .phone-case.dark-mode .merged-title { color: #eee; border-bottom-color: rgba(255,255,255,0.1); }
+  .phone-case.dark-mode .merged-line { color: #aaa; }
 
   .phone-case.dark-mode #jxChatInfoScreen { background: #121212; }
   .phone-case.dark-mode .jx-info-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
@@ -601,6 +651,10 @@
   .phone-case.dark-mode .app-edit-item { border-bottom-color: #2c2c2e; }
   .phone-case.dark-mode .preset-input-row input,
   .phone-case.dark-mode .preset-select-row select { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .jx-msg-menu-inner { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-msg-menu-item { color: #ddd; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-msg-menu-item.cancel { background: #2c2c2e; color: #888; }
+  .phone-case.dark-mode #stickerLinkInput { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
 </style>
 </head>
 <body>
@@ -1081,7 +1135,7 @@
             <span class="jx-me-menu-text">收藏</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
-          <div class="jx-me-menu-item" onclick="alert('表情功能暂未开放')">
+          <div class="jx-me-menu-item" onclick="openStickerScreen()">
             <div class="jx-me-menu-icon jx-me-bg-emoji"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg></div>
             <span class="jx-me-menu-text">表情</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
@@ -1102,6 +1156,36 @@
       </div>
     </div>
 
+    <!-- ================= 表情管理页 ================= -->
+    <div id="jxStickerScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1003;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeStickerScreen()">‹</span>
+        <span class="title">表情管理</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll">
+        <div class="jx-info-block" style="padding: 16px;">
+          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">批量添加表情包链接</h4>
+          <textarea id="stickerLinkInput" placeholder="每行一个表情包链接，可选格式：
+https://xxx.com/a.png
+名称|https://xxx.com/a.png
+名称|https://xxx.com/a.png|含义描述" style="width:100%; height:110px; border:1px solid #ddd; border-radius:8px; padding:10px; font-size:13px; resize:vertical; outline:none; font-family:inherit; line-height:1.5;"></textarea>
+          <button class="btn btn-primary" style="margin-top:10px; width:100%; padding:11px;" onclick="addStickersFromLinks()">添加链接</button>
+        </div>
+        <div class="jx-info-block" style="padding: 16px;">
+          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">上传文件</h4>
+          <p style="font-size:12px; color:#999; margin-bottom:10px; line-height:1.6;">支持 docx / json / txt。格式同上方文本框（每行一条）。</p>
+          <button class="btn btn-success" style="width:100%; padding:11px;" onclick="document.getElementById('stickerFileInput').click()">选择文件</button>
+          <input type="file" id="stickerFileInput" accept=".docx,.json,.txt" style="display:none;">
+        </div>
+        <div class="jx-info-block" style="padding: 16px;">
+          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">已添加表情包 <span id="stickerCount" style="color:#999; font-weight:normal; font-size:13px;">(0)</span></h4>
+          <div id="stickerGrid" class="sticker-grid"></div>
+          <div id="stickerEmpty" style="text-align:center; padding:30px 0; color:#ccc; font-size:13px;">暂无表情包</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= 聊天界面 ================= -->
     <div id="jxChatScreen">
       <div class="jx-chat-top-bar">
@@ -1110,12 +1194,26 @@
         <span class="more-btn" onclick="openChatInfo()">···</span>
       </div>
       <div class="jx-chat-messages" id="jxChatMessages"></div>
-      <div class="jx-chat-input-bar">
-        <svg class="icon icon-voice" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
+
+      <!-- 表情面板 -->
+      <div class="sticker-panel" id="jxStickerPanel">
+        <div class="sticker-panel-body" id="stickerPanelBody"></div>
+        <div class="sticker-panel-tip">点击表情发送 · 点右上角☆可绑定给该角色使用</div>
+      </div>
+
+      <div class="jx-chat-input-bar" id="jxChatInputBar">
+        <svg class="icon icon-voice" viewBox="0 0 24 24" onclick="voiceSend()"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
         <input type="text" id="jxChatInput" placeholder="输入消息..." onkeydown="if(event.key === 'Enter') sendMessage()">
-        <svg class="icon icon-emoji" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+        <svg class="icon icon-emoji" viewBox="0 0 24 24" onclick="toggleStickerPanel()"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
         <svg class="icon icon-plus" viewBox="0 0 24 24" onclick="document.getElementById('jxChatImageInput').click()"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         <input type="file" id="jxChatImageInput" accept="image/*" style="display: none;">
+      </div>
+
+      <div class="jx-multi-bar" id="jxMultiBar">
+        <span onclick="exitMultiSelect()">取消</span>
+        <span class="count" id="multiSelectCount">已选 0 条</span>
+        <span class="danger" onclick="deleteSelected()">删除</span>
+        <span class="primary" onclick="forwardSelected()">转发</span>
       </div>
     </div>
 
@@ -1252,6 +1350,26 @@
       </div>
     </div>
 
+    <!-- 转发目标选择弹窗 -->
+    <div class="jx-modal" id="forwardTargetModal">
+      <div class="jx-modal-content">
+        <h3>转发给</h3>
+        <div class="jx-modal-list" id="forwardTargetList"></div>
+        <button class="jx-modal-btn" onclick="closeForwardTargetModal()">取消</button>
+      </div>
+    </div>
+
+    <!-- 长按消息菜单 -->
+    <div class="jx-msg-menu" id="jxMsgMenu">
+      <div class="jx-msg-menu-inner">
+        <div class="jx-msg-menu-item" onclick="menuDelete()">删除</div>
+        <div class="jx-msg-menu-item" onclick="menuEdit()">编辑</div>
+        <div class="jx-msg-menu-item" onclick="menuTranslate()">翻译</div>
+        <div class="jx-msg-menu-item" onclick="menuMultiSelect()">多选</div>
+        <div class="jx-msg-menu-item cancel" onclick="closeMsgMenu()">取消</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1310,6 +1428,7 @@ const PERSONA_KEY = 'persona_list';
 const WORLDBOOK_KEY = 'worldbook_entries';
 const API_CONFIG_KEY = 'api_config';
 const API_PRESET_PREFIX = 'api_preset_';
+const STICKER_KEY = 'jx_stickers';
 
 if (localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
 if (localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
@@ -1395,6 +1514,39 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   }
 })();
 
+// ================= 图片压缩（高清不模糊） =================
+function compressImageFile(file, maxDim, quality) {
+  maxDim = maxDim || 1600;
+  quality = quality || 0.9;
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          const scale = maxDim / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, w, h);
+        try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+        catch (err) { resolve(e.target.result); }
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
 // ================= 音乐 App =================
 (function initMusicApp() {
   const musicBgArea = document.getElementById('musicBgArea');
@@ -1409,7 +1561,11 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   const barCoverSvg = document.getElementById('barCoverSvg');
   if (!musicBgArea) return;
   const savedMusicBg = localStorage.getItem(MUSIC_KEY_PREFIX + 'bg');
-  if (savedMusicBg) musicBgArea.style.backgroundImage = `url(${savedMusicBg})`;
+  if (savedMusicBg) {
+    musicBgArea.style.backgroundImage = `url(${savedMusicBg})`;
+    musicBgArea.style.backgroundSize = 'cover';
+    musicBgArea.style.backgroundPosition = 'center';
+  }
   const savedMusicAvatar = localStorage.getItem(MUSIC_KEY_PREFIX + 'avatar');
   if (savedMusicAvatar) { musicAvatar.src = savedMusicAvatar; musicAvatar.style.display = 'block'; musicAvatarSvg.style.display = 'none'; }
   const savedVinylCover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover');
@@ -1419,34 +1575,34 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   }
   musicBgInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
+    // 高清：最大 2200px，质量 0.92
+    compressImageFile(file, 2200, 0.92).then((base64) => {
+      if (!base64) return;
       musicBgArea.style.backgroundImage = `url(${base64})`;
+      musicBgArea.style.backgroundSize = 'cover';
+      musicBgArea.style.backgroundPosition = 'center';
       try { localStorage.setItem(MUSIC_KEY_PREFIX + 'bg', base64); } catch(err){ alert('图片过大'); }
-    };
-    reader.readAsDataURL(file);
+      this.value = '';
+    });
   });
   musicAvatarInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
+    compressImageFile(file, 600, 0.9).then((base64) => {
+      if (!base64) return;
       musicAvatar.src = base64; musicAvatar.style.display = 'block'; musicAvatarSvg.style.display = 'none';
       try { localStorage.setItem(MUSIC_KEY_PREFIX + 'avatar', base64); } catch(err){ alert('图片过大'); }
-    };
-    reader.readAsDataURL(file);
+      this.value = '';
+    });
   });
   vinylCoverInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
+    compressImageFile(file, 900, 0.9).then((base64) => {
+      if (!base64) return;
       vinylCoverImg.src = base64; vinylCoverImg.style.display = 'block'; vinylCoverSvg.style.display = 'none';
       barCoverImg.src = base64; barCoverImg.style.display = 'block'; barCoverSvg.style.display = 'none';
       try { localStorage.setItem(MUSIC_KEY_PREFIX + 'vinyl_cover', base64); } catch(err){ alert('图片过大'); }
-    };
-    reader.readAsDataURL(file);
+      this.value = '';
+    });
   });
 })();
 
@@ -1702,14 +1858,13 @@ function deletePersona() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      tempAvatarBase64 = ev.target.result;
+    compressImageFile(file, 600, 0.9).then((base64) => {
+      if (!base64) return;
+      tempAvatarBase64 = base64;
       document.getElementById('personaAvatarImg').src = tempAvatarBase64;
       document.getElementById('personaAvatarImg').style.display = 'block';
       document.getElementById('personaAvatarSvg').style.display = 'none';
-    };
-    reader.readAsDataURL(file);
+    });
     this.value = '';
   });
 })();
@@ -1988,21 +2143,26 @@ function extractEntriesFromJson(data, defaultEntry) {
   changeBtn.addEventListener('click', () => input.click());
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
+    compressImageFile(file, 2200, 0.92).then((base64) => {
+      if (!base64) return;
       document.getElementById('mainScreen').style.backgroundImage = `url(${base64})`;
+      document.getElementById('mainScreen').style.backgroundSize = 'cover';
+      document.getElementById('mainScreen').style.backgroundPosition = 'center';
+      document.getElementById('mainScreen').style.backgroundRepeat = 'no-repeat';
       try { localStorage.setItem('saved_wallpaper', base64); } catch(err){ alert('壁纸图片过大'); }
-    };
-    reader.readAsDataURL(file);
-    this.value = '';
+      this.value = '';
+    });
   });
   clearBtn.addEventListener('click', () => {
     document.getElementById('mainScreen').style.backgroundImage = '';
     localStorage.removeItem('saved_wallpaper');
   });
   if (localStorage.getItem('saved_wallpaper')) {
-    document.getElementById('mainScreen').style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
+    const ms = document.getElementById('mainScreen');
+    ms.style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
+    ms.style.backgroundSize = 'cover';
+    ms.style.backgroundPosition = 'center';
+    ms.style.backgroundRepeat = 'no-repeat';
   }
 })();
 
@@ -2114,16 +2274,14 @@ function triggerAppIconUpload(appId, previewElement) {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
+    compressImageFile(file, 512, 0.9).then((base64) => {
+      if (!base64) return;
       try { localStorage.setItem(APP_ICON_KEY_PREFIX + appId, base64); }
       catch (err) { alert("图片过大，存储失败"); return; }
       if (previewElement) previewElement.innerHTML = `<img src="${base64}" style="display:block;">`;
       const mainIconBox = document.getElementById('app-icon-' + appId);
       if (mainIconBox) mainIconBox.innerHTML = `<img src="${base64}" alt="App Icon">`;
-    };
-    reader.readAsDataURL(file);
+    });
   };
   input.click();
 }
@@ -2148,7 +2306,7 @@ const isBackupKey = (key) => (
   key === 'is_fullscreen' || key === 'dark_mode' || key === 'api_config' ||
   key.startsWith('api_preset_') || key.startsWith('moments_') ||
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
-  key === 'jx_awareness_log' || key === 'jx_wechat_id'
+  key === 'jx_awareness_log' || key === 'jx_wechat_id' || key === STICKER_KEY
 );
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
@@ -2521,37 +2679,6 @@ updateApiPresetList();
 let jianxunChats = [];
 let currentChatId = null;
 
-// ---------- 图片压缩 ----------
-function compressImageFile(file, maxDim, quality) {
-  maxDim = maxDim || 900;
-  quality = quality || 0.72;
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        let w = img.width, h = img.height;
-        if (w > maxDim || h > maxDim) {
-          const scale = maxDim / Math.max(w, h);
-          w = Math.round(w * scale);
-          h = Math.round(h * scale);
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        try { resolve(canvas.toDataURL('image/jpeg', quality)); }
-        catch (err) { resolve(e.target.result); }
-      };
-      img.onerror = () => resolve(e.target.result);
-      img.src = e.target.result;
-    };
-    reader.onerror = () => resolve('');
-    reader.readAsDataURL(file);
-  });
-}
-
 // ---------- 感知日志 ----------
 const AWARENESS_KEY = 'jx_awareness_log';
 function loadAwarenessLog() {
@@ -2572,6 +2699,18 @@ function pushAwareness(text) {
 function saveJianxunChats() {
   try { localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats)); }
   catch (e) { alert('存储空间不足，请删除一些聊天中的图片后重试'); }
+}
+
+// ---------- 表情包存储 ----------
+function loadStickers() {
+  try {
+    const v = JSON.parse(localStorage.getItem(STICKER_KEY) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function saveStickers(list) {
+  try { localStorage.setItem(STICKER_KEY, JSON.stringify(list)); }
+  catch (e) { alert('存储空间不足，表情包保存失败'); }
 }
 
 function openJianxunApp() {
@@ -2622,7 +2761,7 @@ function loadJxMeProfile() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 600, 0.9).then((base64) => {
       if (!base64) return;
       const el = document.getElementById('jxMeAvatarImg');
       if (el) el.src = base64;
@@ -2735,12 +2874,14 @@ function loadJianxunChats() {
     if (chat.chatBg === undefined) chat.chatBg = '';
     if (chat.myAvatar === undefined) chat.myAvatar = '';
     if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+    if (!Array.isArray(chat.boundStickers)) chat.boundStickers = [];
     delete chat._replying;
     if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
     else if (typeof chat.boundWorldBook === 'string') {
       const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
       chat.boundWorldBook = entry ? [entry.id] : [];
     } else if (!Array.isArray(chat.boundWorldBook)) chat.boundWorldBook = [];
+    chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
   });
 }
 
@@ -2761,6 +2902,8 @@ function renderJianxunChatList() {
     if (lastMsgObj) {
       if (lastMsgObj.content === '__typing__') lastMsg = '正在输入…';
       else if (lastMsgObj.type === 'image') lastMsg = '[图片]';
+      else if (lastMsgObj.type === 'sticker') lastMsg = '[表情]';
+      else if (lastMsgObj.type === 'merged') lastMsg = '[聊天记录]';
       else lastMsg = lastMsgObj.content || '[图片]';
     }
     return `<div class="jx-chat-item" onclick="openChat('${chat.id}')">
@@ -2780,20 +2923,29 @@ function openChat(id) {
   document.getElementById('jxChatTitle').innerText = chat.customRemark || chat.name || '聊天';
   renderChatMessages();
   if (chat.chatBg) {
-    document.getElementById('jxChatScreen').style.backgroundImage = `url(${chat.chatBg})`;
-    document.getElementById('jxChatScreen').style.backgroundSize = 'cover';
-    document.getElementById('jxChatScreen').style.backgroundPosition = 'center';
+    const sc = document.getElementById('jxChatScreen');
+    sc.style.backgroundImage = `url(${chat.chatBg})`;
+    sc.style.backgroundSize = 'cover';
+    sc.style.backgroundPosition = 'center';
+    sc.style.backgroundRepeat = 'no-repeat';
   } else {
     document.getElementById('jxChatScreen').style.backgroundImage = 'none';
     document.getElementById('jxChatScreen').style.backgroundColor = '';
   }
   document.getElementById('jxChatScreen').classList.add('active');
   document.getElementById('jxChatInput').value = '';
+  // 关闭表情面板 & 退出多选
+  document.getElementById('jxStickerPanel').classList.remove('show');
+  exitMultiSelect(true);
   setTimeout(() => {
     const msgContainer = document.getElementById('jxChatMessages');
     if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
   }, 50);
 }
+
+// ---------- 多选状态 ----------
+let multiSelectMode = false;
+let selectedMsgIds = new Set();
 
 function renderChatMessages() {
   if (!currentChatId) return;
@@ -2807,12 +2959,23 @@ function renderChatMessages() {
   }
   const myAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
   container.innerHTML = chat.messages.map(msg => {
+    if (!msg.id) msg.id = genId();
     const isMe = msg.role === 'me';
     const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
     let inner = '';
     let bubbleCls = 'jx-msg-bubble';
     if (msg.content === '__typing__') {
       inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
+    } else if (msg.type === 'merged' && Array.isArray(msg.items)) {
+      inner = `<div class="merged-card">
+        <div class="merged-title">聊天记录</div>
+        ${msg.items.slice(0, 6).map(it => `<div class="merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}
+        ${msg.items.length > 6 ? `<div class="merged-line">…共 ${msg.items.length} 条</div>` : ''}
+      </div>`;
+    } else if (msg.type === 'sticker' && msg.image) {
+      bubbleCls += ' media';
+      const safeSrc = String(msg.image).replace(/'/g, '%27');
+      inner = `<img class="sticker-img" src="${safeSrc}" alt="表情" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
     } else if (msg.type === 'image' && msg.image) {
       bubbleCls += ' media';
       const safeSrc = String(msg.image).replace(/'/g, '%27');
@@ -2820,12 +2983,62 @@ function renderChatMessages() {
     } else {
       inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
     }
-    return `<div class="jx-msg-row ${isMe ? 'me' : 'other'}">
+    const checkboxHtml = multiSelectMode ? `<div class="msg-checkbox ${selectedMsgIds.has(msg.id) ? 'checked' : ''}"></div>` : '';
+    return `<div class="jx-msg-row ${isMe ? 'me' : 'other'}" data-msg-id="${msg.id}">
+      ${checkboxHtml}
       <div class="jx-msg-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
       <div class="${bubbleCls}">${inner}</div>
     </div>`;
   }).join('');
+  attachMsgLongPress(container);
   setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
+}
+
+let suppressRowClick = false;
+function attachMsgLongPress(container) {
+  container.querySelectorAll('.jx-msg-row').forEach(row => {
+    const msgId = row.getAttribute('data-msg-id');
+    if (!msgId) return;
+    let timer = null;
+    const start = (e) => {
+      if (multiSelectMode) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = null;
+        suppressRowClick = true;
+        if (navigator.vibrate) { try { navigator.vibrate(25); } catch(err){} }
+        openMsgMenu(msgId);
+        setTimeout(() => { suppressRowClick = false; }, 500);
+      }, 480);
+    };
+    const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+    row.addEventListener('touchstart', start, { passive: true });
+    row.addEventListener('touchend', cancel);
+    row.addEventListener('touchmove', cancel, { passive: true });
+    row.addEventListener('touchcancel', cancel);
+    row.addEventListener('mousedown', start);
+    row.addEventListener('mouseup', cancel);
+    row.addEventListener('mouseleave', cancel);
+    row.addEventListener('click', () => {
+      if (suppressRowClick) return;
+      if (multiSelectMode) toggleMsgSelection(msgId);
+    });
+  });
+}
+
+function toggleMsgSelection(msgId) {
+  if (selectedMsgIds.has(msgId)) selectedMsgIds.delete(msgId);
+  else selectedMsgIds.add(msgId);
+  // 局部刷新勾选
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const container = document.getElementById('jxChatMessages');
+  container.querySelectorAll('.jx-msg-row').forEach(row => {
+    const id = row.getAttribute('data-msg-id');
+    const cb = row.querySelector('.msg-checkbox');
+    if (cb) cb.classList.toggle('checked', selectedMsgIds.has(id));
+  });
+  document.getElementById('multiSelectCount').innerText = `已选 ${selectedMsgIds.size} 条`;
 }
 
 function openImageViewer(src) {
@@ -2841,17 +3054,41 @@ function openImageViewer(src) {
   overlay.style.display = 'flex';
 }
 
+// ---------- 发送消息（回车只发送，不触发回复） ----------
 function sendMessage() {
   const input = document.getElementById('jxChatInput');
   const content = input.value.trim();
   if (!content) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  chat.messages.push({ role: 'me', type: 'text', content: content });
+  chat.messages.push({ id: genId(), role: 'me', type: 'text', content: content });
   input.value = '';
   saveJianxunChats();
   renderChatMessages();
   renderJianxunChatList();
+}
+
+// ---------- 语音键：发送 + 触发角色回复 ----------
+function voiceSend() {
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
+    alert('请先在「设置 → API 配置」中完成配置，角色才能回复哦～');
+    return;
+  }
+  const input = document.getElementById('jxChatInput');
+  const content = input.value.trim();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (content) {
+    chat.messages.push({ id: genId(), role: 'me', type: 'text', content: content });
+    input.value = '';
+    saveJianxunChats();
+    renderChatMessages();
+    renderJianxunChatList();
+  }
+  // 隐藏表情面板
+  document.getElementById('jxStickerPanel').classList.remove('show');
+  if (chat.messages.filter(m => m.content !== '__typing__').length === 0) return;
   triggerCharReply(chat);
 }
 
@@ -2864,25 +3101,426 @@ function sendMessage() {
     if (!file) return;
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
-    compressImageFile(file, 900, 0.72).then((base64) => {
+    compressImageFile(file, 1400, 0.85).then((base64) => {
       if (!base64) { alert('图片处理失败'); return; }
-      chat.messages.push({ role: 'me', type: 'image', image: base64, content: '[图片]' });
+      chat.messages.push({ id: genId(), role: 'me', type: 'image', image: base64, content: '[图片]' });
       chat.imagePool.push({ id: genId(), data: base64, time: Date.now() });
       if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
       saveJianxunChats();
       renderChatMessages();
       renderJianxunChatList();
-      triggerCharReply(chat);
     });
   });
 })();
 
-// AI 回复
+// ---------- 表情面板 ----------
+function toggleStickerPanel() {
+  const panel = document.getElementById('jxStickerPanel');
+  if (panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    return;
+  }
+  renderStickerPanel();
+  panel.classList.add('show');
+  setTimeout(() => {
+    const msgContainer = document.getElementById('jxChatMessages');
+    if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+  }, 30);
+}
+
+function renderStickerPanel() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  const stickers = loadStickers();
+  const body = document.getElementById('stickerPanelBody');
+  if (!body) return;
+  if (stickers.length === 0) {
+    body.innerHTML = '<div class="sticker-empty">还没有表情包<br>去「我 → 表情」里添加吧</div>';
+    return;
+  }
+  const bound = (chat && Array.isArray(chat.boundStickers)) ? chat.boundStickers : [];
+  body.innerHTML = stickers.map(s => {
+    const on = bound.includes(s.id);
+    const safeUrl = escapeHtml(s.url).replace(/'/g, '%27');
+    return `<div class="sticker-cell">
+      <img src="${safeUrl}" alt="表情" onclick="sendSticker('${s.id}')">
+      <span class="sticker-bind ${on ? 'on' : ''}" onclick="toggleStickerBind('${s.id}', event)">${on ? '★' : '☆'}</span>
+    </div>`;
+  }).join('');
+}
+
+function sendSticker(id) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  const stickers = loadStickers();
+  const s = stickers.find(x => x.id === id);
+  if (!chat || !s) return;
+  chat.messages.push({ id: genId(), role: 'me', type: 'sticker', image: s.url, stickerName: s.name || '', content: '[表情]' });
+  saveJianxunChats();
+  renderChatMessages();
+  renderJianxunChatList();
+}
+
+function toggleStickerBind(id, e) {
+  if (e) e.stopPropagation();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (!Array.isArray(chat.boundStickers)) chat.boundStickers = [];
+  const i = chat.boundStickers.indexOf(id);
+  if (i >= 0) chat.boundStickers.splice(i, 1);
+  else chat.boundStickers.push(id);
+  saveJianxunChats();
+  renderStickerPanel();
+}
+
+// ---------- 表情管理页 ----------
+function openStickerScreen() {
+  document.getElementById('jxStickerScreen').style.display = 'flex';
+  renderStickerManageGrid();
+}
+function closeStickerScreen() {
+  document.getElementById('jxStickerScreen').style.display = 'none';
+}
+function renderStickerManageGrid() {
+  const grid = document.getElementById('stickerGrid');
+  const empty = document.getElementById('stickerEmpty');
+  const count = document.getElementById('stickerCount');
+  const stickers = loadStickers();
+  count.innerText = '(' + stickers.length + ')';
+  if (stickers.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = stickers.map(s => {
+    const safeUrl = escapeHtml(s.url);
+    return `<div class="sticker-item">
+      <img src="${safeUrl}" alt="${escapeHtml(s.name || '')}" title="${escapeHtml(s.name || '')}${s.meaning ? ' · ' + escapeHtml(s.meaning) : ''}">
+      <span class="sticker-del" onclick="deleteSticker('${s.id}')">×</span>
+    </div>`;
+  }).join('');
+}
+function deleteSticker(id) {
+  if (!confirm('确定删除这个表情包吗？')) return;
+  let stickers = loadStickers().filter(s => s.id !== id);
+  saveStickers(stickers);
+  // 从所有聊天绑定中移除
+  jianxunChats.forEach(c => {
+    if (Array.isArray(c.boundStickers)) {
+      c.boundStickers = c.boundStickers.filter(x => x !== id);
+    }
+  });
+  saveJianxunChats();
+  renderStickerManageGrid();
+}
+
+function parseStickerLines(text) {
+  const out = [];
+  String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    const parts = line.split(/[|｜]/).map(s => s.trim());
+    let name = '', url = '', meaning = '';
+    if (parts.length === 1) {
+      url = parts[0];
+    } else if (parts.length === 2) {
+      if (/^(https?:\/\/|data:image)/i.test(parts[0])) { url = parts[0]; meaning = parts[1]; }
+      else { name = parts[0]; url = parts[1]; }
+    } else {
+      name = parts[0]; url = parts[1]; meaning = parts.slice(2).join(' ');
+    }
+    if (!url) return;
+    if (!/^(https?:\/\/|data:image)/i.test(url)) return;
+    out.push({ id: genId(), name: name || ('表情' + (out.length + 1)), url: url, meaning: meaning || '' });
+  });
+  return out;
+}
+function parseStickerJson(data) {
+  const out = [];
+  let arr = [];
+  if (Array.isArray(data)) arr = data;
+  else if (data && Array.isArray(data.stickers)) arr = data.stickers;
+  else if (data && Array.isArray(data.data)) arr = data.data;
+  else if (data && typeof data === 'object') arr = Object.values(data);
+  arr.forEach(item => {
+    if (typeof item === 'string') {
+      if (/^(https?:\/\/|data:image)/i.test(item)) out.push({ id: genId(), name: '表情' + (out.length + 1), url: item, meaning: '' });
+    } else if (item && typeof item === 'object') {
+      const url = item.url || item.src || item.image || item.link || '';
+      if (!url) return;
+      out.push({
+        id: genId(),
+        name: item.name || item.title || ('表情' + (out.length + 1)),
+        url: String(url),
+        meaning: item.meaning || item.desc || item.description || ''
+      });
+    }
+  });
+  return out;
+}
+function addStickersFromLinks() {
+  const text = document.getElementById('stickerLinkInput').value;
+  const newOnes = parseStickerLines(text);
+  if (newOnes.length === 0) { alert('没有解析到有效的表情包链接\n请检查格式（每行一个链接）'); return; }
+  const all = loadStickers().concat(newOnes);
+  saveStickers(all);
+  document.getElementById('stickerLinkInput').value = '';
+  renderStickerManageGrid();
+  alert('成功添加 ' + newOnes.length + ' 个表情包');
+}
+(function initStickerFileInput() {
+  const input = document.getElementById('stickerFileInput');
+  if (!input) return;
+  input.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    this.value = '';
+    if (!file) return;
+    const dotIdx = file.name.lastIndexOf('.');
+    const ext = dotIdx >= 0 ? file.name.slice(dotIdx).toLowerCase() : '';
+    const finish = (list) => {
+      if (!list || list.length === 0) { alert('未从文件中解析出有效表情包'); return; }
+      const all = loadStickers().concat(list);
+      saveStickers(all);
+      renderStickerManageGrid();
+      alert('成功导入 ' + list.length + ' 个表情包');
+    };
+    if (ext === '.docx') {
+      if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        mammoth.convertToHtml({ arrayBuffer: evt.target.result }).then(result => {
+          const html = result.value || '';
+          const text = decodeEntities(html.replace(/<\/p>/gi, '\n').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ''));
+          finish(parseStickerLines(text));
+        }).catch(() => alert('docx 解析失败'));
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (ext === '.json') {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try { finish(parseStickerJson(JSON.parse(ev.target.result))); }
+        catch (err) { alert('JSON 解析失败'); }
+      };
+      reader.readAsText(file);
+    } else if (ext === '.txt') {
+      const reader = new FileReader();
+      reader.onload = (ev) => finish(parseStickerLines(ev.target.result));
+      reader.readAsText(file);
+    } else { alert('仅支持 docx / json / txt 文件'); }
+  });
+})();
+
+// ---------- 长按菜单 ----------
+let menuMsgId = null;
+function openMsgMenu(msgId) {
+  menuMsgId = msgId;
+  document.getElementById('jxMsgMenu').classList.add('show');
+}
+function closeMsgMenu() {
+  document.getElementById('jxMsgMenu').classList.remove('show');
+  menuMsgId = null;
+}
+function menuDelete() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (!confirm('确定删除这条消息吗？')) return;
+  chat.messages = chat.messages.filter(m => m.id !== id);
+  saveJianxunChats();
+  renderChatMessages();
+  renderJianxunChatList();
+}
+function menuEdit() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === id);
+  if (!msg) return;
+  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged') {
+    alert('图片、表情、聊天记录不能编辑');
+    return;
+  }
+  const newText = prompt('编辑消息内容：', msg.content || '');
+  if (newText === null) return;
+  msg.content = newText;
+  saveJianxunChats();
+  renderChatMessages();
+  renderJianxunChatList();
+}
+async function menuTranslate() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === id);
+  if (!msg) return;
+  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged') {
+    alert('这条消息没有可翻译的文字内容');
+    return;
+  }
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
+    alert('请先在「设置 → API 配置」中完成配置，才能翻译');
+    return;
+  }
+  const original = msg.content;
+  msg.content = '（翻译中…）';
+  renderChatMessages();
+  try {
+    const result = await translateText(original, cfg);
+    msg.content = result || original;
+  } catch (e) {
+    msg.content = original;
+    alert('翻译失败：' + (e.message || '未知错误'));
+  }
+  saveJianxunChats();
+  renderChatMessages();
+  renderJianxunChatList();
+}
+function menuMultiSelect() {
+  closeMsgMenu();
+  enterMultiSelect();
+}
+function enterMultiSelect() {
+  multiSelectMode = true;
+  selectedMsgIds.clear();
+  document.getElementById('jxChatInputBar').style.display = 'none';
+  document.getElementById('jxStickerPanel').classList.remove('show');
+  document.getElementById('jxMultiBar').classList.add('show');
+  document.getElementById('multiSelectCount').innerText = '已选 0 条';
+  renderChatMessages();
+}
+function exitMultiSelect(silent) {
+  multiSelectMode = false;
+  selectedMsgIds.clear();
+  const ib = document.getElementById('jxChatInputBar');
+  const mb = document.getElementById('jxMultiBar');
+  if (ib) ib.style.display = 'flex';
+  if (mb) mb.classList.remove('show');
+  if (!silent) renderChatMessages();
+}
+function deleteSelected() {
+  if (selectedMsgIds.size === 0) { alert('请先选择消息'); return; }
+  if (!confirm('确定删除选中的 ' + selectedMsgIds.size + ' 条消息吗？')) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  chat.messages = chat.messages.filter(m => !selectedMsgIds.has(m.id));
+  saveJianxunChats();
+  exitMultiSelect(true);
+  renderChatMessages();
+  renderJianxunChatList();
+}
+function forwardSelected() {
+  if (selectedMsgIds.size === 0) { alert('请先选择消息'); return; }
+  const targets = jianxunChats.filter(c => c.id !== currentChatId);
+  if (targets.length === 0) { alert('没有其他聊天可以转发'); return; }
+  const list = document.getElementById('forwardTargetList');
+  list.innerHTML = targets.map(c => `
+    <div class="jx-modal-item" onclick="doForward('${c.id}')">
+      ${c.avatar ? `<img src="${c.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+      <span>${escapeHtml(c.customRemark || c.name || '未命名')}</span>
+    </div>`).join('');
+  document.getElementById('forwardTargetModal').classList.add('show');
+}
+function closeForwardTargetModal() {
+  document.getElementById('forwardTargetModal').classList.remove('show');
+}
+function doForward(targetChatId) {
+  closeForwardTargetModal();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  const target = jianxunChats.find(c => c.id === targetChatId);
+  if (!chat || !target) return;
+  const msgs = chat.messages.filter(m => selectedMsgIds.has(m.id));
+  if (msgs.length === 0) return;
+  const myName = localStorage.getItem('moments_name') || '我';
+  const charName = chat.customRemark || chat.name || 'TA';
+  const items = msgs.map(m => ({
+    role: m.role,
+    name: m.role === 'me' ? myName : charName,
+    content: m.content || '',
+    image: m.image || '',
+    type: m.type || 'text'
+  }));
+  target.messages.push({
+    id: genId(),
+    role: 'me',
+    type: 'merged',
+    content: '[聊天记录]',
+    items: items
+  });
+  saveJianxunChats();
+  exitMultiSelect(true);
+  renderChatMessages();
+  renderJianxunChatList();
+  alert('已转发 ' + msgs.length + ' 条消息给「' + (target.customRemark || target.name || 'TA') + '」');
+}
+
+// ---------- 翻译 ----------
+async function translateText(text, cfg) {
+  const url = normalizeChatEndpoint(cfg.endpoint);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+    body: JSON.stringify({
+      model: cfg.model,
+      messages: [
+        { role: 'system', content: '你是一个翻译助手。请把用户发来的内容翻译成简体中文。如果内容本身已经是中文，就原样返回，不要做任何修改、不要解释。只输出翻译结果本身。' },
+        { role: 'user', content: text }
+      ],
+      temperature: 0.2,
+      max_tokens: 1024
+    })
+  });
+  if (!res.ok) {
+    let t = ''; try { t = await res.text(); } catch (e) {}
+    throw new Error('HTTP ' + res.status + ' ' + (t || '').slice(0, 120));
+  }
+  const data = await res.json();
+  const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+  if (typeof c === 'string') return c.trim();
+  if (Array.isArray(c)) return c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('').trim();
+  return '';
+}
+
+// ---------- AI 回复 ----------
 function buildWorldBookPrompt(chat) {
   const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
   const relevant = worldBookEntries.filter(e => e.enabled && (e.binding === 'global' || bound.includes(e.id)));
   if (!relevant.length) return '';
+  // 按 order 排序
+  relevant.sort((a, b) => (a.order || 100) - (b.order || 100));
   return '\n【世界观 / 背景设定】\n' + relevant.map(e => e.content).join('\n\n') + '\n';
+}
+function buildStickerPrompt(chat) {
+  const bound = Array.isArray(chat.boundStickers) ? chat.boundStickers : [];
+  if (bound.length === 0) return '';
+  const stickers = loadStickers().filter(s => bound.includes(s.id));
+  if (stickers.length === 0) return '';
+  let sp = '\n【你可以使用的表情包】\n';
+  sp += '当你想发一个表情包时，在回复中单独输出一行：[[STICKER:表情名称]]\n';
+  sp += '系统会自动把它变成表情发出去，用户看到的是图片。\n';
+  stickers.forEach((s, i) => {
+    sp += `${i + 1}. 名称：${s.name || '未命名'}${s.meaning ? '；含义：' + s.meaning : ''}\n`;
+  });
+  sp += '不要滥用表情包，只在自然合适的时候才发。\n';
+  return sp;
+}
+function buildMomentsPrompt() {
+  loadMomentsPosts();
+  if (momentsPosts.length === 0) return '';
+  const name = localStorage.getItem('moments_name') || '用户';
+  const recent = momentsPosts.slice(0, 6);
+  let sp = '\n【朋友圈动态（你都看得到，可以自然地提起，但不必每次都提）】\n';
+  recent.forEach(p => {
+    const who = p.author || name;
+    const text = (p.content || '').replace(/\s+/g, ' ').slice(0, 80);
+    sp += `- ${who}：${text}${p.images && p.images.length ? '（' + p.images.length + '张图片）' : ''}\n`;
+  });
+  return sp;
 }
 function buildCharSystemPrompt(chat) {
   loadPersonaList();
@@ -2899,6 +3537,7 @@ function buildCharSystemPrompt(chat) {
     if (persona.details) sp += '详细设定：\n' + persona.details + '\n';
   }
   sp += buildWorldBookPrompt(chat);
+  sp += buildStickerPrompt(chat);
   if (chat.imagePool && chat.imagePool.length > 0) {
     sp += '\n【用户曾发给你过的图片】（编号用于下面的动作标记）\n';
     chat.imagePool.forEach((img, i) => {
@@ -2914,9 +3553,10 @@ function buildCharSystemPrompt(chat) {
   sp += '图片编号必须是上面【用户曾发给你过的图片】列表中存在的编号。\n';
   sp += '这些动作要克制使用：只有真的符合人设和对话内容时才用，不要每句话都加，不要滥用。\n';
   sp += '如果不需要执行动作，就正常回复即可。\n';
+  sp += buildMomentsPrompt();
   const log = loadAwarenessLog();
   if (log.length > 0) {
-    sp += '\n【用户最近在朋友圈的动态】（你都知道，可以自然地在聊天中提起，但不必每次都提）\n';
+    sp += '\n【用户最近在朋友圈的操作记录】（你都知道，可以自然地在聊天中提起，但不必每次都提）\n';
     log.slice(-10).forEach(e => { sp += '- ' + e.text + '\n'; });
   }
   sp += '\n现在，用户发来了消息，请以角色的身份自然回复。\n';
@@ -2927,7 +3567,7 @@ function buildChatHistory(chat) {
   const imgIdxSet = new Set();
   let cnt = 0;
   for (let i = recent.length - 1; i >= 0; i--) {
-    if (recent[i].type === 'image' && cnt < 2) { imgIdxSet.add(i); cnt++; }
+    if (recent[i].type === 'image' && recent[i].image && cnt < 2) { imgIdxSet.add(i); cnt++; }
   }
   const result = [];
   recent.forEach((m, i) => {
@@ -2940,6 +3580,10 @@ function buildChatHistory(chat) {
           { type: 'image_url', image_url: { url: m.image } }
         ];
       } else content = '[图片]';
+    } else if (m.type === 'sticker') {
+      content = '[表情包]';
+    } else if (m.type === 'merged' && Array.isArray(m.items)) {
+      content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
     } else content = m.content || '';
     const last = result[result.length - 1];
     if (last && last.role === role && typeof last.content === 'string' && typeof content === 'string') {
@@ -2974,7 +3618,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   return '';
 }
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[(SET_AVATAR|POST_MOMENT)\s*:\s*([\s\S]*?)\]\]/g;
+  const re = /\[\[(SET_AVATAR|POST_MOMENT|STICKER)\s*:\s*([\s\S]*?)\]\]/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -2987,6 +3631,23 @@ function executeCharAction(chat, action) {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
     const img = chat.imagePool && chat.imagePool[idx];
     if (img && img.data) chat.avatar = img.data;
+    return;
+  }
+  if (action.type === 'STICKER') {
+    const bound = Array.isArray(chat.boundStickers) ? chat.boundStickers : [];
+    const stickers = loadStickers().filter(s => bound.includes(s.id));
+    const want = String(action.payload).trim();
+    if (!want || stickers.length === 0) return;
+    let target = stickers.find(s => (s.name || '') === want);
+    if (!target) target = stickers.find(s => (s.meaning || '') === want);
+    if (!target) target = stickers.find(s => (s.name || '').includes(want) || want.includes(s.name || ''));
+    if (!target) target = stickers.find(s => (s.meaning || '').includes(want) || want.includes(s.meaning || ''));
+    if (!target) target = stickers[0];
+    // 延迟到回复文本之后插入，用标记方式由调用方追加
+    if (target) {
+      chat._pendingStickers = chat._pendingStickers || [];
+      chat._pendingStickers.push({ url: target.url, name: target.name });
+    }
     return;
   }
   if (action.type === 'POST_MOMENT') {
@@ -3024,9 +3685,7 @@ async function generateCharReply(chat) {
   const cfg = loadApiConfig();
   const useAI = cfg && cfg.endpoint && cfg.key && cfg.model;
   if (!useAI) {
-    await new Promise(r => setTimeout(r, 500 + Math.random() * 700));
-    const replies = ["收到！", "嗯嗯，我明白了", "哈哈哈，你好有趣", "那然后呢？", "我正在想怎么回复你...", "确实是这样", "你说的很有道理", "我这边信号不太好，稍等..."];
-    return replies[Math.floor(Math.random() * replies.length)];
+    throw new Error('尚未配置 API');
   }
   const systemPrompt = buildCharSystemPrompt(chat);
   const history = buildChatHistory(chat);
@@ -3046,6 +3705,7 @@ async function generateCharReply(chat) {
 async function triggerCharReply(chat) {
   if (chat._replying) return;
   chat._replying = true;
+  chat._pendingStickers = [];
   const typingId = genId();
   chat.messages.push({ id: typingId, role: 'char', type: 'text', content: '__typing__' });
   if (currentChatId === chat.id) renderChatMessages();
@@ -3053,11 +3713,19 @@ async function triggerCharReply(chat) {
     const reply = await generateCharReply(chat);
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
-    if (reply) chat.messages.push({ role: 'char', type: 'text', content: reply });
+    if (reply) chat.messages.push({ id: genId(), role: 'char', type: 'text', content: reply });
+    // 追加角色主动发的表情
+    if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
+      chat._pendingStickers.forEach(st => {
+        chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]' });
+      });
+    }
+    chat._pendingStickers = [];
   } catch (e) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
-    chat.messages.push({ role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）' });
+    chat.messages.push({ id: genId(), role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）' });
+    chat._pendingStickers = [];
   } finally {
     chat._replying = false;
     saveJianxunChats();
@@ -3071,6 +3739,8 @@ async function triggerCharReply(chat) {
 }
 
 function closeChatScreen() {
+  document.getElementById('jxStickerPanel').classList.remove('show');
+  exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
   loadJianxunChats();
@@ -3178,7 +3848,7 @@ function changeChatAvatar() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 600, 0.9).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -3198,7 +3868,7 @@ function changeMyChatAvatar() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 600, 0.9).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -3216,15 +3886,18 @@ function changeChatBg() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1000, 0.7).then((base64) => {
+    // 高清：最大 2000px，质量 0.9
+    compressImageFile(file, 2000, 0.9).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
         chat.chatBg = base64;
         saveJianxunChats();
-        document.getElementById('jxChatScreen').style.backgroundImage = `url(${base64})`;
-        document.getElementById('jxChatScreen').style.backgroundSize = 'cover';
-        document.getElementById('jxChatScreen').style.backgroundPosition = 'center';
+        const sc = document.getElementById('jxChatScreen');
+        sc.style.backgroundImage = `url(${base64})`;
+        sc.style.backgroundSize = 'cover';
+        sc.style.backgroundPosition = 'center';
+        sc.style.backgroundRepeat = 'no-repeat';
       }
     });
   };
@@ -3278,6 +3951,7 @@ function addPersonaToChat(index) {
     maxReply: 1,
     customRemark: '',
     boundWorldBook: [],
+    boundStickers: [],
     chatBg: '',
     myAvatar: '',
     imagePool: []
@@ -3290,8 +3964,14 @@ function addPersonaToChat(index) {
 // ============ 朋友圈 ============
 function loadMomentsData() {
   const bg = localStorage.getItem('moments_bg');
-  if (bg) document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${bg})`;
-  else document.getElementById('jxMomentsHeader').style.backgroundImage = 'none';
+  const hdr = document.getElementById('jxMomentsHeader');
+  if (bg) {
+    hdr.style.backgroundImage = `url(${bg})`;
+    hdr.style.backgroundSize = 'cover';
+    hdr.style.backgroundPosition = 'center';
+    hdr.style.backgroundRepeat = 'no-repeat';
+  }
+  else hdr.style.backgroundImage = 'none';
   const name = localStorage.getItem('moments_name');
   if (name) document.getElementById('momentsName').innerText = name;
   const sig = localStorage.getItem('moments_sig');
@@ -3306,9 +3986,14 @@ function loadMomentsData() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.72).then((base64) => {
+    // 高清：最大 2200px，质量 0.92，避免背景模糊
+    compressImageFile(file, 2200, 0.92).then((base64) => {
       if (!base64) return;
-      document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${base64})`;
+      const hdr = document.getElementById('jxMomentsHeader');
+      hdr.style.backgroundImage = `url(${base64})`;
+      hdr.style.backgroundSize = 'cover';
+      hdr.style.backgroundPosition = 'center';
+      hdr.style.backgroundRepeat = 'no-repeat';
       try { localStorage.setItem('moments_bg', base64); } catch(err){ alert('图片过大'); }
       input.value = '';
     });
@@ -3319,7 +4004,7 @@ function loadMomentsData() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 600, 0.9).then((base64) => {
       if (!base64) return;
       document.getElementById('momentsAvatarImg').src = base64;
       try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); }
@@ -3485,7 +4170,7 @@ async function handlePublishImageSelect(e) {
   const fileArray = Array.from(files);
   const container = document.getElementById('publishImagesContainer');
   for (const file of fileArray) {
-    const base64 = await compressImageFile(file, 900, 0.72);
+    const base64 = await compressImageFile(file, 1400, 0.85);
     if (!base64) continue;
     const idx = tempPostImages.length;
     tempPostImages.push(base64);
