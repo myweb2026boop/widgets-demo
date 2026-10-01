@@ -345,7 +345,6 @@
   /* ================= 聊天界面 (P1/P3) ================= */
   #jxChatScreen { display: none; flex-direction: column; background: #ededed; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1000; }
   #jxChatScreen.active { display: flex; }
-  /* 修改点：顶栏高度变小，返回键和点间距调整 */
   .jx-chat-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: #ededed; border-bottom: 1px solid #dcdcdc; flex-shrink: 0; }
   .jx-chat-top-bar .back-btn { font-size: 26px; color: #333; cursor: pointer; width: 28px; text-align: left; }
   .jx-chat-top-bar .title { font-size: 16px; font-weight: 600; color: #000; }
@@ -362,7 +361,6 @@
   .jx-msg-row.other .jx-msg-bubble { background: #fff; color: #000; }
   .jx-msg-row.me .jx-msg-bubble::after { content: ''; position: absolute; top: 12px; right: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 6px solid #95ec69; }
   .jx-msg-row.other .jx-msg-bubble::before { content: ''; position: absolute; top: 12px; left: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 6px solid #fff; }
-  /* 修改点：底栏向上移动，增加底部内边距 */
   .jx-chat-input-bar { display: flex; align-items: center; padding: 8px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); box-sizing: content-box; }
   .jx-chat-input-bar .icon { width: 30px; height: 30px; fill: #333; cursor: pointer; flex-shrink: 0; }
   .jx-chat-input-bar .icon-voice { margin-right: 8px; }
@@ -416,6 +414,18 @@
   .jx-modal-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
   .jx-modal-item span { font-size: 15px; color: #333; }
   .jx-modal-btn { margin-top: 10px; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 500; color: #333; }
+
+  /* 世界书多选弹窗样式 */
+  .wb-checkbox {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; 
+    display: flex; align-items: center; justify-content: center; 
+    flex-shrink: 0; transition: all 0.2s; box-sizing: border-box;
+  }
+  .wb-checkbox.checked { background-color: #07c160; border-color: #07c160; }
+  .wb-checkbox.checked::after { content: ''; width: 6px; height: 11px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); margin-bottom: 2px; }
+  .wb-modal-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; white-space: nowrap; }
+  .wb-modal-tag.global { color: #2e7d32; background: #e8f5e9; }
+  .wb-modal-tag.local { color: #e65100; background: #fff3e0; }
 </style>
 </head>
 <body>
@@ -1054,6 +1064,19 @@
         <h3>选择人设添加到简讯</h3>
         <div class="jx-modal-list" id="personaSelectorList"></div>
         <button class="jx-modal-btn" onclick="closePersonaSelector()">取消</button>
+      </div>
+    </div>
+
+    <!-- 世界书选择弹窗 -->
+    <div class="jx-modal" id="worldBookSelectModal">
+      <div class="jx-modal-content" style="max-height: 80vh;">
+        <h3>绑定世界书</h3>
+        <p style="font-size:12px; color:#666; margin-bottom:10px; text-align:left;">全局世界书默认对所有聊天生效；局部世界书需要在此处绑定。可多选。</p>
+        <div class="jx-modal-list" id="worldBookSelectList"></div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+          <button class="jx-modal-btn" style="background:#f0f0f0; color:#333; margin-top:0;" onclick="closeWorldBookSelectModal()">取消</button>
+          <button class="jx-modal-btn" style="background:#07c160; color:#fff; margin-top:0;" onclick="confirmWorldBookBinding()">确定</button>
+        </div>
       </div>
     </div>
 
@@ -1863,6 +1886,7 @@
   }
 
   function loadJianxunChats() {
+    loadWorldBook(); // 确保世界书数据已加载，用于转换旧数据
     const data = localStorage.getItem('jianxun_chats');
     if (data) { try { jianxunChats = JSON.parse(data); } catch(e) { jianxunChats = []; } } else { jianxunChats = []; }
     if (!Array.isArray(jianxunChats)) jianxunChats = [];
@@ -1874,9 +1898,18 @@
       if (chat.allowActive === undefined) chat.allowActive = false;
       if (chat.maxReply === undefined) chat.maxReply = 1;
       if (chat.customRemark === undefined) chat.customRemark = '';
-      if (chat.boundWorldBook === undefined) chat.boundWorldBook = '';
       if (chat.chatBg === undefined) chat.chatBg = '';
       if (chat.myAvatar === undefined) chat.myAvatar = '';
+      
+      // 兼容旧数据：将绑定单个世界书的字符串转为数组
+      if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') {
+        chat.boundWorldBook = [];
+      } else if (typeof chat.boundWorldBook === 'string') {
+        const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
+        chat.boundWorldBook = entry ? [entry.id] : [];
+      } else if (!Array.isArray(chat.boundWorldBook)) {
+        chat.boundWorldBook = [];
+      }
     });
   }
 
@@ -1993,7 +2026,11 @@
     document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
     
     document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
-    document.getElementById('jxWorldBookText').innerText = chat.boundWorldBook || '未绑定';
+    
+    // 显示绑定的世界书数量
+    const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
+    document.getElementById('jxWorldBookText').innerText = boundCount > 0 ? `已绑定 ${boundCount} 本` : '未绑定';
+    
     document.getElementById('jxMaxReplyText').innerText = (chat.maxReply || 1) + '句';
     
     document.getElementById('jxChatInfoScreen').classList.add('active');
@@ -2048,31 +2085,72 @@
     }
   }
 
+  // --- 世界书多选逻辑 ---
   function bindWorldBook() {
-    loadWorldBook();
+    loadWorldBook(); // 确保世界书数据是最新的
+    const chat = jianxunChats.find(c => c.id === currentChatId);
+    if (!chat) return;
+
+    const list = document.getElementById('worldBookSelectList');
+    
+    if (worldBookEntries.length === 0) {
+      list.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:13px;">世界书App中暂无数据<br>请先去添加世界书</div>';
+    } else {
+      list.innerHTML = worldBookEntries.map(entry => {
+        // 检查是否已经绑定
+        const isSelected = Array.isArray(chat.boundWorldBook) && chat.boundWorldBook.includes(entry.id);
+        const bindingTag = entry.binding === 'local' 
+          ? `<span class="wb-modal-tag local">局部</span>` 
+          : `<span class="wb-modal-tag global">全局</span>`;
+          
+        return `
+          <div class="jx-modal-item" onclick="toggleWorldBookSelection(this)" data-id="${entry.id}" style="justify-content: space-between;">
+            <div style="display:flex; align-items:center; overflow:hidden; flex:1;">
+              <span style="font-size:14px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${escapeHtml(entry.name)}</span>
+              ${bindingTag}
+            </div>
+            <div class="wb-checkbox ${isSelected ? 'checked' : ''}"></div>
+          </div>
+        `;
+      }).join('');
+    }
+    document.getElementById('worldBookSelectModal').classList.add('show');
+  }
+
+  // 切换单个条目的选中状态
+  function toggleWorldBookSelection(el) {
+    const checkbox = el.querySelector('.wb-checkbox');
+    if (checkbox) {
+      checkbox.classList.toggle('checked');
+    }
+  }
+
+  // 关闭弹窗
+  function closeWorldBookSelectModal() {
+    document.getElementById('worldBookSelectModal').classList.remove('show');
+  }
+
+  // 确认绑定
+  function confirmWorldBookBinding() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
-    let options = "请选择要绑定的世界书（输入编号）：\n0. 不绑定\n";
-    worldBookEntries.forEach((entry, index) => { options += `${index + 1}. ${entry.name}\n`; });
-    
-    const currentIndex = worldBookEntries.findIndex(e => e.name === chat.boundWorldBook);
-    const val = prompt(options, currentIndex >= 0 ? String(currentIndex + 1) : '0');
-    
-    if (val !== null && val.trim() !== '') {
-      const idx = parseInt(val);
-      if (idx === 0) {
-        chat.boundWorldBook = '';
-        document.getElementById('jxWorldBookText').innerText = '未绑定';
-      } else if (idx > 0 && idx <= worldBookEntries.length) {
-        chat.boundWorldBook = worldBookEntries[idx - 1].name;
-        document.getElementById('jxWorldBookText').innerText = chat.boundWorldBook;
-      } else {
-        alert('输入编号无效');
-        return;
+    const selectedIds = [];
+    document.querySelectorAll('#worldBookSelectList .jx-modal-item').forEach(el => {
+      const checkbox = el.querySelector('.wb-checkbox');
+      if (checkbox && checkbox.classList.contains('checked')) {
+        selectedIds.push(el.getAttribute('data-id'));
       }
-      localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
-    }
+    });
+    
+    // 保存选中的ID数组
+    chat.boundWorldBook = selectedIds;
+    localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+    
+    // 更新聊天详情界面的显示
+    document.getElementById('jxWorldBookText').innerText = selectedIds.length > 0 ? `已绑定 ${selectedIds.length} 本` : '未绑定';
+    
+    closeWorldBookSelectModal();
   }
 
   function changeChatAvatar() {
@@ -2180,7 +2258,7 @@
       allowActive: false,
       maxReply: 1,
       customRemark: '',
-      boundWorldBook: '',
+      boundWorldBook: [],
       chatBg: '',
       myAvatar: ''
     });
