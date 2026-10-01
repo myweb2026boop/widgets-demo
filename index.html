@@ -272,22 +272,22 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
-  /* ============ 7. 设置界面（纯白背景 + 黑色主题） ============ */
+  /* ============ 7. 设置界面（纯白背景 + 浅色边框） ============ */
   #settingsScreen { background: #ffffff; padding-bottom: 30px; }
   .hint-text { font-size: 12px; color: #888; margin-top: 8px; line-height: 1.5; }
 
-  /* 设置页卡片在白底上加细边框以区分 */
+  /* 设置页卡片在白底上加浅色边框以区分 */
   #settingsScreen .section-card {
     background: #ffffff;
-    border: 1px solid #e6e6e6;
+    border: 1px solid #e0e0e0;  /* 浅色边框 */
     box-shadow: none;
   }
 
-  /* —— 设置界面：黑色主题 —— */
-  #settingsScreen .beautify-header { border-bottom: 1px solid #e6e6e6; }
+  /* —— 设置界面：浅色边框主题 —— */
+  #settingsScreen .beautify-header { border-bottom: 1px solid #e0e0e0; }
   #settingsScreen .beautify-header .back-btn { color: #222; }
   #settingsScreen .section-card h4 { color: #222; }
-  #settingsScreen .highlight-card { border: 2px solid #222; background: #ffffff; }
+  #settingsScreen .highlight-card { border: 1px solid #d5d5d5; background: #ffffff; } /* 浅色高亮卡片 */
   #settingsScreen .highlight-card h4 { color: #222; }
   #settingsScreen .btn-primary { background: #222; color: #fff; }
   #settingsScreen .btn-primary:active { background: #000; }
@@ -296,28 +296,28 @@
   #settingsScreen .btn-danger { background: #666; color: #fff; }
   #settingsScreen .btn-danger:active { background: #4a4a4a; }
   #settingsScreen .btn-outline-dark {
-    background: #fff; border: 1px solid #222; color: #222;
+    background: #fff; border: 1px solid #d5d5d5; color: #222; /* 浅色边框按钮 */
   }
   #settingsScreen .btn-outline-dark:active { background: #f0f0f0; }
   #settingsScreen .btn-outline-dark:disabled { opacity: 0.55; cursor: not-allowed; }
   #settingsScreen .form-group input:focus,
   #settingsScreen .form-group select:focus,
-  #settingsScreen .form-group textarea:focus { border-color: #222; }
+  #settingsScreen .form-group textarea:focus { border-color: #b0b0b0; } /* 浅灰聚焦 */
   #settingsScreen .form-group label { color: #444; }
   #settingsScreen .preset-input-row input:focus,
-  #settingsScreen .preset-select-row select:focus { border-color: #222; }
+  #settingsScreen .preset-select-row select:focus { border-color: #b0b0b0; }
   #settingsScreen input[type="range"] { accent-color: #222; }
   #settingsScreen .hint-text { color: #666; }
   #settingsScreen .icon-svg { fill: #222; }
   #settingsScreen .api-status {
     display: none; margin-top: 10px; font-size: 12px; line-height: 1.5;
     padding: 8px 10px; border-radius: 8px;
-    background: #f7f7f7; border: 1px solid #e6e6e6; color: #555;
+    background: #f7f7f7; border: 1px solid #e0e0e0; color: #555;
     word-break: break-all;
   }
   #settingsScreen .api-status.ok { background: #f2f9f2; border-color: #d9ead9; color: #1b5e20; }
   #settingsScreen .api-status.fail { background: #fdf3f3; border-color: #f2d6d6; color: #8e1a1a; }
-  #settingsScreen .api-status.pending { background: #f7f7f7; border-color: #e6e6e6; color: #555; }
+  #settingsScreen .api-status.pending { background: #f7f7f7; border-color: #e0e0e0; color: #555; }
 
   /* 模型列表 */
   #settingsScreen .model-list {
@@ -2212,6 +2212,8 @@
       const sel = (id === current) ? ' active' : '';
       return `<div class="model-item${sel}" data-model="${escapeHtml(id)}">${escapeHtml(id)}</div>`;
     }).join('');
+    
+    // 绑定点击事件：选中模型后自动收起列表
     box.querySelectorAll('.model-item').forEach(el => {
       el.addEventListener('click', () => {
         const m = el.getAttribute('data-model');
@@ -2219,8 +2221,10 @@
         box.querySelectorAll('.model-item').forEach(x => x.classList.remove('active'));
         el.classList.add('active');
         setApiStatus('ok', '✅ 已选择模型：' + m);
+        box.classList.remove('show'); // 点击选择后收起列表
       });
     });
+    
     box.classList.add('show');
   }
 
