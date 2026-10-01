@@ -430,50 +430,49 @@
   .jx-chat-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
   .jx-chat-icon { width: 14px; height: 14px; fill: #b2b2b2; }
 
-  /* p3/p4: 朋友圈 */
+  /* ================= 朋友圈 (P2 & P4 完全复刻) ================= */
   .jx-moments-header {
     position: relative; height: 320px; background: #121212; overflow: hidden;
-    display: flex; align-items: flex-end; padding: 20px;
+    display: flex; align-items: flex-end; padding: 20px; justify-content: flex-end;
   }
   .jx-moments-bg-btn {
     position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6);
     color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
   }
-  .jx-moments-profile { display: flex; align-items: flex-end; gap: 16px; width: 100%; justify-content: flex-end; }
+  .jx-moments-profile { display: flex; align-items: flex-end; gap: 16px; }
   .jx-moments-profile-info { text-align: right; color: #fff; padding-bottom: 4px; }
   .jx-moments-name { font-size: 22px; font-weight: 600; margin-bottom: 6px; color: #fff; }
   .jx-moments-signature { font-size: 13px; color: #ddd; }
   .jx-moments-avatar {
     width: 76px; height: 76px; border-radius: 14px; background: #f8bbd0; overflow: hidden;
-    border: 3px solid #fff; flex-shrink: 0;
+    border: 3px solid #fff; flex-shrink: 0; cursor: pointer;
   }
   .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .jx-moments-user-info { padding: 20px 16px; border-bottom: 1px solid #f0f0f0; }
-  .jx-moments-status { font-size: 18px; color: #333; font-weight: bold; margin-bottom: 6px; }
+  .jx-moments-status { font-size: 20px; color: #333; font-weight: bold; margin-bottom: 8px; }
   .jx-moments-quote { font-size: 14px; color: #666; margin-bottom: 12px; }
   .jx-moments-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999; }
-  .jx-moments-filter-btn { background: none; border: 1px solid #ddd; border-radius: 12px; padding: 2px 10px; color: #666; font-size: 12px; }
+  .jx-moments-filter-btn { background: none; border: 1px solid #ddd; border-radius: 12px; padding: 4px 12px; color: #666; font-size: 12px; }
 
   .jx-moments-posts { padding: 16px; background: #fff; }
   .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; }
   .jx-post:last-child { border-bottom: none; }
   .jx-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
-  .jx-post-user { font-size: 15px; color: #576b95; font-weight: 600; }
+  .jx-post-user { font-size: 16px; color: #576b95; font-weight: 600; }
   .jx-post-avatar { width: 40px; height: 40px; border-radius: 8px; background: #f8bbd0; }
-  .jx-post-content { font-size: 15px; color: #333; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
-  .jx-post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #b2b2b2; }
+  .jx-post-content { font-size: 16px; color: #333; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap; }
+  .jx-post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #b2b2b2; }
   .jx-post-actions { display: flex; gap: 16px; }
-  .jx-post-actions svg { width: 16px; height: 16px; fill: #b2b2b2; }
-  .jx-moments-empty { text-align: center; padding: 60px 0; color: #999; font-size: 14px; }
+  .jx-post-actions svg { width: 18px; height: 18px; fill: #b2b2b2; }
 
-  /* p5: 通讯录 */
+  /* ================= 通讯录 (P5 完全复刻) ================= */
   .jx-contacts-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 16px; background: #fff; position: sticky; top: 0; z-index: 10;
   }
   .jx-contacts-header .title { font-size: 17px; font-weight: 600; color: #000; flex: 1; text-align: center; }
-  .jx-contacts-header .icon { font-size: 20px; color: #333; width: 24px; height: 24px; fill: #333; }
+  .jx-contacts-header .icon { font-size: 22px; color: #333; width: 24px; height: 24px; fill: #333; }
   .jx-contacts-search { margin: 0 16px 10px; background: #ededed; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; font-size: 14px; color: #999; }
   .jx-contacts-search svg { width: 16px; height: 16px; margin-right: 6px; fill: #999; }
   .jx-contacts-sort { text-align: center; font-size: 14px; color: #576b95; padding: 12px 0; background: #fff; border-top: 1px solid #f5f5f5; border-bottom: 1px solid #f5f5f5; }
@@ -1042,7 +1041,7 @@
         </div>
       </div>
 
-      <!-- 页面2：朋友圈 (p3 & p4) -->
+      <!-- 页面2：朋友圈 (完全复刻P2 & P4) -->
       <div id="jx-moments" class="jx-tab-content">
         <div class="jx-moments-header" id="jxMomentsHeader">
           <button class="jx-moments-bg-btn" onclick="document.getElementById('momentsBgInput').click()">点击更换背景</button>
@@ -1089,7 +1088,7 @@
         </div>
       </div>
 
-      <!-- 页面3：通讯录 (p5) -->
+      <!-- 页面3：通讯录 (完全复刻P5) -->
       <div id="jx-contacts" class="jx-tab-content">
         <div class="jx-contacts-header">
           <span style="width:24px;"></span>
@@ -1110,51 +1109,8 @@
           <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>邀请朋友</div>
         </div>
 
-        <div style="margin-top: 8px;">
-          <div class="jx-contact-letter">C</div>
-          <div class="jx-contact-user">
-            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e0e0e0'/%3E%3C/svg%3E" alt="avatar"></div>
-            <div class="jx-contact-info">
-              <div class="jx-contact-name">Cha_liisu^</div>
-              <div class="jx-contact-sub">最近上线于 3/7/26</div>
-            </div>
-          </div>
-          
-          <div class="jx-contact-letter">Q</div>
-          <div class="jx-contact-user">
-            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e8f5e9'/%3E%3C/svg%3E" alt="avatar"></div>
-            <div class="jx-contact-info">
-              <div class="jx-contact-name">清瑶</div>
-              <div class="jx-contact-sub">最近上线于 6/27/25</div>
-            </div>
-          </div>
-
-          <div class="jx-contact-letter">S</div>
-          <div class="jx-contact-user">
-            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fff3e0'/%3E%3C/svg%3E" alt="avatar"></div>
-            <div class="jx-contact-info">
-              <div class="jx-contact-name">Seoni</div>
-              <div class="jx-contact-sub">最近上线于 1/1/-30</div>
-            </div>
-          </div>
-
-          <div class="jx-contact-letter">T</div>
-          <div class="jx-contact-user">
-            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fce4ec'/%3E%3C/svg%3E" alt="avatar"></div>
-            <div class="jx-contact-info">
-              <div class="jx-contact-name">塔塔</div>
-              <div class="jx-contact-sub">最近上线于 1/1/-30</div>
-            </div>
-          </div>
-
-          <div class="jx-contact-letter">X</div>
-          <div class="jx-contact-user">
-            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fce4ec'/%3E%3C/svg%3E" alt="avatar"></div>
-            <div class="jx-contact-info">
-              <div class="jx-contact-name">小娜</div>
-              <div class="jx-contact-sub">最近上线于 1/1/-30</div>
-            </div>
-          </div>
+        <div id="jxContactList" style="margin-top: 8px;">
+          <!-- 动态渲染人设联系人 -->
         </div>
       </div>
 
@@ -1231,6 +1187,7 @@
     loadJianxunChats();
     renderJianxunChatList();
     loadMomentsData();
+    renderJianxunContacts(); // 每次打开重新渲染通讯录
   }
 
   function switchJianxunTab(tabId, navElement) {
@@ -1246,7 +1203,7 @@
       const navs = document.querySelectorAll('.jx-nav-item');
       if (tabId === 'jx-chats') navs[0].classList.add('active');
       if (tabId === 'jx-moments') navs[1].classList.add('active');
-      if (tabId === 'jx-contacts') navs[2].classList.add('active');
+      if (tabId === 'jx-contacts') { navs[2].classList.add('active'); renderJianxunContacts(); }
       if (tabId === 'jx-me') navs[3].classList.add('active');
     }
   }
@@ -1286,6 +1243,48 @@
         </div>
       </div>
     `).join('');
+  }
+
+  // ================= 渲染通讯录 (基于人设App数据) =================
+  function renderJianxunContacts() {
+    loadPersonaList(); // 确保获取最新人设
+    const list = document.getElementById('jxContactList');
+    if (!list) return;
+
+    if (personaList.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#999; font-size:14px;">通讯录为空<br>请先去人设App中添加人设</div>';
+      return;
+    }
+
+    // 按名字首字母排序分组
+    const grouped = {};
+    personaList.forEach(p => {
+      const name = p.name || '未命名';
+      const firstChar = name.charAt(0).toUpperCase();
+      const letter = /[A-Z]/.test(firstChar) ? firstChar : '#';
+      if (!grouped[letter]) grouped[letter] = [];
+      grouped[letter].push({...p, name});
+    });
+
+    const sortedLetters = Object.keys(grouped).sort();
+
+    list.innerHTML = sortedLetters.map(letter => {
+      const users = grouped[letter];
+      return `
+        <div class="jx-contact-letter">${letter}</div>
+        ${users.map(u => `
+          <div class="jx-contact-user">
+            <div class="jx-contact-avatar">
+              ${u.avatar ? `<img src="${u.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+            </div>
+            <div class="jx-contact-info">
+              <div class="jx-contact-name">${u.name}</div>
+              <div class="jx-contact-sub">最近上线于 ${new Date().toLocaleDateString('zh-CN')}</div>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }).join('');
   }
 
   // 显示人设选择器
@@ -2465,7 +2464,8 @@
     key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
     key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
     key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY ||
-    key === 'is_fullscreen' || key === 'api_config' || key.startsWith('api_preset_')
+    key === 'is_fullscreen' || key === 'api_config' || key.startsWith('api_preset_') ||
+    key.startsWith('moments_') || key === 'jianxun_chats'
   );
 
   document.getElementById('savePresetBtn').addEventListener('click', () => {
