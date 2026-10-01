@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TuTooth</title>
-<!-- 引入 mammoth.js 用于解析 docx 文件，不包含任何 Emoji -->
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -181,7 +180,8 @@
   .persona-card .avatar svg { width: 24px; height: 24px; fill: #ccc; }
   .persona-card .info { flex: 1; overflow: hidden; }
   .persona-card .info h4 { font-size: 15px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .persona-card .info p { font-size: 12px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* 【关键修改】让卡片摘要也支持换行显示 */
+  .persona-card .info p { font-size: 12px; color: #999; white-space: pre-wrap; overflow: hidden; text-overflow: ellipsis; max-height: 36px; line-height: 1.5; }
   .persona-card .arrow { color: #ccc; font-size: 20px; }
 
   /* 人设编辑表单 */
@@ -191,7 +191,15 @@
   .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
   .form-group input, .form-group textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
   .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
-  .form-group textarea { height: 120px; resize: vertical; }
+  
+  /* 【关键修改】强化文本域对换行的支持 */
+  .form-group textarea { 
+    height: 180px; 
+    resize: vertical; 
+    white-space: pre-wrap; /* 保留换行与空白 */
+    word-wrap: break-word;
+  }
+  
   .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #eee; }
   .avatar-edit-box img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-edit-box svg { width: 30px; height: 30px; fill: #ccc; }
@@ -484,19 +492,14 @@
         <h3>人设管理</h3>
       </div>
       <div class="persona-body">
-        <!-- 顶部工具栏 -->
         <div class="persona-toolbar">
           <button class="btn btn-outline" onclick="document.getElementById('personaFileInput').click()">上传文件</button>
           <button class="btn btn-primary" onclick="openPersonaEdit(null)">创建空白</button>
           <input type="file" id="personaFileInput" accept=".docx,.json,.txt" style="display: none;">
         </div>
 
-        <!-- 人物列表 -->
-        <div class="persona-list" id="personaList">
-          <!-- 动态生成 -->
-        </div>
+        <div class="persona-list" id="personaList"></div>
 
-        <!-- 编辑表单（初始隐藏） -->
         <div class="persona-edit-view" id="personaEditView">
           <div class="form-group" style="text-align: center;">
             <label>头像</label>
@@ -535,7 +538,6 @@
           </div>
         </div>
 
-        <!-- 空状态 -->
         <div class="empty-state" id="personaEmptyState">暂无人设，点击上方按钮上传文件或创建空白</div>
       </div>
     </div>
@@ -547,7 +549,6 @@
         <h3>美化设置</h3>
       </div>
       <div class="beautify-body">
-        <!-- 数据备份模块，移除Emoji，替换为SVG -->
         <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 数据备份（美化文件）</h4>
           <div class="btn-row">
@@ -926,11 +927,15 @@
         avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
       }
       
+      // 将详细信息换成摘要显示，保留换行格式
+      const detailsPreview = persona.details ? persona.details.replace(/\n/g, ' ').substring(0, 30) + '...' : '暂无描述';
+      
       card.innerHTML = `
         <div class="avatar">${avatarHtml}</div>
         <div class="info">
           <h4>${persona.name || '未命名角色'}</h4>
           <p>${persona.nickname || '无网名'} · ${persona.gender || '未知'} · ${persona.age || '未知年龄'}</p>
+          <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${detailsPreview}</p>
         </div>
         <div class="arrow">›</div>
       `;
@@ -965,6 +970,7 @@
       document.getElementById('personaNickname').value = persona.nickname || '';
       document.getElementById('personaGender').value = persona.gender || '';
       document.getElementById('personaAge').value = persona.age || '';
+      // 直接将带有换行的文本填入 textarea，完美保留格式
       document.getElementById('personaDetails').value = persona.details || '';
       
       if (persona.avatar) {
@@ -991,7 +997,8 @@
     const nickname = document.getElementById('personaNickname').value.trim();
     const gender = document.getElementById('personaGender').value.trim();
     const age = document.getElementById('personaAge').value.trim();
-    const details = document.getElementById('personaDetails').value.trim();
+    // 读取 textarea 的内容，换行符会被原样读取
+    const details = document.getElementById('personaDetails').value;
     
     if (!name) {
       alert('请至少填写名字');
@@ -1019,7 +1026,7 @@
     cancelPersonaEdit();
   }
 
-  // 人设文件上传逻辑（修复 docx 解析）
+  // 【核心修复：统一换行符，确保导入格式不变】
   document.getElementById('personaFileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -1048,8 +1055,13 @@
       document.getElementById('personaEmptyState').style.display = 'none';
     };
 
+    // 统一处理换行符：将 Windows 的 \r\n 和 Mac 的 \r 统一换成 \n
+    const normalizeText = (text) => {
+      if (!text) return '';
+      return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    };
+
     if (file.name.endsWith('.docx')) {
-      // 【核心修复：引入 mammoth 库直接解析 docx 内容】
       if (typeof mammoth === 'undefined') {
         alert('docx 解析库未加载，无法直接解析，请手动填写人设内容。');
         parsedData.details = '请手动粘贴或输入文档内容。';
@@ -1062,7 +1074,8 @@
         const arrayBuffer = evt.target.result;
         mammoth.extractRawText({arrayBuffer: arrayBuffer})
           .then(function(result) {
-            parsedData.details = result.value;
+            // 应用换行符标准化
+            parsedData.details = normalizeText(result.value);
             showEditForm();
           })
           .catch(function(err) {
@@ -1083,9 +1096,10 @@
           parsedData.nickname = jsonData.nickname || jsonData.net_name || '';
           parsedData.gender = jsonData.gender || jsonData.sex || '';
           parsedData.age = jsonData.age || '';
-          parsedData.details = jsonData.details || jsonData.description || jsonData.persona || content;
+          // 应用换行符标准化
+          parsedData.details = normalizeText(jsonData.details || jsonData.description || jsonData.persona || content);
         } catch (err) {
-          parsedData.details = content;
+          parsedData.details = normalizeText(content);
         }
         showEditForm();
       };
@@ -1093,7 +1107,8 @@
     } else if (file.name.endsWith('.txt')) {
       const reader = new FileReader();
       reader.onload = function(ev) {
-        parsedData.details = ev.target.result;
+        // 应用换行符标准化
+        parsedData.details = normalizeText(ev.target.result);
         showEditForm();
       };
       reader.readAsText(file);
