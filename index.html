@@ -430,27 +430,36 @@
   .jx-chat-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
   .jx-chat-icon { width: 14px; height: 14px; fill: #b2b2b2; }
 
-  /* ================= 朋友圈 (完全复刻P2) ================= */
+  /* ================= 朋友圈 (按照最新要求排版) ================= */
   .jx-moments-header {
-    position: relative; height: 220px; background: #121212; overflow: hidden;
-    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    position: relative; height: 180px; background: #121212; overflow: hidden;
   }
   .jx-moments-bg-btn {
     position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15);
     color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
   }
-  .jx-moments-profile-info { text-align: left; color: #fff; flex: 1; }
-  .jx-moments-name { font-size: 22px; font-weight: 600; margin-bottom: 8px; color: #fff; }
-  .jx-moments-signature { font-size: 13px; color: #ddd; }
+  /* 头像下移，卡在黑色和白色区域的交界处 */
   .jx-moments-avatar {
-    width: 76px; height: 76px; border-radius: 50%; background: #000; overflow: hidden;
-    flex-shrink: 0; cursor: pointer; border: 1px solid #333;
+    position: absolute; bottom: -40px; right: 24px;
+    width: 80px; height: 80px; border-radius: 50%; background: #000; overflow: hidden;
+    flex-shrink: 0; cursor: pointer; border: 2px solid #fff;
+    z-index: 10;
   }
   .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-  .jx-moments-user-info { padding: 20px 16px; border-bottom: 1px solid #f0f0f0; }
-  .jx-moments-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999; }
-  .jx-moments-filter-btn { background: none; border: 1px solid #ddd; border-radius: 12px; padding: 4px 12px; color: #666; font-size: 12px; }
+  /* 白色信息区域：增宽增高，避开下沉的头像 */
+  .jx-moments-user-info {
+    padding: 60px 24px 24px 24px; /* 上边距给头像留空间 */
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff;
+    position: relative;
+    min-height: 150px; /* 增高 */
+  }
+  /* 信息纵向排列 */
+  .jx-moments-name { font-size: 22px; font-weight: 600; margin-bottom: 8px; color: #333; }
+  .jx-moments-signature { font-size: 13px; color: #666; margin-bottom: 16px; }
+  .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 6px; }
+  .jx-moments-post-count { font-size: 12px; color: #999; }
 
   .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
   .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; }
@@ -1038,31 +1047,28 @@
         </div>
       </div>
 
-      <!-- 页面2：朋友圈 (完全复刻P2) -->
+      <!-- 页面2：朋友圈 (按照最新要求排版) -->
       <div id="jx-moments" class="jx-tab-content">
+        <!-- 黑色背景区 -->
         <div class="jx-moments-header" id="jxMomentsHeader">
           <button class="jx-moments-bg-btn" onclick="document.getElementById('momentsBgInput').click()">点击更换背景</button>
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
-          <div class="jx-moments-profile-info">
-            <div class="jx-moments-name editable-text" id="momentsName" data-placeholder="点击输入网名">你最近过得还好吗？</div>
-            <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
-          </div>
+          <!-- 头像绝对定位，下移卡在交界处 -->
           <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
             <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3C/svg%3E" alt="avatar">
             <input type="file" id="momentsAvatarInput" accept="image/*" style="display: none;">
           </div>
         </div>
         
-        <!-- 个人资料区 -->
+        <!-- 白色个人信息区域：增宽增高，包含所有文字 -->
         <div class="jx-moments-user-info">
-          <div class="jx-moments-meta">
-            <span>📅 2026年9月21日 加入</span>
-            <span>帖子数量 0</span>
-            <button class="jx-moments-filter-btn">过滤器</button>
-          </div>
+          <div class="jx-moments-name editable-text" id="momentsName" data-placeholder="点击输入网名">你最近过得还好吗？</div>
+          <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
+          <div class="jx-moments-join-date editable-text" id="momentsJoinDate" data-placeholder="点击输入加入时间">2026年9月21日 加入</div>
+          <div class="jx-moments-post-count">帖子数量 0</div>
         </div>
 
-        <!-- 朋友圈动态区 (初始为空，因为我还没有发过任何帖子) -->
+        <!-- 动态区 (初始为空，因为我还没有发过任何帖子) -->
         <div class="jx-moments-posts" id="jx-moments-posts">
           <!-- 这里为空，等待发布动态 -->
         </div>
@@ -1331,6 +1337,12 @@
       document.getElementById('momentsSignature').innerText = sig;
     }
 
+    // 加入时间
+    const joinDate = localStorage.getItem('moments_join_date');
+    if (joinDate) {
+      document.getElementById('momentsJoinDate').innerText = joinDate;
+    }
+
     // 头像
     const avatar = localStorage.getItem('moments_avatar');
     if (avatar) {
@@ -1361,13 +1373,41 @@
     reader.readAsDataURL(file);
   });
 
-  // 绑定双击编辑保存 (名字和签名)
-  document.getElementById('momentsName').addEventListener('blur', function() {
-    localStorage.setItem('moments_name', this.innerText.trim() || '你最近过得还好吗？');
-  });
-  document.getElementById('momentsSignature').addEventListener('blur', function() {
-    localStorage.setItem('moments_sig', this.innerText.trim() || '人在接近幸福的时候才最幸福');
-  });
+  // 双击编辑保存逻辑 (名字、签名、加入时间)
+  function initEditableTexts() {
+    document.querySelectorAll('.editable-text').forEach(el => {
+      const key = 'edit_' + el.id;
+      const savedValue = localStorage.getItem(key);
+      if (savedValue && el.id !== 'momentsName' && el.id !== 'momentsSignature' && el.id !== 'momentsJoinDate') {
+        el.innerText = savedValue;
+      }
+
+      el.addEventListener('dblclick', function() {
+        this.contentEditable = "true"; this.focus();
+      });
+      
+      el.addEventListener('blur', function() {
+        this.contentEditable = "false";
+        let finalText = this.innerText.trim();
+        if (finalText === '') {
+          finalText = this.getAttribute('data-placeholder') || '点击输入';
+          this.innerText = finalText;
+        }
+        try { 
+          if (this.id === 'momentsName') {
+            localStorage.setItem('moments_name', finalText);
+          } else if (this.id === 'momentsSignature') {
+            localStorage.setItem('moments_sig', finalText);
+          } else if (this.id === 'momentsJoinDate') {
+            localStorage.setItem('moments_join_date', finalText);
+          } else {
+            localStorage.setItem(key, finalText); 
+          }
+        } catch(e){}
+      });
+    });
+  }
+  initEditableTexts();
 
   // ================= 本地存储数据初始化 =================
   const APP_ICON_KEY_PREFIX = 'app_icon_';
@@ -1402,40 +1442,6 @@
     });
   }
   applyAppConfig();
-
-  // ================= 双击编辑文字逻辑 =================
-  function initEditableTexts() {
-    document.querySelectorAll('.editable-text').forEach(el => {
-      const key = 'edit_' + el.id;
-      const savedValue = localStorage.getItem(key);
-      if (savedValue && el.id !== 'momentsName' && el.id !== 'momentsSignature') {
-        el.innerText = savedValue;
-      }
-
-      el.addEventListener('dblclick', function() {
-        this.contentEditable = "true"; this.focus();
-      });
-      
-      el.addEventListener('blur', function() {
-        this.contentEditable = "false";
-        let finalText = this.innerText.trim();
-        if (finalText === '') {
-          finalText = this.getAttribute('data-placeholder') || '点击输入';
-          this.innerText = finalText;
-        }
-        try { 
-          if (this.id === 'momentsName') {
-            localStorage.setItem('moments_name', finalText);
-          } else if (this.id === 'momentsSignature') {
-            localStorage.setItem('moments_sig', finalText);
-          } else {
-            localStorage.setItem(key, finalText); 
-          }
-        } catch(e){}
-      });
-    });
-  }
-  initEditableTexts();
 
   // ================= 组件图片上传 =================
   const uploadableIcons = document.querySelectorAll('.uploadable-icon');
