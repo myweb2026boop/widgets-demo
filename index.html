@@ -181,12 +181,11 @@
   .persona-card .info { flex: 1; overflow: hidden; }
   .persona-card .info h4 { font-size: 15px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
-  /* 【关键修复】：保留预览的换行，并支持多行截断 */
   .persona-card .info p { 
     font-size: 12px; color: #999; 
-    white-space: pre-wrap; /* 保留换行和空白 */
+    white-space: pre-wrap;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* 最多显示2行 */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
@@ -203,11 +202,10 @@
   .form-group select { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; background: #fff; }
   .form-group select:focus { border-color: #4b7bec; }
   
-  /* 【关键修复】：绝对保证文本域换行渲染 */
   .form-group textarea { 
     height: 180px; 
     resize: vertical; 
-    white-space: pre-wrap; /* 保留换行 */
+    white-space: pre-wrap;
     word-wrap: break-word;
     line-height: 1.5;
   }
@@ -1181,7 +1179,7 @@
     cancelPersonaEdit();
   }
 
-  // 【核心修复：使用 convertToHtml 确保 docx 的换行被完整保留】
+  // 人设文件导入（docx / json / txt）
   document.getElementById('personaFileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -1699,19 +1697,66 @@
     document.getElementById('mainScreen').style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
   }
 
-  document.getElementById('fullscreenToggleBtn').addEventListener('click', () => {
-    const isNowFullscreen = phoneCase.classList.toggle('is-fullscreen');
-    localStorage.setItem('is_fullscreen', isNowFullscreen);
-    const btn = document.getElementById('fullscreenToggleBtn');
-    if (isNowFullscreen) {
-      btn.innerText = '关闭全屏';
-      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-    } else {
-      btn.innerText = '开启全屏';
-      if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  // ================= 全屏模式（修复：持久化 + 自动恢复 + 同步退出） =================
+  const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
+
+  function updateFullscreenBtn() {
+    const on = phoneCase.classList.contains('is-fullscreen');
+    fullscreenToggleBtn.innerText = on ? '关闭全屏' : '开启全屏';
+  }
+
+  function applyFullscreenState(on, requestNative) {
+    phoneCase.classList.toggle('is-fullscreen', on);
+    try { localStorage.setItem('is_fullscreen', on ? 'true' : 'false'); } catch(e){}
+    updateFullscreenBtn();
+    if (requestNative) {
+      if (on) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else {
+        if (document.exitFullscreen && document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+  }
+
+  // 1) 页面加载时恢复全屏状态（CSS 层）
+  (function restoreFullscreen() {
+    const saved = localStorage.getItem('is_fullscreen') === 'true';
+    applyFullscreenState(saved, false);
+
+    // 2) 浏览器要求“用户手势”才能进入原生全屏，首次点击/触摸时自动补上
+    if (saved) {
+      const onceHandler = () => {
+        if (localStorage.getItem('is_fullscreen') === 'true' && !document.fullscreenElement) {
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          }
+        }
+        document.removeEventListener('click', onceHandler);
+        document.removeEventListener('touchstart', onceHandler);
+      };
+      document.addEventListener('click', onceHandler, { once: true });
+      document.addEventListener('touchstart', onceHandler, { once: true });
+    }
+  })();
+
+  // 3) 按钮点击切换
+  fullscreenToggleBtn.addEventListener('click', () => {
+    const willBeOn = !phoneCase.classList.contains('is-fullscreen');
+    applyFullscreenState(willBeOn, true);
+  });
+
+  // 4) 用户按 Esc / 系统退出原生全屏时，同步关闭 CSS 全屏
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && phoneCase.classList.contains('is-fullscreen')) {
+      applyFullscreenState(false, false);
     }
   });
 
+  // ================= App 图标与名字编辑列表 =================
   function renderAppEditList() {
     const appEditList = document.getElementById('appEditList');
     let html = '';
@@ -1792,6 +1837,7 @@
     input.click();
   }
 
+  // ================= 预设管理 =================
   const presetSelect = document.getElementById('presetSelect');
   function updatePresetList() {
     presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
@@ -1807,7 +1853,8 @@
   const isBackupKey = (key) => (
     key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
     key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
-    key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY
+    key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY ||
+    key === 'is_fullscreen'
   );
 
   document.getElementById('savePresetBtn').addEventListener('click', () => {
