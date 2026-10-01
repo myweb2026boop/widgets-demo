@@ -1552,6 +1552,7 @@
         try { 
           if (this.id === 'momentsName') {
             localStorage.setItem('moments_name', finalText);
+            renderMomentsPosts(); // 👈 名字修改后立刻刷新动态列表
           } else if (this.id === 'momentsSignature') {
             localStorage.setItem('moments_sig', finalText);
           } else if (this.id === 'momentsJoinDate') {
@@ -1589,6 +1590,9 @@
     loadMomentsPosts();
     const container = document.getElementById('jx-moments-posts');
     document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
+
+    // 获取当前设置的网名，如果没有则默认为 Koi Buono
+    const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
 
     if (momentsPosts.length === 0) {
       container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">暂无动态</div>';
@@ -1641,7 +1645,7 @@
             <div class="jx-post-avatar">
               <img src="${localStorage.getItem('moments_avatar') || ''}" style="width:100%; height:100%; object-fit:cover;">
             </div>
-            <div class="jx-post-user">Koi Buono</div>
+            <div class="jx-post-user">${escapeHtml(currentName)}</div>
           </div>
           <div class="jx-post-content">${post.content}</div>
           ${imagesHtml}
@@ -1835,10 +1839,13 @@
     const text = document.getElementById('commentContent').value.trim();
     if (!text) return;
 
+    // 获取当前设置的网名
+    const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+
     const post = momentsPosts.find(p => p.id === currentCommentPostId);
     if (post) {
       if (!post.comments) post.comments = [];
-      post.comments.push({ user: 'Koi Buono', text: text });
+      post.comments.push({ user: currentName, text: text });
       saveMomentsPosts();
       renderMomentsPosts();
       closeCommentModal();
