@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title> TuTooth </title>
+<title>TuTooth</title>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -272,7 +272,7 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
-  /* ============ 7. 设置界面（纯白背景 + 浅色边框） ============ */
+  /* ============ 7. 设置界面 ============ */
   #settingsScreen { background: #ffffff; padding-bottom: 30px; }
   .hint-text { font-size: 12px; color: #888; margin-top: 8px; line-height: 1.5; }
 
@@ -346,6 +346,148 @@
   .editable-text { display: inline-block; min-width: 20px; min-height: 20px; cursor: pointer; line-height: 1.5; }
   .editable-text:empty::before { content: attr(data-placeholder); color: #b0b0b0; }
   .editable-text[contenteditable="true"] { background-color: #f0f0f0; outline: none; border-radius: 4px; padding: 2px 6px; box-shadow: none; color: #333; cursor: text; user-select: text; }
+
+  /* ================= 8. 简讯App 专属样式 ================= */
+  #jianxunScreen {
+    display: none;
+    flex-direction: column;
+    background: #fff;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0; width: 100%;
+  }
+  #jianxunScreen.active {
+    display: flex;
+  }
+  .jx-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    display: none;
+    padding-bottom: 70px; /* 给底部导航留出空间 */
+  }
+  .jx-tab-content.active {
+    display: block;
+  }
+  /* p2: 底部导航栏 */
+  .jx-bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: #f7f7f7;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 999;
+  }
+  .jx-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #7a7e83;
+    font-size: 10px;
+    flex: 1;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+  .jx-nav-item.active { color: #07c160; }
+  .jx-nav-item svg { width: 26px; height: 26px; margin-bottom: 2px; fill: currentColor; }
+
+  /* p1: 聊天列表 */
+  .jx-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; background: #fff; position: sticky; top: 0; z-index: 10;
+  }
+  .jx-header .left { font-size: 16px; color: #333; }
+  .jx-header .title { font-size: 17px; font-weight: 600; color: #000; }
+  .jx-header .right {
+    font-size: 22px; color: #333; display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; line-height: 1;
+    background: #f0f0f0; padding-bottom: 2px;
+  }
+  .jx-search-bar {
+    margin: 0 16px 10px; background: #ededed; border-radius: 8px;
+    padding: 8px 12px; display: flex; align-items: center; font-size: 14px; color: #999;
+  }
+  .jx-search-bar svg { width: 16px; height: 16px; margin-right: 6px; fill: #999; }
+  .jx-chat-list { border-top: 1px solid #f5f5f5; }
+  .jx-chat-item {
+    display: flex; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; align-items: center;
+  }
+  .jx-chat-item:last-child { border-bottom: none; }
+  .jx-chat-avatar {
+    width: 48px; height: 48px; border-radius: 50%; background: #eee; margin-right: 12px;
+    overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #ccc;
+  }
+  .jx-chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .jx-chat-info { flex: 1; overflow: hidden; }
+  .jx-chat-info-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .jx-chat-name { font-size: 16px; color: #333; font-weight: 500; }
+  .jx-chat-time { font-size: 12px; color: #b2b2b2; }
+  .jx-chat-msg {
+    font-size: 14px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .jx-chat-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
+  .jx-chat-icon { width: 14px; height: 14px; fill: #b2b2b2; }
+
+  /* p3/p4: 朋友圈 */
+  .jx-moments-header {
+    position: relative; height: 350px; background: #2c2c2c; overflow: hidden;
+    display: flex; align-items: flex-end; padding: 20px;
+  }
+  .jx-moments-bg-btn {
+    position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6);
+    color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
+  }
+  .jx-moments-profile { display: flex; align-items: flex-end; gap: 16px; width: 100%; justify-content: flex-end; }
+  .jx-moments-profile-info { text-align: right; color: #fff; padding-bottom: 4px; }
+  .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .jx-moments-signature { font-size: 13px; color: #ddd; }
+  .jx-moments-avatar {
+    width: 76px; height: 76px; border-radius: 14px; background: #f8bbd0; overflow: hidden;
+    border: 3px solid #fff; flex-shrink: 0;
+  }
+  .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .jx-moments-user-info { padding: 20px 16px; border-bottom: 1px solid #f0f0f0; }
+  .jx-moments-status { font-size: 18px; color: #333; font-weight: bold; margin-bottom: 6px; }
+  .jx-moments-quote { font-size: 14px; color: #666; margin-bottom: 12px; }
+  .jx-moments-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999; }
+  .jx-moments-filter-btn { background: none; border: 1px solid #ddd; border-radius: 12px; padding: 2px 10px; color: #666; font-size: 12px; }
+
+  .jx-moments-posts { padding: 16px; background: #fff; }
+  .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; }
+  .jx-post:last-child { border-bottom: none; }
+  .jx-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
+  .jx-post-user { font-size: 15px; color: #576b95; font-weight: 600; }
+  .jx-post-avatar { width: 40px; height: 40px; border-radius: 8px; background: #f8bbd0; }
+  .jx-post-content { font-size: 15px; color: #333; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+  .jx-post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #b2b2b2; }
+  .jx-post-actions { display: flex; gap: 16px; }
+  .jx-post-actions svg { width: 16px; height: 16px; fill: #b2b2b2; }
+  .jx-moments-empty { text-align: center; padding: 60px 0; color: #999; font-size: 14px; }
+
+  /* p5: 通讯录 */
+  .jx-contacts-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; background: #fff; position: sticky; top: 0; z-index: 10;
+  }
+  .jx-contacts-header .title { font-size: 17px; font-weight: 600; color: #000; flex: 1; text-align: center; }
+  .jx-contacts-header .icon { font-size: 20px; color: #333; width: 24px; height: 24px; fill: #333; }
+  .jx-contacts-search { margin: 0 16px 10px; background: #ededed; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; font-size: 14px; color: #999; }
+  .jx-contacts-search svg { width: 16px; height: 16px; margin-right: 6px; fill: #999; }
+  .jx-contacts-sort { text-align: center; font-size: 14px; color: #576b95; padding: 12px 0; background: #fff; border-top: 1px solid #f5f5f5; border-bottom: 1px solid #f5f5f5; }
+  .jx-contacts-block { background: #fff; padding: 0 16px; }
+  .jx-contact-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f5f5f5; font-size: 16px; color: #333; }
+  .jx-contact-item:last-child { border-bottom: none; }
+  .jx-contact-icon { width: 22px; height: 22px; margin-right: 12px; fill: #576b95; }
+  .jx-contact-letter { background: #f7f7f7; padding: 6px 16px; font-size: 14px; color: #888; font-weight: 600; }
+  .jx-contact-user { display: flex; align-items: center; padding: 12px 16px; background: #fff; border-bottom: 1px solid #f5f5f5; }
+  .jx-contact-avatar { width: 44px; height: 44px; border-radius: 6px; background: #eee; margin-right: 12px; overflow: hidden; flex-shrink: 0; }
+  .jx-contact-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .jx-contact-info { flex: 1; }
+  .jx-contact-name { font-size: 16px; color: #333; }
+  .jx-contact-sub { font-size: 12px; color: #999; margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -399,7 +541,7 @@
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-green" id="app-icon-wechat">
+            <div class="icon-box bg-green" id="app-icon-wechat" onclick="openJianxunApp()">
               <svg viewBox="0 0 24 24" fill="#ffffff"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 10C8.55 10 9 10.45 9 11C9 11.55 8.55 12 8 12C7.45 12 7 11.55 7 11C7 10.45 7.45 10 8 10ZM16 10C16.55 10 17 10.45 17 11C17 11.55 16.55 12 16 12C15.45 12 15 11.55 15 11C15 10.45 15.45 10 16 10Z" /></svg>
             </div>
             <span class="widget-label" id="label-wechat">简讯</span>
@@ -856,6 +998,297 @@
       </div>
     </div>
 
+    <!-- ================= 8. 简讯App (仿微信) ================= -->
+    <div id="jianxunScreen" class="screen">
+      
+      <!-- 页面1：聊天 (p1) -->
+      <div id="jx-chats" class="jx-tab-content active">
+        <div class="jx-header">
+          <span class="left">编辑</span>
+          <span class="title">消息</span>
+          <span class="right">+</span>
+        </div>
+        <div class="jx-search-bar">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          搜索消息或用户
+        </div>
+        <div class="jx-chat-list">
+          <!-- 列表项1 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23ddd'/%3E%3Ccircle cx='50' cy='40' r='20' fill='%23aaa'/%3E%3Ccircle cx='50' cy='80' r='30' fill='%23aaa'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">♡</span>
+                <span class="jx-chat-time">3/8/25</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="jx-chat-msg">会不会很烦我</span>
+                <div class="jx-chat-icons">
+                  <svg class="jx-chat-icon" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" opacity="0.5"/></svg>
+                  <span style="color:#07c160; font-size:12px;">✓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 列表项2 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23eee'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">👥 汤臣一品业主群</span>
+                <span class="jx-chat-time">5/31</span>
+              </div>
+              <span class="jx-chat-msg">苏莞..: 有的</span>
+            </div>
+          </div>
+          <!-- 列表项3 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fce4ec'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">塔塔</span>
+                <span class="jx-chat-time">11/29/25</span>
+              </div>
+              <span class="jx-chat-msg">你24年给我发的消息 我现在才看到🥺 那会我手机被...</span>
+            </div>
+          </div>
+          <!-- 列表项4 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e0e0e0'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">Cha_liisu^</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项5 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">已销号用户</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项6 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">已销号用户</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项7 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e8eaf6'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">小江</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项8 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fff3e0'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">Seoni</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项9 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fce4ec'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">小娜</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项10 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e0f2f1'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">尤芷苑</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+          <!-- 列表项11 -->
+          <div class="jx-chat-item">
+            <div class="jx-chat-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f3e5f5'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-chat-info">
+              <div class="jx-chat-info-top">
+                <span class="jx-chat-name">林小逸</span>
+                <span class="jx-chat-time">10/6/25</span>
+              </div>
+              <span class="jx-chat-msg"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 页面2：朋友圈 (p3 & p4) -->
+      <div id="jx-moments" class="jx-tab-content">
+        <div class="jx-moments-header">
+          <button class="jx-moments-bg-btn">点击更换背景</button>
+          <div class="jx-moments-profile">
+            <div class="jx-moments-profile-info">
+              <div class="jx-moments-name">Koi Buono</div>
+              <div class="jx-moments-signature">点击设置个性签名...</div>
+            </div>
+            <div class="jx-moments-avatar">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f8bbd0'/%3E%3Ccircle cx='50' cy='50' r='25' fill='%23f48fb1' opacity='0.6'/%3E%3C/svg%3E" alt="avatar">
+            </div>
+          </div>
+        </div>
+        
+        <!-- p4 的个人信息区 -->
+        <div class="jx-moments-user-info">
+          <div class="jx-moments-status">你最近过的还好吗</div>
+          <div class="jx-moments-quote">人在接近幸福的时候才最幸福</div>
+          <div class="jx-moments-meta">
+            <span>📅 2026年9月21日 加入</span>
+            <span>帖子数量 1</span>
+            <button class="jx-moments-filter-btn">过滤器</button>
+          </div>
+        </div>
+
+        <!-- 动态列表 -->
+        <div class="jx-moments-posts">
+          <div class="jx-post">
+            <div class="jx-post-header">
+              <div class="jx-post-user">Koi Buono</div>
+              <div class="jx-post-avatar"></div>
+            </div>
+            <div class="jx-post-content">和你的关系太淡太浅太轻了，好像只消一阵风便能吹散，但是我想留住你，想留住一切和你有关的联系，哪怕是 槐序捧冰春杪培花，哪怕是狗尾续貂草宣上强添的惨淡一笔，我也想和你久一点、再久一点</div>
+            <div class="jx-post-footer">
+              <span>1天前</span>
+              <div class="jx-post-actions">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 页面3：通讯录 (p5) -->
+      <div id="jx-contacts" class="jx-tab-content">
+        <div class="jx-contacts-header">
+          <span style="width:24px;"></span>
+          <span class="title">通讯录</span>
+          <svg class="icon" viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <div class="jx-contacts-search">
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          搜索
+        </div>
+        <div class="jx-contacts-sort">按名称排序 ▼</div>
+        
+        <div class="jx-contacts-block" style="margin-top: 8px;">
+          <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>新的朋友</div>
+          <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>新群组/频道邀请</div>
+          <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>群组</div>
+          <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>频道</div>
+          <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>邀请朋友</div>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <div class="jx-contact-letter">C</div>
+          <div class="jx-contact-user">
+            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e0e0e0'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-contact-info">
+              <div class="jx-contact-name">Cha_liisu^</div>
+              <div class="jx-contact-sub">最近上线于 3/7/26</div>
+            </div>
+          </div>
+          
+          <div class="jx-contact-letter">Q</div>
+          <div class="jx-contact-user">
+            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e8f5e9'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-contact-info">
+              <div class="jx-contact-name">清瑶</div>
+              <div class="jx-contact-sub">最近上线于 6/27/25</div>
+            </div>
+          </div>
+
+          <div class="jx-contact-letter">S</div>
+          <div class="jx-contact-user">
+            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fff3e0'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-contact-info">
+              <div class="jx-contact-name">Seoni</div>
+              <div class="jx-contact-sub">最近上线于 1/1/-30</div>
+            </div>
+          </div>
+
+          <div class="jx-contact-letter">T</div>
+          <div class="jx-contact-user">
+            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fce4ec'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-contact-info">
+              <div class="jx-contact-name">塔塔</div>
+              <div class="jx-contact-sub">最近上线于 1/1/-30</div>
+            </div>
+          </div>
+
+          <div class="jx-contact-letter">X</div>
+          <div class="jx-contact-user">
+            <div class="jx-contact-avatar"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23fce4ec'/%3E%3C/svg%3E" alt="avatar"></div>
+            <div class="jx-contact-info">
+              <div class="jx-contact-name">小娜</div>
+              <div class="jx-contact-sub">最近上线于 1/1/-30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 页面4：我 (占位) -->
+      <div id="jx-me" class="jx-tab-content">
+        <div style="padding: 40px 20px; text-align: center; color: #666; background: #f7f7f7; height: 100%;">
+          <div style="width: 80px; height: 80px; border-radius: 12px; background: #ddd; margin: 0 auto 16px; overflow: hidden;">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f8bbd0'/%3E%3C/svg%3E" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <h2 style="font-size: 20px; color: #333; margin-bottom: 8px;">Koi Buono</h2>
+          <p style="font-size: 14px; color: #999;">微信号：Koi_Buono</p>
+        </div>
+      </div>
+
+      <!-- p2: 底部导航栏 -->
+      <div class="jx-bottom-nav">
+        <div class="jx-nav-item active" onclick="switchJianxunTab('jx-chats', this)">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>主页</span>
+        </div>
+        <div class="jx-nav-item" onclick="switchJianxunTab('jx-moments', this)">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <span>朋友圈</span>
+        </div>
+        <div class="jx-nav-item" onclick="switchJianxunTab('jx-contacts', this)">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>通讯录</span>
+        </div>
+        <div class="jx-nav-item" onclick="switchJianxunTab('jx-me', this)">
+          <svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -874,6 +1307,35 @@
   function openPersonaApp() { 
     openScreen('personaScreen'); 
     renderPersonaList();
+  }
+
+  // ================= 简讯App 专属逻辑 =================
+  function openJianxunApp() {
+    openScreen('jianxunScreen');
+    // 每次打开默认回到主页（聊天）
+    const defaultTab = document.querySelector('.jx-nav-item');
+    switchJianxunTab('jx-chats', defaultTab);
+  }
+
+  function switchJianxunTab(tabId, navElement) {
+    // 移除所有 tab 和 nav 的 active 状态
+    document.querySelectorAll('.jx-tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.jx-nav-item').forEach(el => el.classList.remove('active'));
+
+    // 激活选中的 tab 和 nav
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
+    
+    if (navElement) {
+      navElement.classList.add('active');
+    } else {
+      // 如果直接调用没传 nav，尝试根据 id 匹配（备用逻辑）
+      const navs = document.querySelectorAll('.jx-nav-item');
+      if (tabId === 'jx-chats') navs[0].classList.add('active');
+      if (tabId === 'jx-moments') navs[1].classList.add('active');
+      if (tabId === 'jx-contacts') navs[2].classList.add('active');
+      if (tabId === 'jx-me') navs[3].classList.add('active');
+    }
   }
 
   // ================= 本地存储数据初始化 =================
@@ -2111,26 +2573,19 @@
   }
 
   // ========= URL 规范化 =========
-  // 自动识别用户填的是 base URL 还是完整端点，补全成 chat/completions 端点
   function normalizeChatEndpoint(url) {
     let u = String(url || '').trim().replace(/\/+$/, '');
     if (!u) return '';
-    // 已经是完整的 chat/completions 端点
     if (/\/chat\/completions$/i.test(u)) return u;
-    // 兼容其他常见端点
     if (/\/completions$/i.test(u)) return u;
     if (/\/responses$/i.test(u)) return u;
-    // 以 /v1 /v2 /v3 等版本目录结尾 → 补 /chat/completions
     if (/\/v\d+$/i.test(u)) return u + '/chat/completions';
-    // 其他情况 → 补 /v1/chat/completions
     return u + '/v1/chat/completions';
   }
 
-  // 规范化 models 端点
   function normalizeModelsEndpoint(url) {
     let u = String(url || '').trim().replace(/\/+$/, '');
     if (!u) return '';
-    // 完整 chat/completions → 换成 models
     if (/\/chat\/completions$/i.test(u)) {
       return u.replace(/\/chat\/completions$/i, '/models');
     }
@@ -2140,9 +2595,7 @@
     if (/\/responses$/i.test(u)) {
       return u.replace(/\/responses$/i, '/models');
     }
-    // 以 /v1 /v2 等结尾 → 补 /models
     if (/\/v\d+$/i.test(u)) return u + '/models';
-    // 其他 → 补 /v1/models
     return u + '/v1/models';
   }
 
@@ -2153,7 +2606,6 @@
     if (!cfg.key) { setApiStatus('fail', '❌ 请先填写 API Key'); return; }
     if (!cfg.model) { setApiStatus('fail', '❌ 请先填写模型名称'); return; }
 
-    // 自动补全为完整的 chat/completions 端点
     const chatUrl = normalizeChatEndpoint(cfg.endpoint);
 
     const btn = document.getElementById('testApiBtn');
@@ -2243,7 +2695,7 @@
         box.querySelectorAll('.model-item').forEach(x => x.classList.remove('active'));
         el.classList.add('active');
         setApiStatus('ok', '✅ 已选择模型：' + m);
-        box.classList.remove('show'); // 点击选择后收起列表
+        box.classList.remove('show');
       });
     });
     
@@ -2293,7 +2745,6 @@
                 : (data && Array.isArray(data.models)) ? data.models
                 : [];
       const ids = arr.map(m => (typeof m === 'string' ? m : (m && (m.id || m.name)))).filter(Boolean);
-      // 去重 + 排序
       const uniq = Array.from(new Set(ids)).sort((a,b) => a.localeCompare(b));
 
       if (uniq.length === 0) {
@@ -2374,7 +2825,6 @@
     openScreen('settingsScreen');
     applyApiConfigToForm(loadApiConfig() || {});
     updateApiPresetList();
-    // 清空状态与模型列表
     const statusEl = document.getElementById('apiTestStatus');
     statusEl.style.display = 'none';
     statusEl.innerText = '';
