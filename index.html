@@ -247,7 +247,7 @@
   #jianxunScreen.active { display: flex; }
   .jx-tab-content { flex: 1; overflow-y: auto; display: none; padding-bottom: 70px; }
   .jx-tab-content.active { display: block; }
-  .jx-bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: #f7f7f7; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-around; align-items: center; z-index: 999; }
+  .jx-bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: #f7f7f7; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-around; align-items: center; z-index: 999; padding-bottom: env(safe-area-inset-bottom); box-sizing: content-box; }
   .jx-nav-item { display: flex; flex-direction: column; align-items: center; color: #7a7e83; font-size: 10px; flex: 1; padding: 8px 0; cursor: pointer; }
   .jx-nav-item.active { color: #07c160; }
   .jx-nav-item svg { width: 26px; height: 26px; margin-bottom: 2px; fill: currentColor; }
@@ -361,8 +361,7 @@
   .jx-msg-row.other .jx-msg-bubble { background: #fff; color: #000; }
   .jx-msg-row.me .jx-msg-bubble::after { content: ''; position: absolute; top: 12px; right: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 6px solid #95ec69; }
   .jx-msg-row.other .jx-msg-bubble::before { content: ''; position: absolute; top: 12px; left: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 6px solid #fff; }
-  /* 底栏上移并适配安全区 */
-  .jx-chat-input-bar { display: flex; align-items: center; padding: 10px 12px 25px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .jx-chat-input-bar { display: flex; align-items: center; padding: 8px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(8px + env(safe-area-inset-bottom)); box-sizing: content-box; }
   .jx-chat-input-bar .icon { width: 30px; height: 30px; fill: #333; cursor: pointer; flex-shrink: 0; }
   .jx-chat-input-bar .icon-voice { margin-right: 8px; }
   .jx-chat-input-bar .icon-emoji { margin-left: 8px; }
@@ -376,10 +375,11 @@
   .jx-info-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #ededed; border-bottom: 1px solid #dcdcdc; flex-shrink: 0; }
   .jx-info-top-bar .back-btn { font-size: 20px; color: #333; cursor: pointer; width: 24px; text-align: left; }
   .jx-info-top-bar .title { font-size: 17px; font-weight: 600; color: #000; }
-  .jx-info-scroll { flex: 1; overflow-y: auto; padding-bottom: 30px; }
+  .jx-info-scroll { flex: 1; overflow-y: auto; padding-bottom: 0; }
   .jx-info-block { background: #fff; margin-bottom: 10px; }
-  .jx-info-header-block { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-  .jx-info-header-avatar { width: 64px; height: 64px; border-radius: 8px; overflow: hidden; margin-right: 16px; background: #f0f0f0; flex-shrink: 0; }
+  .jx-info-block:last-child { margin-bottom: 0; }
+  .jx-info-header-block { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f0f0f0; }
+  .jx-info-header-avatar { width: 64px; height: 64px; border-radius: 8px; overflow: hidden; margin-right: 16px; background: #f0f0f0; flex-shrink: 0; cursor: pointer; }
   .jx-info-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .jx-info-header-name { flex: 1; font-size: 18px; font-weight: 500; color: #333; }
   .jx-info-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 16px; color: #333; cursor: pointer; }
@@ -873,8 +873,7 @@
       <!-- 我 -->
       <div id="jx-me" class="jx-tab-content">
         <div class="jx-me-profile">
-          <!-- 头像点击改为调用JS动态创建input，彻底防穿透 -->
-          <div class="jx-me-avatar" onclick="changeMyProfileAvatar()">
+          <div class="jx-me-avatar" onclick="document.getElementById('jxMeAvatarInput').click()">
             <img id="jxMeAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="头像">
           </div>
           <div class="jx-me-info">
@@ -882,6 +881,7 @@
             <div class="jx-me-wxid" id="jxMeWxIdText">微信号：Koi_Buono</div>
           </div>
           <svg class="jx-me-qr-icon" viewBox="0 0 24 24"><path d="M3 3h6v6H3V3zm2 2v2h2V5H5zm8-2h6v6h-6V3zm2 2v2h2V5h-2zM3 15h6v6H3v-6zm2 2v2h2v-2H5zm10-2h4v2h-4v-2zm0 4h4v2h-4v-2zm-2-4h2v6h-2v-6z"/></svg>
+          <input type="file" id="jxMeAvatarInput" accept="image/*" style="display: none;">
         </div>
         <div class="jx-me-menu">
           <div class="jx-me-menu-item" onclick="alert('钱包功能暂未开放')">
@@ -942,8 +942,8 @@
       <div class="jx-info-scroll">
         <!-- 顶部头像区 -->
         <div class="jx-info-block">
-          <div class="jx-info-header-block" onclick="changeChatAvatar()">
-            <div class="jx-info-header-avatar">
+          <div class="jx-info-header-block">
+            <div class="jx-info-header-avatar" onclick="changeChatAvatar()" style="cursor: pointer;">
               <img id="jxInfoAvatarImg" src="" alt="头像">
             </div>
             <div class="jx-info-header-name" id="jxInfoName">用户</div>
@@ -1801,28 +1801,20 @@
     document.getElementById('jxMeNameText').innerText = savedName;
     document.getElementById('jxMeWxIdText').innerText = '微信号：' + savedWxId;
   }
-  // 动态创建 input 修改头像
-  function changeMyProfileAvatar() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
-        document.getElementById('jxMeAvatarImg').src = base64;
-        try { 
-          localStorage.setItem('moments_avatar', base64); 
-          if(document.getElementById('momentsAvatarImg')) document.getElementById('momentsAvatarImg').src = base64;
-          renderJianxunChatList(); renderJianxunContacts(); renderMomentsPosts();
-        } catch(err){ alert('图片过大'); }
-      };
-      reader.readAsDataURL(file);
+  document.getElementById('jxMeAvatarInput').addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      document.getElementById('jxMeAvatarImg').src = base64;
+      try { 
+        localStorage.setItem('moments_avatar', base64); 
+        if(document.getElementById('momentsAvatarImg')) document.getElementById('momentsAvatarImg').src = base64;
+        renderJianxunChatList(); renderJianxunContacts(); renderMomentsPosts();
+      } catch(err){ alert('图片过大'); }
     };
-    input.click();
-  }
+    reader.readAsDataURL(file);
+  });
   document.getElementById('jxMeNameText').addEventListener('click', function(e) {
     e.stopPropagation();
     const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
@@ -1873,7 +1865,6 @@
     if (data) { try { jianxunChats = JSON.parse(data); } catch(e) { jianxunChats = []; } } else { jianxunChats = []; }
     if (!Array.isArray(jianxunChats)) jianxunChats = [];
     
-    // 初始化每个chat的默认属性及ID
     jianxunChats.forEach(chat => {
       if (!chat.id) chat.id = 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       if (!chat.messages) chat.messages = [];
@@ -1892,19 +1883,16 @@
     const defaultName = localStorage.getItem('moments_name') || 'Koi Buono';
     if (jianxunChats.length === 0) { list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">暂无聊天记录<br>点击右上角“+”添加人设</div>'; return; }
     
-    // 使用副本进行排序，不影响原数组顺序，避免点击后索引错位
     let sortedChats = [...jianxunChats].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
     list.innerHTML = sortedChats.map((chat) => {
       const avatarUrl = chat.avatar || '';
       const nameText = chat.customRemark || chat.name || defaultName;
       const lastMsg = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content : '点击开始聊天';
-      // 使用唯一ID传递，绝不用index
       return `<div class="jx-chat-item" onclick="openChat('${chat.id}')"><div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div><div class="jx-chat-info"><div class="jx-chat-info-top"><span class="jx-chat-name">${nameText}</span><span class="jx-chat-time">刚刚</span></div><span class="jx-chat-msg">${lastMsg}</span></div></div>`;
     }).join('');
   }
 
-  // 进入聊天界面，使用ID精准定位
   function openChat(id) {
     currentChatId = id;
     const chat = jianxunChats.find(c => c.id === id);
@@ -1927,7 +1915,6 @@
     setTimeout(() => { const msgContainer = document.getElementById('jxChatMessages'); if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight; }, 50);
   }
 
-  // 渲染聊天消息
   function renderChatMessages() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
@@ -1956,7 +1943,6 @@
     setTimeout(() => { const msgContainer = document.getElementById('jxChatMessages'); if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight; }, 10);
   }
 
-  // 发送消息
   function sendMessage() {
     const input = document.getElementById('jxChatInput');
     const content = input.value.trim();
@@ -1971,7 +1957,6 @@
     localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
     renderChatMessages();
     
-    // 触发AI回复 (模拟)
     setTimeout(() => {
       if (chat.allowActive) {
         let replyCount = parseInt(chat.maxReply) || 1;
@@ -1989,14 +1974,12 @@
     }, 800);
   }
 
-  // 关闭聊天界面
   function closeChatScreen() {
     document.getElementById('jxChatScreen').classList.remove('active');
     renderJianxunChatList();
     loadJianxunChats();
   }
 
-  // 打开聊天详情界面 (P2)
   function openChatInfo() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
@@ -2014,12 +1997,10 @@
     document.getElementById('jxChatInfoScreen').classList.add('active');
   }
 
-  // 关闭聊天详情界面
   function closeChatInfo() {
     document.getElementById('jxChatInfoScreen').classList.remove('active');
   }
 
-  // 切换设置开关 (allowActive / pinned)
   function toggleSetting(key) {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
@@ -2035,7 +2016,6 @@
     renderJianxunChatList();
   }
 
-  // 修改最多回复句数
   function changeMaxReply() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
@@ -2052,7 +2032,6 @@
     }
   }
 
-  // 修改备注
   function changeRemark() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
@@ -2067,7 +2046,6 @@
     }
   }
 
-  // 绑定世界书
   function bindWorldBook() {
     loadWorldBook();
     const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -2095,7 +2073,7 @@
     }
   }
 
-  // 更换Char头像 (动态创建input)
+  // 更换Char头像 (只绑定在头像上，避免误触)
   function changeChatAvatar() {
     const input = document.createElement('input');
     input.type = 'file'; input.accept = 'image/*';
@@ -2118,7 +2096,6 @@
     input.click();
   }
 
-  // 换我的头像（仅本聊天）(动态创建input)
   function changeMyChatAvatar() {
     const input = document.createElement('input');
     input.type = 'file'; input.accept = 'image/*';
@@ -2139,7 +2116,6 @@
     input.click();
   }
 
-  // 设置当前聊天背景 (动态创建input)
   function changeChatBg() {
     const input = document.createElement('input');
     input.type = 'file'; input.accept = 'image/*';
@@ -2162,7 +2138,6 @@
     input.click();
   }
 
-  // 清空聊天记录
   function clearChatHistory() {
     if (!confirm('确定要清空聊天记录吗？')) return;
     const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -2175,7 +2150,6 @@
     }
   }
 
-  // 删除聊天
   function deleteChat() {
     if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
     jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
