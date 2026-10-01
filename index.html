@@ -430,22 +430,21 @@
   .jx-chat-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
   .jx-chat-icon { width: 14px; height: 14px; fill: #b2b2b2; }
 
-  /* ================= 朋友圈 (P2 & P3 完全复刻) ================= */
+  /* ================= 朋友圈 (完全复刻P2) ================= */
   .jx-moments-header {
-    position: relative; height: 240px; background: #121212; overflow: hidden;
-    display: flex; align-items: flex-end; padding: 20px; justify-content: flex-end;
+    position: relative; height: 220px; background: #121212; overflow: hidden;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
   }
   .jx-moments-bg-btn {
-    position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6);
+    position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15);
     color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
   }
-  .jx-moments-profile { display: flex; align-items: flex-end; gap: 16px; }
-  .jx-moments-profile-info { text-align: right; color: #fff; padding-bottom: 6px; }
-  .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 6px; color: #fff; }
+  .jx-moments-profile-info { text-align: left; color: #fff; flex: 1; }
+  .jx-moments-name { font-size: 22px; font-weight: 600; margin-bottom: 8px; color: #fff; }
   .jx-moments-signature { font-size: 13px; color: #ddd; }
   .jx-moments-avatar {
-    width: 76px; height: 76px; border-radius: 50%; background: #f8bbd0; overflow: hidden;
-    border: 3px solid #fff; flex-shrink: 0; cursor: pointer;
+    width: 76px; height: 76px; border-radius: 50%; background: #000; overflow: hidden;
+    flex-shrink: 0; cursor: pointer; border: 1px solid #333;
   }
   .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -453,7 +452,16 @@
   .jx-moments-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999; }
   .jx-moments-filter-btn { background: none; border: 1px solid #ddd; border-radius: 12px; padding: 4px 12px; color: #666; font-size: 12px; }
 
-  .jx-moments-posts { padding: 16px; background: #fff; min-height: 200px; }
+  .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
+  .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; }
+  .jx-post:last-child { border-bottom: none; }
+  .jx-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
+  .jx-post-user { font-size: 16px; color: #576b95; font-weight: 600; }
+  .jx-post-avatar { width: 40px; height: 40px; border-radius: 6px; background: #f8bbd0; }
+  .jx-post-content { font-size: 15px; color: #333; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+  .jx-post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #b2b2b2; }
+  .jx-post-actions { display: flex; gap: 16px; }
+  .jx-post-actions svg { width: 18px; height: 18px; fill: #b2b2b2; }
 
   /* ================= 通讯录 (P5 完全复刻) ================= */
   .jx-contacts-header {
@@ -1030,20 +1038,18 @@
         </div>
       </div>
 
-      <!-- 页面2：朋友圈 (完全复刻P3) -->
+      <!-- 页面2：朋友圈 (完全复刻P2) -->
       <div id="jx-moments" class="jx-tab-content">
         <div class="jx-moments-header" id="jxMomentsHeader">
           <button class="jx-moments-bg-btn" onclick="document.getElementById('momentsBgInput').click()">点击更换背景</button>
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
-          <div class="jx-moments-profile">
-            <div class="jx-moments-profile-info">
-              <div class="jx-moments-name editable-text" id="momentsName" data-placeholder="点击输入网名">你最近过得还好吗？</div>
-              <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
-            </div>
-            <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
-              <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f8bbd0'/%3E%3Ccircle cx='50' cy='50' r='25' fill='%23f48fb1' opacity='0.6'/%3E%3C/svg%3E" alt="avatar">
-              <input type="file" id="momentsAvatarInput" accept="image/*" style="display: none;">
-            </div>
+          <div class="jx-moments-profile-info">
+            <div class="jx-moments-name editable-text" id="momentsName" data-placeholder="点击输入网名">你最近过得还好吗？</div>
+            <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
+          </div>
+          <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
+            <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3C/svg%3E" alt="avatar">
+            <input type="file" id="momentsAvatarInput" accept="image/*" style="display: none;">
           </div>
         </div>
         
@@ -1056,8 +1062,10 @@
           </div>
         </div>
 
-        <!-- 朋友圈动态区（空） -->
-        <div class="jx-moments-posts" id="jx-moments-posts"></div>
+        <!-- 朋友圈动态区 (初始为空，因为我还没有发过任何帖子) -->
+        <div class="jx-moments-posts" id="jx-moments-posts">
+          <!-- 这里为空，等待发布动态 -->
+        </div>
       </div>
 
       <!-- 页面3：通讯录 (完全复刻P5) -->
