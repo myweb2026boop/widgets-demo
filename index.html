@@ -430,10 +430,9 @@
   .jx-chat-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
   .jx-chat-icon { width: 14px; height: 14px; fill: #b2b2b2; }
 
-  /* ================= 朋友圈 (按照最新要求排版) ================= */
+  /* ================= 朋友圈 (完全复刻P2) ================= */
   .jx-moments-header {
-    position: relative; height: 180px; background: #121212;
-    /* 移除 overflow: hidden，确保头像可以完全显示出来 */
+    position: relative; height: 180px; background: #121212; overflow: hidden;
   }
   .jx-moments-bg-btn {
     position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15);
@@ -455,10 +454,10 @@
     background: #fff;
     position: relative;
   }
-  /* 信息纵向排列，名字和签名上移 */
-  .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #333; }
-  .jx-moments-signature { font-size: 13px; color: #666; margin-bottom: 8px; }
-  .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 4px; }
+  /* 强制让名字和签名换行显示，并调整间距 */
+  .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #333; display: block; }
+  .jx-moments-signature { font-size: 13px; color: #666; margin-bottom: 8px; display: block; }
+  .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 4px; display: block; }
   .jx-moments-post-count { font-size: 12px; color: #999; }
 
   .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
