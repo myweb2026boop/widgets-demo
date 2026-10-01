@@ -415,7 +415,8 @@
   .jx-modal-item span { font-size: 15px; color: #333; }
   .jx-modal-btn { margin-top: 10px; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 500; color: #333; }
 
-  /* 世界书多选弹窗样式 */
+  /* 世界书多选全屏界面样式 */
+  #worldBookSelectScreen.active { display: flex !important; }
   .wb-checkbox {
     width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; 
     display: flex; align-items: center; justify-content: center; 
@@ -987,7 +988,7 @@
             <div class="value"><span id="jxRemarkText"></span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
           <div class="jx-info-item" onclick="bindWorldBook()">
-            <span class="label">绑定世界书</span>
+            <span class="label">绑定局部世界书</span>
             <div class="value"><span id="jxWorldBookText">未绑定</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
@@ -1016,6 +1017,25 @@
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ================= 世界书选择界面 (全屏) ================= -->
+    <div id="worldBookSelectScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1002;">
+      <!-- 顶栏 -->
+      <div class="persona-header">
+        <button class="back-btn" onclick="closeWorldBookSelectScreen()">← 返回</button>
+        <h3>绑定局部世界书</h3>
+        <span style="width: 48px;"></span>
+      </div>
+      <!-- 内容区 -->
+      <div style="flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px;">
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">全局世界书默认对所有聊天生效，无需在此绑定。请选择需要绑定到当前聊天的局部世界书（可多选）。</p>
+        <div id="worldBookSelectList" style="background: #fff; border-radius: 12px; padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);"></div>
+      </div>
+      <!-- 底部按钮 -->
+      <div style="padding: 16px; background: #fff; border-top: 1px solid #eee; position: absolute; bottom: 0; left: 0; right: 0;">
+        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px;" onclick="confirmWorldBookBinding()">确定绑定</button>
       </div>
     </div>
 
@@ -1064,19 +1084,6 @@
         <h3>选择人设添加到简讯</h3>
         <div class="jx-modal-list" id="personaSelectorList"></div>
         <button class="jx-modal-btn" onclick="closePersonaSelector()">取消</button>
-      </div>
-    </div>
-
-    <!-- 世界书选择弹窗 -->
-    <div class="jx-modal" id="worldBookSelectModal">
-      <div class="jx-modal-content" style="max-height: 80vh;">
-        <h3>绑定世界书</h3>
-        <p style="font-size:12px; color:#666; margin-bottom:10px; text-align:left;">全局世界书默认对所有聊天生效；局部世界书需要在此处绑定。可多选。</p>
-        <div class="jx-modal-list" id="worldBookSelectList"></div>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-          <button class="jx-modal-btn" style="background:#f0f0f0; color:#333; margin-top:0;" onclick="closeWorldBookSelectModal()">取消</button>
-          <button class="jx-modal-btn" style="background:#07c160; color:#fff; margin-top:0;" onclick="confirmWorldBookBinding()">确定</button>
-        </div>
       </div>
     </div>
 
@@ -2027,7 +2034,7 @@
     
     document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
     
-    // 显示绑定的世界书数量
+    // 显示绑定的局部世界书数量
     const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
     document.getElementById('jxWorldBookText').innerText = boundCount > 0 ? `已绑定 ${boundCount} 本` : '未绑定';
     
@@ -2085,28 +2092,28 @@
     }
   }
 
-  // --- 世界书多选逻辑 ---
+  // --- 世界书多选（全屏界面）逻辑 ---
   function bindWorldBook() {
     loadWorldBook(); // 确保世界书数据是最新的
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
 
+    // 过滤出局部世界书，全局世界书不显示
+    const localEntries = worldBookEntries.filter(e => e.binding === 'local');
     const list = document.getElementById('worldBookSelectList');
     
-    if (worldBookEntries.length === 0) {
-      list.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:13px;">世界书App中暂无数据<br>请先去添加世界书</div>';
+    if (localEntries.length === 0) {
+      list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px;">暂无局部世界书<br>请先去世界书App中创建并设为“局部绑定”</div>';
     } else {
-      list.innerHTML = worldBookEntries.map(entry => {
+      list.innerHTML = localEntries.map(entry => {
         // 检查是否已经绑定
         const isSelected = Array.isArray(chat.boundWorldBook) && chat.boundWorldBook.includes(entry.id);
-        const bindingTag = entry.binding === 'local' 
-          ? `<span class="wb-modal-tag local">局部</span>` 
-          : `<span class="wb-modal-tag global">全局</span>`;
+        const bindingTag = `<span class="wb-modal-tag local">局部 · ${escapeHtml(entry.localTarget || '未指定')}</span>`;
           
         return `
-          <div class="jx-modal-item" onclick="toggleWorldBookSelection(this)" data-id="${entry.id}" style="justify-content: space-between;">
+          <div class="jx-modal-item" onclick="toggleWorldBookSelection(this)" data-id="${entry.id}" style="justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 14px 0;">
             <div style="display:flex; align-items:center; overflow:hidden; flex:1;">
-              <span style="font-size:14px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${escapeHtml(entry.name)}</span>
+              <span style="font-size:14px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;">${escapeHtml(entry.name)}</span>
               ${bindingTag}
             </div>
             <div class="wb-checkbox ${isSelected ? 'checked' : ''}"></div>
@@ -2114,7 +2121,8 @@
         `;
       }).join('');
     }
-    document.getElementById('worldBookSelectModal').classList.add('show');
+    
+    document.getElementById('worldBookSelectScreen').classList.add('active');
   }
 
   // 切换单个条目的选中状态
@@ -2125,9 +2133,9 @@
     }
   }
 
-  // 关闭弹窗
-  function closeWorldBookSelectModal() {
-    document.getElementById('worldBookSelectModal').classList.remove('show');
+  // 关闭全屏界面
+  function closeWorldBookSelectScreen() {
+    document.getElementById('worldBookSelectScreen').classList.remove('active');
   }
 
   // 确认绑定
@@ -2150,7 +2158,7 @@
     // 更新聊天详情界面的显示
     document.getElementById('jxWorldBookText').innerText = selectedIds.length > 0 ? `已绑定 ${selectedIds.length} 本` : '未绑定';
     
-    closeWorldBookSelectModal();
+    closeWorldBookSelectScreen();
   }
 
   function changeChatAvatar() {
