@@ -272,14 +272,22 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
-  /* ============ 7. 设置界面（黑色主题） ============ */
-  #settingsScreen { background: #f7f8fa; padding-bottom: 30px; }
+  /* ============ 7. 设置界面（纯白背景 + 黑色主题） ============ */
+  #settingsScreen { background: #ffffff; padding-bottom: 30px; }
   .hint-text { font-size: 12px; color: #888; margin-top: 8px; line-height: 1.5; }
 
-  /* —— 设置界面：黑色主题覆盖 —— */
+  /* 设置页卡片在白底上加细边框以区分 */
+  #settingsScreen .section-card {
+    background: #ffffff;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
+  }
+
+  /* —— 设置界面：黑色主题 —— */
+  #settingsScreen .beautify-header { border-bottom: 1px solid #e6e6e6; }
   #settingsScreen .beautify-header .back-btn { color: #222; }
   #settingsScreen .section-card h4 { color: #222; }
-  #settingsScreen .highlight-card { border: 2px solid #222; background: #f5f5f5; }
+  #settingsScreen .highlight-card { border: 2px solid #222; background: #ffffff; }
   #settingsScreen .highlight-card h4 { color: #222; }
   #settingsScreen .btn-primary { background: #222; color: #fff; }
   #settingsScreen .btn-primary:active { background: #000; }
@@ -291,6 +299,7 @@
     background: #fff; border: 1px solid #222; color: #222;
   }
   #settingsScreen .btn-outline-dark:active { background: #f0f0f0; }
+  #settingsScreen .btn-outline-dark:disabled { opacity: 0.55; cursor: not-allowed; }
   #settingsScreen .form-group input:focus,
   #settingsScreen .form-group select:focus,
   #settingsScreen .form-group textarea:focus { border-color: #222; }
@@ -303,11 +312,37 @@
   #settingsScreen .api-status {
     display: none; margin-top: 10px; font-size: 12px; line-height: 1.5;
     padding: 8px 10px; border-radius: 8px;
-    background: #f5f5f5; border: 1px solid #e0e0e0; word-break: break-all;
+    background: #f7f7f7; border: 1px solid #e6e6e6; color: #555;
+    word-break: break-all;
   }
-  #settingsScreen .api-status.ok { background: #eef7ee; border-color: #cfe5cf; color: #1b5e20; }
-  #settingsScreen .api-status.fail { background: #fbeeee; border-color: #f0cccc; color: #8e1a1a; }
-  #settingsScreen .api-status.pending { background: #f5f5f5; border-color: #e0e0e0; color: #555; }
+  #settingsScreen .api-status.ok { background: #f2f9f2; border-color: #d9ead9; color: #1b5e20; }
+  #settingsScreen .api-status.fail { background: #fdf3f3; border-color: #f2d6d6; color: #8e1a1a; }
+  #settingsScreen .api-status.pending { background: #f7f7f7; border-color: #e6e6e6; color: #555; }
+
+  /* 模型列表 */
+  #settingsScreen .model-list {
+    display: none;
+    margin-top: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+  }
+  #settingsScreen .model-list.show { display: block; }
+  #settingsScreen .model-item {
+    padding: 9px 12px;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #f2f2f2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #settingsScreen .model-item:last-child { border-bottom: none; }
+  #settingsScreen .model-item:hover { background: #f5f5f5; }
+  #settingsScreen .model-item.active { background: #eaeaea; font-weight: 600; }
 
   /* 可编辑文字通用样式 */
   .editable-text { display: inline-block; min-width: 20px; min-height: 20px; cursor: pointer; line-height: 1.5; }
@@ -771,7 +806,11 @@
           </div>
           <div class="form-group">
             <label>模型名称</label>
-            <input type="text" id="apiModel" placeholder="gpt-3.5-turbo">
+            <div style="display:flex; gap:8px; align-items:stretch;">
+              <input type="text" id="apiModel" placeholder="gpt-3.5-turbo" style="flex:1;">
+              <button class="btn btn-outline-dark" id="fetchModelsBtn" style="flex:0 0 auto; padding:10px 12px; font-size:13px;">拉取模型</button>
+            </div>
+            <div class="model-list" id="modelListBox"></div>
           </div>
           <div class="form-group">
             <label>温度（Temperature）：<span id="temperatureValue">0.7</span></label>
@@ -2063,7 +2102,7 @@
 
   document.getElementById('saveApiConfigBtn').addEventListener('click', saveApiConfig);
 
-  // ========= 测试连接 =========
+  // ========= 状态提示 =========
   function setApiStatus(type, text) {
     const el = document.getElementById('apiTestStatus');
     el.style.display = 'block';
@@ -2072,6 +2111,7 @@
     el.innerText = text;
   }
 
+  // ========= 测试连接 =========
   async function testApiConnection() {
     const cfg = readApiConfigFromForm();
     if (!cfg.endpoint) { setApiStatus('fail', '❌ 请先填写 API 地址'); return; }
@@ -2137,6 +2177,119 @@
 
   document.getElementById('testApiBtn').addEventListener('click', testApiConnection);
 
+  // ========= 拉取模型 =========
+  function deriveModelsUrl(endpoint) {
+    let url = String(endpoint || '').trim();
+    if (!url) return '';
+    url = url.replace(/\/+$/, '');
+    // 去掉常见的对话补全后缀，换成 /models
+    if (/\/chat\/completions$/i.test(url)) {
+      return url.replace(/\/chat\/completions$/i, '/models');
+    }
+    if (/\/completions$/i.test(url)) {
+      return url.replace(/\/completions$/i, '/models');
+    }
+    if (/\/responses$/i.test(url)) {
+      return url.replace(/\/responses$/i, '/models');
+    }
+    // 以 /v1、/v2 等结尾
+    if (/\/v\d+$/i.test(url)) {
+      return url + '/models';
+    }
+    // 其他情况：尝试补 /v1/models
+    return url + '/v1/models';
+  }
+
+  function renderModelList(ids) {
+    const box = document.getElementById('modelListBox');
+    const current = document.getElementById('apiModel').value.trim();
+    if (!ids || ids.length === 0) {
+      box.classList.remove('show');
+      box.innerHTML = '';
+      return;
+    }
+    box.innerHTML = ids.map(id => {
+      const sel = (id === current) ? ' active' : '';
+      return `<div class="model-item${sel}" data-model="${escapeHtml(id)}">${escapeHtml(id)}</div>`;
+    }).join('');
+    box.querySelectorAll('.model-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const m = el.getAttribute('data-model');
+        document.getElementById('apiModel').value = m;
+        box.querySelectorAll('.model-item').forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        setApiStatus('ok', '✅ 已选择模型：' + m);
+      });
+    });
+    box.classList.add('show');
+  }
+
+  async function fetchModelList() {
+    const cfg = readApiConfigFromForm();
+    if (!cfg.endpoint) { setApiStatus('fail', '❌ 请先填写 API 地址'); return; }
+    if (!cfg.key) { setApiStatus('fail', '❌ 请先填写 API Key'); return; }
+
+    const modelsUrl = deriveModelsUrl(cfg.endpoint);
+    const btn = document.getElementById('fetchModelsBtn');
+    const orig = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = '拉取中…';
+    setApiStatus('pending', '⏳ 正在拉取模型列表…\n' + modelsUrl);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+    try {
+      const res = await fetch(modelsUrl, {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + cfg.key },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        let errText = '';
+        try { errText = await res.text(); } catch(e) {}
+        setApiStatus('fail', `❌ 拉取失败（HTTP ${res.status}）\n${(errText || '').slice(0, 300)}`);
+        return;
+      }
+
+      let data = null;
+      try { data = await res.json(); } catch(e) {
+        setApiStatus('fail', '❌ 服务器返回的不是 JSON，请检查 API 地址是否正确');
+        return;
+      }
+      const arr = Array.isArray(data) ? data
+                : (data && Array.isArray(data.data)) ? data.data
+                : (data && Array.isArray(data.models)) ? data.models
+                : [];
+      const ids = arr.map(m => (typeof m === 'string' ? m : (m && (m.id || m.name)))).filter(Boolean);
+      // 去重 + 排序
+      const uniq = Array.from(new Set(ids)).sort((a,b) => a.localeCompare(b));
+
+      if (uniq.length === 0) {
+        setApiStatus('fail', '❌ 未获取到任何模型，请检查 API 是否兼容 /v1/models');
+        return;
+      }
+      renderModelList(uniq);
+      setApiStatus('ok', `✅ 已拉取 ${uniq.length} 个模型，点击选择即可`);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        setApiStatus('fail', '❌ 拉取超时（20 秒），请检查网络或 API 地址');
+      } else {
+        setApiStatus('fail',
+          '❌ 拉取失败：' + (err.message || '未知错误') +
+          '\n提示：可能是 CORS 跨域、网络问题或 API 不支持 /v1/models。');
+      }
+    } finally {
+      btn.disabled = false;
+      btn.innerText = orig;
+    }
+  }
+
+  document.getElementById('fetchModelsBtn').addEventListener('click', fetchModelList);
+
   function updateApiPresetList() {
     const sel = document.getElementById('apiPresetSelect');
     sel.innerHTML = '<option value="">-- 选择预设 --</option>';
@@ -2189,9 +2342,14 @@
     openScreen('settingsScreen');
     applyApiConfigToForm(loadApiConfig() || {});
     updateApiPresetList();
+    // 清空状态与模型列表
     const statusEl = document.getElementById('apiTestStatus');
     statusEl.style.display = 'none';
     statusEl.innerText = '';
+    statusEl.classList.remove('ok', 'fail', 'pending');
+    const box = document.getElementById('modelListBox');
+    box.classList.remove('show');
+    box.innerHTML = '';
   }
 
   // ================= 全部数据导出 / 导入 =================
