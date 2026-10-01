@@ -438,8 +438,7 @@
     background-position: center;
     background-repeat: no-repeat;
   }
-  /* 移除了之前的按钮CSS，因为按钮已经删了 */
-
+  
   /* 白色信息区域：变窄变紧凑，名字、签名、时间、帖子数量纵向排列 */
   .jx-moments-user-info {
     position: relative; /* 为绝对定位的头像提供参考 */
@@ -465,16 +464,71 @@
   .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 4px; display: block; }
   .jx-moments-post-count { font-size: 12px; color: #999; }
 
+  /* 发布动态按钮 */
+  .jx-moments-add-btn {
+    position: absolute; bottom: 16px; right: 24px;
+    width: 32px; height: 32px; border-radius: 50%; background: #07c160; color: #fff;
+    font-size: 24px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 10;
+  }
+
+  /* 动态列表 */
   .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
   .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; }
   .jx-post:last-child { border-bottom: none; }
   .jx-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
   .jx-post-user { font-size: 16px; color: #576b95; font-weight: 600; }
-  .jx-post-avatar { width: 40px; height: 40px; border-radius: 6px; background: #f8bbd0; }
+  .jx-post-avatar { width: 40px; height: 40px; border-radius: 6px; background: #f8bbd0; overflow: hidden; }
+  .jx-post-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .jx-post-content { font-size: 15px; color: #333; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+  .jx-post-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+  .jx-post-images img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 6px; }
   .jx-post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #b2b2b2; }
   .jx-post-actions { display: flex; gap: 16px; }
   .jx-post-actions svg { width: 18px; height: 18px; fill: #b2b2b2; }
+  .jx-post-visibility { font-size: 11px; color: #ccc; margin-top: 4px; display: block; }
+
+  /* 发布动态弹窗 */
+  .jx-post-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center;
+    z-index: 20000; display: none;
+  }
+  .jx-post-modal.show { display: flex; }
+  .jx-post-modal-content {
+    background: #fff; width: 100%; max-width: 400px; border-radius: 16px 16px 0 0;
+    padding: 20px; max-height: 80vh; display: flex; flex-direction: column;
+    animation: slideUp 0.3s ease-out;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .jx-post-modal-content h3 { font-size: 18px; margin-bottom: 15px; color: #333; text-align: center; }
+  .jx-post-modal-content textarea {
+    width: 100%; height: 120px; border: 1px solid #eee; border-radius: 8px;
+    padding: 12px; font-size: 15px; resize: none; outline: none; font-family: inherit;
+  }
+  .jx-post-modal-content textarea:focus { border-color: #07c160; }
+  .post-image-upload {
+    margin-top: 12px; border: 1px dashed #ddd; border-radius: 8px; padding: 12px;
+    text-align: center; color: #999; font-size: 14px; cursor: pointer;
+  }
+  .post-image-preview { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .post-image-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+  .post-options { margin-top: 16px; font-size: 14px; color: #333; }
+  .post-options label { display: block; margin-bottom: 6px; color: #666; font-size: 13px; }
+  .post-options select {
+    width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;
+    font-size: 14px; outline: none; background: #fff;
+  }
+  .mention-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .mention-item {
+    padding: 4px 10px; border-radius: 12px; background: #f0f0f0; color: #333;
+    font-size: 12px; cursor: pointer; border: 1px solid transparent;
+  }
+  .mention-item.selected { background: #e8f5e9; color: #07c160; border-color: #07c160; }
+  .post-modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .post-modal-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .post-modal-actions .btn-cancel { background: #f0f0f0; color: #333; }
+  .post-modal-actions .btn-publish { background: #07c160; color: #fff; }
 
   /* ================= 通讯录 (P5 完全复刻) ================= */
   .jx-contacts-header {
@@ -485,7 +539,6 @@
   .jx-contacts-header .icon { font-size: 22px; color: #333; width: 24px; height: 24px; fill: #333; }
   .jx-contacts-search { margin: 0 16px 10px; background: #ededed; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; font-size: 14px; color: #999; }
   .jx-contacts-search svg { width: 16px; height: 16px; margin-right: 6px; fill: #999; }
-  /* 删除了按名称排序的样式 */
   .jx-contacts-block { background: #fff; padding: 0 16px; }
   .jx-contact-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f5f5f5; font-size: 16px; color: #333; }
   .jx-contact-item:last-child { border-bottom: none; }
@@ -1055,7 +1108,6 @@
       <div id="jx-moments" class="jx-tab-content">
         <!-- 黑色背景区 -->
         <div class="jx-moments-header" id="jxMomentsHeader" onclick="document.getElementById('momentsBgInput').click()">
-          <!-- 移除按钮，点击整个区域触发更换 -->
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
         </div>
         
@@ -1071,11 +1123,14 @@
           <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
           <div class="jx-moments-join-date editable-text" id="momentsJoinDate" data-placeholder="点击输入加入时间">2026年9月21日 加入</div>
           <div class="jx-moments-post-count">帖子数量 0</div>
+          
+          <!-- 发布动态按钮 -->
+          <div class="jx-moments-add-btn" onclick="openPostModal()">+</div>
         </div>
 
-        <!-- 动态区 (初始为空，因为我还没有发过任何帖子) -->
+        <!-- 动态区 (渲染帖子列表) -->
         <div class="jx-moments-posts" id="jx-moments-posts">
-          <!-- 这里为空，等待发布动态 -->
+          <!-- 动态列表通过 JS 渲染在这里 -->
         </div>
       </div>
 
@@ -1091,12 +1146,9 @@
           搜索
         </div>
         
-        <!-- 删除了“按名称排序” -->
-
         <div class="jx-contacts-block" style="margin-top: 8px;">
           <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>新的朋友</div>
           <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>群组</div>
-          <!-- 删除了“新群组/频道邀请”、“频道”、“邀请朋友” -->
         </div>
 
         <div id="jxContactList" style="margin-top: 8px;">
@@ -1147,6 +1199,40 @@
       </div>
     </div>
 
+    <!-- ================= 发布动态弹窗 ================= -->
+    <div class="jx-post-modal" id="jxPostModal">
+      <div class="jx-post-modal-content">
+        <h3>发布动态</h3>
+        <textarea id="postContent" placeholder="这一刻的想法..."></textarea>
+        
+        <div class="post-image-upload" onclick="document.getElementById('postImageInput').click()">
+          <span>+ 添加图片</span>
+          <input type="file" id="postImageInput" accept="image/*" multiple style="display: none;">
+          <div id="postImagePreview" class="post-image-preview"></div>
+        </div>
+
+        <div class="post-options">
+          <label>谁可以看：</label>
+          <select id="postVisibility" onchange="toggleCustomVisibility()">
+            <option value="public">公开</option>
+            <option value="private">仅自己</option>
+            <option value="custom">部分可见</option>
+          </select>
+          <div id="customVisibilityList" style="display: none; margin-top: 8px;"></div>
+        </div>
+
+        <div class="post-options">
+          <label>提醒谁看（被提醒的Char会得到感知）：</label>
+          <div id="postMentions" class="mention-list"></div>
+        </div>
+
+        <div class="post-modal-actions">
+          <button class="btn-cancel" onclick="closePostModal()">取消</button>
+          <button class="btn-publish" onclick="publishPost()">发布</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1178,6 +1264,7 @@
     renderJianxunChatList();
     loadMomentsData();
     renderJianxunContacts(); // 每次打开重新渲染通讯录
+    renderMomentsPosts(); // 渲染朋友圈动态
   }
 
   function switchJianxunTab(tabId, navElement) {
@@ -1328,7 +1415,7 @@
     closePersonaSelector();
   }
 
-  // 朋友圈数据加载
+  // ================= 朋友圈数据加载 =================
   function loadMomentsData() {
     // 背景图
     const bg = localStorage.getItem('moments_bg');
@@ -1421,6 +1508,162 @@
     });
   }
   initEditableTexts();
+
+  // ================= 朋友圈发布逻辑 =================
+  let momentsPosts = [];
+  let tempPostImages = []; // 暂存发布的图片 base64
+
+  function loadMomentsPosts() {
+    const data = localStorage.getItem('moments_posts');
+    if (data) {
+      try { momentsPosts = JSON.parse(data); } catch(e) { momentsPosts = []; }
+    } else {
+      momentsPosts = [];
+    }
+    if (!Array.isArray(momentsPosts)) momentsPosts = [];
+  }
+
+  function renderMomentsPosts() {
+    loadMomentsPosts();
+    const container = document.getElementById('jx-moments-posts');
+    const countEl = document.querySelector('.jx-moments-post-count');
+    if (countEl) countEl.innerText = `帖子数量 ${momentsPosts.length}`;
+
+    if (momentsPosts.length === 0) {
+      container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">暂无动态</div>';
+      return;
+    }
+
+    container.innerHTML = momentsPosts.map(post => {
+      let imagesHtml = '';
+      if (post.images && post.images.length > 0) {
+        imagesHtml = `<div class="jx-post-images">${post.images.map(img => `<img src="${img}">`).join('')}</div>`;
+      }
+      
+      let mentionsHtml = '';
+      if (post.mentions && post.mentions.length > 0) {
+        mentionsHtml = `<div style="font-size:12px; color:#576b95; margin-top:4px;">@ ${post.mentions.join('、')}</div>`;
+      }
+
+      return `
+        <div class="jx-post">
+          <div class="jx-post-header">
+            <div class="jx-post-user">Koi Buono</div>
+            <div class="jx-post-avatar"><img src="${localStorage.getItem('moments_avatar') || ''}"></div>
+          </div>
+          <div class="jx-post-content">${post.content}</div>
+          ${imagesHtml}
+          <div class="jx-post-footer">
+            <span>${post.time}</span>
+            <div class="jx-post-actions">
+              <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+          </div>
+          <span class="jx-post-visibility">${post.visibility === 'private' ? '🔒 仅自己可见' : (post.visibility === 'custom' ? '👥 部分可见' : '🌐 公开')}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openPostModal() {
+    loadPersonaList(); // 确保加载最新人设
+    document.getElementById('jxPostModal').classList.add('show');
+    document.getElementById('postContent').value = '';
+    tempPostImages = [];
+    document.getElementById('postImagePreview').innerHTML = '';
+    document.getElementById('postVisibility').value = 'public';
+    document.getElementById('customVisibilityList').style.display = 'none';
+    
+    // 渲染提醒人列表
+    const mentionList = document.getElementById('postMentions');
+    if (personaList.length === 0) {
+      mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
+    } else {
+      mentionList.innerHTML = personaList.map((p, i) => `
+        <div class="mention-item" onclick="toggleMention(this, '${p.name}')">${p.name || '未命名'}</div>
+      `).join('');
+    }
+
+    // 渲染部分可见列表
+    const customList = document.getElementById('customVisibilityList');
+    if (personaList.length > 0) {
+      customList.innerHTML = personaList.map((p, i) => `
+        <div class="mention-item" onclick="toggleCustomVisibilityItem(this, '${p.name}')">${p.name || '未命名'}</div>
+      `).join('');
+    }
+  }
+
+  function closePostModal() {
+    document.getElementById('jxPostModal').classList.remove('show');
+  }
+
+  function toggleMention(el, name) {
+    el.classList.toggle('selected');
+  }
+
+  function toggleCustomVisibility() {
+    const val = document.getElementById('postVisibility').value;
+    document.getElementById('customVisibilityList').style.display = val === 'custom' ? 'block' : 'none';
+  }
+
+  function toggleCustomVisibilityItem(el, name) {
+    el.classList.toggle('selected');
+  }
+
+  // 图片上传预览
+  document.getElementById('postImageInput').addEventListener('change', function(e) {
+    const files = e.target.files;
+    if (!files) return;
+    for (let i = 0; i < files.length; i++) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        tempPostImages.push(ev.target.result);
+        const preview = document.getElementById('postImagePreview');
+        const img = document.createElement('img');
+        img.src = ev.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(files[i]);
+    }
+    this.value = '';
+  });
+
+  function publishPost() {
+    const content = document.getElementById('postContent').value.trim();
+    if (!content && tempPostImages.length === 0) {
+      alert('请输入内容或添加图片');
+      return;
+    }
+
+    const visibility = document.getElementById('postVisibility').value;
+    const mentions = Array.from(document.querySelectorAll('#postMentions .mention-item.selected')).map(el => el.innerText);
+    const customVisibles = Array.from(document.querySelectorAll('#customVisibilityList .mention-item.selected')).map(el => el.innerText);
+
+    const newPost = {
+      id: 'post_' + Date.now(),
+      content: content,
+      images: tempPostImages,
+      time: '刚刚',
+      visibility: visibility,
+      mentions: mentions,
+      customVisibles: customVisibles
+    };
+
+    momentsPosts.unshift(newPost);
+    try {
+      localStorage.setItem('moments_posts', JSON.stringify(momentsPosts));
+    } catch(e) { alert('存储空间可能已满，图片过大'); }
+
+    renderMomentsPosts();
+    closePostModal();
+
+    if (mentions.length > 0) {
+      alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态，TA们将会得到感知。`);
+    } else {
+      alert('发布成功！');
+    }
+  }
 
   // ================= 本地存储数据初始化 =================
   const APP_ICON_KEY_PREFIX = 'app_icon_';
