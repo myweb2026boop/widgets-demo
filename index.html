@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TuTooth</title>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1367,6 +1368,52 @@ https://xxx.com/a.png
 </div>
 
 <script>
+// ================= DOCX 预处理（修复 mammoth mc:Fallback 报错） =================
+async function sanitizeDocxForMammoth(arrayBuffer) {
+  if (typeof JSZip === 'undefined') return arrayBuffer;
+  try {
+    const zip = await JSZip.loadAsync(arrayBuffer);
+    const file = zip.file('word/document.xml');
+    if (!file) return arrayBuffer;
+    let xml = await file.async('string');
+    let changed = false;
+
+    xml = xml.replace(
+      /<mc:AlternateContent\b[^>]*>([\s\S]*?)<\/mc:AlternateContent>/g,
+      (full, inner) => {
+        changed = true;
+        const fb = inner.match(/<mc:Fallback\b[^>]*>([\s\S]*?)<\/mc:Fallback>/);
+        if (fb) return fb[1];
+        const ch = inner.match(/<mc:Choice\b[^>]*>([\s\S]*?)<\/mc:Choice>/);
+        if (ch) return ch[1];
+        return '';
+      }
+    );
+
+    if (/<mc:(AlternateContent|Choice|Fallback)\b/i.test(xml)) {
+      xml = xml
+        .replace(/<\/?mc:AlternateContent\b[^>]*>/g, '')
+        .replace(/<\/?mc:Choice\b[^>]*>/g, '')
+        .replace(/<\/?mc:Fallback\b[^>]*>/g, '');
+      changed = true;
+    }
+
+    if (!changed) return arrayBuffer;
+
+    zip.file('word/document.xml', xml);
+    return await zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
+  } catch (e) {
+    console.warn('sanitizeDocxForMammoth failed:', e);
+    return arrayBuffer;
+  }
+}
+
+function mammothConvertHtmlSafe(arrayBuffer) {
+  return sanitizeDocxForMammoth(arrayBuffer).then((buf) => {
+    return mammoth.convertToHtml({ arrayBuffer: buf });
+  });
+}
+
 // ================= 工具函数 =================
 function escapeHtml(str) {
   return String(str == null ? '' : str)
@@ -1814,12 +1861,15 @@ function deletePersona() {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
       reader.onload = function(evt) {
-        mammoth.convertToHtml({arrayBuffer: evt.target.result}).then(function(result) {
+        mammothConvertHtmlSafe(evt.target.result).then(function(result) {
           let html = result.value;
           let textWithBreaks = html.replace(/<\/p>/g, '\n').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '');
           parsedData.details = normalizeText(decodeEntities(textWithBreaks));
           showEditForm();
-        }).catch(function() { alert('docx 解析失败'); });
+        }).catch(function(err) {
+          console.error('docx 解析失败：', err);
+          alert('docx 解析失败：' + (err && err.message ? err.message : '未知错误'));
+        });
       };
       reader.readAsArrayBuffer(file);
     } else if (file.name.endsWith('.json')) {
@@ -2100,11 +2150,14 @@ function extractEntriesFromJson(data, defaultEntry) {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
       reader.onload = (evt) => {
-        mammoth.convertToHtml({ arrayBuffer: evt.target.result }).then(result => {
+        mammothConvertHtmlSafe(evt.target.result).then(result => {
           const html = result.value || '';
           const paragraphs = html.split(/<\/p>/i).map(s => s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')).map(s => decodeEntities(s).trim());
           finish(buildEntriesFromChunks(splitIntoChunks(paragraphs)));
-        }).catch(() => { alert('docx 解析失败'); });
+        }).catch(err => {
+          console.error('docx 解析失败：', err);
+          alert('docx 解析失败：' + (err && err.message ? err.message : '未知错误'));
+        });
       };
       reader.readAsArrayBuffer(file);
     } else if (ext === '.json') {
@@ -3193,18 +3246,10 @@ function deleteSticker(id) {
   renderStickerManageGrid();
 }
 
-/* ============================================================
-   ★ 修复后的表情包解析函数（关键改动在此）★
-   修复点：
-   1. DOCX 里 Word 会把 URL 包进 <a href="...">，原代码 strip 标签时把 URL 也删了。
-      现在先做一次"超链接→文本|URL"的转换，再剥标签。
-   2. 单行文本解析支持：空格分隔、- / — / ： 分隔、URL 在前、URL 在后、
-      带 BOM 头、\r\n 混合换行、URL 里带 ?query 参数等。
-   ============================================================ */
 function parseStickerLines(text) {
   const out = [];
   const lines = String(text || '')
-    .replace(/^\uFEFF/, '')            // 去 BOM
+    .replace(/^\uFEFF/, '')
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
     .split('\n');
@@ -3317,11 +3362,10 @@ function addStickersFromLinks() {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载，请检查网络'); return; }
       const reader = new FileReader();
       reader.onload = (evt) => {
-        mammoth.convertToHtml({ arrayBuffer: evt.target.result })
+        mammothConvertHtmlSafe(evt.target.result)
           .then(result => {
             let html = result.value || '';
 
-            // ★ 关键修复：先把 <a href="URL">文字</a> 转成 "文字|URL"
             html = html.replace(
               /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
               (_m, href, txt) => {
@@ -3386,9 +3430,6 @@ function addStickersFromLinks() {
     }
   });
 })();
-/* ============================================================
-   修复片段结束
-   ============================================================ */
 
 // ---------- 长按菜单 ----------
 let menuMsgId = null;
