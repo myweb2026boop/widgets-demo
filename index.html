@@ -1769,8 +1769,7 @@
 
   // ================= 简讯App 核心逻辑 =================
   let jianxunChats = [];
-  let currentChatIndex = -1;
-  let tempChatBg = '';
+  let currentChatId = null;
 
   function openJianxunApp() {
     openScreen('jianxunScreen');
@@ -1865,8 +1864,9 @@
     if (data) { try { jianxunChats = JSON.parse(data); } catch(e) { jianxunChats = []; } } else { jianxunChats = []; }
     if (!Array.isArray(jianxunChats)) jianxunChats = [];
     
-    // 初始化每个chat的默认属性
+    // 初始化每个chat的默认属性及ID
     jianxunChats.forEach(chat => {
+      if (!chat.id) chat.id = 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       if (!chat.messages) chat.messages = [];
       if (chat.pinned === undefined) chat.pinned = false;
       if (chat.allowActive === undefined) chat.allowActive = false;
@@ -1883,21 +1883,22 @@
     const defaultName = localStorage.getItem('moments_name') || 'Koi Buono';
     if (jianxunChats.length === 0) { list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">暂无聊天记录<br>点击右上角“+”添加人设</div>'; return; }
     
-    // 排序：置顶的在前
-    jianxunChats.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+    // 使用副本进行排序，不影响原数组顺序，避免点击后索引错位
+    let sortedChats = [...jianxunChats].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
-    list.innerHTML = jianxunChats.map((chat, index) => {
+    list.innerHTML = sortedChats.map((chat) => {
       const avatarUrl = chat.avatar || '';
       const nameText = chat.customRemark || chat.name || defaultName;
       const lastMsg = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content : '点击开始聊天';
-      return `<div class="jx-chat-item" onclick="openChat(${index})"><div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div><div class="jx-chat-info"><div class="jx-chat-info-top"><span class="jx-chat-name">${nameText}</span><span class="jx-chat-time">刚刚</span></div><span class="jx-chat-msg">${lastMsg}</span></div></div>`;
+      // 使用唯一ID传递，绝不用index
+      return `<div class="jx-chat-item" onclick="openChat('${chat.id}')"><div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div><div class="jx-chat-info"><div class="jx-chat-info-top"><span class="jx-chat-name">${nameText}</span><span class="jx-chat-time">刚刚</span></div><span class="jx-chat-msg">${lastMsg}</span></div></div>`;
     }).join('');
   }
 
-  // 进入聊天界面
-  function openChat(index) {
-    currentChatIndex = index;
-    const chat = jianxunChats[index];
+  // 进入聊天界面，使用ID精准定位
+  function openChat(id) {
+    currentChatId = id;
+    const chat = jianxunChats.find(c => c.id === id);
     if (!chat) return;
     
     document.getElementById('jxChatTitle').innerText = chat.customRemark || chat.name || '聊天';
@@ -1919,7 +1920,7 @@
 
   // 渲染聊天消息
   function renderChatMessages() {
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     const container = document.getElementById('jxChatMessages');
     
@@ -1952,7 +1953,7 @@
     const content = input.value.trim();
     if (!content) return;
     
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
     chat.messages.push({ role: 'me', content: content });
@@ -1988,7 +1989,7 @@
 
   // 打开聊天详情界面 (P2)
   function openChatInfo() {
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
     document.getElementById('jxInfoAvatarImg').src = chat.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
@@ -2011,7 +2012,7 @@
 
   // 切换设置开关 (allowActive / pinned)
   function toggleSetting(key) {
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     chat[key] = !chat[key];
     
@@ -2027,7 +2028,7 @@
 
   // 修改最多回复句数
   function changeMaxReply() {
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     const val = prompt('请输入一次最多回复句数（1-5）：', chat.maxReply || 1);
     if (val !== null && val.trim() !== '') {
@@ -2044,7 +2045,7 @@
 
   // 修改备注
   function changeRemark() {
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     const val = prompt('请输入新的备注名：', chat.customRemark || chat.name || '');
     if (val !== null && val.trim() !== '') {
@@ -2060,7 +2061,7 @@
   // 绑定世界书
   function bindWorldBook() {
     loadWorldBook();
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
     let options = "请选择要绑定的世界书（输入编号）：\n0. 不绑定\n";
@@ -2094,7 +2095,7 @@
       const reader = new FileReader();
       reader.onload = (ev) => {
         const base64 = ev.target.result;
-        const chat = jianxunChats[currentChatIndex];
+        const chat = jianxunChats.find(c => c.id === currentChatId);
         if (chat) {
           chat.avatar = base64;
           document.getElementById('jxInfoAvatarImg').src = base64;
@@ -2117,7 +2118,7 @@
       const reader = new FileReader();
       reader.onload = (ev) => {
         const base64 = ev.target.result;
-        const chat = jianxunChats[currentChatIndex];
+        const chat = jianxunChats.find(c => c.id === currentChatId);
         if (chat) {
           chat.myAvatar = base64;
           localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
@@ -2138,7 +2139,7 @@
       const reader = new FileReader();
       reader.onload = (ev) => {
         const base64 = ev.target.result;
-        const chat = jianxunChats[currentChatIndex];
+        const chat = jianxunChats.find(c => c.id === currentChatId);
         if (chat) {
           chat.chatBg = base64;
           localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
@@ -2155,7 +2156,7 @@
   // 清空聊天记录
   function clearChatHistory() {
     if (!confirm('确定要清空聊天记录吗？')) return;
-    const chat = jianxunChats[currentChatIndex];
+    const chat = jianxunChats.find(c => c.id === currentChatId);
     if (chat) {
       chat.messages = [];
       localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
@@ -2168,7 +2169,7 @@
   // 删除聊天
   function deleteChat() {
     if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
-    jianxunChats.splice(currentChatIndex, 1);
+    jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
     localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
     closeChatInfo();
     closeChatScreen();
@@ -2187,6 +2188,7 @@
     const exists = jianxunChats.find(c => c.name === persona.name);
     if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
     jianxunChats.push({ 
+      id: 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
       name: persona.name || '未命名', 
       avatar: persona.avatar || '',
       messages: [],
