@@ -14,7 +14,6 @@
     min-height: 100vh; overflow: hidden;
   }
 
-  /* 手机外壳 */
   .phone-case {
     width: 100%; max-width: 400px; height: 800px; max-height: 95vh;
     background-color: #fff; border-radius: 40px;
@@ -24,12 +23,10 @@
   .phone-case.is-fullscreen { max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; box-shadow: none; }
   .phone-content { width: 100%; height: 100%; position: relative; background-color: #fff; }
 
-  /* 通用界面隐藏类 */
   .screen { display: none; width: 100%; height: 100%; overflow-y: auto; position: absolute; top: 0; left: 0; background: #fff; }
   .screen::-webkit-scrollbar { display: none; }
   .screen.active { display: block; }
 
-  /* 通用 SVG 样式 */
   .icon-svg { width: 16px; height: 16px; fill: currentColor; display: inline-block; vertical-align: middle; margin-right: 4px; }
 
   /* ============ 1. 主屏幕 ============ */
@@ -57,7 +54,6 @@
   .bg-lightpink { background-color: #fce4ec; }
   .empty-cell { opacity: 0; pointer-events: none; }
 
-  /* 组件样式 */
   .icon-box.uploadable-icon { width: 100%; aspect-ratio: 1 / 1; height: auto; border-radius: 20px; cursor: pointer; margin-bottom: 0; }
   .icon-box.uploadable-icon svg { width: 55%; height: 55%; }
   .icon-box.uploadable-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; }
@@ -69,9 +65,7 @@
   #musicScreen { background: #f8f9fa; padding-bottom: 120px; }
   .music-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; position: relative; z-index: 10; }
   .music-top-bar svg { width: 24px; height: 24px; cursor: pointer; fill: #333; }
-  
   .music-bg-area { height: 180px; position: relative; background: #eef0f3; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; cursor: pointer; }
-  
   .profile-card {
     background: #fff; border-radius: 20px; margin: -30px 16px 16px 16px; padding: 16px; position: relative; z-index: 5;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
@@ -80,25 +74,20 @@
   .avatar-box { width: 60px; height: 60px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 12px; overflow: hidden; cursor: pointer; flex-shrink: 0; }
   .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-box svg { width: 30px; height: 30px; fill: #ccc; }
-  
   .profile-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
   .profile-info h2 { font-size: 18px; color: #333; display: inline-block; }
   .profile-info p { font-size: 12px; color: #666; display: block; }
-  
   .edit-btn { background: #f0f0f0; border: none; border-radius: 12px; padding: 6px 12px; font-size: 12px; color: #333; cursor: pointer; }
-
   .stats-row { display: flex; justify-content: space-around; padding-top: 12px; border-top: 1px solid #f0f0f0; text-align: center; }
   .stat-item { display: flex; flex-direction: column; align-items: center; }
   .stat-item .num { font-size: 16px; font-weight: bold; color: #333; min-width: 20px; }
   .stat-item .label { font-size: 11px; color: #999; margin-top: 2px; }
-
   .music-list-card { background: #fff; border-radius: 20px; margin: 0 16px 16px 16px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
   .music-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .music-list-header h3 { font-size: 16px; color: #333; }
   .upload-btn { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: #333; }
   .upload-btn svg { width: 14px; height: 14px; fill: #333; }
   .music-list-empty { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
-
   .music-player-bar {
     position: absolute; bottom: 20px; left: 16px; right: 16px; height: 70px; 
     background: #fff; border-radius: 20px;
@@ -117,7 +106,6 @@
   #playerScreen { background: #fff; color: #333; padding: 16px; }
   .player-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
   .player-top-bar svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
-  
   .vinyl-container { display: flex; justify-content: center; align-items: center; margin: 30px 0 40px 0; }
   .vinyl-disc {
     width: 300px; height: 300px; border-radius: 50%; background: #111;
@@ -126,32 +114,24 @@
     animation: spin 20s linear infinite; animation-play-state: paused;
   }
   @keyframes spin { 100% { transform: rotate(360deg); } }
-  
   .vinyl-ring-2, .vinyl-ring-3 { width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
-  
   .vinyl-center {
     width: 220px; height: 220px; border-radius: 50%; background: #555;
     overflow: hidden; cursor: pointer; position: relative;
     display: flex; justify-content: center; align-items: center;
     border: 2px solid #fff;
   }
-  .vinyl-center img { 
-    width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display: block; 
-  }
+  .vinyl-center img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display: block; }
   .vinyl-center svg { width: 40px; height: 40px; fill: #fff; opacity: 0.5; position: absolute; pointer-events: none; }
-
   .player-info { text-align: center; margin-bottom: 30px; }
   .player-info h2 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 6px; }
   .player-info p { font-size: 14px; color: #999; }
-
   .player-tools { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-bottom: 20px; }
   .player-tools svg { width: 22px; height: 22px; fill: #333; cursor: pointer; }
-
   .progress-area { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; font-size: 12px; color: #999; }
   .progress-bar-container { flex: 1; height: 4px; background: #e0e0e0; border-radius: 2px; position: relative; cursor: pointer; }
   .progress-bar-fill { height: 100%; background: #333; border-radius: 2px; width: 0%; position: relative; }
   .progress-bar-fill::after { content: ''; position: absolute; right: -6px; top: -4px; width: 12px; height: 12px; background: #333; border-radius: 50%; }
-
   .player-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 20px; }
   .player-controls svg { width: 28px; height: 28px; fill: #333; cursor: pointer; }
   .play-pause-btn { width: 60px; height: 60px; background: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
@@ -180,7 +160,6 @@
   .persona-card .avatar svg { width: 24px; height: 24px; fill: #ccc; }
   .persona-card .info { flex: 1; overflow: hidden; }
   .persona-card .info h4 { font-size: 15px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
   .persona-card .info p { 
     font-size: 12px; color: #999; 
     white-space: pre-wrap;
@@ -192,7 +171,6 @@
   }
   .persona-card .arrow { color: #ccc; font-size: 20px; }
 
-  /* 人设编辑表单 */
   .persona-edit-view { display: none; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
   .persona-edit-view.active { display: block; }
   .form-group { margin-bottom: 16px; }
@@ -201,15 +179,9 @@
   .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
   .form-group select { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; background: #fff; }
   .form-group select:focus { border-color: #4b7bec; }
-  
-  .form-group textarea { 
-    height: 180px; 
-    resize: vertical; 
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    line-height: 1.5;
-  }
-  
+  .form-group textarea { height: 180px; resize: vertical; white-space: pre-wrap; word-wrap: break-word; line-height: 1.5; }
+  .form-group input[type="range"] { padding: 0; height: 28px; }
+
   .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #eee; }
   .avatar-edit-box img { width: 100%; height: 100%; object-fit: cover; }
   .avatar-edit-box svg { width: 30px; height: 30px; fill: #ccc; }
@@ -221,7 +193,6 @@
   .btn-delete { background: #ff4757; color: #fff; }
   .btn-cancel { background: #f0f0f0; color: #333; }
 
-  /* 空状态 */
   .empty-state { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
 
   /* ============ 5. 美化界面 ============ */
@@ -259,7 +230,6 @@
   .worldbook-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
   .worldbook-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
   .worldbook-body { padding: 16px; }
-
   .wb-stats-bar {
     display: flex; justify-content: space-between; align-items: center;
     background: #fff; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
@@ -269,7 +239,6 @@
     background: #eef2ff; color: #4b7bec; border: none; border-radius: 6px;
     padding: 5px 10px; font-size: 11px; cursor: pointer; font-weight: 500;
   }
-
   .wb-entry-card {
     background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer;
@@ -278,10 +247,8 @@
   }
   .wb-entry-card:active { transform: scale(0.985); }
   .wb-entry-card.disabled { border-left-color: #d5d5d5; opacity: 0.62; }
-
   .wb-entry-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .wb-entry-name { font-size: 14px; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
   .wb-switch {
     position: relative; width: 38px; height: 21px; background: #d5d5d5;
     border-radius: 11px; transition: background .2s; flex-shrink: 0; cursor: pointer;
@@ -293,19 +260,21 @@
   }
   .wb-switch.on { background: #4b7bec; }
   .wb-switch.on::after { left: 19px; }
-
   .wb-entry-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
   .wb-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eef2ff; color: #4b7bec; white-space: nowrap; }
   .wb-tag.global { background: #e8f5e9; color: #2e7d32; }
   .wb-tag.local { background: #fff3e0; color: #e65100; }
   .wb-tag.pos { background: #f3e5f5; color: #8e24aa; }
   .wb-tag.depth { background: #e3f2fd; color: #1565c0; }
-
   .wb-entry-keys { font-size: 11px; color: #999; margin-bottom: 6px; word-break: break-all; }
   .wb-entry-preview {
     font-size: 12px; color: #888; white-space: pre-wrap; line-height: 1.45;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
+
+  /* ============ 7. 设置界面 ============ */
+  #settingsScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .hint-text { font-size: 12px; color: #888; margin-top: 8px; line-height: 1.5; }
 
   /* 可编辑文字通用样式 */
   .editable-text { display: inline-block; min-width: 20px; min-height: 20px; cursor: pointer; line-height: 1.5; }
@@ -417,10 +386,10 @@
           <div class="widget-item empty-cell"><div class="icon-box"></div></div>
 
           <div class="widget-item">
-            <div class="icon-box bg-pink2" id="app-icon-clock">
-              <svg viewBox="0 0 24 24" fill="#f48fb1"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.5" fill="#333333"/><circle cx="16" cy="10" r="1.5" fill="#333333"/><ellipse cx="12" cy="15" rx="3" ry="2" fill="#333333"/></svg>
+            <div class="icon-box bg-pink2" id="app-icon-clock" onclick="openSettingsApp()">
+              <svg viewBox="0 0 24 24" fill="#f48fb1"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             </div>
-            <span class="widget-label" id="label-clock">Clock</span>
+            <span class="widget-label" id="label-clock">设置</span>
           </div>
 
           <div class="widget-item">
@@ -748,6 +717,70 @@
       </div>
     </div>
 
+    <!-- ================= 7. 设置界面 ================= -->
+    <div id="settingsScreen" class="screen">
+      <div class="beautify-header">
+        <button class="back-btn" onclick="closeScreen('settingsScreen')">← 返回</button>
+        <h3>设置</h3>
+      </div>
+      <div class="beautify-body">
+
+        <!-- API 配置 -->
+        <div class="section-card highlight-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> API 配置（角色回复将使用此配置）</h4>
+          <div class="form-group">
+            <label>API 地址（Endpoint）</label>
+            <input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions">
+          </div>
+          <div class="form-group">
+            <label>API Key</label>
+            <input type="password" id="apiKey" placeholder="sk-...">
+          </div>
+          <div class="form-group">
+            <label>模型名称</label>
+            <input type="text" id="apiModel" placeholder="gpt-3.5-turbo">
+          </div>
+          <div class="form-group">
+            <label>温度（Temperature）：<span id="temperatureValue">0.7</span></label>
+            <input type="range" id="apiTemperature" min="0" max="2" step="0.1" value="0.7" style="width:100%">
+          </div>
+          <div class="form-group">
+            <label>最大 Token（Max Tokens）</label>
+            <input type="number" id="apiMaxTokens" min="1" max="32000" value="2048">
+          </div>
+          <button class="btn btn-primary" id="saveApiConfigBtn" style="width:100%">保存 API 配置</button>
+          <p class="hint-text">提示：温度越高回复越随机发散，越低越稳定严谨；一般推荐 0.6 ~ 0.9。</p>
+        </div>
+
+        <!-- API 预设管理 -->
+        <div class="section-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> API 预设管理</h4>
+          <div class="preset-input-row">
+            <input type="text" id="apiPresetNameInput" placeholder="输入预设名称">
+            <button class="btn btn-success" id="saveApiPresetBtn">保存预设</button>
+          </div>
+          <div class="preset-select-row">
+            <select id="apiPresetSelect"><option value="">-- 选择预设 --</option></select>
+            <button class="btn btn-primary" id="loadApiPresetBtn" style="flex:0 0 auto;padding:8px 14px">应用</button>
+            <button class="btn btn-danger" id="deleteApiPresetBtn" style="flex:0 0 auto;padding:8px 14px">删除</button>
+          </div>
+          <p class="hint-text">保存预设可快速在多个 API 配置之间切换。</p>
+        </div>
+
+        <!-- 全部数据备份 -->
+        <div class="section-card highlight-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 全部数据备份</h4>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="exportAllDataBtn">导出全部数据</button>
+            <button class="btn btn-success" id="importAllDataBtn">导入全部数据</button>
+          </div>
+          <input type="file" id="importAllDataInput" accept=".json,application/json" style="display: none;">
+          <p class="hint-text">包含所有 App 设置、人设、世界书、API 配置、美化数据等全部内容。<br>导入将<b>覆盖</b>当前所有数据，请谨慎操作。</p>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -778,13 +811,15 @@
   if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
   if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
   if(localStorage.getItem('app_name_wechat') === '微信') localStorage.setItem('app_name_wechat', '简讯');
+  // 把旧的 Clock 名称迁移成“设置”
+  if(localStorage.getItem('app_name_clock') === 'Clock') localStorage.removeItem('app_name_clock');
 
   // ================= 主屏幕App图标与名字逻辑 =================
   const appList = [
     { id: 'beautify', name: '美化' }, { id: 'wechat', name: '简讯' },
     { id: 'qqmusic', name: '音乐' }, { id: 'persona', name: '人设' },
     { id: 'book', name: '世界书' }, { id: 'play', name: '多功能' },
-    { id: 'clock', name: 'Clock' }, { id: 'instagram', name: 'Instagram' }
+    { id: 'clock', name: '设置' }, { id: 'instagram', name: 'Instagram' }
   ];
   function applyAppConfig() {
     appList.forEach(app => {
@@ -1508,7 +1543,6 @@
     cancelEntryEdit();
   }
 
-  // 全部启用 / 停用
   document.getElementById('wbToggleAllBtn').addEventListener('click', () => {
     const allOn = worldBookEntries.every(e => e.enabled);
     worldBookEntries.forEach(e => { e.enabled = !allOn; });
@@ -1697,7 +1731,7 @@
     document.getElementById('mainScreen').style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
   }
 
-  // ================= 全屏模式（修复：持久化 + 自动恢复 + 同步退出） =================
+  // ================= 全屏模式（持久化 + 自动恢复 + 同步退出） =================
   const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
 
   function updateFullscreenBtn() {
@@ -1722,12 +1756,10 @@
     }
   }
 
-  // 1) 页面加载时恢复全屏状态（CSS 层）
   (function restoreFullscreen() {
     const saved = localStorage.getItem('is_fullscreen') === 'true';
     applyFullscreenState(saved, false);
 
-    // 2) 浏览器要求“用户手势”才能进入原生全屏，首次点击/触摸时自动补上
     if (saved) {
       const onceHandler = () => {
         if (localStorage.getItem('is_fullscreen') === 'true' && !document.fullscreenElement) {
@@ -1743,13 +1775,11 @@
     }
   })();
 
-  // 3) 按钮点击切换
   fullscreenToggleBtn.addEventListener('click', () => {
     const willBeOn = !phoneCase.classList.contains('is-fullscreen');
     applyFullscreenState(willBeOn, true);
   });
 
-  // 4) 用户按 Esc / 系统退出原生全屏时，同步关闭 CSS 全屏
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement && phoneCase.classList.contains('is-fullscreen')) {
       applyFullscreenState(false, false);
@@ -1837,7 +1867,7 @@
     input.click();
   }
 
-  // ================= 预设管理 =================
+  // ================= 美化预设管理 =================
   const presetSelect = document.getElementById('presetSelect');
   function updatePresetList() {
     presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
@@ -1854,7 +1884,7 @@
     key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
     key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
     key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY ||
-    key === 'is_fullscreen'
+    key === 'is_fullscreen' || key === 'api_config' || key.startsWith('api_preset_')
   );
 
   document.getElementById('savePresetBtn').addEventListener('click', () => {
@@ -1944,6 +1974,176 @@
     reader.readAsText(file);
     this.value = ''; 
   });
+
+  // ================= 设置App 专属逻辑 =================
+  const API_CONFIG_KEY = 'api_config';
+  const API_PRESET_PREFIX = 'api_preset_';
+
+  function loadApiConfig() {
+    try {
+      const raw = localStorage.getItem(API_CONFIG_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === 'object') ? parsed : null;
+    } catch (e) { return null; }
+  }
+
+  function applyApiConfigToForm(cfg) {
+    cfg = cfg || {};
+    document.getElementById('apiEndpoint').value = cfg.endpoint || '';
+    document.getElementById('apiKey').value = cfg.key || '';
+    document.getElementById('apiModel').value = cfg.model || '';
+    const t = (typeof cfg.temperature === 'number' && !isNaN(cfg.temperature)) ? cfg.temperature : 0.7;
+    document.getElementById('apiTemperature').value = t;
+    document.getElementById('temperatureValue').innerText = t.toFixed(1);
+    document.getElementById('apiMaxTokens').value = cfg.maxTokens || 2048;
+  }
+
+  function readApiConfigFromForm() {
+    const t = parseFloat(document.getElementById('apiTemperature').value);
+    return {
+      endpoint: document.getElementById('apiEndpoint').value.trim(),
+      key: document.getElementById('apiKey').value.trim(),
+      model: document.getElementById('apiModel').value.trim(),
+      temperature: isNaN(t) ? 0.7 : Math.max(0, Math.min(2, t)),
+      maxTokens: Math.max(1, parseInt(document.getElementById('apiMaxTokens').value, 10) || 2048)
+    };
+  }
+
+  function saveApiConfig() {
+    const cfg = readApiConfigFromForm();
+    try {
+      localStorage.setItem(API_CONFIG_KEY, JSON.stringify(cfg));
+      alert('API 配置已保存');
+    } catch (e) {
+      alert('保存失败，存储空间可能已满');
+    }
+  }
+
+  // 温度滑条实时显示
+  const apiTemperatureEl = document.getElementById('apiTemperature');
+  apiTemperatureEl.addEventListener('input', function() {
+    const v = parseFloat(this.value);
+    document.getElementById('temperatureValue').innerText = (isNaN(v) ? 0.7 : v).toFixed(1);
+  });
+
+  document.getElementById('saveApiConfigBtn').addEventListener('click', saveApiConfig);
+
+  function updateApiPresetList() {
+    const sel = document.getElementById('apiPresetSelect');
+    sel.innerHTML = '<option value="">-- 选择预设 --</option>';
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith(API_PRESET_PREFIX)) {
+        const name = key.slice(API_PRESET_PREFIX.length);
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      }
+    }
+  }
+
+  document.getElementById('saveApiPresetBtn').addEventListener('click', () => {
+    const name = document.getElementById('apiPresetNameInput').value.trim();
+    if (!name) return alert('请输入预设名称');
+    const cfg = readApiConfigFromForm();
+    try {
+      localStorage.setItem(API_PRESET_PREFIX + name, JSON.stringify(cfg));
+      alert('预设已保存：' + name);
+      document.getElementById('apiPresetNameInput').value = '';
+      updateApiPresetList();
+      document.getElementById('apiPresetSelect').value = name;
+    } catch (e) { alert('保存失败，存储空间可能已满'); }
+  });
+
+  document.getElementById('loadApiPresetBtn').addEventListener('click', () => {
+    const name = document.getElementById('apiPresetSelect').value;
+    if (!name) return alert('请选择预设');
+    try {
+      const cfg = JSON.parse(localStorage.getItem(API_PRESET_PREFIX + name) || '{}');
+      applyApiConfigToForm(cfg);
+      // 应用后同时保存为当前配置，让角色回复立即使用
+      localStorage.setItem(API_CONFIG_KEY, JSON.stringify(cfg));
+      alert('已应用预设：' + name);
+    } catch (e) { alert('预设损坏，无法应用'); }
+  });
+
+  document.getElementById('deleteApiPresetBtn').addEventListener('click', () => {
+    const name = document.getElementById('apiPresetSelect').value;
+    if (!name) return alert('请选择预设');
+    if (!confirm('确定删除预设：' + name + ' ？')) return;
+    localStorage.removeItem(API_PRESET_PREFIX + name);
+    updateApiPresetList();
+    alert('已删除预设：' + name);
+  });
+
+  // 打开设置界面时同步显示
+  function openSettingsApp() {
+    openScreen('settingsScreen');
+    applyApiConfigToForm(loadApiConfig() || {});
+    updateApiPresetList();
+  }
+
+  // ================= 全部数据导出 / 导入 =================
+  document.getElementById('exportAllDataBtn').addEventListener('click', () => {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      data[key] = localStorage.getItem(key);
+    }
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `all_data_${new Date().getTime()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      if (confirm("全部数据导出成功！\n\n如果您的手机没有直接下载文件，请点击“确定”后，长按下方代码进行复制保存。")) {
+        prompt("请长按复制以下全部数据代码（建议保存到备忘录或云笔记）：", json);
+      }
+    }, 500);
+  });
+
+  document.getElementById('importAllDataBtn').addEventListener('click', () => {
+    document.getElementById('importAllDataInput').click();
+  });
+
+  document.getElementById('importAllDataInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON');
+        if (!confirm('导入将覆盖当前所有数据（包括人设、世界书、API配置、美化设置等），确定继续吗？')) {
+          return;
+        }
+        // 清空后整体写入，保证完全覆盖
+        try { localStorage.clear(); } catch(e) {}
+        for (const key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            try { localStorage.setItem(key, data[key]); } catch(e) {}
+          }
+        }
+        alert('导入成功！页面即将重新加载。');
+        location.reload();
+      } catch (err) {
+        alert('导入失败，文件内容可能损坏或不是合法的 JSON 文件。');
+      }
+    };
+    reader.readAsText(file);
+    this.value = '';
+  });
+
+  // 初始化设置界面
+  applyApiConfigToForm(loadApiConfig() || {});
+  updateApiPresetList();
 </script>
 
 </body>
