@@ -477,14 +477,18 @@
   .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
   .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; position: relative; }
   .jx-post:last-child { border-bottom: none; }
-  .jx-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
-  .jx-post-user { font-size: 16px; color: #576b95; font-weight: 600; }
-  .jx-post-avatar { width: 40px; height: 40px; border-radius: 6px; background: #f8bbd0; overflow: hidden; }
+  .jx-post-header { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 12px; }
+  .jx-post-avatar { width: 44px; height: 44px; border-radius: 6px; background: #f8bbd0; overflow: hidden; margin-bottom: 8px; }
   .jx-post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .jx-post-user { font-size: 16px; color: #576b95; font-weight: 600; }
+  
+  /* 删除按钮样式调整：取消绝对定位，与可见性并排 */
   .jx-post-delete-btn {
-    position: absolute; top: 0; right: 0; font-size: 12px; color: #ccc; cursor: pointer; padding: 4px;
+    font-size: 12px; color: #ccc; cursor: pointer; padding: 4px;
+    display: flex; align-items: center; transition: color 0.2s;
   }
   .jx-post-delete-btn:hover { color: #ff4757; }
+
   .jx-post-content { font-size: 15px; color: #333; line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
   .jx-post-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
   .jx-post-images img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 6px; }
@@ -492,7 +496,7 @@
   .jx-post-actions { display: flex; gap: 16px; }
   .jx-post-actions svg { width: 18px; height: 18px; fill: #b2b2b2; cursor: pointer; }
   .jx-post-actions svg.liked { fill: #ff4757; }
-  .jx-post-visibility { font-size: 11px; color: #ccc; }
+  .jx-post-visibility { font-size: 11px; color: #ccc; display: flex; align-items: center; }
 
   /* 评论区 */
   .jx-post-comments { background: #f7f7f7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; font-size: 13px; }
@@ -530,6 +534,7 @@
   .publish-add-image {
     width: 100%; aspect-ratio: 1/1; border: 1px dashed #ddd; border-radius: 6px;
     display: flex; align-items: center; justify-content: center; font-size: 30px; color: #ccc; cursor: pointer;
+    position: relative; overflow: hidden;
   }
   .publish-options { margin-top: 16px; }
   .publish-option-item {
@@ -1143,16 +1148,15 @@
         </div>
       </div>
 
-      <!-- 页面2：朋友圈 (按照最新要求排版) -->
+      <!-- 页面2：朋友圈 -->
       <div id="jx-moments" class="jx-tab-content">
         <!-- 黑色背景区 -->
         <div class="jx-moments-header" id="jxMomentsHeader" onclick="document.getElementById('momentsBgInput').click()">
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
         </div>
         
-        <!-- 白色个人信息区域：头像移入此处，向上突出悬浮于交界处 -->
+        <!-- 白色个人信息区域 -->
         <div class="jx-moments-user-info">
-          <!-- 头像放在这里，绝对定位 top:-40px，不会被任何容器裁剪 -->
           <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
             <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="avatar">
             <input type="file" id="momentsAvatarInput" accept="image/*" style="display: none;">
@@ -1167,13 +1171,13 @@
           <div class="jx-moments-add-btn" onclick="openPublishScreen()">+</div>
         </div>
 
-        <!-- 动态区 (渲染帖子列表) -->
+        <!-- 动态区 -->
         <div class="jx-moments-posts" id="jx-moments-posts">
           <!-- 动态列表通过 JS 渲染在这里 -->
         </div>
       </div>
 
-      <!-- 页面3：通讯录 (完全复刻P5，并按首字母排序) -->
+      <!-- 页面3：通讯录 -->
       <div id="jx-contacts" class="jx-tab-content">
         <div class="jx-contacts-header">
           <span style="width:24px;"></span>
@@ -1191,7 +1195,7 @@
         </div>
 
         <div id="jxContactList" style="margin-top: 8px;">
-          <!-- 动态渲染人设联系人，会按首字母A-Z排序 -->
+          <!-- 动态渲染人设联系人 -->
         </div>
       </div>
 
@@ -1239,8 +1243,6 @@
         
         <div class="publish-images" id="publishImagesContainer">
           <!-- 图片预览和添加按钮动态渲染 -->
-          <div class="publish-add-image" onclick="document.getElementById('publishImageInput').click()">+</div>
-          <input type="file" id="publishImageInput" accept="image/*" multiple style="display: none;">
         </div>
 
         <div class="publish-options">
@@ -1615,24 +1617,42 @@
         </div>`;
       }
 
+      // Emoji 替换为 SVG 图标
+      let visibilityIcon = '';
+      let visibilityText = '';
+      if (post.visibility === 'private') {
+        visibilityIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>`;
+        visibilityText = '仅自己可见';
+      } else if (post.visibility === 'custom') {
+        visibilityIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`;
+        visibilityText = '部分可见';
+      } else {
+        visibilityIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>`;
+        visibilityText = '公开';
+      }
+      
+      // 删除按钮 SVG 图标
+      const deleteBtnIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
+
       return `
         <div class="jx-post">
-          <div class="jx-post-delete-btn" onclick="deletePost('${post.id}')">🗑️ 删除</div>
           <div class="jx-post-header">
+            <div class="jx-post-avatar">
+              <img src="${localStorage.getItem('moments_avatar') || ''}" style="width:100%; height:100%; object-fit:cover;">
+            </div>
             <div class="jx-post-user">Koi Buono</div>
-            <div class="jx-post-avatar"><img src="${localStorage.getItem('moments_avatar') || ''}"></div>
           </div>
           <div class="jx-post-content">${post.content}</div>
           ${imagesHtml}
           ${mentionsHtml}
-          <div class="jx-post-footer">
-            <span>${post.time}</span>
-            <div class="jx-post-actions">
-              <svg class="like-icon ${post.liked ? 'liked' : ''}" onclick="toggleLike('${post.id}')" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-              <svg class="comment-icon" onclick="openCommentModal('${post.id}')" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            </div>
+          <div class="jx-post-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <span class="jx-post-visibility" style="display: flex; align-items: center; color: #ccc; font-size: 11px;">
+              ${visibilityIcon} ${visibilityText}
+            </span>
+            <span class="jx-post-delete-btn" onclick="deletePost('${post.id}')" style="display: flex; align-items: center; color: #ccc; font-size: 12px; cursor: pointer;">
+              ${deleteBtnIcon} 删除
+            </span>
           </div>
-          <span class="jx-post-visibility">${post.visibility === 'private' ? '🔒 仅自己可见' : (post.visibility === 'custom' ? '👥 部分可见' : '🌐 公开')}</span>
           ${commentsHtml}
         </div>
       `;
@@ -1644,9 +1664,20 @@
     document.getElementById('jxPublishScreen').classList.add('active');
     document.getElementById('publishContent').value = '';
     tempPostImages = [];
-    document.getElementById('publishImagesContainer').innerHTML = '<div class="publish-add-image" onclick="document.getElementById(\'publishImageInput\').click()">+</div>';
+    
+    // 初始化时重建带透明 input 的加号框，解决点击无反应问题
+    document.getElementById('publishImagesContainer').innerHTML = `
+      <div class="publish-add-image" style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+        +
+        <input type="file" id="publishImageInput" accept="image/*" multiple style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+      </div>
+    `;
+    
     document.getElementById('publishVisibility').value = 'public';
     document.getElementById('publishCustomVisibility').style.display = 'none';
+    
+    // 绑定上传事件
+    document.getElementById('publishImageInput').addEventListener('change', handlePublishImageSelect);
     
     // 渲染提醒人列表
     const mentionList = document.getElementById('publishMentionList');
@@ -1679,8 +1710,8 @@
     document.getElementById('publishCustomVisibility').style.display = val === 'custom' ? 'block' : 'none';
   }
 
-  // 图片上传预览
-  document.getElementById('publishImageInput').addEventListener('change', function(e) {
+  // 提取出来的图片上传逻辑
+  function handlePublishImageSelect(e) {
     const files = e.target.files;
     if (!files) return;
     for (let i = 0; i < files.length; i++) {
@@ -1698,18 +1729,30 @@
       };
       reader.readAsDataURL(files[i]);
     }
-    this.value = '';
-  });
+    e.target.value = '';
+  }
 
   function removePublishImage(el, index) {
     tempPostImages.splice(index, 1);
     el.parentElement.remove();
-    // 重新绑定索引（简化处理，直接重新渲染图片区域）
+    // 重新绑定索引
     const container = document.getElementById('publishImagesContainer');
-    const addBtn = container.querySelector('.publish-add-image');
     container.querySelectorAll('.publish-image-item').forEach((item, i) => {
       item.querySelector('.remove-img').setAttribute('onclick', `removePublishImage(this, ${i})`);
     });
+    // 确保加号框还在
+    if (!container.querySelector('.publish-add-image')) {
+      const addBtn = document.createElement('div');
+      addBtn.className = 'publish-add-image';
+      addBtn.style.position = 'relative';
+      addBtn.style.overflow = 'hidden';
+      addBtn.style.display = 'flex';
+      addBtn.style.alignItems = 'center';
+      addBtn.style.justifyContent = 'center';
+      addBtn.innerHTML = `+<input type="file" id="publishImageInput" accept="image/*" multiple style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">`;
+      container.appendChild(addBtn);
+      document.getElementById('publishImageInput').addEventListener('change', handlePublishImageSelect);
+    }
   }
 
   function publishPost() {
@@ -2390,6 +2433,9 @@
 
       const posText = posMap[entry.position] || '人设后';
 
+      // 替换钥匙 Emoji 为 SVG
+      const keyIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="#888" style="vertical-align:middle; margin-right:4px;"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>`;
+
       card.innerHTML = `
         <div class="wb-entry-header">
           <span class="wb-entry-name">${escapeHtml(entry.name || '未命名条目')}</span>
@@ -2400,7 +2446,7 @@
           <span class="wb-tag pos">${posText}</span>
           <span class="wb-tag depth">深度 ${entry.depth}</span>
         </div>
-        <div class="wb-entry-keys">🔑 ${entry.keys ? escapeHtml(entry.keys) : '始终生效'}</div>
+        <div class="wb-entry-keys">${keyIcon} ${entry.keys ? escapeHtml(entry.keys) : '始终生效'}</div>
         <div class="wb-entry-preview">${escapeHtml(entry.content || '（无内容）')}</div>
       `;
       container.appendChild(card);
