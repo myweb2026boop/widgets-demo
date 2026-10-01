@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TuTooth</title>
+<title> TuTooth </title>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -200,6 +200,8 @@
   .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
   .form-group input, .form-group textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
   .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
+  .form-group select { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; background: #fff; }
+  .form-group select:focus { border-color: #4b7bec; }
   
   /* 【关键修复】：绝对保证文本域换行渲染 */
   .form-group textarea { 
@@ -252,6 +254,60 @@
   .preset-input-row input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; }
   .preset-select-row { display: flex; gap: 8px; }
   .preset-select-row select { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; background: #fff; }
+
+  /* ============ 6. 世界书界面 ============ */
+  #worldBookScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .worldbook-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+  .worldbook-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
+  .worldbook-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
+  .worldbook-body { padding: 16px; }
+
+  .wb-stats-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #fff; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-size: 12px; color: #666;
+  }
+  .wb-mini-btn {
+    background: #eef2ff; color: #4b7bec; border: none; border-radius: 6px;
+    padding: 5px 10px; font-size: 11px; cursor: pointer; font-weight: 500;
+  }
+
+  .wb-entry-card {
+    background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer;
+    border-left: 4px solid #4b7bec;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .wb-entry-card:active { transform: scale(0.985); }
+  .wb-entry-card.disabled { border-left-color: #d5d5d5; opacity: 0.62; }
+
+  .wb-entry-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .wb-entry-name { font-size: 14px; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .wb-switch {
+    position: relative; width: 38px; height: 21px; background: #d5d5d5;
+    border-radius: 11px; transition: background .2s; flex-shrink: 0; cursor: pointer;
+  }
+  .wb-switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 17px; height: 17px; background: #fff; border-radius: 50%;
+    transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .wb-switch.on { background: #4b7bec; }
+  .wb-switch.on::after { left: 19px; }
+
+  .wb-entry-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .wb-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eef2ff; color: #4b7bec; white-space: nowrap; }
+  .wb-tag.global { background: #e8f5e9; color: #2e7d32; }
+  .wb-tag.local { background: #fff3e0; color: #e65100; }
+  .wb-tag.pos { background: #f3e5f5; color: #8e24aa; }
+  .wb-tag.depth { background: #e3f2fd; color: #1565c0; }
+
+  .wb-entry-keys { font-size: 11px; color: #999; margin-bottom: 6px; word-break: break-all; }
+  .wb-entry-preview {
+    font-size: 12px; color: #888; white-space: pre-wrap; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
 
   /* 可编辑文字通用样式 */
   .editable-text { display: inline-block; min-width: 20px; min-height: 20px; cursor: pointer; line-height: 1.5; }
@@ -349,7 +405,7 @@
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-purple" id="app-icon-book">
+            <div class="icon-box bg-purple" id="app-icon-book" onclick="openWorldBookApp()">
               <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 3v18"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h6"/></svg>
             </div>
             <span class="widget-label" id="label-book">世界书</span>
@@ -602,6 +658,98 @@
       </div>
     </div>
 
+    <!-- ================= 6. 世界书界面 ================= -->
+    <div id="worldBookScreen" class="screen">
+      <div class="worldbook-header">
+        <button class="back-btn" onclick="closeScreen('worldBookScreen')">← 返回</button>
+        <h3>世界书</h3>
+      </div>
+      <div class="worldbook-body">
+
+        <div class="persona-toolbar">
+          <button class="btn btn-outline" onclick="document.getElementById('worldBookFileInput').click()">上传文件</button>
+          <button class="btn btn-primary" onclick="openEntryEdit(null)">新建条目</button>
+          <input type="file" id="worldBookFileInput" accept=".docx,.json,.txt" style="display: none;">
+        </div>
+
+        <div class="wb-stats-bar" id="wbStatsBar" style="display:none;">
+          <span id="wbStats">共 0 条 · 启用 0 条</span>
+          <button class="wb-mini-btn" id="wbToggleAllBtn">全部启用/停用</button>
+        </div>
+
+        <div id="worldBookList"></div>
+
+        <div class="persona-edit-view" id="worldBookEditView">
+          <div class="form-group">
+            <label>条目名称</label>
+            <input type="text" id="wbName" placeholder="输入条目名称">
+          </div>
+
+          <div class="form-group">
+            <label>触发关键词（英文逗号 / 顿号分隔，留空则始终生效）</label>
+            <input type="text" id="wbKeys" placeholder="例如：魔法学院, 王城, 圣剑">
+          </div>
+
+          <div class="form-group">
+            <label>条目内容</label>
+            <textarea id="wbContent" placeholder="输入世界书内容..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>插入深度</label>
+              <input type="number" id="wbDepth" min="0" max="50" value="4">
+            </div>
+            <div class="form-group">
+              <label>优先级</label>
+              <input type="number" id="wbOrder" min="0" max="999" value="100">
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #999; margin: -8px 0 14px 0; line-height: 1.5;">
+            深度越小越靠近对话末尾（模型更容易注意到）；优先级数值越小越靠前插入。
+          </p>
+
+          <div class="form-group">
+            <label>插入位置</label>
+            <select id="wbPosition">
+              <option value="before">人设前</option>
+              <option value="middle">人设中</option>
+              <option value="after">人设后</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>绑定范围</label>
+            <select id="wbBinding" onchange="toggleBindingTarget()">
+              <option value="global">全局绑定</option>
+              <option value="local">局部绑定（指定角色）</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="wbBindingTargetGroup" style="display:none;">
+            <label>绑定角色</label>
+            <select id="wbLocalTarget"></select>
+          </div>
+
+          <div class="form-group">
+            <label>启用状态</label>
+            <select id="wbEnabled">
+              <option value="true">启用</option>
+              <option value="false">停用</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-cancel" onclick="cancelEntryEdit()">取消</button>
+            <button class="btn btn-delete" id="wbDeleteBtn" onclick="deleteEntry()">删除</button>
+            <button class="btn btn-save" onclick="saveEntry()">保存</button>
+          </div>
+        </div>
+
+        <div class="empty-state" id="worldBookEmptyState">暂无世界书条目，点击上方按钮上传文件或新建条目</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -627,6 +775,7 @@
   const APP_NAME_KEY_PREFIX = 'app_name_';
   const MUSIC_KEY_PREFIX = 'music_';
   const PERSONA_KEY = 'persona_list';
+  const WORLDBOOK_KEY = 'worldbook_entries';
 
   if(localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
   if(localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
@@ -909,6 +1058,7 @@
     } else {
       personaList = [];
     }
+    if (!Array.isArray(personaList)) personaList = [];
   }
   loadPersonaList();
 
@@ -937,13 +1087,12 @@
         avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
       }
       
-      // 将文本直接填入，利用 CSS 的多行截断来显示预览，保留换行！
       card.innerHTML = `
         <div class="avatar">${avatarHtml}</div>
         <div class="info">
-          <h4>${persona.name || '未命名角色'}</h4>
-          <p>${persona.nickname || '无网名'} · ${persona.gender || '未知'} · ${persona.age || '未知年龄'}</p>
-          <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${persona.details || '暂无详细描述'}</p>
+          <h4>${escapeHtml(persona.name || '未命名角色')}</h4>
+          <p>${escapeHtml(persona.nickname || '无网名')} · ${escapeHtml(persona.gender || '未知')} · ${escapeHtml(persona.age || '未知年龄')}</p>
+          <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${escapeHtml(persona.details || '暂无详细描述')}</p>
         </div>
         <div class="arrow">›</div>
       `;
@@ -978,7 +1127,6 @@
       document.getElementById('personaNickname').value = persona.nickname || '';
       document.getElementById('personaGender').value = persona.gender || '';
       document.getElementById('personaAge').value = persona.age || '';
-      // 直接将带有换行的文本填入 textarea，完美保留格式
       document.getElementById('personaDetails').value = persona.details || '';
       
       if (persona.avatar) {
@@ -1005,7 +1153,6 @@
     const nickname = document.getElementById('personaNickname').value.trim();
     const gender = document.getElementById('personaGender').value.trim();
     const age = document.getElementById('personaAge').value.trim();
-    // 读取 textarea 的内容，换行符会被原样读取
     const details = document.getElementById('personaDetails').value;
     
     if (!name) {
@@ -1061,7 +1208,6 @@
       document.getElementById('personaEmptyState').style.display = 'none';
     };
 
-    // 统一处理换行符：将 \r\n 和 \r 统一换成 \n
     const normalizeText = (text) => {
       if (!text) return '';
       return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -1078,13 +1224,11 @@
       const reader = new FileReader();
       reader.onload = function(evt) {
         const arrayBuffer = evt.target.result;
-        // 【核心修复】：改用 convertToHtml，它会保留段落标签
         mammoth.convertToHtml({arrayBuffer: arrayBuffer})
           .then(function(result) {
             let html = result.value;
-            // 将 HTML 的段落结束标签转换为换行符
             let textWithBreaks = html.replace(/<\/p>/g, '\n').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '');
-            parsedData.details = normalizeText(textWithBreaks);
+            parsedData.details = normalizeText(decodeEntities(textWithBreaks));
             showEditForm();
           })
           .catch(function(err) {
@@ -1105,7 +1249,6 @@
           parsedData.nickname = jsonData.nickname || jsonData.net_name || '';
           parsedData.gender = jsonData.gender || jsonData.sex || '';
           parsedData.age = jsonData.age || '';
-          // 应用换行符标准化
           parsedData.details = normalizeText(jsonData.details || jsonData.description || jsonData.persona || content);
         } catch (err) {
           parsedData.details = normalizeText(content);
@@ -1116,7 +1259,6 @@
     } else if (file.name.endsWith('.txt')) {
       const reader = new FileReader();
       reader.onload = function(ev) {
-        // 应用换行符标准化
         parsedData.details = normalizeText(ev.target.result);
         showEditForm();
       };
@@ -1140,6 +1282,399 @@
       document.getElementById('personaAvatarSvg').style.display = 'none';
     };
     reader.readAsDataURL(file);
+    this.value = '';
+  });
+
+  // ================= 世界书App 专属逻辑 =================
+  let worldBookEntries = [];
+  let editingEntryId = null;
+
+  function genId() {
+    return 'wb_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function decodeEntities(str) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
+  }
+
+  function truncate(s, n) {
+    s = String(s || '').replace(/\s+/g, ' ').trim();
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+
+  function loadWorldBook() {
+    try {
+      const raw = localStorage.getItem(WORLDBOOK_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      worldBookEntries = Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      worldBookEntries = [];
+    }
+    worldBookEntries.forEach(e => {
+      if (!e.id) e.id = genId();
+      if (typeof e.enabled !== 'boolean') e.enabled = true;
+      if (typeof e.depth !== 'number' || isNaN(e.depth)) e.depth = 4;
+      if (typeof e.order !== 'number' || isNaN(e.order)) e.order = 100;
+      if (!e.position) e.position = 'after';
+      if (!e.binding) e.binding = 'global';
+      if (!e.localTarget) e.localTarget = '';
+    });
+  }
+
+  function saveWorldBook() {
+    try {
+      localStorage.setItem(WORLDBOOK_KEY, JSON.stringify(worldBookEntries));
+    } catch (e) {
+      alert('保存失败，存储空间可能已满');
+    }
+  }
+
+  function openWorldBookApp() {
+    openScreen('worldBookScreen');
+    loadWorldBook();
+    loadPersonaList();
+    renderWorldBookList();
+  }
+
+  function renderWorldBookList() {
+    const container = document.getElementById('worldBookList');
+    const emptyState = document.getElementById('worldBookEmptyState');
+    const statsBar = document.getElementById('wbStatsBar');
+    const editView = document.getElementById('worldBookEditView');
+
+    editView.classList.remove('active');
+    container.innerHTML = '';
+
+    if (worldBookEntries.length === 0) {
+      emptyState.style.display = 'block';
+      container.style.display = 'none';
+      statsBar.style.display = 'none';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    container.style.display = 'block';
+    statsBar.style.display = 'flex';
+
+    const enabledCount = worldBookEntries.filter(e => e.enabled).length;
+    document.getElementById('wbStats').innerText = `共 ${worldBookEntries.length} 条 · 启用 ${enabledCount} 条`;
+
+    const posMap = { before: '人设前', middle: '人设中', after: '人设后' };
+
+    worldBookEntries.forEach(entry => {
+      const card = document.createElement('div');
+      card.className = 'wb-entry-card' + (entry.enabled ? '' : ' disabled');
+      card.onclick = () => openEntryEdit(entry.id);
+
+      const bindingTag = entry.binding === 'local'
+        ? `<span class="wb-tag local">局部 · ${escapeHtml(entry.localTarget || '未指定')}</span>`
+        : `<span class="wb-tag global">全局</span>`;
+
+      const posText = posMap[entry.position] || '人设后';
+
+      card.innerHTML = `
+        <div class="wb-entry-header">
+          <span class="wb-entry-name">${escapeHtml(entry.name || '未命名条目')}</span>
+          <div class="wb-switch ${entry.enabled ? 'on' : ''}" onclick="event.stopPropagation(); toggleEntry('${entry.id}')"></div>
+        </div>
+        <div class="wb-entry-tags">
+          ${bindingTag}
+          <span class="wb-tag pos">${posText}</span>
+          <span class="wb-tag depth">深度 ${entry.depth}</span>
+        </div>
+        <div class="wb-entry-keys">🔑 ${entry.keys ? escapeHtml(entry.keys) : '始终生效'}</div>
+        <div class="wb-entry-preview">${escapeHtml(entry.content || '（无内容）')}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleEntry(id) {
+    const entry = worldBookEntries.find(e => e.id === id);
+    if (!entry) return;
+    entry.enabled = !entry.enabled;
+    saveWorldBook();
+    renderWorldBookList();
+  }
+
+  function refreshLocalTargetOptions(selected) {
+    const sel = document.getElementById('wbLocalTarget');
+    sel.innerHTML = '';
+    if (personaList.length === 0) {
+      sel.innerHTML = '<option value="">（暂无人设可绑定）</option>';
+    } else {
+      sel.innerHTML = '<option value="">-- 选择角色 --</option>' +
+        personaList.map(p => `<option value="${escapeHtml(p.name || '')}">${escapeHtml(p.name || '未命名')}</option>`).join('');
+    }
+    if (selected) sel.value = selected;
+  }
+
+  function toggleBindingTarget() {
+    const binding = document.getElementById('wbBinding').value;
+    document.getElementById('wbBindingTargetGroup').style.display = binding === 'local' ? 'block' : 'none';
+  }
+
+  function openEntryEdit(id) {
+    const view = document.getElementById('worldBookEditView');
+    const list = document.getElementById('worldBookList');
+    const emptyState = document.getElementById('worldBookEmptyState');
+
+    list.style.display = 'none';
+    emptyState.style.display = 'none';
+    view.classList.add('active');
+
+    editingEntryId = id;
+
+    if (id === null) {
+      refreshLocalTargetOptions('');
+      document.getElementById('wbName').value = '';
+      document.getElementById('wbKeys').value = '';
+      document.getElementById('wbContent').value = '';
+      document.getElementById('wbDepth').value = '4';
+      document.getElementById('wbOrder').value = '100';
+      document.getElementById('wbPosition').value = 'after';
+      document.getElementById('wbBinding').value = 'global';
+      document.getElementById('wbEnabled').value = 'true';
+      document.getElementById('wbDeleteBtn').style.display = 'none';
+    } else {
+      const entry = worldBookEntries.find(e => e.id === id);
+      if (!entry) { cancelEntryEdit(); return; }
+      refreshLocalTargetOptions(entry.localTarget || '');
+      document.getElementById('wbName').value = entry.name || '';
+      document.getElementById('wbKeys').value = entry.keys || '';
+      document.getElementById('wbContent').value = entry.content || '';
+      document.getElementById('wbDepth').value = String(entry.depth);
+      document.getElementById('wbOrder').value = String(entry.order);
+      document.getElementById('wbPosition').value = entry.position;
+      document.getElementById('wbBinding').value = entry.binding;
+      document.getElementById('wbEnabled').value = entry.enabled ? 'true' : 'false';
+      document.getElementById('wbDeleteBtn').style.display = 'block';
+    }
+    toggleBindingTarget();
+  }
+
+  function cancelEntryEdit() {
+    document.getElementById('worldBookEditView').classList.remove('active');
+    document.getElementById('worldBookList').style.display = 'block';
+    document.getElementById('worldBookEmptyState').style.display = 'none';
+    renderWorldBookList();
+  }
+
+  function saveEntry() {
+    const name = document.getElementById('wbName').value.trim();
+    const keys = document.getElementById('wbKeys').value.trim();
+    const content = document.getElementById('wbContent').value;
+    const depth = Math.max(0, parseInt(document.getElementById('wbDepth').value, 10) || 0);
+    const order = parseInt(document.getElementById('wbOrder').value, 10) || 100;
+    const position = document.getElementById('wbPosition').value;
+    const binding = document.getElementById('wbBinding').value;
+    const localTarget = document.getElementById('wbLocalTarget').value;
+    const enabled = document.getElementById('wbEnabled').value === 'true';
+
+    if (!name && !content.trim()) {
+      alert('请至少填写条目名称或内容');
+      return;
+    }
+
+    const data = {
+      name: name || (keys ? keys.split(/[,，、]/)[0].trim() : '未命名条目'),
+      keys, content, depth, order, position, binding, localTarget, enabled
+    };
+
+    if (editingEntryId === null) {
+      worldBookEntries.push({ id: genId(), ...data });
+    } else {
+      const idx = worldBookEntries.findIndex(e => e.id === editingEntryId);
+      if (idx >= 0) worldBookEntries[idx] = { ...worldBookEntries[idx], ...data };
+    }
+
+    saveWorldBook();
+    cancelEntryEdit();
+  }
+
+  function deleteEntry() {
+    if (editingEntryId === null) return;
+    if (!confirm('确定要删除此条目吗？')) return;
+    worldBookEntries = worldBookEntries.filter(e => e.id !== editingEntryId);
+    saveWorldBook();
+    cancelEntryEdit();
+  }
+
+  // 全部启用 / 停用
+  document.getElementById('wbToggleAllBtn').addEventListener('click', () => {
+    const allOn = worldBookEntries.every(e => e.enabled);
+    worldBookEntries.forEach(e => { e.enabled = !allOn; });
+    saveWorldBook();
+    renderWorldBookList();
+  });
+
+  // 世界书文件导入
+  function splitIntoChunks(paragraphs) {
+    const chunks = [];
+    let current = [];
+    paragraphs.forEach(p => {
+      const t = (p || '').trim();
+      if (t === '') {
+        if (current.length) { chunks.push(current.join('\n')); current = []; }
+      } else {
+        current.push(t);
+      }
+    });
+    if (current.length) chunks.push(current.join('\n'));
+    return chunks;
+  }
+
+  function extractEntriesFromJson(data, defaultEntry) {
+    const out = [];
+
+    const pushOne = (obj, fallbackName) => {
+      if (obj == null) return;
+      if (typeof obj === 'string') {
+        if (obj.trim()) out.push(defaultEntry(fallbackName || truncate(obj, 24), obj, ''));
+        return;
+      }
+      if (typeof obj !== 'object') return;
+
+      const keysRaw = obj.keys ?? obj.key ?? obj.keywords ?? obj.trigger ?? obj.triggers ?? '';
+      const keyStr = Array.isArray(keysRaw) ? keysRaw.join(', ') : String(keysRaw || '');
+
+      const content = obj.content ?? obj.text ?? obj.value ?? obj.description ?? obj.desc ?? obj.detail ?? '';
+      const name = obj.name ?? obj.comment ?? obj.title ?? obj.subject ?? fallbackName ?? '';
+
+      if (!String(content).trim() && !keyStr.trim()) return;
+
+      const positionRaw = String(obj.position ?? obj.insertion_position ?? obj.insertionPosition ?? '').toLowerCase();
+      let position = 'after';
+      if (/before|前/.test(positionRaw)) position = 'before';
+      else if (/middle|中|in_?char/.test(positionRaw)) position = 'middle';
+
+      out.push({
+        id: genId(),
+        name: String(name || truncate(keyStr || String(content), 24) || '未命名条目'),
+        keys: keyStr,
+        content: String(content),
+        depth: Number(obj.depth ?? obj.insertion_depth) || 4,
+        order: Number(obj.order ?? obj.priority ?? obj.insertion_order) || 100,
+        position: position,
+        binding: (obj.binding === 'local' || obj.local === true) ? 'local' : 'global',
+        localTarget: obj.localTarget || obj.character || '',
+        enabled: obj.enabled !== false && obj.disable !== true
+      });
+    };
+
+    if (Array.isArray(data)) {
+      data.forEach((item, i) => pushOne(item, `条目 ${i + 1}`));
+    } else if (data && typeof data === 'object') {
+      if (Array.isArray(data.entries)) {
+        data.entries.forEach((item, i) => pushOne(item, `条目 ${i + 1}`));
+      } else if (data.entries && typeof data.entries === 'object') {
+        Object.entries(data.entries).forEach(([k, v]) => pushOne(v, `条目 ${k}`));
+      } else if (data.keys || data.key || data.content || data.text) {
+        pushOne(data);
+      } else {
+        Object.entries(data).forEach(([k, v]) => {
+          if (typeof v === 'string') {
+            if (v.trim()) out.push(defaultEntry(k, v, k));
+          } else if (v && typeof v === 'object') {
+            pushOne({ ...v, name: v.name ?? v.comment ?? k }, k);
+          }
+        });
+      }
+    }
+    return out;
+  }
+
+  document.getElementById('worldBookFileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fileName = file.name;
+    const dotIdx = fileName.lastIndexOf('.');
+    const ext = dotIdx >= 0 ? fileName.slice(dotIdx).toLowerCase() : '';
+
+    const defaultEntry = (entryName, content, keys) => ({
+      id: genId(),
+      name: entryName || '未命名条目',
+      keys: keys || '',
+      content: content || '',
+      depth: 4,
+      order: 100,
+      position: 'after',
+      binding: 'global',
+      localTarget: '',
+      enabled: true
+    });
+
+    const finish = (entries) => {
+      if (!entries || entries.length === 0) {
+        alert('未从文件中解析出有效条目');
+        return;
+      }
+      worldBookEntries = worldBookEntries.concat(entries);
+      saveWorldBook();
+      renderWorldBookList();
+      alert(`成功导入 ${entries.length} 个条目`);
+    };
+
+    const buildEntriesFromChunks = (chunks) => chunks.map((chunk, i) => {
+      const firstLine = chunk.split('\n')[0].trim();
+      return defaultEntry(truncate(firstLine, 24) || `条目 ${i + 1}`, chunk, '');
+    });
+
+    if (ext === '.docx') {
+      if (typeof mammoth === 'undefined') { alert('docx 解析库未加载，无法解析'); return; }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        mammoth.convertToHtml({ arrayBuffer: evt.target.result })
+          .then(result => {
+            const html = result.value || '';
+            const paragraphs = html
+              .split(/<\/p>/i)
+              .map(s => s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ''))
+              .map(s => decodeEntities(s).trim());
+            const chunks = splitIntoChunks(paragraphs);
+            finish(buildEntriesFromChunks(chunks));
+          })
+          .catch(err => {
+            console.error(err);
+            alert('docx 解析失败，请检查文件是否损坏');
+          });
+      };
+      reader.readAsArrayBuffer(file);
+    } else if (ext === '.json') {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          const entries = extractEntriesFromJson(data, defaultEntry);
+          finish(entries);
+        } catch (err) {
+          alert('JSON 解析失败：' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    } else if (ext === '.txt') {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = String(ev.target.result || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        const chunks = splitIntoChunks(text.split('\n'));
+        finish(buildEntriesFromChunks(chunks));
+      };
+      reader.readAsText(file);
+    } else {
+      alert('仅支持 docx, json, txt 文件格式');
+    }
+
     this.value = '';
   });
 
@@ -1269,15 +1804,19 @@
   }
   updatePresetList();
 
+  const isBackupKey = (key) => (
+    key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
+    key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
+    key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY
+  );
+
   document.getElementById('savePresetBtn').addEventListener('click', () => {
     const name = document.getElementById('presetNameInput').value.trim();
     if (!name) return alert('请输入预设名称');
     const presetData = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || 
-          key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY) {
+      if (isBackupKey(key)) {
         presetData[key] = localStorage.getItem(key);
       }
     }
@@ -1295,13 +1834,9 @@
     if (!dataStr) return alert('未找到该预设');
     try {
       const data = JSON.parse(dataStr);
-      for (let i = 0; i < localStorage.length; i++) {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
-        if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-            key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || 
-            key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY) {
-          localStorage.removeItem(key);
-        }
+        if (isBackupKey(key)) localStorage.removeItem(key);
       }
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -1317,9 +1852,7 @@
     const data = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || 
-          key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || 
-          key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY) {
+      if (isBackupKey(key)) {
         data[key] = localStorage.getItem(key);
       }
     }
