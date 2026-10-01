@@ -180,8 +180,17 @@
   .persona-card .avatar svg { width: 24px; height: 24px; fill: #ccc; }
   .persona-card .info { flex: 1; overflow: hidden; }
   .persona-card .info h4 { font-size: 15px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  /* 【关键修改】让卡片摘要也支持换行显示 */
-  .persona-card .info p { font-size: 12px; color: #999; white-space: pre-wrap; overflow: hidden; text-overflow: ellipsis; max-height: 36px; line-height: 1.5; }
+  
+  /* 【关键修复】：保留预览的换行，并支持多行截断 */
+  .persona-card .info p { 
+    font-size: 12px; color: #999; 
+    white-space: pre-wrap; /* 保留换行和空白 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 最多显示2行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+  }
   .persona-card .arrow { color: #ccc; font-size: 20px; }
 
   /* 人设编辑表单 */
@@ -192,12 +201,13 @@
   .form-group input, .form-group textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
   .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
   
-  /* 【关键修改】强化文本域对换行的支持 */
+  /* 【关键修复】：绝对保证文本域换行渲染 */
   .form-group textarea { 
     height: 180px; 
     resize: vertical; 
-    white-space: pre-wrap; /* 保留换行与空白 */
+    white-space: pre-wrap; /* 保留换行 */
     word-wrap: break-word;
+    line-height: 1.5;
   }
   
   .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #eee; }
@@ -927,15 +937,13 @@
         avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
       }
       
-      // 将详细信息换成摘要显示，保留换行格式
-      const detailsPreview = persona.details ? persona.details.replace(/\n/g, ' ').substring(0, 30) + '...' : '暂无描述';
-      
+      // 将文本直接填入，利用 CSS 的多行截断来显示预览，保留换行！
       card.innerHTML = `
         <div class="avatar">${avatarHtml}</div>
         <div class="info">
           <h4>${persona.name || '未命名角色'}</h4>
           <p>${persona.nickname || '无网名'} · ${persona.gender || '未知'} · ${persona.age || '未知年龄'}</p>
-          <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${detailsPreview}</p>
+          <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${persona.details || '暂无详细描述'}</p>
         </div>
         <div class="arrow">›</div>
       `;
@@ -1026,18 +1034,16 @@
     cancelPersonaEdit();
   }
 
-  // 【核心修复：统一换行符，确保导入格式不变】
+  // 【核心修复：使用 convertToHtml 确保 docx 的换行被完整保留】
   document.getElementById('personaFileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 准备默认数据
     let parsedData = {
       name: file.name.replace(/\.[^/.]+$/, ""),
       nickname: '', gender: '', age: '', details: ''
     };
 
-    // 显示编辑表单并填充基础数据
     const showEditForm = () => {
       editingPersonaId = null;
       document.getElementById('personaName').value = parsedData.name;
@@ -1055,7 +1061,7 @@
       document.getElementById('personaEmptyState').style.display = 'none';
     };
 
-    // 统一处理换行符：将 Windows 的 \r\n 和 Mac 的 \r 统一换成 \n
+    // 统一处理换行符：将 \r\n 和 \r 统一换成 \n
     const normalizeText = (text) => {
       if (!text) return '';
       return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -1072,10 +1078,13 @@
       const reader = new FileReader();
       reader.onload = function(evt) {
         const arrayBuffer = evt.target.result;
-        mammoth.extractRawText({arrayBuffer: arrayBuffer})
+        // 【核心修复】：改用 convertToHtml，它会保留段落标签
+        mammoth.convertToHtml({arrayBuffer: arrayBuffer})
           .then(function(result) {
-            // 应用换行符标准化
-            parsedData.details = normalizeText(result.value);
+            let html = result.value;
+            // 将 HTML 的段落结束标签转换为换行符
+            let textWithBreaks = html.replace(/<\/p>/g, '\n').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '');
+            parsedData.details = normalizeText(textWithBreaks);
             showEditForm();
           })
           .catch(function(err) {
