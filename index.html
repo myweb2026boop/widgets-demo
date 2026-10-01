@@ -1524,6 +1524,7 @@
       const base64 = ev.target.result;
       document.getElementById('momentsAvatarImg').src = base64;
       try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); }
+      renderMomentsPosts(); // 👈 重新渲染动态列表，让所有历史动态的头像跟着同步更新
     };
     reader.readAsDataURL(file);
   });
