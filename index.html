@@ -361,6 +361,9 @@
   .jx-msg-row.other .jx-msg-bubble { background: #fff; color: #000; }
   .jx-msg-row.me .jx-msg-bubble::after { content: ''; position: absolute; top: 12px; right: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 6px solid #95ec69; }
   .jx-msg-row.other .jx-msg-bubble::before { content: ''; position: absolute; top: 12px; left: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 6px solid #fff; }
+  .jx-msg-bubble.media { padding: 4px !important; background: transparent !important; }
+  .jx-msg-bubble.media::after, .jx-msg-bubble.media::before { display: none !important; }
+  .jx-msg-bubble img { max-width: 190px; max-height: 240px; border-radius: 6px; display: block; }
   .jx-chat-input-bar { display: flex; align-items: center; padding: 8px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); box-sizing: content-box; }
   .jx-chat-input-bar .icon { width: 30px; height: 30px; fill: #333; cursor: pointer; flex-shrink: 0; }
   .jx-chat-input-bar .icon-voice { margin-right: 8px; }
@@ -415,6 +418,28 @@
   .jx-modal-item span { font-size: 15px; color: #333; }
   .jx-modal-btn { margin-top: 10px; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 500; color: #333; }
 
+  /* 发布动态页 */
+  #jxPublishScreen { display: none; flex-direction: column; background: #f7f7f7; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1500; }
+  #jxPublishScreen.active { display: flex; }
+  .publish-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; border-bottom: 1px solid #eee; }
+  .publish-header .cancel-btn { font-size: 15px; color: #666; cursor: pointer; }
+  .publish-header .publish-title { font-size: 16px; font-weight: 600; color: #333; }
+  .publish-header .publish-btn { font-size: 15px; color: #fff; background: #07c160; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+  .publish-body { flex: 1; overflow-y: auto; padding: 16px; }
+  .publish-body textarea { width: 100%; height: 140px; border: none; outline: none; font-size: 16px; line-height: 1.6; resize: none; font-family: inherit; background: transparent; }
+  .publish-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+  .publish-image-item { position: relative; aspect-ratio: 1/1; border-radius: 6px; overflow: hidden; }
+  .publish-image-item img { width: 100%; height: 100%; object-fit: cover; }
+  .publish-image-item .remove-img { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
+  .publish-add-image { aspect-ratio: 1/1; border: 1px dashed #ccc; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #ccc; background: #fafafa; }
+  .publish-options { background: #fff; border-radius: 10px; padding: 0 14px; margin-top: 12px; }
+  .publish-option-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+  .publish-option-item .label { font-size: 15px; color: #333; }
+  .publish-option-item select { border: none; outline: none; font-size: 14px; color: #576b95; background: transparent; }
+  .mention-list { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 12px; }
+  .mention-item { font-size: 13px; padding: 6px 12px; border-radius: 14px; background: #f0f0f0; color: #333; cursor: pointer; }
+  .mention-item.selected { background: #07c160; color: #fff; }
+
   /* 世界书多选全屏界面样式 */
   #worldBookSelectScreen.active { display: flex !important; }
   .wb-checkbox {
@@ -427,6 +452,176 @@
   .wb-modal-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; white-space: nowrap; }
   .wb-modal-tag.global { color: #2e7d32; background: #e8f5e9; }
   .wb-modal-tag.local { color: #e65100; background: #fff3e0; }
+
+  /* ================= 夜间模式 ================= */
+  .phone-case.dark-mode { background-color: #0d0d0d; }
+  .phone-case.dark-mode .phone-content { background-color: #0d0d0d; }
+  .phone-case.dark-mode .screen { background: #121212; color: #ddd; }
+  .phone-case.dark-mode #mainScreen { background-color: #121212; }
+  .phone-case.dark-mode .top-nav { color: #7aa2f7; }
+  .phone-case.dark-mode .top-nav .divider { color: #444; }
+  .phone-case.dark-mode .captcha-box { background: #1c1c1e; border-color: #2c2c2e; }
+  .phone-case.dark-mode .input-box { background: #1c1c1e; border-color: #2c2c2e; color: #777; }
+  .phone-case.dark-mode .input-box svg { stroke: #777; }
+  .phone-case.dark-mode .widget-label { color: #bbb; }
+
+  .phone-case.dark-mode #musicScreen { background: #121212; }
+  .phone-case.dark-mode .music-top-bar svg { fill: #ddd; }
+  .phone-case.dark-mode .music-bg-area { background-color: #1c1c1e; }
+  .phone-case.dark-mode .profile-card,
+  .phone-case.dark-mode .music-list-card { background: #1c1c1e; box-shadow: none; }
+  .phone-case.dark-mode .profile-info h2 { color: #eee; }
+  .phone-case.dark-mode .profile-info p { color: #999; }
+  .phone-case.dark-mode .stats-row { border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .stat-item .num { color: #eee; }
+  .phone-case.dark-mode .stat-item .label { color: #888; }
+  .phone-case.dark-mode .edit-btn,
+  .phone-case.dark-mode .upload-btn { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
+  .phone-case.dark-mode .upload-btn svg { fill: #ddd; }
+  .phone-case.dark-mode .music-list-header h3 { color: #eee; }
+  .phone-case.dark-mode .music-player-bar { background: #1c1c1e; box-shadow: none; }
+  .phone-case.dark-mode .bar-info .title { color: #eee; }
+  .phone-case.dark-mode .bar-controls svg { fill: #ddd; }
+  .phone-case.dark-mode .music-list-empty { color: #777; }
+
+  .phone-case.dark-mode #playerScreen { background: #121212; }
+  .phone-case.dark-mode .player-top-bar svg,
+  .phone-case.dark-mode .player-tools svg,
+  .phone-case.dark-mode .player-controls svg { fill: #ddd; }
+  .phone-case.dark-mode .player-info h2 { color: #eee; }
+  .phone-case.dark-mode .progress-bar-container { background: #333; }
+  .phone-case.dark-mode .progress-bar-fill { background: #ddd; }
+  .phone-case.dark-mode .progress-bar-fill::after { background: #ddd; }
+  .phone-case.dark-mode .play-pause-btn { background: #eee; }
+  .phone-case.dark-mode .play-pause-btn svg { fill: #111; }
+
+  .phone-case.dark-mode #personaScreen,
+  .phone-case.dark-mode #beautifyScreen,
+  .phone-case.dark-mode #worldBookScreen,
+  .phone-case.dark-mode #settingsScreen { background: #121212; }
+  .phone-case.dark-mode .persona-header,
+  .phone-case.dark-mode .beautify-header,
+  .phone-case.dark-mode .worldbook-header { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .persona-header h3,
+  .phone-case.dark-mode .beautify-header h3,
+  .phone-case.dark-mode .worldbook-header h3 { color: #eee; }
+  .phone-case.dark-mode .persona-card,
+  .phone-case.dark-mode .section-card,
+  .phone-case.dark-mode .persona-edit-view,
+  .phone-case.dark-mode .wb-stats-bar,
+  .phone-case.dark-mode .wb-entry-card { background: #1c1c1e; box-shadow: none; }
+  .phone-case.dark-mode .persona-card .info h4,
+  .phone-case.dark-mode .section-card h4,
+  .phone-case.dark-mode .wb-entry-name { color: #eee; }
+  .phone-case.dark-mode .persona-card .info p,
+  .phone-case.dark-mode .wb-entry-preview,
+  .phone-case.dark-mode .wb-entry-keys { color: #999; }
+  .phone-case.dark-mode .form-group label { color: #aaa; }
+  .phone-case.dark-mode .form-group input,
+  .phone-case.dark-mode .form-group textarea,
+  .phone-case.dark-mode .form-group select { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .btn-cancel { background: #2c2c2e; color: #ddd; }
+  .phone-case.dark-mode .btn-outline { background: #1c1c1e; }
+  .phone-case.dark-mode .wb-entry-card.disabled { opacity: .5; }
+  .phone-case.dark-mode .hint-text { color: #888; }
+  .phone-case.dark-mode .empty-state { color: #777; }
+  .phone-case.dark-mode #settingsScreen .section-card { background: #1c1c1e; border-color: #2c2c2e; }
+  .phone-case.dark-mode #settingsScreen .section-card h4 { color: #eee; }
+  .phone-case.dark-mode #settingsScreen .btn-outline-dark { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
+  .phone-case.dark-mode #settingsScreen .btn-primary { background: #eee; color: #111; }
+  .phone-case.dark-mode #settingsScreen .btn-success { background: #444; color: #fff; }
+  .phone-case.dark-mode #settingsScreen .btn-danger { background: #555; color: #fff; }
+  .phone-case.dark-mode #settingsScreen .api-status { background: #1c1c1e; border-color: #2c2c2e; color: #bbb; }
+  .phone-case.dark-mode .model-list { background: #1c1c1e; border-color: #2c2c2e; }
+  .phone-case.dark-mode .model-item { color: #ddd; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .model-item:hover { background: #2c2c2e; }
+  .phone-case.dark-mode .model-item.active { background: #3a3a3c; }
+
+  .phone-case.dark-mode #jianxunScreen { background: #121212; }
+  .phone-case.dark-mode .jx-header,
+  .phone-case.dark-mode .jx-contacts-header { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-header .title,
+  .phone-case.dark-mode .jx-contacts-header .title { color: #eee; }
+  .phone-case.dark-mode .jx-header .left { color: #ddd; }
+  .phone-case.dark-mode .jx-header .right { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
+  .phone-case.dark-mode .jx-search-bar,
+  .phone-case.dark-mode .jx-contacts-search { background: #2c2c2e; color: #888; }
+  .phone-case.dark-mode .jx-chat-list { border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-chat-item { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-chat-name { color: #eee; }
+  .phone-case.dark-mode .jx-chat-msg { color: #888; }
+  .phone-case.dark-mode .jx-bottom-nav { background: #1c1c1e; border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-contacts-block,
+  .phone-case.dark-mode .jx-contact-user { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-contact-name { color: #eee; }
+  .phone-case.dark-mode .jx-contact-letter { background: #1c1c1e; color: #999; }
+  .phone-case.dark-mode #jx-me { background: #121212; }
+  .phone-case.dark-mode .jx-me-profile,
+  .phone-case.dark-mode .jx-me-menu { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-me-name { color: #eee; }
+  .phone-case.dark-mode .jx-me-menu-item { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-me-menu-text { color: #ddd; }
+
+  .phone-case.dark-mode .jx-moments-user-info { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-moments-name { color: #eee; }
+  .phone-case.dark-mode .jx-moments-signature,
+  .phone-case.dark-mode .jx-moments-join-date,
+  .phone-case.dark-mode .jx-moments-post-count { color: #888; }
+  .phone-case.dark-mode .jx-moments-posts { background: #121212; }
+  .phone-case.dark-mode .jx-post { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-post-content { color: #ddd; }
+  .phone-case.dark-mode .jx-post-comments { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-comment-text { color: #ccc; }
+
+  .phone-case.dark-mode #jxChatScreen { background-color: #121212; }
+  .phone-case.dark-mode .jx-chat-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-chat-top-bar .title { color: #eee; }
+  .phone-case.dark-mode .jx-chat-top-bar .back-btn,
+  .phone-case.dark-mode .jx-chat-top-bar .more-btn { color: #ddd; }
+  .phone-case.dark-mode .jx-msg-row.other .jx-msg-bubble { background: #2c2c2e; color: #eee; }
+  .phone-case.dark-mode .jx-msg-row.other .jx-msg-bubble::before { border-right-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-chat-input-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-chat-input-bar input { background: #2c2c2e; color: #eee; }
+  .phone-case.dark-mode .jx-chat-input-bar .icon { fill: #ddd; }
+
+  .phone-case.dark-mode #jxChatInfoScreen { background: #121212; }
+  .phone-case.dark-mode .jx-info-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-info-top-bar .title { color: #eee; }
+  .phone-case.dark-mode .jx-info-top-bar .back-btn { color: #ddd; }
+  .phone-case.dark-mode .jx-info-block { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-info-item { color: #ddd; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-info-item .label { color: #ddd; }
+  .phone-case.dark-mode .jx-info-header-name { color: #eee; }
+  .phone-case.dark-mode .jx-info-header-block { border-bottom-color: #2c2c2e; }
+
+  .phone-case.dark-mode #worldBookSelectScreen { background: #121212; }
+  .phone-case.dark-mode #worldBookSelectList { background: #1c1c1e !important; }
+  .phone-case.dark-mode #wbSelectFooter { background: #1c1c1e !important; border-top-color: #2c2c2e !important; }
+  .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item { border-bottom-color: #2c2c2e !important; }
+  .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span { color: #eee; }
+
+  .phone-case.dark-mode .jx-modal-content,
+  .phone-case.dark-mode .jx-comment-modal-content { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-modal-content h3 { color: #eee; }
+  .phone-case.dark-mode .jx-modal-item { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-modal-item span { color: #eee; }
+  .phone-case.dark-mode .jx-modal-btn { background: #2c2c2e; color: #ddd; }
+  .phone-case.dark-mode .jx-comment-modal-content textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .jx-comment-modal-actions .cancel { background: #2c2c2e; color: #ddd; }
+
+  .phone-case.dark-mode #jxPublishScreen { background: #121212; }
+  .phone-case.dark-mode .publish-header { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .publish-header .publish-title { color: #eee; }
+  .phone-case.dark-mode .publish-body textarea { color: #eee; }
+  .phone-case.dark-mode .publish-options { background: #1c1c1e; }
+  .phone-case.dark-mode .publish-option-item { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .publish-option-item .label { color: #ddd; }
+  .phone-case.dark-mode .mention-item { background: #2c2c2e; color: #ddd; }
+  .phone-case.dark-mode .publish-add-image { background: #1c1c1e; border-color: #3a3a3c; }
+  .phone-case.dark-mode .app-edit-info input { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .app-edit-item { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .preset-input-row input,
+  .phone-case.dark-mode .preset-select-row select { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
 </style>
 </head>
 <body>
@@ -707,6 +902,11 @@
           <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：导出可以备份当前所有美化数据。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
         </div>
         <div class="section-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg> 夜间模式</h4>
+          <button class="btn btn-primary" id="darkModeToggleBtn" style="width:100%">开启夜间模式</button>
+          <p style="font-size: 12px; color: #666; margin-top: 8px;">一键切换所有界面的深色配色，适合在暗光环境下使用。</p>
+        </div>
+        <div class="section-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> 主页壁纸</h4>
           <div class="btn-row">
             <button class="btn btn-primary" id="changeWallpaperBtn">更换壁纸</button>
@@ -802,7 +1002,7 @@
             <button class="btn btn-outline-dark" id="testApiBtn">测试连接</button>
           </div>
           <div class="api-status" id="apiTestStatus"></div>
-          <p class="hint-text">提示：温度越高回复越随机发散，越低越稳定严谨；一般推荐 0.6 ~ 0.9。</p>
+          <p class="hint-text">提示：温度越高回复越随机发散，越低越稳定严谨；一般推荐 0.6 ~ 0.9。建议使用支持视觉的模型（如 gpt-4o），角色才能真正"看见"你发的图片。</p>
         </div>
         <div class="section-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> API 预设管理</h4>
@@ -941,7 +1141,8 @@
         <svg class="icon icon-voice" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
         <input type="text" id="jxChatInput" placeholder="输入消息..." onkeydown="if(event.key === 'Enter') sendMessage()">
         <svg class="icon icon-emoji" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
-        <svg class="icon icon-plus" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <svg class="icon icon-plus" viewBox="0 0 24 24" onclick="document.getElementById('jxChatImageInput').click()"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <input type="file" id="jxChatImageInput" accept="image/*" style="display: none;">
       </div>
     </div>
 
@@ -1034,7 +1235,7 @@
         <div id="worldBookSelectList" style="background: #fff; border-radius: 12px; padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);"></div>
       </div>
       <!-- 底部按钮 -->
-      <div style="padding: 16px; background: #fff; border-top: 1px solid #eee; position: absolute; bottom: 0; left: 0; right: 0;">
+      <div id="wbSelectFooter" style="padding: 16px; background: #fff; border-top: 1px solid #eee; position: absolute; bottom: 0; left: 0; right: 0;">
         <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px;" onclick="confirmWorldBookBinding()">确定绑定</button>
       </div>
     </div>
@@ -1634,6 +1835,20 @@
   fullscreenToggleBtn.addEventListener('click', () => { applyFullscreenState(!phoneCase.classList.contains('is-fullscreen'), true); });
   document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && phoneCase.classList.contains('is-fullscreen')) { applyFullscreenState(false, false); } });
 
+  // ---- 夜间模式 ----
+  function applyDarkMode(on) {
+    const pc = document.getElementById('phoneCase');
+    if (!pc) return;
+    pc.classList.toggle('dark-mode', !!on);
+    try { localStorage.setItem('dark_mode', on ? 'true' : 'false'); } catch(e){}
+    const btn = document.getElementById('darkModeToggleBtn');
+    if (btn) btn.innerText = on ? '关闭夜间模式' : '开启夜间模式';
+  }
+  applyDarkMode(localStorage.getItem('dark_mode') === 'true');
+  document.getElementById('darkModeToggleBtn').addEventListener('click', () => {
+    applyDarkMode(!document.getElementById('phoneCase').classList.contains('dark-mode'));
+  });
+
   function renderAppEditList() {
     const appEditList = document.getElementById('appEditList'); let html = '';
     appList.forEach(app => {
@@ -1662,7 +1877,7 @@
     for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key.startsWith('preset_')) { presetSelect.innerHTML += `<option value="${key.replace('preset_', '')}">${key.replace('preset_', '')}</option>`; } }
   }
   updatePresetList();
-  const isBackupKey = (key) => (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY || key === 'is_fullscreen' || key === 'api_config' || key.startsWith('api_preset_') || key.startsWith('moments_') || key === 'jianxun_chats' || key === 'jianxun_messages' || key === 'jianxun_settings');
+  const isBackupKey = (key) => (key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') || key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) || key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY || key === 'is_fullscreen' || key === 'dark_mode' || key === 'api_config' || key.startsWith('api_preset_') || key.startsWith('moments_') || key === 'jianxun_chats' || key === 'jianxun_messages' || key === 'jianxun_settings' || key === 'jx_awareness_log' || key === 'jx_wechat_id');
   document.getElementById('savePresetBtn').addEventListener('click', () => {
     const name = document.getElementById('presetNameInput').value.trim(); if (!name) return alert('请输入预设名称');
     const presetData = {}; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (isBackupKey(key)) { presetData[key] = localStorage.getItem(key); } }
@@ -1804,7 +2019,54 @@
   let jianxunChats = [];
   let currentChatId = null;
 
+  // ---------- 图片压缩工具 ----------
+  function compressImageFile(file, maxDim, quality) {
+    maxDim = maxDim || 900; quality = quality || 0.72;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            const scale = maxDim / Math.max(w, h);
+            w = Math.round(w * scale); h = Math.round(h * scale);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          try { resolve(canvas.toDataURL('image/jpeg', quality)); } catch (err) { resolve(e.target.result); }
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ---------- 感知日志（用户朋友圈 / 头像 等行为） ----------
+  const AWARENESS_KEY = 'jx_awareness_log';
+  function loadAwarenessLog() {
+    try { const v = JSON.parse(localStorage.getItem(AWARENESS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  function pushAwareness(text) {
+    try {
+      const log = loadAwarenessLog();
+      log.push({ time: Date.now(), text: text });
+      while (log.length > 30) log.shift();
+      localStorage.setItem(AWARENESS_KEY, JSON.stringify(log));
+    } catch (e) {}
+  }
+
+  function saveJianxunChats() {
+    try { localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats)); }
+    catch (e) { alert('存储空间不足，请删除一些聊天中的图片后重试'); }
+  }
+
   function openJianxunApp() {
+    loadPersonaList();
     openScreen('jianxunScreen');
     switchJianxunTab('jx-chats', document.querySelector('.jx-nav-item'));
     loadJianxunChats(); renderJianxunChatList(); loadMomentsData(); renderJianxunContacts(); renderMomentsPosts(); loadJxMeProfile();
@@ -1817,7 +2079,7 @@
     else {
       const navs = document.querySelectorAll('.jx-nav-item');
       if (tabId === 'jx-chats') navs[0].classList.add('active');
-      if (tabId === 'jx-moments') navs[1].classList.add('active');
+      if (tabId === 'jx-moments') { navs[1].classList.add('active'); loadMomentsPosts(); renderMomentsPosts(); }
       if (tabId === 'jx-contacts') { navs[2].classList.add('active'); renderJianxunContacts(); }
       if (tabId === 'jx-me') { navs[3].classList.add('active'); loadJxMeProfile(); }
     }
@@ -1835,17 +2097,15 @@
   }
   document.getElementById('jxMeAvatarInput').addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
+    compressImageFile(file, 400, 0.8).then((base64) => {
       document.getElementById('jxMeAvatarImg').src = base64;
       try { 
         localStorage.setItem('moments_avatar', base64); 
         if(document.getElementById('momentsAvatarImg')) document.getElementById('momentsAvatarImg').src = base64;
         renderJianxunChatList(); renderJianxunContacts(); renderMomentsPosts();
+        pushAwareness('用户更换了新的头像');
       } catch(err){ alert('图片过大'); }
-    };
-    reader.readAsDataURL(file);
+    });
   });
   document.getElementById('jxMeNameText').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -1907,6 +2167,8 @@
       if (chat.customRemark === undefined) chat.customRemark = '';
       if (chat.chatBg === undefined) chat.chatBg = '';
       if (chat.myAvatar === undefined) chat.myAvatar = '';
+      if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+      delete chat._replying;
       
       // 兼容旧数据：将绑定单个世界书的字符串转为数组
       if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') {
@@ -1930,8 +2192,9 @@
     list.innerHTML = sortedChats.map((chat) => {
       const avatarUrl = chat.avatar || '';
       const nameText = chat.customRemark || chat.name || defaultName;
-      const lastMsg = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content : '点击开始聊天';
-      return `<div class="jx-chat-item" onclick="openChat('${chat.id}')"><div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div><div class="jx-chat-info"><div class="jx-chat-info-top"><span class="jx-chat-name">${nameText}</span><span class="jx-chat-time">刚刚</span></div><span class="jx-chat-msg">${lastMsg}</span></div></div>`;
+      const lastMsg = chat.messages.length > 0 ? (chat.messages[chat.messages.length - 1].content || '[图片]') : '点击开始聊天';
+      const preview = lastMsg === '__typing__' ? '正在输入…' : lastMsg;
+      return `<div class="jx-chat-item" onclick="openChat('${chat.id}')"><div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div><div class="jx-chat-info"><div class="jx-chat-info-top"><span class="jx-chat-name">${escapeHtml(nameText)}</span><span class="jx-chat-time">刚刚</span></div><span class="jx-chat-msg">${escapeHtml(preview)}</span></div></div>`;
     }).join('');
   }
 
@@ -1949,7 +2212,7 @@
       document.getElementById('jxChatScreen').style.backgroundPosition = 'center';
     } else {
       document.getElementById('jxChatScreen').style.backgroundImage = 'none';
-      document.getElementById('jxChatScreen').style.backgroundColor = '#ededed';
+      document.getElementById('jxChatScreen').style.backgroundColor = '';
     }
     
     document.getElementById('jxChatScreen').classList.add('active');
@@ -1963,7 +2226,7 @@
     const container = document.getElementById('jxChatMessages');
     
     if (chat.messages.length === 0) {
-      container.innerHTML = `<div class="jx-chat-empty">开始和 ${chat.customRemark || chat.name || 'TA'} 聊天吧</div>`;
+      container.innerHTML = `<div class="jx-chat-empty">开始和 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 聊天吧</div>`;
       return;
     }
     
@@ -1972,12 +2235,22 @@
     container.innerHTML = chat.messages.map(msg => {
       const isMe = msg.role === 'me';
       const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
+      let inner = '';
+      let bubbleCls = 'jx-msg-bubble';
+      if (msg.content === '__typing__') {
+        inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
+      } else if (msg.type === 'image' && msg.image) {
+        bubbleCls += ' media';
+        inner = `<img src="${msg.image}" alt="图片" onclick="openImageViewer('${msg.image.replace(/'/g, "\\'")}')" style="cursor:pointer;">`;
+      } else {
+        inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
+      }
       return `
         <div class="jx-msg-row ${isMe ? 'me' : 'other'}">
           <div class="jx-msg-avatar">
             ${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
           </div>
-          <div class="jx-msg-bubble">${msg.content}</div>
+          <div class="${bubbleCls}">${inner}</div>
         </div>
       `;
     }).join('');
@@ -1985,6 +2258,20 @@
     setTimeout(() => { const msgContainer = document.getElementById('jxChatMessages'); if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight; }, 10);
   }
 
+  function openImageViewer(src) {
+    let overlay = document.getElementById('imgOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'imgOverlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;cursor:zoom-out;';
+      overlay.onclick = function() { overlay.style.display = 'none'; };
+      document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = '<img src="' + src + '" style="max-width:92%;max-height:92%;border-radius:8px;">';
+    overlay.style.display = 'flex';
+  }
+
+  // ---------- 发送文字消息 ----------
   function sendMessage() {
     const input = document.getElementById('jxChatInput');
     const content = input.value.trim();
@@ -1993,27 +2280,241 @@
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
-    chat.messages.push({ role: 'me', content: content });
+    chat.messages.push({ role: 'me', type: 'text', content: content });
     input.value = '';
     
-    localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+    saveJianxunChats();
     renderChatMessages();
-    
-    setTimeout(() => {
-      if (chat.allowActive) {
-        let replyCount = parseInt(chat.maxReply) || 1;
-        for (let i = 0; i < replyCount; i++) {
-          setTimeout(() => {
-            const replies = ["收到！", "嗯嗯，我明白了", "哈哈哈，你好有趣", "那然后呢？", "我正在想怎么回复你...", "确实是这样", "你说的很有道理", "我这边信号不太好，稍等..."];
-            const randomReply = replies[Math.floor(Math.random() * replies.length)];
-            chat.messages.push({ role: 'char', content: randomReply });
-            localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
-            renderChatMessages();
-            renderJianxunChatList();
-          }, i * 1000);
+    renderJianxunChatList();
+    triggerCharReply(chat);
+  }
+
+  // ---------- 发送图片消息 ----------
+  document.getElementById('jxChatImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0]; this.value = '';
+    if (!file) return;
+    const chat = jianxunChats.find(c => c.id === currentChatId);
+    if (!chat) return;
+    compressImageFile(file, 900, 0.72).then((base64) => {
+      chat.messages.push({ role: 'me', type: 'image', image: base64, content: '[图片]' });
+      chat.imagePool.push({ id: 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), data: base64, time: Date.now() });
+      if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
+      saveJianxunChats();
+      renderChatMessages();
+      renderJianxunChatList();
+      triggerCharReply(chat);
+    }).catch(() => alert('图片处理失败'));
+  });
+
+  // ---------- AI 回复 ----------
+  function buildWorldBookPrompt(chat) {
+    const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
+    const relevant = worldBookEntries.filter(e => e.enabled && (e.binding === 'global' || bound.includes(e.id)));
+    if (!relevant.length) return '';
+    return '\n【世界观 / 背景设定】\n' + relevant.map(e => e.content).join('\n\n') + '\n';
+  }
+
+  function buildCharSystemPrompt(chat) {
+    loadPersonaList();
+    const persona = personaList.find(p => p.name === chat.name);
+    let sp = '你正在扮演一个真实的角色，在一款类似微信的聊天软件"简讯"里和用户聊天。\n';
+    sp += '请始终以角色的身份、口吻、性格说话，不要暴露自己是AI，不要说"作为AI"之类的话。\n';
+    sp += '回复要简短自然，像真人发微信一样，一般1~3句话。\n\n';
+    sp += '【你的角色设定】\n';
+    sp += '名字：' + (chat.customRemark || chat.name || '未知') + '\n';
+    if (persona) {
+      if (persona.nickname) sp += '网名：' + persona.nickname + '\n';
+      if (persona.gender) sp += '性别：' + persona.gender + '\n';
+      if (persona.age) sp += '年龄：' + persona.age + '\n';
+      if (persona.details) sp += '详细设定：\n' + persona.details + '\n';
+    }
+    sp += buildWorldBookPrompt(chat);
+
+    if (chat.imagePool && chat.imagePool.length > 0) {
+      sp += '\n【用户曾发给你过的图片】（编号用于下面的动作标记）\n';
+      chat.imagePool.forEach((img, i) => {
+        const d = new Date(img.time);
+        sp += '图片' + (i + 1) + '：' + d.toLocaleString('zh-CN') + '\n';
+      });
+    }
+
+    sp += '\n【你可以执行的隐藏动作】\n';
+    sp += '当且仅当符合你的角色性格、并且当前对话情境非常自然时，你可以在回复中夹带以下特殊标记，系统会自动执行，用户看不到标记本身：\n';
+    sp += '1. 把用户发过的某张图片设置为你自己的聊天头像：[[SET_AVATAR:图片编号]]\n';
+    sp += '2. 发布一条朋友圈动态（可配图也可纯文字）：[[POST_MOMENT:动态文字|图片编号]]\n';
+    sp += '   不配图时写成 [[POST_MOMENT:动态文字|]]\n';
+    sp += '图片编号必须是上面【用户曾发给你过的图片】列表中存在的编号。\n';
+    sp += '这些动作要克制使用：只有真的符合人设和对话内容时才用，不要每句话都加，不要滥用。\n';
+    sp += '如果不需要执行动作，就正常回复即可。\n';
+
+    const log = loadAwarenessLog();
+    if (log.length > 0) {
+      sp += '\n【用户最近在朋友圈的动态】（你都知道，可以自然地在聊天中提起，但不必每次都提）\n';
+      log.slice(-10).forEach(e => { sp += '- ' + e.text + '\n'; });
+    }
+
+    sp += '\n现在，用户发来了消息，请以角色的身份自然回复。\n';
+    return sp;
+  }
+
+  function buildChatHistory(chat) {
+    const recent = chat.messages.filter(m => m.content !== '__typing__').slice(-16);
+    const imgIdxSet = new Set();
+    let cnt = 0;
+    for (let i = recent.length - 1; i >= 0; i--) {
+      if (recent[i].type === 'image' && cnt < 2) { imgIdxSet.add(i); cnt++; }
+    }
+    const result = [];
+    recent.forEach((m, i) => {
+      const role = m.role === 'me' ? 'user' : 'assistant';
+      let content;
+      if (m.type === 'image' && m.image) {
+        if (imgIdxSet.has(i)) {
+          content = [
+            { type: 'text', text: '[用户发来一张图片]' },
+            { type: 'image_url', image_url: { url: m.image } }
+          ];
+        } else {
+          content = '[图片]';
         }
+      } else {
+        content = m.content || '';
       }
-    }, 800);
+      const last = result[result.length - 1];
+      if (last && last.role === role && typeof last.content === 'string' && typeof content === 'string') {
+        last.content += '\n' + content;
+      } else {
+        result.push({ role: role, content: content });
+      }
+    });
+    return result;
+  }
+
+  async function callChatAPI(messages, systemPrompt, cfg) {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const body = {
+      model: cfg.model,
+      messages: [{ role: 'system', content: systemPrompt }].concat(messages),
+      temperature: cfg.temperature,
+      max_tokens: cfg.maxTokens
+    };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      let t = ''; try { t = await res.text(); } catch (e) {}
+      throw new Error('HTTP ' + res.status + ' ' + (t || '').slice(0, 160));
+    }
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (typeof c === 'string') return c;
+    if (Array.isArray(c)) return c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    return '';
+  }
+
+  // ---------- 解析并执行角色动作 ----------
+  function parseAndExecuteActions(chat, rawText) {
+    const re = /\[\[(SET_AVATAR|POST_MOMENT)\s*:\s*([\s\S]*?)\]\]/g;
+    const actions = [];
+    let m;
+    while ((m = re.exec(rawText)) !== null) {
+      actions.push({ type: m[1], payload: m[2] });
+    }
+    let clean = rawText.replace(re, '').replace(/\n{3,}/g, '\n\n').trim();
+    actions.forEach(a => { try { executeCharAction(chat, a); } catch (e) { console.warn('动作执行失败', e); } });
+    return clean;
+  }
+
+  function executeCharAction(chat, action) {
+    if (action.type === 'SET_AVATAR') {
+      const idx = parseInt(String(action.payload).trim(), 10) - 1;
+      const img = chat.imagePool && chat.imagePool[idx];
+      if (img && img.data) {
+        chat.avatar = img.data;
+      }
+      return;
+    }
+    if (action.type === 'POST_MOMENT') {
+      const parts = String(action.payload).split('|');
+      const text = (parts[0] || '').trim();
+      const numStr = (parts[1] || '').trim();
+      const imgs = [];
+      if (numStr) {
+        const idx = parseInt(numStr, 10) - 1;
+        const img = chat.imagePool && chat.imagePool[idx];
+        if (img && img.data) imgs.push(img.data);
+      }
+      if (!text && imgs.length === 0) return;
+      loadMomentsPosts();
+      momentsPosts.unshift({
+        id: 'post_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        content: text,
+        images: imgs,
+        time: '刚刚',
+        visibility: 'public',
+        mentions: [],
+        customVisibles: [],
+        liked: false,
+        comments: [],
+        author: chat.customRemark || chat.name || 'TA',
+        authorAvatar: chat.avatar || ''
+      });
+      saveMomentsPosts();
+    }
+  }
+
+  async function generateCharReply(chat) {
+    const cfg = loadApiConfig();
+    const useAI = cfg && cfg.endpoint && cfg.key && cfg.model;
+    if (!useAI) {
+      await new Promise(r => setTimeout(r, 500 + Math.random() * 700));
+      const replies = ["收到！", "嗯嗯，我明白了", "哈哈哈，你好有趣", "那然后呢？", "我正在想怎么回复你...", "确实是这样", "你说的很有道理", "我这边信号不太好，稍等..."];
+      return replies[Math.floor(Math.random() * replies.length)];
+    }
+    const systemPrompt = buildCharSystemPrompt(chat);
+    const history = buildChatHistory(chat);
+    let raw = '';
+    try {
+      raw = await callChatAPI(history, systemPrompt, cfg);
+    } catch (e) {
+      // 可能不支持图片输入，退回纯文本重试
+      const textHistory = history.map(m => ({
+        role: m.role,
+        content: typeof m.content === 'string' ? m.content : m.content.map(c => c.text || '[图片]').join(' ')
+      }));
+      raw = await callChatAPI(textHistory, systemPrompt, cfg);
+    }
+    const clean = parseAndExecuteActions(chat, raw);
+    return clean || raw;
+  }
+
+  async function triggerCharReply(chat) {
+    if (chat._replying) return;
+    chat._replying = true;
+    const typingId = 'typing_' + Date.now();
+    chat.messages.push({ id: typingId, role: 'char', type: 'text', content: '__typing__' });
+    renderChatMessages();
+    try {
+      const reply = await generateCharReply(chat);
+      const idx = chat.messages.findIndex(m => m.id === typingId);
+      if (idx >= 0) chat.messages.splice(idx, 1);
+      if (reply) chat.messages.push({ role: 'char', type: 'text', content: reply });
+    } catch (e) {
+      const idx = chat.messages.findIndex(m => m.id === typingId);
+      if (idx >= 0) chat.messages.splice(idx, 1);
+      chat.messages.push({ role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）' });
+    } finally {
+      chat._replying = false;
+      saveJianxunChats();
+      renderChatMessages();
+      renderJianxunChatList();
+      if (currentChatId === chat.id) {
+        const titleEl = document.getElementById('jxChatTitle');
+        if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
+      }
+    }
   }
 
   function closeChatScreen() {
@@ -2034,7 +2535,6 @@
     
     document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
     
-    // 显示绑定的局部世界书数量
     const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
     document.getElementById('jxWorldBookText').innerText = boundCount > 0 ? `已绑定 ${boundCount} 本` : '未绑定';
     
@@ -2058,7 +2558,7 @@
       document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
     }
     
-    localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+    saveJianxunChats();
     renderJianxunChatList();
   }
 
@@ -2071,7 +2571,7 @@
       if (num >= 1 && num <= 5) {
         chat.maxReply = num;
         document.getElementById('jxMaxReplyText').innerText = num + '句';
-        localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+        saveJianxunChats();
       } else {
         alert('请输入1到5之间的数字');
       }
@@ -2087,7 +2587,7 @@
       document.getElementById('jxInfoName').innerText = chat.customRemark;
       document.getElementById('jxRemarkText').innerText = chat.customRemark;
       document.getElementById('jxChatTitle').innerText = chat.customRemark;
-      localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+      saveJianxunChats();
       renderJianxunChatList();
     }
   }
@@ -2098,7 +2598,6 @@
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
 
-    // 过滤出局部世界书，全局世界书不显示
     const localEntries = worldBookEntries.filter(e => e.binding === 'local');
     const list = document.getElementById('worldBookSelectList');
     
@@ -2106,10 +2605,8 @@
       list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px;">暂无局部世界书<br>请先去世界书App中创建并设为“局部绑定”</div>';
     } else {
       list.innerHTML = localEntries.map(entry => {
-        // 检查是否已经绑定
         const isSelected = Array.isArray(chat.boundWorldBook) && chat.boundWorldBook.includes(entry.id);
         const bindingTag = `<span class="wb-modal-tag local">局部 · ${escapeHtml(entry.localTarget || '未指定')}</span>`;
-          
         return `
           <div class="jx-modal-item" onclick="toggleWorldBookSelection(this)" data-id="${entry.id}" style="justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 14px 0;">
             <div style="display:flex; align-items:center; overflow:hidden; flex:1;">
@@ -2125,20 +2622,15 @@
     document.getElementById('worldBookSelectScreen').classList.add('active');
   }
 
-  // 切换单个条目的选中状态
   function toggleWorldBookSelection(el) {
     const checkbox = el.querySelector('.wb-checkbox');
-    if (checkbox) {
-      checkbox.classList.toggle('checked');
-    }
+    if (checkbox) { checkbox.classList.toggle('checked'); }
   }
 
-  // 关闭全屏界面
   function closeWorldBookSelectScreen() {
     document.getElementById('worldBookSelectScreen').classList.remove('active');
   }
 
-  // 确认绑定
   function confirmWorldBookBinding() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
@@ -2151,11 +2643,9 @@
       }
     });
     
-    // 保存选中的ID数组
     chat.boundWorldBook = selectedIds;
-    localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+    saveJianxunChats();
     
-    // 更新聊天详情界面的显示
     document.getElementById('jxWorldBookText').innerText = selectedIds.length > 0 ? `已绑定 ${selectedIds.length} 本` : '未绑定';
     
     closeWorldBookSelectScreen();
@@ -2166,19 +2656,16 @@
     input.type = 'file'; input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
+      compressImageFile(file, 400, 0.8).then((base64) => {
         const chat = jianxunChats.find(c => c.id === currentChatId);
         if (chat) {
           chat.avatar = base64;
           document.getElementById('jxInfoAvatarImg').src = base64;
-          localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+          saveJianxunChats();
           renderJianxunChatList();
           renderChatMessages();
         }
-      };
-      reader.readAsDataURL(file);
+      });
     };
     input.click();
   }
@@ -2188,17 +2675,14 @@
     input.type = 'file'; input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
+      compressImageFile(file, 400, 0.8).then((base64) => {
         const chat = jianxunChats.find(c => c.id === currentChatId);
         if (chat) {
           chat.myAvatar = base64;
-          localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+          saveJianxunChats();
           renderChatMessages();
         }
-      };
-      reader.readAsDataURL(file);
+      });
     };
     input.click();
   }
@@ -2208,19 +2692,16 @@
     input.type = 'file'; input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const base64 = ev.target.result;
+      compressImageFile(file, 1000, 0.7).then((base64) => {
         const chat = jianxunChats.find(c => c.id === currentChatId);
         if (chat) {
           chat.chatBg = base64;
-          localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+          saveJianxunChats();
           document.getElementById('jxChatScreen').style.backgroundImage = `url(${base64})`;
           document.getElementById('jxChatScreen').style.backgroundSize = 'cover';
           document.getElementById('jxChatScreen').style.backgroundPosition = 'center';
         }
-      };
-      reader.readAsDataURL(file);
+      });
     };
     input.click();
   }
@@ -2230,7 +2711,7 @@
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (chat) {
       chat.messages = [];
-      localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+      saveJianxunChats();
       renderChatMessages();
       renderJianxunChatList();
       closeChatInfo();
@@ -2240,7 +2721,7 @@
   function deleteChat() {
     if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
     jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
-    localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+    saveJianxunChats();
     closeChatInfo();
     closeChatScreen();
     renderJianxunChatList();
@@ -2249,7 +2730,7 @@
   function showPersonaSelector() {
     loadPersonaList(); const modal = document.getElementById('personaSelectorModal'); const list = document.getElementById('personaSelectorList');
     if (personaList.length === 0) { list.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:13px;">人设App中暂无数据<br>请先去添加人设</div>'; } 
-    else { list.innerHTML = personaList.map((p, i) => `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">${p.avatar ? `<img src="${p.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}<span>${p.name || '未命名'}</span></div>`).join(''); }
+    else { list.innerHTML = personaList.map((p, i) => `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">${p.avatar ? `<img src="${p.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}<span>${escapeHtml(p.name || '未命名')}</span></div>`).join(''); }
     modal.classList.add('show');
   }
   function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
@@ -2268,9 +2749,10 @@
       customRemark: '',
       boundWorldBook: [],
       chatBg: '',
-      myAvatar: ''
+      myAvatar: '',
+      imagePool: []
     });
-    localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
+    saveJianxunChats();
     renderJianxunChatList(); closePersonaSelector();
   }
 
@@ -2282,14 +2764,20 @@
     const avatar = localStorage.getItem('moments_avatar'); if (avatar) { document.getElementById('momentsAvatarImg').src = avatar; }
   }
   document.getElementById('momentsBgInput').addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
-    reader.onload = (ev) => { const base64 = ev.target.result; document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${base64})`; try { localStorage.setItem('moments_bg', base64); } catch(err){ alert('图片过大'); } };
-    reader.readAsDataURL(file);
+    const file = e.target.files[0]; if (!file) return;
+    compressImageFile(file, 1200, 0.72).then((base64) => {
+      document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${base64})`;
+      try { localStorage.setItem('moments_bg', base64); } catch(err){ alert('图片过大'); }
+    });
   });
   document.getElementById('momentsAvatarInput').addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
-    reader.onload = (ev) => { const base64 = ev.target.result; document.getElementById('momentsAvatarImg').src = base64; try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); } renderMomentsPosts(); };
-    reader.readAsDataURL(file);
+    const file = e.target.files[0]; if (!file) return;
+    compressImageFile(file, 400, 0.8).then((base64) => {
+      document.getElementById('momentsAvatarImg').src = base64;
+      try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); }
+      renderMomentsPosts();
+      pushAwareness('用户更换了新的头像');
+    });
   });
 
   function initEditableTexts() {
@@ -2314,23 +2802,56 @@
   let momentsPosts = []; let tempPostImages = [];
   function loadMomentsPosts() { const data = localStorage.getItem('moments_posts'); if (data) { try { momentsPosts = JSON.parse(data); } catch(e) { momentsPosts = []; } } else { momentsPosts = []; } if (!Array.isArray(momentsPosts)) momentsPosts = []; }
   function saveMomentsPosts() { try { localStorage.setItem('moments_posts', JSON.stringify(momentsPosts)); } catch(e) { alert('存储空间可能已满，图片过大'); } }
+
   function renderMomentsPosts() {
     loadMomentsPosts(); const container = document.getElementById('jx-moments-posts');
     document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
     const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+    const myAvatar = localStorage.getItem('moments_avatar') || '';
     if (momentsPosts.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">暂无动态</div>'; return; }
     container.innerHTML = momentsPosts.map(post => {
-      let imagesHtml = ''; if (post.images && post.images.length > 0) { imagesHtml = `<div class="jx-post-images">${post.images.map(img => `<img src="${img}">`).join('')}</div>`; }
+      const isChar = !!post.author;
+      const authorName = post.author || currentName;
+      const authorAvatar = isChar ? (post.authorAvatar || '') : myAvatar;
+      let imagesHtml = ''; if (post.images && post.images.length > 0) { imagesHtml = `<div class="jx-post-images">${post.images.map(img => `<img src="${img}" onclick="openImageViewer('${img.replace(/'/g, "\\'")}')">`).join('')}</div>`; }
       let mentionsHtml = ''; if (post.mentions && post.mentions.length > 0) { mentionsHtml = `<div style="font-size:12px; color:#576b95; margin-top:4px;">@ ${post.mentions.join('、')}</div>`; }
-      let commentsHtml = ''; if (post.comments && post.comments.length > 0) { commentsHtml = `<div class="jx-post-comments">${post.comments.map(c => `<div class="jx-comment-item"><span class="jx-comment-user">${c.user}：</span><span class="jx-comment-text">${c.text}</span></div>`).join('')}</div>`; }
+      let commentsHtml = ''; if (post.comments && post.comments.length > 0) { commentsHtml = `<div class="jx-post-comments">${post.comments.map(c => `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}：</span><span class="jx-comment-text">${escapeHtml(c.text)}</span></div>`).join('')}</div>`; }
       let visibilityIcon = ''; let visibilityText = '';
       if (post.visibility === 'private') { visibilityIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>`; visibilityText = '仅自己可见'; } 
       else if (post.visibility === 'custom') { visibilityIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`; visibilityText = '部分可见'; } 
       else { visibilityIcon = `<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>`; visibilityText = '公开'; }
       const deleteBtnIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-      return `<div class="jx-post"><div class="jx-post-header"><div class="jx-post-avatar"><img src="${localStorage.getItem('moments_avatar') || ''}" style="width:100%; height:100%; object-fit:cover;"></div><div class="jx-post-user">${escapeHtml(currentName)}</div></div><div class="jx-post-content">${post.content}</div>${imagesHtml}${mentionsHtml}<div class="jx-post-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;"><span class="jx-post-visibility" style="display: flex; align-items: center; color: #ccc; font-size: 11px;">${visibilityIcon} ${visibilityText}</span><span class="jx-post-delete-btn" onclick="deletePost('${post.id}')" style="display: flex; align-items: center; color: #ccc; font-size: 12px; cursor: pointer;">${deleteBtnIcon} 删除</span></div>${commentsHtml}</div>`;
+      return `<div class="jx-post">
+        <div class="jx-post-header">
+          <div class="jx-post-avatar">${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : ''}</div>
+          <div class="jx-post-user">${escapeHtml(authorName)}</div>
+        </div>
+        <div class="jx-post-content">${escapeHtml(post.content || '')}</div>
+        ${imagesHtml}${mentionsHtml}
+        <div class="jx-post-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+          <span class="jx-post-visibility" style="display:flex; align-items:center; color:#ccc; font-size:11px;">${visibilityIcon} ${visibilityText}</span>
+          <div class="jx-post-actions" style="display:flex; align-items:center; gap:16px;">
+            <svg viewBox="0 0 24 24" class="${post.liked ? 'liked' : ''}" onclick="toggleLike('${post.id}')"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <svg viewBox="0 0 24 24" onclick="openCommentModal('${post.id}')"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+            <span class="jx-post-delete-btn" onclick="deletePost('${post.id}')" style="display:flex; align-items:center; color:#ccc; font-size:12px; cursor:pointer;">${deleteBtnIcon} 删除</span>
+          </div>
+        </div>
+        ${commentsHtml}
+      </div>`;
     }).join('');
   }
+
+  function toggleLike(postId) {
+    loadMomentsPosts();
+    const post = momentsPosts.find(p => p.id === postId);
+    if (!post) return;
+    post.liked = !post.liked;
+    if (post.liked) {
+      pushAwareness('用户点赞了' + (post.author ? ('「' + post.author + '」') : '') + '的一条朋友圈动态：' + (post.content || '[图片]').slice(0, 30));
+    }
+    saveMomentsPosts(); renderMomentsPosts();
+  }
+
   function openPublishScreen() {
     loadPersonaList(); document.getElementById('jxPublishScreen').classList.add('active'); document.getElementById('publishContent').value = ''; tempPostImages = [];
     document.getElementById('publishImagesContainer').innerHTML = `<div class="publish-add-image" style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">+<input type="file" id="publishImageInput" accept="image/*" multiple style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;"></div>`;
@@ -2338,21 +2859,20 @@
     document.getElementById('publishImageInput').addEventListener('change', handlePublishImageSelect);
     const mentionList = document.getElementById('publishMentionList'); const customList = document.getElementById('publishCustomList');
     if (personaList.length === 0) { mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>'; customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>'; } 
-    else { const buildList = (container) => { container.innerHTML = personaList.map((p, i) => `<div class="mention-item" onclick="toggleMention(this, '${p.name}')">${p.name || '未命名'}</div>`).join(''); }; buildList(mentionList); buildList(customList); }
+    else { const buildList = (container) => { container.innerHTML = personaList.map((p) => `<div class="mention-item" onclick="toggleMention(this, '${escapeHtml(p.name || '未命名')}')">${escapeHtml(p.name || '未命名')}</div>`).join(''); }; buildList(mentionList); buildList(customList); }
   }
   function closePublishScreen() { document.getElementById('jxPublishScreen').classList.remove('active'); }
-  function toggleMention(el, name) { el.classList.toggle('selected'); }
+  function toggleMention(el) { el.classList.toggle('selected'); }
   function toggleCustomVisibility() { document.getElementById('publishCustomVisibility').style.display = document.getElementById('publishVisibility').value === 'custom' ? 'block' : 'none'; }
   function handlePublishImageSelect(e) {
     const files = e.target.files; if (!files) return;
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        tempPostImages.push(ev.target.result); const container = document.getElementById('publishImagesContainer'); const addBtn = container.querySelector('.publish-add-image');
-        const imgWrapper = document.createElement('div'); imgWrapper.className = 'publish-image-item'; imgWrapper.innerHTML = `<img src="${ev.target.result}"><div class="remove-img" onclick="removePublishImage(this, ${tempPostImages.length - 1})">×</div>`; container.insertBefore(imgWrapper, addBtn);
-      };
-      reader.readAsDataURL(files[i]);
-    }
+    Array.from(files).forEach(file => {
+      compressImageFile(file, 900, 0.72).then((base64) => {
+        tempPostImages.push(base64);
+        const container = document.getElementById('publishImagesContainer'); const addBtn = container.querySelector('.publish-add-image');
+        const imgWrapper = document.createElement('div'); imgWrapper.className = 'publish-image-item'; imgWrapper.innerHTML = `<img src="${base64}"><div class="remove-img" onclick="removePublishImage(this, ${tempPostImages.length - 1})">×</div>`; container.insertBefore(imgWrapper, addBtn);
+      });
+    });
     e.target.value = '';
   }
   function removePublishImage(el, index) {
@@ -2370,18 +2890,29 @@
     const mentions = Array.from(document.querySelectorAll('#publishMentionList .mention-item.selected')).map(el => el.innerText);
     const customVisibles = Array.from(document.querySelectorAll('#publishCustomList .mention-item.selected')).map(el => el.innerText);
     const newPost = { id: 'post_' + Date.now(), content: content, images: [...tempPostImages], time: '刚刚', visibility: visibility, mentions: mentions, customVisibles: customVisibles, liked: false, comments: [] };
+    loadMomentsPosts();
     momentsPosts.unshift(newPost); saveMomentsPosts(); renderMomentsPosts(); closePublishScreen();
+
+    pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
+
     if (mentions.length > 0) { setTimeout(() => { const post = momentsPosts.find(p => p.id === newPost.id); if (post) { post.comments.push({ user: mentions[0], text: '收到！我会看的~' }); saveMomentsPosts(); renderMomentsPosts(); } }, 1500); alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态。`); } 
     else { alert('发布成功！'); }
   }
-  function deletePost(postId) { if (!confirm('确定要删除这条动态吗？')) return; momentsPosts = momentsPosts.filter(p => p.id !== postId); saveMomentsPosts(); renderMomentsPosts(); }
+  function deletePost(postId) { if (!confirm('确定要删除这条动态吗？')) return; loadMomentsPosts(); const target = momentsPosts.find(p => p.id === postId); momentsPosts = momentsPosts.filter(p => p.id !== postId); saveMomentsPosts(); renderMomentsPosts(); pushAwareness('用户删除了一条朋友圈动态' + (target && target.content ? '："' + target.content.slice(0, 30) + '"' : '')); }
   let currentCommentPostId = null;
   function openCommentModal(postId) { currentCommentPostId = postId; document.getElementById('commentContent').value = ''; document.getElementById('jxCommentModal').classList.add('show'); }
   function closeCommentModal() { document.getElementById('jxCommentModal').classList.remove('show'); }
   function sendComment() {
     const text = document.getElementById('commentContent').value.trim(); if (!text) return;
-    const currentName = localStorage.getItem('moments_name') || 'Koi Buono'; const post = momentsPosts.find(p => p.id === currentCommentPostId);
-    if (post) { if (!post.comments) post.comments = []; post.comments.push({ user: currentName, text: text }); saveMomentsPosts(); renderMomentsPosts(); closeCommentModal(); }
+    const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+    loadMomentsPosts();
+    const post = momentsPosts.find(p => p.id === currentCommentPostId);
+    if (post) { 
+      if (!post.comments) post.comments = []; 
+      post.comments.push({ user: currentName, text: text }); 
+      saveMomentsPosts(); renderMomentsPosts(); closeCommentModal(); 
+      pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
+    }
   }
 </script>
 
