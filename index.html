@@ -432,33 +432,33 @@
 
   /* ================= 朋友圈 (按照最新要求排版) ================= */
   .jx-moments-header {
-    position: relative; height: 180px; background: #121212; overflow: hidden;
+    position: relative; height: 180px; background: #121212;
+    /* 移除 overflow: hidden，确保头像可以完全显示出来 */
   }
   .jx-moments-bg-btn {
     position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15);
     color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
   }
-  /* 头像下移，卡在黑色和白色区域的交界处 */
+  /* 头像：完全显示，往上提，增加 z-index 盖在白底上 */
   .jx-moments-avatar {
-    position: absolute; bottom: -40px; right: 24px;
+    position: absolute; bottom: -30px; right: 24px;
     width: 80px; height: 80px; border-radius: 50%; background: #000; overflow: hidden;
     flex-shrink: 0; cursor: pointer; border: 2px solid #fff;
     z-index: 10;
   }
   .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* 白色信息区域：增宽增高，避开下沉的头像 */
+  /* 白色信息区域：减少内边距，去掉最小高度，整体变窄变紧凑 */
   .jx-moments-user-info {
-    padding: 60px 24px 24px 24px; /* 上边距给头像留空间 */
+    padding: 40px 24px 16px 24px; /* 给头像留出空间，但整体更紧凑 */
     border-bottom: 1px solid #f0f0f0;
     background: #fff;
     position: relative;
-    min-height: 150px; /* 增高 */
   }
-  /* 信息纵向排列 */
-  .jx-moments-name { font-size: 22px; font-weight: 600; margin-bottom: 8px; color: #333; }
-  .jx-moments-signature { font-size: 13px; color: #666; margin-bottom: 16px; }
-  .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 6px; }
+  /* 信息纵向排列，名字和签名上移 */
+  .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #333; }
+  .jx-moments-signature { font-size: 13px; color: #666; margin-bottom: 8px; }
+  .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 4px; }
   .jx-moments-post-count { font-size: 12px; color: #999; }
 
   .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
@@ -1053,14 +1053,14 @@
         <div class="jx-moments-header" id="jxMomentsHeader">
           <button class="jx-moments-bg-btn" onclick="document.getElementById('momentsBgInput').click()">点击更换背景</button>
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
-          <!-- 头像绝对定位，下移卡在交界处 -->
+          <!-- 头像绝对定位，在黑色和白色交界处，不设 overflow: hidden 以完整显示 -->
           <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
             <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3C/svg%3E" alt="avatar">
             <input type="file" id="momentsAvatarInput" accept="image/*" style="display: none;">
           </div>
         </div>
         
-        <!-- 白色个人信息区域：增宽增高，包含所有文字 -->
+        <!-- 白色个人信息区域：变窄变紧凑，名字、签名、时间、帖子数量纵向排列 -->
         <div class="jx-moments-user-info">
           <div class="jx-moments-name editable-text" id="momentsName" data-placeholder="点击输入网名">你最近过得还好吗？</div>
           <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
