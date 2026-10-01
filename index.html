@@ -451,7 +451,9 @@
   /* 头像：基于白色区域定位，向上突出 40px，完美卡在交界处，不会被裁剪 */
   .jx-moments-avatar {
     position: absolute; top: -40px; right: 24px;
-    width: 80px; height: 80px; border-radius: 50%; background: #000; overflow: hidden;
+    width: 80px; height: 80px; border-radius: 50%; 
+    background: #f0f0f0; /* 修改为浅灰色，避免黑边 */
+    overflow: hidden;
     flex-shrink: 0; cursor: pointer; border: 2px solid #fff;
     z-index: 10;
   }
@@ -1061,7 +1063,7 @@
         <div class="jx-moments-user-info">
           <!-- 头像放在这里，绝对定位 top:-40px，不会被任何容器裁剪 -->
           <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
-            <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23000'/%3E%3C/svg%3E" alt="avatar">
+            <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="avatar">
             <input type="file" id="momentsAvatarInput" accept="image/*" style="display: none;">
           </div>
           
