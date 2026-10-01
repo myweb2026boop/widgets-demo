@@ -430,9 +430,9 @@
   .jx-chat-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
   .jx-chat-icon { width: 14px; height: 14px; fill: #b2b2b2; }
 
-  /* ================= 朋友圈 (P2 & P4 完全复刻) ================= */
+  /* ================= 朋友圈 (P2 & P3 完全复刻) ================= */
   .jx-moments-header {
-    position: relative; height: 320px; background: #121212; overflow: hidden;
+    position: relative; height: 240px; background: #121212; overflow: hidden;
     display: flex; align-items: flex-end; padding: 20px; justify-content: flex-end;
   }
   .jx-moments-bg-btn {
@@ -440,31 +440,20 @@
     color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
   }
   .jx-moments-profile { display: flex; align-items: flex-end; gap: 16px; }
-  .jx-moments-profile-info { text-align: right; color: #fff; padding-bottom: 4px; }
-  .jx-moments-name { font-size: 22px; font-weight: 600; margin-bottom: 6px; color: #fff; }
+  .jx-moments-profile-info { text-align: right; color: #fff; padding-bottom: 6px; }
+  .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 6px; color: #fff; }
   .jx-moments-signature { font-size: 13px; color: #ddd; }
   .jx-moments-avatar {
-    width: 76px; height: 76px; border-radius: 14px; background: #f8bbd0; overflow: hidden;
+    width: 76px; height: 76px; border-radius: 50%; background: #f8bbd0; overflow: hidden;
     border: 3px solid #fff; flex-shrink: 0; cursor: pointer;
   }
   .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   .jx-moments-user-info { padding: 20px 16px; border-bottom: 1px solid #f0f0f0; }
-  .jx-moments-status { font-size: 20px; color: #333; font-weight: bold; margin-bottom: 8px; }
-  .jx-moments-quote { font-size: 14px; color: #666; margin-bottom: 12px; }
   .jx-moments-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #999; }
   .jx-moments-filter-btn { background: none; border: 1px solid #ddd; border-radius: 12px; padding: 4px 12px; color: #666; font-size: 12px; }
 
-  .jx-moments-posts { padding: 16px; background: #fff; }
-  .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; }
-  .jx-post:last-child { border-bottom: none; }
-  .jx-post-header { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: flex-start; }
-  .jx-post-user { font-size: 16px; color: #576b95; font-weight: 600; }
-  .jx-post-avatar { width: 40px; height: 40px; border-radius: 8px; background: #f8bbd0; }
-  .jx-post-content { font-size: 16px; color: #333; line-height: 1.7; margin-bottom: 12px; white-space: pre-wrap; }
-  .jx-post-footer { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #b2b2b2; }
-  .jx-post-actions { display: flex; gap: 16px; }
-  .jx-post-actions svg { width: 18px; height: 18px; fill: #b2b2b2; }
+  .jx-moments-posts { padding: 16px; background: #fff; min-height: 200px; }
 
   /* ================= 通讯录 (P5 完全复刻) ================= */
   .jx-contacts-header {
@@ -1041,15 +1030,15 @@
         </div>
       </div>
 
-      <!-- 页面2：朋友圈 (完全复刻P2 & P4) -->
+      <!-- 页面2：朋友圈 (完全复刻P3) -->
       <div id="jx-moments" class="jx-tab-content">
         <div class="jx-moments-header" id="jxMomentsHeader">
           <button class="jx-moments-bg-btn" onclick="document.getElementById('momentsBgInput').click()">点击更换背景</button>
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
           <div class="jx-moments-profile">
             <div class="jx-moments-profile-info">
-              <div class="jx-moments-name" id="momentsName">Koi Buono</div>
-              <div class="jx-moments-signature" id="momentsSignature">点击设置个性签名...</div>
+              <div class="jx-moments-name editable-text" id="momentsName" data-placeholder="点击输入网名">你最近过得还好吗？</div>
+              <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
             </div>
             <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
               <img id="momentsAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f8bbd0'/%3E%3Ccircle cx='50' cy='50' r='25' fill='%23f48fb1' opacity='0.6'/%3E%3C/svg%3E" alt="avatar">
@@ -1058,34 +1047,17 @@
           </div>
         </div>
         
-        <!-- p4 的个人信息区 -->
+        <!-- 个人资料区 -->
         <div class="jx-moments-user-info">
-          <div class="jx-moments-status">你最近过的还好吗</div>
-          <div class="jx-moments-quote">人在接近幸福的时候才最幸福</div>
           <div class="jx-moments-meta">
             <span>📅 2026年9月21日 加入</span>
-            <span>帖子数量 1</span>
+            <span>帖子数量 0</span>
             <button class="jx-moments-filter-btn">过滤器</button>
           </div>
         </div>
 
-        <!-- 动态列表 -->
-        <div class="jx-moments-posts">
-          <div class="jx-post">
-            <div class="jx-post-header">
-              <div class="jx-post-user" id="postName">Koi Buono</div>
-              <div class="jx-post-avatar" id="postAvatar"></div>
-            </div>
-            <div class="jx-post-content">和你的关系太淡太浅太轻了，好像只消一阵风便能吹散，但是我想留住你，想留住一切和你有关的联系，哪怕是 槐序捧冰春杪培花，哪怕是狗尾续貂草宣上强添的惨淡一笔，我也想和你久一点、再久一点</div>
-            <div class="jx-post-footer">
-              <span>1天前</span>
-              <div class="jx-post-actions">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- 朋友圈动态区（空） -->
+        <div class="jx-moments-posts" id="jx-moments-posts"></div>
       </div>
 
       <!-- 页面3：通讯录 (完全复刻P5) -->
@@ -1337,24 +1309,24 @@
     // 背景图
     const bg = localStorage.getItem('moments_bg');
     if (bg) document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${bg})`;
+    else document.getElementById('jxMomentsHeader').style.backgroundImage = 'none'; // 默认黑色背景
 
     // 名字
     const name = localStorage.getItem('moments_name');
     if (name) {
       document.getElementById('momentsName').innerText = name;
-      document.getElementById('postName').innerText = name;
     }
 
     // 签名
     const sig = localStorage.getItem('moments_sig');
-    if (sig) document.getElementById('momentsSignature').innerText = sig;
+    if (sig) {
+      document.getElementById('momentsSignature').innerText = sig;
+    }
 
     // 头像
     const avatar = localStorage.getItem('moments_avatar');
     if (avatar) {
       document.getElementById('momentsAvatarImg').src = avatar;
-      document.getElementById('postAvatar').style.backgroundImage = `url(${avatar})`;
-      document.getElementById('postAvatar').style.backgroundSize = 'cover';
     }
   }
 
@@ -1376,11 +1348,17 @@
     reader.onload = (ev) => {
       const base64 = ev.target.result;
       document.getElementById('momentsAvatarImg').src = base64;
-      document.getElementById('postAvatar').style.backgroundImage = `url(${base64})`;
-      document.getElementById('postAvatar').style.backgroundSize = 'cover';
       try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); }
     };
     reader.readAsDataURL(file);
+  });
+
+  // 绑定双击编辑保存 (名字和签名)
+  document.getElementById('momentsName').addEventListener('blur', function() {
+    localStorage.setItem('moments_name', this.innerText.trim() || '你最近过得还好吗？');
+  });
+  document.getElementById('momentsSignature').addEventListener('blur', function() {
+    localStorage.setItem('moments_sig', this.innerText.trim() || '人在接近幸福的时候才最幸福');
   });
 
   // ================= 本地存储数据初始化 =================
@@ -1422,7 +1400,9 @@
     document.querySelectorAll('.editable-text').forEach(el => {
       const key = 'edit_' + el.id;
       const savedValue = localStorage.getItem(key);
-      if (savedValue) el.innerText = savedValue;
+      if (savedValue && el.id !== 'momentsName' && el.id !== 'momentsSignature') {
+        el.innerText = savedValue;
+      }
 
       el.addEventListener('dblclick', function() {
         this.contentEditable = "true"; this.focus();
@@ -1435,7 +1415,15 @@
           finalText = this.getAttribute('data-placeholder') || '点击输入';
           this.innerText = finalText;
         }
-        try { localStorage.setItem(key, finalText); } catch(e){}
+        try { 
+          if (this.id === 'momentsName') {
+            localStorage.setItem('moments_name', finalText);
+          } else if (this.id === 'momentsSignature') {
+            localStorage.setItem('moments_sig', finalText);
+          } else {
+            localStorage.setItem(key, finalText); 
+          }
+        } catch(e){}
       });
     });
   }
