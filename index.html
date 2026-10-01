@@ -433,13 +433,13 @@
   /* ================= 朋友圈 (完全复刻P2) ================= */
   .jx-moments-header {
     position: relative; height: 180px; background: #121212;
-    /* 黑色背景区域，不再设置 overflow: hidden，因为头像已移出 */
+    cursor: pointer; /* 点击背景图即可更换 */
+    background-size: cover; /* 自适应缩放填满，解决图片被放大无法显示完整的问题 */
+    background-position: center;
+    background-repeat: no-repeat;
   }
-  .jx-moments-bg-btn {
-    position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15);
-    color: #fff; border: none; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer;
-  }
-  
+  /* 移除了之前的按钮CSS，因为按钮已经删了 */
+
   /* 白色信息区域：变窄变紧凑，名字、签名、时间、帖子数量纵向排列 */
   .jx-moments-user-info {
     position: relative; /* 为绝对定位的头像提供参考 */
@@ -1052,8 +1052,8 @@
       <!-- 页面2：朋友圈 (按照最新要求排版) -->
       <div id="jx-moments" class="jx-tab-content">
         <!-- 黑色背景区 -->
-        <div class="jx-moments-header" id="jxMomentsHeader">
-          <button class="jx-moments-bg-btn" onclick="document.getElementById('momentsBgInput').click()">点击更换背景</button>
+        <div class="jx-moments-header" id="jxMomentsHeader" onclick="document.getElementById('momentsBgInput').click()">
+          <!-- 移除按钮，点击整个区域触发更换 -->
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
         </div>
         
@@ -1325,8 +1325,11 @@
   function loadMomentsData() {
     // 背景图
     const bg = localStorage.getItem('moments_bg');
-    if (bg) document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${bg})`;
-    else document.getElementById('jxMomentsHeader').style.backgroundImage = 'none'; // 默认黑色背景
+    if (bg) {
+      document.getElementById('jxMomentsHeader').style.backgroundImage = `url(${bg})`;
+    } else {
+      document.getElementById('jxMomentsHeader').style.backgroundImage = 'none'; // 默认黑色背景
+    }
 
     // 名字
     const name = localStorage.getItem('moments_name');
