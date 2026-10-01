@@ -321,7 +321,7 @@
   .jx-contact-name { font-size: 16px; color: #333; }
   .jx-contact-sub { font-size: 12px; color: #999; margin-top: 2px; }
 
-  /* ================= “我” 界面专属样式 (P2风格) ================= */
+  /* ================= “我” 界面专属样式 ================= */
   #jx-me { background: #f7f7f7; }
   .jx-me-profile { background: #fff; display: flex; align-items: center; padding: 20px 16px; margin-bottom: 12px; }
   .jx-me-avatar { width: 64px; height: 64px; border-radius: 12px; overflow: hidden; margin-right: 16px; background: #f0f0f0; flex-shrink: 0; cursor: pointer; }
@@ -392,6 +392,27 @@
   .jx-switch.on::after { left: 22px; }
   .jx-danger-text { color: #e74c3c; }
   .jx-danger-item .label { color: #e74c3c; }
+
+  /* ================= 弹窗 ================= */
+  .jx-comment-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 20000; display: none; }
+  .jx-comment-modal.show { display: flex; }
+  .jx-comment-modal-content { background: #fff; width: 80%; max-width: 320px; border-radius: 12px; padding: 20px; }
+  .jx-comment-modal-content textarea { width: 100%; height: 80px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; }
+  .jx-comment-modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+  .jx-comment-modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .jx-comment-modal-actions .cancel { background: #f0f0f0; color: #333; }
+  .jx-comment-modal-actions .send { background: #07c160; color: #fff; }
+
+  .jx-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; display: none; }
+  .jx-modal.show { display: flex; }
+  .jx-modal-content { background: #fff; width: 80%; max-width: 320px; border-radius: 12px; padding: 20px; text-align: center; max-height: 70vh; display: flex; flex-direction: column; }
+  .jx-modal-content h3 { font-size: 16px; margin-bottom: 15px; color: #333; }
+  .jx-modal-list { flex: 1; overflow-y: auto; margin-bottom: 15px; text-align: left; }
+  .jx-modal-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .jx-modal-item:last-child { border-bottom: none; }
+  .jx-modal-item img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .jx-modal-item span { font-size: 15px; color: #333; }
+  .jx-modal-btn { margin-top: 10px; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; font-weight: 500; color: #333; }
 </style>
 </head>
 <body>
@@ -1824,7 +1845,6 @@
     const upper = firstChar.toUpperCase(); return /[A-Z]/.test(upper) ? upper : '#';
   }
 
-  // 通讯录只使用人设自己的头像，不再使用“我”的头像作为兜底
   function renderJianxunContacts() {
     loadPersonaList(); const list = document.getElementById('jxContactList'); if (!list) return;
     const defaultName = localStorage.getItem('moments_name') || 'Koi Buono';
@@ -1858,7 +1878,6 @@
     });
   }
 
-  // 聊天列表只使用人设自己的头像，不再使用“我”的头像作为兜底
   function renderJianxunChatList() {
     const list = document.getElementById('jxChatList'); if (!list) return;
     const defaultName = localStorage.getItem('moments_name') || 'Koi Buono';
@@ -1881,13 +1900,9 @@
     const chat = jianxunChats[index];
     if (!chat) return;
     
-    // 设置标题
     document.getElementById('jxChatTitle').innerText = chat.customRemark || chat.name || '聊天';
-    
-    // 渲染聊天记录
     renderChatMessages();
     
-    // 设置背景
     if (chat.chatBg) {
       document.getElementById('jxChatScreen').style.backgroundImage = `url(${chat.chatBg})`;
       document.getElementById('jxChatScreen').style.backgroundSize = 'cover';
@@ -1897,14 +1912,9 @@
       document.getElementById('jxChatScreen').style.backgroundColor = '#ededed';
     }
     
-    // 显示聊天界面
     document.getElementById('jxChatScreen').classList.add('active');
     document.getElementById('jxChatInput').value = '';
-    // 滚动到底部
-    setTimeout(() => {
-      const msgContainer = document.getElementById('jxChatMessages');
-      if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
-    }, 50);
+    setTimeout(() => { const msgContainer = document.getElementById('jxChatMessages'); if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight; }, 50);
   }
 
   // 渲染聊天消息
@@ -1919,7 +1929,6 @@
     }
     
     const myAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
-    const myName = localStorage.getItem('moments_name') || 'Koi Buono';
     
     container.innerHTML = chat.messages.map(msg => {
       const isMe = msg.role === 'me';
@@ -1934,11 +1943,7 @@
       `;
     }).join('');
     
-    // 滚动到底部
-    setTimeout(() => {
-      const msgContainer = document.getElementById('jxChatMessages');
-      if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
-    }, 10);
+    setTimeout(() => { const msgContainer = document.getElementById('jxChatMessages'); if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight; }, 10);
   }
 
   // 发送消息
@@ -1950,17 +1955,14 @@
     const chat = jianxunChats[currentChatIndex];
     if (!chat) return;
     
-    // 添加用户消息
     chat.messages.push({ role: 'me', content: content });
     input.value = '';
     
-    // 保存
     localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
     renderChatMessages();
     
     // 触发AI回复 (模拟)
     setTimeout(() => {
-      // 检查是否允许主动发消息
       if (chat.allowActive) {
         let replyCount = parseInt(chat.maxReply) || 1;
         for (let i = 0; i < replyCount; i++) {
@@ -1970,7 +1972,7 @@
             chat.messages.push({ role: 'char', content: randomReply });
             localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
             renderChatMessages();
-            renderJianxunChatList(); // 刷新列表预览
+            renderJianxunChatList();
           }, i * 1000);
         }
       }
@@ -1980,8 +1982,8 @@
   // 关闭聊天界面
   function closeChatScreen() {
     document.getElementById('jxChatScreen').classList.remove('active');
-    renderJianxunChatList(); // 刷新列表
-    loadJianxunChats(); // 重新加载数据
+    renderJianxunChatList();
+    loadJianxunChats();
   }
 
   // 打开聊天详情界面 (P2)
@@ -1989,15 +1991,12 @@
     const chat = jianxunChats[currentChatIndex];
     if (!chat) return;
     
-    // 渲染详情界面
     document.getElementById('jxInfoAvatarImg').src = chat.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
     document.getElementById('jxInfoName').innerText = chat.customRemark || chat.name || '用户';
     
-    // 开关状态
     document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
     document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
     
-    // 备注和世界书
     document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
     document.getElementById('jxWorldBookText').innerText = chat.boundWorldBook || '未绑定';
     document.getElementById('jxMaxReplyText').innerText = (chat.maxReply || 1) + '句';
@@ -2016,14 +2015,12 @@
     if (!chat) return;
     chat[key] = !chat[key];
     
-    // 更新UI
     if (key === 'allowActive') {
       document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
     } else if (key === 'pinned') {
       document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
     }
     
-    // 保存并刷新列表
     localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
     renderJianxunChatList();
   }
@@ -2062,14 +2059,12 @@
 
   // 绑定世界书
   function bindWorldBook() {
-    loadWorldBook(); // 确保数据最新
+    loadWorldBook();
     const chat = jianxunChats[currentChatIndex];
     if (!chat) return;
     
     let options = "请选择要绑定的世界书（输入编号）：\n0. 不绑定\n";
-    worldBookEntries.forEach((entry, index) => {
-      options += `${index + 1}. ${entry.name}\n`;
-    });
+    worldBookEntries.forEach((entry, index) => { options += `${index + 1}. ${entry.name}\n`; });
     
     const currentIndex = worldBookEntries.findIndex(e => e.name === chat.boundWorldBook);
     const val = prompt(options, currentIndex >= 0 ? String(currentIndex + 1) : '0');
@@ -2093,8 +2088,7 @@
   // 更换Char头像
   function changeChatAvatar() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    input.type = 'file'; input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
@@ -2105,8 +2099,8 @@
           chat.avatar = base64;
           document.getElementById('jxInfoAvatarImg').src = base64;
           localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
-          renderJianxunChatList(); // 刷新列表头像
-          renderChatMessages(); // 刷新聊天头像
+          renderJianxunChatList();
+          renderChatMessages();
         }
       };
       reader.readAsDataURL(file);
@@ -2117,8 +2111,7 @@
   // 换我的头像（仅本聊天）
   function changeMyChatAvatar() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    input.type = 'file'; input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
@@ -2128,7 +2121,7 @@
         if (chat) {
           chat.myAvatar = base64;
           localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
-          renderChatMessages(); // 刷新聊天头像
+          renderChatMessages();
         }
       };
       reader.readAsDataURL(file);
@@ -2139,8 +2132,7 @@
   // 设置当前聊天背景
   function changeChatBg() {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    input.type = 'file'; input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
@@ -2169,7 +2161,7 @@
       localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
       renderChatMessages();
       renderJianxunChatList();
-      closeChatInfo(); // 退回聊天界面
+      closeChatInfo();
     }
   }
 
@@ -2178,9 +2170,9 @@
     if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
     jianxunChats.splice(currentChatIndex, 1);
     localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
-    closeChatInfo(); // 关闭详情
-    closeChatScreen(); // 关闭聊天
-    renderJianxunChatList(); // 刷新列表
+    closeChatInfo();
+    closeChatScreen();
+    renderJianxunChatList();
   }
 
   function showPersonaSelector() {
