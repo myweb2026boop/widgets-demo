@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>TuTooth</title>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<!-- 新增：拼音转换库 pinyin-pro -->
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -1377,6 +1379,27 @@
     `).join('');
   }
 
+  // ================= 获取首字母辅助函数 =================
+  function getFirstLetter(name) {
+    if (!name) return '#';
+    const firstChar = name.charAt(0);
+    
+    // 尝试使用 pinyin-pro 进行拼音转换
+    if (typeof pinyinPro !== 'undefined') {
+      try {
+        const pinyin = pinyinPro.pinyin(firstChar, { pattern: 'first', toneType: 'none' });
+        const letter = pinyin.charAt(0).toUpperCase();
+        if (/[A-Z]/.test(letter)) return letter;
+      } catch(e) {
+        console.warn("pinyin-pro 解析失败，使用降级方案", e);
+      }
+    }
+    
+    // 降级方案：如果是英文字母，直接返回大写
+    const upper = firstChar.toUpperCase();
+    return /[A-Z]/.test(upper) ? upper : '#';
+  }
+
   // ================= 渲染通讯录 (基于人设App数据，按首字母A-Z排序) =================
   function renderJianxunContacts() {
     loadPersonaList(); // 确保获取最新人设
@@ -1388,12 +1411,11 @@
       return;
     }
 
-    // 按名字首字母排序分组
+    // 按名字拼音首字母排序分组
     const grouped = {};
     personaList.forEach(p => {
       const name = p.name || '未命名';
-      const firstChar = name.charAt(0).toUpperCase();
-      const letter = /[A-Z]/.test(firstChar) ? firstChar : '#';
+      const letter = getFirstLetter(name);
       if (!grouped[letter]) grouped[letter] = [];
       grouped[letter].push({...p, name});
     });
@@ -1406,8 +1428,8 @@
     });
 
     list.innerHTML = sortedLetters.map(letter => {
-      // 对同一组内的名字进行字母排序
-      const users = grouped[letter].sort((a, b) => a.name.localeCompare(b.name));
+      // 对同一组内的名字进行拼音排序
+      const users = grouped[letter].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
       return `
         <div class="jx-contact-letter">${letter}</div>
         ${users.map(u => `
