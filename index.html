@@ -9,159 +9,159 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #EDE7DF; color: #3A3532;
+    background-color: #e5e5e5; color: #333;
     display: flex; justify-content: center; align-items: center;
     min-height: 100vh; overflow: hidden;
   }
 
   .phone-case {
     width: 100%; max-width: 400px; height: 800px; max-height: 95vh;
-    background-color: #FAF7F2; border-radius: 40px;
-    box-shadow: 0 15px 40px rgba(120, 100, 80, 0.18);
+    background-color: #fff; border-radius: 40px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
     overflow: hidden; position: relative; transition: all 0.3s ease;
   }
   .phone-case.is-fullscreen { max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; box-shadow: none; }
-  .phone-content { width: 100%; height: 100%; position: relative; background-color: #FAF7F2; }
+  .phone-content { width: 100%; height: 100%; position: relative; background-color: #fff; }
 
-  .screen { display: none; width: 100%; height: 100%; overflow-y: auto; position: absolute; top: 0; left: 0; background: #FAF7F2; }
+  .screen { display: none; width: 100%; height: 100%; overflow-y: auto; position: absolute; top: 0; left: 0; background: #fff; }
   .screen::-webkit-scrollbar { display: none; }
   .screen.active { display: block; }
 
   .icon-svg { width: 16px; height: 16px; fill: currentColor; display: inline-block; vertical-align: middle; margin-right: 4px; }
 
   /* ============ 1. 主屏幕 ============ */
-  #mainScreen { padding: 20px 0; background: #FAF7F2; }
+  #mainScreen { padding: 20px 0; }
   .container { width: 100%; max-width: 400px; padding: 0 16px; margin: 0 auto; }
-  .top-nav { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #A67B5B; margin-bottom: 16px; font-weight: 500; }
-  .top-nav .divider { color: #D5CCC0; font-weight: 300; }
-  .captcha-box { border: 1px solid #E8E0D5; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center; background-color: #FFFCF7; margin-bottom: 12px; position: relative; overflow: hidden; cursor: pointer; }
+  .top-nav { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #4b7bec; margin-bottom: 16px; font-weight: 500; }
+  .top-nav .divider { color: #c8d6e5; font-weight: 300; }
+  .captcha-box { border: 1px solid #e1e1e1; border-radius: 6px; height: 150px; display: flex; align-items: center; justify-content: center; background-color: #fff; margin-bottom: 12px; position: relative; overflow: hidden; cursor: pointer; }
   .captcha-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
-  .input-box { border: 1px solid #E8E0D5; border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #B7AC9F; background-color: #FFFCF7; margin-bottom: 16px; }
-  .input-box svg { width: 20px; height: 20px; stroke: #B7AC9F; }
+  .input-box { border: 1px solid #e1e1e1; border-radius: 6px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #b0b0b0; background-color: #fff; margin-bottom: 16px; }
+  .input-box svg { width: 20px; height: 20px; stroke: #b0b0b0; }
   .widget-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 12px; text-align: center; align-items: center; }
   .widget-item { display: flex; flex-direction: column; align-items: center; }
-  .icon-box { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; overflow: hidden; }
+  .icon-box { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; overflow: hidden; }
   .icon-box svg { width: 30px; height: 30px; }
-  .icon-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: block; }
-  .widget-label { font-size: 12px; color: #4A423C; margin-top: 4px; }
-  .bg-pink { background-color: #F2D9D9; }
-  .bg-green { background-color: #7FA878; }
-  .bg-yellow { background-color: #E5C68A; }
-  .bg-blue { background-color: #D9CCC1; }
-  .bg-purple { background-color: #C9B6BF; }
-  .bg-skyblue { background-color: #C4CFC7; }
-  .bg-pink2 { background-color: #E0BFC1; }
-  .bg-lightpink { background-color: #E8D2CE; }
+  .icon-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; display: block; }
+  .widget-label { font-size: 12px; color: #2d3436; margin-top: 4px; }
+  .bg-pink { background-color: #fde8ed; }
+  .bg-green { background-color: #5cb85c; }
+  .bg-yellow { background-color: #fdd835; }
+  .bg-blue { background-color: #e3f2fd; }
+  .bg-purple { background-color: #e1bee7; }
+  .bg-skyblue { background-color: #bbdefb; }
+  .bg-pink2 { background-color: #f8bbd0; }
+  .bg-lightpink { background-color: #fce4ec; }
   .empty-cell { opacity: 0; pointer-events: none; }
 
-  .icon-box.uploadable-icon { width: 100%; aspect-ratio: 1 / 1; height: auto; border-radius: 20px; cursor: pointer; margin-bottom: 0; background-color: #F5EFE8; }
+  .icon-box.uploadable-icon { width: 100%; aspect-ratio: 1 / 1; height: auto; border-radius: 20px; cursor: pointer; margin-bottom: 0; }
   .icon-box.uploadable-icon svg { width: 55%; height: 55%; }
   .icon-box.uploadable-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; }
-  .pig-icon { width: 110px; height: 110px; border-radius: 20px; cursor: pointer; transform: translateY(60px); background-color: #F5EFE8; }
+  .pig-icon { width: 110px; height: 110px; border-radius: 20px; cursor: pointer; transform: translateY(60px); }
   .pig-icon svg { width: 55%; height: 55%; }
   .pig-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: none; }
 
   /* ============ 2. 音乐主页 ============ */
-  #musicScreen { background: #FAF7F2; padding-bottom: 120px; }
+  #musicScreen { background: #f8f9fa; padding-bottom: 120px; }
   .music-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: transparent; position: relative; z-index: 10; }
-  .music-top-bar svg { width: 24px; height: 24px; cursor: pointer; fill: #4A423C; }
-  .music-bg-area { height: 180px; position: relative; background: #EFE8DF; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; cursor: pointer; }
+  .music-top-bar svg { width: 24px; height: 24px; cursor: pointer; fill: #333; }
+  .music-bg-area { height: 180px; position: relative; background: #eef0f3; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; cursor: pointer; }
   .profile-card {
-    background: #FFFFFF; border-radius: 20px; margin: -30px 16px 16px 16px; padding: 16px; position: relative; z-index: 5;
-    box-shadow: 0 4px 20px rgba(120, 100, 80, 0.08);
+    background: #fff; border-radius: 20px; margin: -30px 16px 16px 16px; padding: 16px; position: relative; z-index: 5;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   }
   .profile-header { display: flex; align-items: center; margin-bottom: 16px; }
-  .avatar-box { width: 60px; height: 60px; border-radius: 50%; background: #F5EFE8; display: flex; align-items: center; justify-content: center; margin-right: 12px; overflow: hidden; cursor: pointer; flex-shrink: 0; }
+  .avatar-box { width: 60px; height: 60px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: 12px; overflow: hidden; cursor: pointer; flex-shrink: 0; }
   .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-  .avatar-box svg { width: 30px; height: 30px; fill: #C7BBAE; }
+  .avatar-box svg { width: 30px; height: 30px; fill: #ccc; }
   .profile-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-  .profile-info h2 { font-size: 18px; color: #3A3532; display: inline-block; }
-  .profile-info p { font-size: 12px; color: #8A8178; display: block; }
-  .edit-btn { background: #F5EFE8; border: none; border-radius: 12px; padding: 6px 12px; font-size: 12px; color: #5C534A; cursor: pointer; }
-  .stats-row { display: flex; justify-content: space-around; padding-top: 12px; border-top: 1px solid #F0EAE1; text-align: center; }
+  .profile-info h2 { font-size: 18px; color: #333; display: inline-block; }
+  .profile-info p { font-size: 12px; color: #666; display: block; }
+  .edit-btn { background: #f0f0f0; border: none; border-radius: 12px; padding: 6px 12px; font-size: 12px; color: #333; cursor: pointer; }
+  .stats-row { display: flex; justify-content: space-around; padding-top: 12px; border-top: 1px solid #f0f0f0; text-align: center; }
   .stat-item { display: flex; flex-direction: column; align-items: center; }
-  .stat-item .num { font-size: 16px; font-weight: bold; color: #3A3532; min-width: 20px; }
-  .stat-item .label { font-size: 11px; color: #A79B8E; margin-top: 2px; }
-  .music-list-card { background: #FFFFFF; border-radius: 20px; margin: 0 16px 16px 16px; padding: 16px; box-shadow: 0 4px 20px rgba(120, 100, 80, 0.08); }
+  .stat-item .num { font-size: 16px; font-weight: bold; color: #333; min-width: 20px; }
+  .stat-item .label { font-size: 11px; color: #999; margin-top: 2px; }
+  .music-list-card { background: #fff; border-radius: 20px; margin: 0 16px 16px 16px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
   .music-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .music-list-header h3 { font-size: 16px; color: #3A3532; }
-  .upload-btn { background: #FFFCF7; border: 1px solid #E8E0D5; border-radius: 12px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: #5C534A; }
-  .upload-btn svg { width: 14px; height: 14px; fill: #5C534A; }
-  .music-list-empty { text-align: center; padding: 40px 0; color: #A79B8E; font-size: 14px; }
+  .music-list-header h3 { font-size: 16px; color: #333; }
+  .upload-btn { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px; cursor: pointer; color: #333; }
+  .upload-btn svg { width: 14px; height: 14px; fill: #333; }
+  .music-list-empty { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
   .music-player-bar {
     position: absolute; bottom: 20px; left: 16px; right: 16px; height: 70px; 
-    background: #FFFFFF; border-radius: 20px;
+    background: #fff; border-radius: 20px;
     display: flex; align-items: center; padding: 0 16px; z-index: 20;
-    box-shadow: 0 4px 20px rgba(120, 100, 80, 0.12); cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1); cursor: pointer;
   }
-  .bar-cover { width: 44px; height: 44px; border-radius: 8px; background: #F5EFE8; margin-right: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
-  .bar-cover svg { width: 20px; height: 20px; fill: #C7BBAE; }
+  .bar-cover { width: 44px; height: 44px; border-radius: 8px; background: #f0f0f0; margin-right: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .bar-cover svg { width: 20px; height: 20px; fill: #ccc; }
   .bar-info { flex: 1; }
-  .bar-info .title { font-size: 14px; font-weight: 500; color: #3A3532; margin-bottom: 2px; display: block; }
-  .bar-info .subtitle { font-size: 11px; color: #A79B8E; display: block; }
+  .bar-info .title { font-size: 14px; font-weight: 500; color: #333; margin-bottom: 2px; display: block; }
+  .bar-info .subtitle { font-size: 11px; color: #999; display: block; }
   .bar-controls { display: flex; align-items: center; gap: 16px; }
-  .bar-controls svg { width: 24px; height: 24px; fill: #4A423C; cursor: pointer; }
+  .bar-controls svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
 
   /* ============ 3. 全屏播放器 ============ */
-  #playerScreen { background: #FAF7F2; color: #3A3532; padding: 16px; }
+  #playerScreen { background: #fff; color: #333; padding: 16px; }
   .player-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; margin-bottom: 20px; }
-  .player-top-bar svg { width: 24px; height: 24px; fill: #4A423C; cursor: pointer; }
+  .player-top-bar svg { width: 24px; height: 24px; fill: #333; cursor: pointer; }
   .vinyl-container { display: flex; justify-content: center; align-items: center; margin: 30px 0 40px 0; }
   .vinyl-disc {
-    width: 300px; height: 300px; border-radius: 50%; background: #2B2622;
+    width: 300px; height: 300px; border-radius: 50%; background: #111;
     position: relative; display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 0 60px rgba(120, 100, 80, 0.28);
+    box-shadow: 0 0 60px rgba(0,0,0,0.4);
     animation: spin 20s linear infinite; animation-play-state: paused;
   }
   @keyframes spin { 100% { transform: rotate(360deg); } }
   .vinyl-ring-2, .vinyl-ring-3 { width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
   .vinyl-center {
-    width: 220px; height: 220px; border-radius: 50%; background: #6B5F55;
+    width: 220px; height: 220px; border-radius: 50%; background: #555;
     overflow: hidden; cursor: pointer; position: relative;
     display: flex; justify-content: center; align-items: center;
-    border: 2px solid #FAF7F2;
+    border: 2px solid #fff;
   }
   .vinyl-center img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display: block; }
-  .vinyl-center svg { width: 40px; height: 40px; fill: #FAF7F2; opacity: 0.5; position: absolute; pointer-events: none; }
+  .vinyl-center svg { width: 40px; height: 40px; fill: #fff; opacity: 0.5; position: absolute; pointer-events: none; }
   .player-info { text-align: center; margin-bottom: 30px; }
-  .player-info h2 { font-size: 20px; font-weight: 600; color: #3A3532; margin-bottom: 6px; }
-  .player-info p { font-size: 14px; color: #A79B8E; }
+  .player-info h2 { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 6px; }
+  .player-info p { font-size: 14px; color: #999; }
   .player-tools { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-bottom: 20px; }
-  .player-tools svg { width: 22px; height: 22px; fill: #4A423C; cursor: pointer; }
-  .progress-area { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; font-size: 12px; color: #A79B8E; }
-  .progress-bar-container { flex: 1; height: 4px; background: #E8E0D5; border-radius: 2px; position: relative; cursor: pointer; }
-  .progress-bar-fill { height: 100%; background: #A67B5B; border-radius: 2px; width: 0%; position: relative; }
-  .progress-bar-fill::after { content: ''; position: absolute; right: -6px; top: -4px; width: 12px; height: 12px; background: #A67B5B; border-radius: 50%; }
+  .player-tools svg { width: 22px; height: 22px; fill: #333; cursor: pointer; }
+  .progress-area { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; font-size: 12px; color: #999; }
+  .progress-bar-container { flex: 1; height: 4px; background: #e0e0e0; border-radius: 2px; position: relative; cursor: pointer; }
+  .progress-bar-fill { height: 100%; background: #333; border-radius: 2px; width: 0%; position: relative; }
+  .progress-bar-fill::after { content: ''; position: absolute; right: -6px; top: -4px; width: 12px; height: 12px; background: #333; border-radius: 50%; }
   .player-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; margin-top: 20px; }
-  .player-controls svg { width: 28px; height: 28px; fill: #4A423C; cursor: pointer; }
-  .play-pause-btn { width: 60px; height: 60px; background: #A67B5B; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-  .play-pause-btn svg { width: 28px; height: 28px; fill: #FFFFFF; }
+  .player-controls svg { width: 28px; height: 28px; fill: #333; cursor: pointer; }
+  .play-pause-btn { width: 60px; height: 60px; background: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+  .play-pause-btn svg { width: 28px; height: 28px; fill: #fff; }
 
   /* ============ 4. 人设界面 ============ */
-  #personaScreen { background: #FAF7F2; padding-bottom: 30px; }
-  .persona-header { display: flex; align-items: center; padding: 16px; background: #FFFFFF; border-bottom: 1px solid #EFE8DF; position: sticky; top: 0; z-index: 10; }
-  .persona-header .back-btn { background: none; border: none; color: #A67B5B; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
-  .persona-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; color: #3A3532; }
+  #personaScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .persona-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+  .persona-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
+  .persona-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
   .persona-body { padding: 16px; }
   .persona-toolbar { display: flex; gap: 10px; margin-bottom: 16px; }
-  .persona-toolbar .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
-  .btn-primary { background: #A67B5B; color: #FFFCF7; }
-  .btn-outline { background: #FFFFFF; border: 1px solid #A67B5B; color: #A67B5B; }
+  .persona-toolbar .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
+  .btn-primary { background: #4b7bec; color: #fff; }
+  .btn-outline { background: #fff; border: 1px solid #4b7bec; color: #4b7bec; }
   .persona-list { display: flex; flex-direction: column; gap: 12px; }
   .persona-card {
-    background: #FFFFFF; border-radius: 14px; padding: 16px;
+    background: #fff; border-radius: 12px; padding: 16px;
     display: flex; align-items: center; gap: 12px;
-    box-shadow: 0 2px 8px rgba(120, 100, 80, 0.05); cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer;
     transition: transform 0.2s;
   }
   .persona-card:active { transform: scale(0.98); }
-  .persona-card .avatar { width: 50px; height: 50px; border-radius: 50%; background: #F5EFE8; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .persona-card .avatar { width: 50px; height: 50px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .persona-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .persona-card .avatar svg { width: 24px; height: 24px; fill: #C7BBAE; }
+  .persona-card .avatar svg { width: 24px; height: 24px; fill: #ccc; }
   .persona-card .info { flex: 1; overflow: hidden; }
-  .persona-card .info h4 { font-size: 15px; color: #3A3532; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-card .info h4 { font-size: 15px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .persona-card .info p { 
-    font-size: 12px; color: #A79B8E; 
+    font-size: 12px; color: #999; 
     white-space: pre-wrap;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -169,133 +169,150 @@
     overflow: hidden;
     line-height: 1.4;
   }
-  .persona-card .arrow { color: #D5CCC0; font-size: 20px; }
+  .persona-card .arrow { color: #ccc; font-size: 20px; }
 
-  .persona-edit-view { display: none; background: #FFFFFF; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(120, 100, 80, 0.05); }
+  .persona-edit-view { display: none; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
   .persona-edit-view.active { display: block; }
   .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 13px; color: #7A6F63; margin-bottom: 6px; }
-  .form-group input, .form-group textarea { width: 100%; border: 1px solid #E8E0D5; border-radius: 10px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; background: #FFFCF7; color: #3A3532; }
-  .form-group input:focus, .form-group textarea:focus { border-color: #A67B5B; }
-  .form-group select { width: 100%; border: 1px solid #E8E0D5; border-radius: 10px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; background: #FFFCF7; color: #3A3532; }
-  .form-group select:focus { border-color: #A67B5B; }
+  .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+  .form-group input, .form-group textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
+  .form-group input:focus, .form-group textarea:focus { border-color: #4b7bec; }
+  .form-group select { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; background: #fff; }
+  .form-group select:focus { border-color: #4b7bec; }
   .form-group textarea { height: 180px; resize: vertical; white-space: pre-wrap; word-wrap: break-word; line-height: 1.5; }
-  .form-group input[type="range"] { padding: 0; height: 28px; border: none; background: transparent; }
+  .form-group input[type="range"] { padding: 0; height: 28px; }
 
-  input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; width: 100%; }
-  input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: #E8E0D5; border-radius: 3px; }
-  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -6px; width: 18px; height: 18px; background: #A67B5B; border-radius: 50%; box-shadow: 0 2px 4px rgba(120, 100, 80, 0.25); }
-  input[type="range"]::-moz-range-track { height: 6px; background: #E8E0D5; border-radius: 3px; }
-  input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #A67B5B; border-radius: 50%; border: none; box-shadow: 0 2px 4px rgba(120, 100, 80, 0.25); }
-
-  .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #F5EFE8; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #EFE8DF; }
+  .avatar-edit-box { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 10px auto; border: 2px solid #eee; }
   .avatar-edit-box img { width: 100%; height: 100%; object-fit: cover; }
-  .avatar-edit-box svg { width: 30px; height: 30px; fill: #C7BBAE; }
+  .avatar-edit-box svg { width: 30px; height: 30px; fill: #ccc; }
   .form-row { display: flex; gap: 10px; }
   .form-row .form-group { flex: 1; }
   .form-actions { display: flex; gap: 10px; margin-top: 20px; }
-  .form-actions .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; }
-  .btn-save { background: #A67B5B; color: #FFFCF7; }
-  .btn-delete { background: #C98A82; color: #FFFFFF; }
-  .btn-cancel { background: #F0EAE1; color: #5C534A; }
+  .form-actions .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-save { background: #4b7bec; color: #fff; }
+  .btn-delete { background: #ff4757; color: #fff; }
+  .btn-cancel { background: #f0f0f0; color: #333; }
 
-  .empty-state { text-align: center; padding: 40px 0; color: #A79B8E; font-size: 14px; }
+  .empty-state { text-align: center; padding: 40px 0; color: #999; font-size: 14px; }
 
   /* ============ 5. 美化界面 ============ */
-  #beautifyScreen { background: #FAF7F2; padding-bottom: 30px; }
-  .beautify-header { display: flex; align-items: center; padding: 16px; background: #FFFFFF; border-bottom: 1px solid #EFE8DF; position: sticky; top: 0; z-index: 10; }
-  .beautify-header .back-btn { background: none; border: none; color: #A67B5B; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
-  .beautify-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; color: #3A3532; }
+  #beautifyScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .beautify-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+  .beautify-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
+  .beautify-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
   .beautify-body { padding: 16px; }
-  .section-card { background: #FFFFFF; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(120, 100, 80, 0.05); }
-  .section-card h4 { font-size: 15px; color: #3A3532; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .section-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+  .section-card h4 { font-size: 15px; color: #333; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .btn-row { display: flex; gap: 10px; }
-  .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
-  .btn-primary { background: #A67B5B; color: #FFFCF7; }
-  .btn-danger { background: #C98A82; color: #FFFFFF; }
-  .btn-success { background: #8FA886; color: #FFFFFF; }
-  .highlight-card { border: 1.5px solid #C4A484; background: #FAF3EC; }
-  .highlight-card h4 { color: #8D6748; }
-  .app-edit-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #F5EFE8; }
+  .btn { flex: 1; padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; }
+  .btn-primary { background: #4b7bec; color: #fff; }
+  .btn-danger { background: #ff4757; color: #fff; }
+  .btn-success { background: #2ecc71; color: #fff; }
+  .highlight-card { border: 2px solid #4b7bec; background: #f0f6ff; }
+  .highlight-card h4 { color: #4b7bec; }
+  .app-edit-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
   .app-edit-item:last-child { border-bottom: none; }
-  .app-edit-preview { width: 44px; height: 44px; border-radius: 10px; background: #F5EFE8; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; margin-right: 12px; flex-shrink: 0; }
+  .app-edit-preview { width: 44px; height: 44px; border-radius: 10px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; margin-right: 12px; flex-shrink: 0; }
   .app-edit-preview img { width: 100%; height: 100%; object-fit: cover; display: none; }
   .app-edit-preview svg { width: 24px; height: 24px; }
   .app-edit-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-  .app-edit-info input { border: 1px solid #E8E0D5; border-radius: 8px; padding: 6px 10px; font-size: 13px; width: 100%; outline: none; background: #FFFCF7; color: #3A3532; }
+  .app-edit-info input { border: 1px solid #ddd; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; outline: none; }
   .app-edit-actions { display: flex; flex-direction: column; gap: 4px; margin-left: 8px; }
-  .app-edit-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 6px; cursor: pointer; background: #F5EFE8; color: #A67B5B; white-space: nowrap; }
+  .app-edit-actions button { font-size: 11px; padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; background: #eef2ff; color: #4b7bec; white-space: nowrap; }
   .preset-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
-  .preset-input-row input { flex: 1; padding: 8px 12px; border: 1px solid #E8E0D5; border-radius: 8px; font-size: 13px; outline: none; background: #FFFCF7; color: #3A3532; }
+  .preset-input-row input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; }
   .preset-select-row { display: flex; gap: 8px; }
-  .preset-select-row select { flex: 1; padding: 8px 12px; border: 1px solid #E8E0D5; border-radius: 8px; font-size: 13px; outline: none; background: #FFFCF7; color: #3A3532; }
+  .preset-select-row select { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; background: #fff; }
 
   /* ============ 6. 世界书界面 ============ */
-  #worldBookScreen { background: #FAF7F2; padding-bottom: 30px; }
-  .worldbook-header { display: flex; align-items: center; padding: 16px; background: #FFFFFF; border-bottom: 1px solid #EFE8DF; position: sticky; top: 0; z-index: 10; }
-  .worldbook-header .back-btn { background: none; border: none; color: #A67B5B; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
-  .worldbook-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; color: #3A3532; }
+  #worldBookScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .worldbook-header { display: flex; align-items: center; padding: 16px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+  .worldbook-header .back-btn { background: none; border: none; color: #4b7bec; font-size: 16px; cursor: pointer; padding: 4px 8px; font-weight: 500; }
+  .worldbook-header h3 { flex: 1; text-align: center; font-size: 17px; font-weight: 600; padding-right: 48px; }
   .worldbook-body { padding: 16px; }
   .wb-stats-bar {
     display: flex; justify-content: space-between; align-items: center;
-    background: #FFFFFF; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(120, 100, 80, 0.05); font-size: 12px; color: #7A6F63;
+    background: #fff; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-size: 12px; color: #666;
   }
   .wb-mini-btn {
-    background: #F5EFE8; color: #A67B5B; border: none; border-radius: 8px;
+    background: #eef2ff; color: #4b7bec; border: none; border-radius: 6px;
     padding: 5px 10px; font-size: 11px; cursor: pointer; font-weight: 500;
   }
   .wb-entry-card {
-    background: #FFFFFF; border-radius: 14px; padding: 14px; margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(120, 100, 80, 0.05); cursor: pointer;
-    border-left: 4px solid #A67B5B;
+    background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer;
+    border-left: 4px solid #4b7bec;
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .wb-entry-card:active { transform: scale(0.985); }
-  .wb-entry-card.disabled { border-left-color: #D5CCC0; opacity: 0.6; }
+  .wb-entry-card.disabled { border-left-color: #d5d5d5; opacity: 0.62; }
   .wb-entry-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .wb-entry-name { font-size: 14px; font-weight: 600; color: #3A3532; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wb-entry-name { font-size: 14px; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .wb-switch {
-    position: relative; width: 38px; height: 21px; background: #D5CCC0;
+    position: relative; width: 38px; height: 21px; background: #d5d5d5;
     border-radius: 11px; transition: background .2s; flex-shrink: 0; cursor: pointer;
   }
   .wb-switch::after {
     content: ''; position: absolute; top: 2px; left: 2px;
-    width: 17px; height: 17px; background: #FFFFFF; border-radius: 50%;
-    transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    width: 17px; height: 17px; background: #fff; border-radius: 50%;
+    transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
-  .wb-switch.on { background: #A67B5B; }
+  .wb-switch.on { background: #4b7bec; }
   .wb-switch.on::after { left: 19px; }
   .wb-entry-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .wb-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #F5EFE8; color: #A67B5B; white-space: nowrap; }
-  .wb-tag.global { background: #EBF0E7; color: #5F7355; }
-  .wb-tag.local { background: #F7EDE0; color: #A07042; }
-  .wb-tag.pos { background: #F0E8EB; color: #8B6B7A; }
-  .wb-tag.depth { background: #EBE4DA; color: #7A6A5A; }
-  .wb-entry-keys { font-size: 11px; color: #A79B8E; margin-bottom: 6px; word-break: break-all; }
+  .wb-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eef2ff; color: #4b7bec; white-space: nowrap; }
+  .wb-tag.global { background: #e8f5e9; color: #2e7d32; }
+  .wb-tag.local { background: #fff3e0; color: #e65100; }
+  .wb-tag.pos { background: #f3e5f5; color: #8e24aa; }
+  .wb-tag.depth { background: #e3f2fd; color: #1565c0; }
+  .wb-entry-keys { font-size: 11px; color: #999; margin-bottom: 6px; word-break: break-all; }
   .wb-entry-preview {
-    font-size: 12px; color: #8A8178; white-space: pre-wrap; line-height: 1.45;
+    font-size: 12px; color: #888; white-space: pre-wrap; line-height: 1.45;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
-  /* ============ 7. 设置界面 ============ */
-  #settingsScreen { background: #FAF7F2; padding-bottom: 30px; }
-  .hint-text { font-size: 12px; color: #8A8178; margin-top: 8px; line-height: 1.55; }
+  /* ============ 7. 设置界面（黑色主题） ============ */
+  #settingsScreen { background: #f7f8fa; padding-bottom: 30px; }
+  .hint-text { font-size: 12px; color: #888; margin-top: 8px; line-height: 1.5; }
 
-  /* 测试连接结果 */
-  #testResult {
-    display: none; margin-top: 10px; padding: 10px 12px;
-    border-radius: 10px; font-size: 13px; line-height: 1.45;
-    word-break: break-word;
+  /* —— 设置界面：黑色主题覆盖 —— */
+  #settingsScreen .beautify-header .back-btn { color: #222; }
+  #settingsScreen .section-card h4 { color: #222; }
+  #settingsScreen .highlight-card { border: 2px solid #222; background: #f5f5f5; }
+  #settingsScreen .highlight-card h4 { color: #222; }
+  #settingsScreen .btn-primary { background: #222; color: #fff; }
+  #settingsScreen .btn-primary:active { background: #000; }
+  #settingsScreen .btn-success { background: #444; color: #fff; }
+  #settingsScreen .btn-success:active { background: #2a2a2a; }
+  #settingsScreen .btn-danger { background: #666; color: #fff; }
+  #settingsScreen .btn-danger:active { background: #4a4a4a; }
+  #settingsScreen .btn-outline-dark {
+    background: #fff; border: 1px solid #222; color: #222;
   }
-  #testResult.testing { background: #F5EFE8; color: #8D6748; }
-  #testResult.success { background: #EBF0E7; color: #4F6444; }
-  #testResult.error   { background: #F7E6E4; color: #A04545; }
+  #settingsScreen .btn-outline-dark:active { background: #f0f0f0; }
+  #settingsScreen .form-group input:focus,
+  #settingsScreen .form-group select:focus,
+  #settingsScreen .form-group textarea:focus { border-color: #222; }
+  #settingsScreen .form-group label { color: #444; }
+  #settingsScreen .preset-input-row input:focus,
+  #settingsScreen .preset-select-row select:focus { border-color: #222; }
+  #settingsScreen input[type="range"] { accent-color: #222; }
+  #settingsScreen .hint-text { color: #666; }
+  #settingsScreen .icon-svg { fill: #222; }
+  #settingsScreen .api-status {
+    display: none; margin-top: 10px; font-size: 12px; line-height: 1.5;
+    padding: 8px 10px; border-radius: 8px;
+    background: #f5f5f5; border: 1px solid #e0e0e0; word-break: break-all;
+  }
+  #settingsScreen .api-status.ok { background: #eef7ee; border-color: #cfe5cf; color: #1b5e20; }
+  #settingsScreen .api-status.fail { background: #fbeeee; border-color: #f0cccc; color: #8e1a1a; }
+  #settingsScreen .api-status.pending { background: #f5f5f5; border-color: #e0e0e0; color: #555; }
 
   /* 可编辑文字通用样式 */
   .editable-text { display: inline-block; min-width: 20px; min-height: 20px; cursor: pointer; line-height: 1.5; }
-  .editable-text:empty::before { content: attr(data-placeholder); color: #B7AC9F; }
-  .editable-text[contenteditable="true"] { background-color: #F5EFE8; outline: none; border-radius: 4px; padding: 2px 6px; box-shadow: none; color: #3A3532; cursor: text; user-select: text; }
+  .editable-text:empty::before { content: attr(data-placeholder); color: #b0b0b0; }
+  .editable-text[contenteditable="true"] { background-color: #f0f0f0; outline: none; border-radius: 4px; padding: 2px 6px; box-shadow: none; color: #333; cursor: text; user-select: text; }
 </style>
 </head>
 <body>
@@ -343,7 +360,7 @@
         <div class="widget-grid">
           <div class="widget-item">
             <div class="icon-box bg-pink" id="app-icon-beautify" onclick="openScreen('beautifyScreen')">
-              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/><line x1="5" y1="5" x2="19" y2="19" stroke="#8D6748" stroke-width="3" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2.5"/><line x1="5" y1="5" x2="19" y2="19" stroke="#f8bbd0" stroke-width="3" stroke-linecap="round"/></svg>
             </div>
             <span class="widget-label" id="label-beautify">美化</span>
           </div>
@@ -365,14 +382,14 @@
 
           <div class="widget-item">
             <div class="icon-box bg-yellow" id="app-icon-qqmusic" onclick="openMusicApp()">
-              <svg viewBox="0 0 24 24" fill="#3A3532"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              <svg viewBox="0 0 24 24" fill="#000000"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
             </div>
             <span class="widget-label" id="label-qqmusic">音乐</span>
           </div>
 
           <div class="widget-item">
             <div class="icon-box bg-blue" id="app-icon-persona" onclick="openPersonaApp()">
-              <svg viewBox="0 0 24 24" fill="#8D6748"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              <svg viewBox="0 0 24 24" fill="#2196f3"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             </div>
             <span class="widget-label" id="label-persona">人设</span>
           </div>
@@ -403,7 +420,7 @@
 
           <div class="widget-item">
             <div class="icon-box bg-pink2" id="app-icon-clock" onclick="openSettingsApp()">
-              <svg viewBox="0 0 24 24" fill="#FFFFFF"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+              <svg viewBox="0 0 24 24" fill="#f48fb1"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             </div>
             <span class="widget-label" id="label-clock">设置</span>
           </div>
@@ -605,7 +622,7 @@
             <button class="btn btn-success" id="importDataBtn">导入 JSON</button>
           </div>
           <input type="file" id="importDataInput" accept=".json,application/json" style="display: none;">
-          <p style="font-size: 12px; color: #8A8178; margin-top: 8px;">提示：导出可以备份当前所有美化数据。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
+          <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：导出可以备份当前所有美化数据。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
         </div>
 
         <div class="section-card">
@@ -688,7 +705,7 @@
               <input type="number" id="wbOrder" min="0" max="999" value="100">
             </div>
           </div>
-          <p style="font-size: 11px; color: #A79B8E; margin: -8px 0 14px 0; line-height: 1.5;">
+          <p style="font-size: 11px; color: #999; margin: -8px 0 14px 0; line-height: 1.5;">
             深度越小越靠近对话末尾（模型更容易注意到）；优先级数值越小越靠前插入。
           </p>
 
@@ -758,18 +775,18 @@
           </div>
           <div class="form-group">
             <label>温度（Temperature）：<span id="temperatureValue">0.7</span></label>
-            <input type="range" id="apiTemperature" min="0" max="2" step="0.1" value="0.7">
+            <input type="range" id="apiTemperature" min="0" max="2" step="0.1" value="0.7" style="width:100%">
           </div>
           <div class="form-group">
             <label>最大 Token（Max Tokens）</label>
             <input type="number" id="apiMaxTokens" min="1" max="32000" value="2048">
           </div>
           <div class="btn-row">
-            <button class="btn btn-outline" id="testConnectionBtn">测试连接</button>
-            <button class="btn btn-primary" id="saveApiConfigBtn">保存配置</button>
+            <button class="btn btn-primary" id="saveApiConfigBtn">保存 API 配置</button>
+            <button class="btn btn-outline-dark" id="testApiBtn">测试连接</button>
           </div>
-          <div id="testResult"></div>
-          <p class="hint-text">温度越高回复越随机发散，越低越稳定严谨；一般推荐 0.6 ~ 0.9。</p>
+          <div class="api-status" id="apiTestStatus"></div>
+          <p class="hint-text">提示：温度越高回复越随机发散，越低越稳定严谨；一般推荐 0.6 ~ 0.9。</p>
         </div>
 
         <!-- API 预设管理 -->
@@ -1064,9 +1081,9 @@
       const listContainer = document.getElementById('musicListContainer');
       listContainer.style.display = 'block';
       listContainer.innerHTML = playlist.map((song, index) => `
-        <div style="padding: 12px 0; border-bottom: 1px solid #F5EFE8; display:flex; justify-content:space-between;" onclick="playSong(${index})">
-          <span style="font-size:14px; color:#3A3532;">${song.name}</span>
-          <span style="font-size:12px; color:#A79B8E;">${song.artist}</span>
+        <div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display:flex; justify-content:space-between;" onclick="playSong(${index})">
+          <span style="font-size:14px; color:#333;">${song.name}</span>
+          <span style="font-size:12px; color:#999;">${song.artist}</span>
         </div>
       `).join('');
 
@@ -1144,7 +1161,7 @@
         <div class="info">
           <h4>${escapeHtml(persona.name || '未命名角色')}</h4>
           <p>${escapeHtml(persona.nickname || '无网名')} · ${escapeHtml(persona.gender || '未知')} · ${escapeHtml(persona.age || '未知年龄')}</p>
-          <p style="margin-top: 4px; font-size: 11px; color: #C0B5A9; white-space: pre-wrap;">${escapeHtml(persona.details || '暂无详细描述')}</p>
+          <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${escapeHtml(persona.details || '暂无详细描述')}</p>
         </div>
         <div class="arrow">›</div>
       `;
@@ -1233,7 +1250,7 @@
     cancelPersonaEdit();
   }
 
-  // 人设文件导入（docx / json / txt）
+  // 人设文件导入
   document.getElementById('personaFileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -1569,7 +1586,6 @@
     renderWorldBookList();
   });
 
-  // 世界书文件导入
   function splitIntoChunks(paragraphs) {
     const chunks = [];
     let current = [];
@@ -1750,7 +1766,7 @@
     document.getElementById('mainScreen').style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
   }
 
-  // ================= 全屏模式（持久化 + 自动恢复 + 同步退出） =================
+  // ================= 全屏模式 =================
   const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
 
   function updateFullscreenBtn() {
@@ -1820,7 +1836,7 @@
         const mainIconBox = document.getElementById('app-icon-' + app.id);
         if (mainIconBox) {
           if (mainIconBox.innerHTML.trim() === '') {
-            previewContent = `<svg viewBox="0 0 24 24" fill="none" stroke="#C7BBAE" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg>`;
+            previewContent = `<svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg>`;
           } else {
             previewContent = mainIconBox.innerHTML;
           }
@@ -2047,40 +2063,32 @@
 
   document.getElementById('saveApiConfigBtn').addEventListener('click', saveApiConfig);
 
-  // ---- 测试连接 ----
-  const testResultEl = document.getElementById('testResult');
-
-  function showTestResult(type, text) {
-    testResultEl.className = '';
-    testResultEl.classList.add(type);
-    testResultEl.style.display = 'block';
-    testResultEl.innerText = text;
+  // ========= 测试连接 =========
+  function setApiStatus(type, text) {
+    const el = document.getElementById('apiTestStatus');
+    el.style.display = 'block';
+    el.classList.remove('ok', 'fail', 'pending');
+    el.classList.add(type);
+    el.innerText = text;
   }
 
-  document.getElementById('testConnectionBtn').addEventListener('click', async () => {
+  async function testApiConnection() {
     const cfg = readApiConfigFromForm();
+    if (!cfg.endpoint) { setApiStatus('fail', '❌ 请先填写 API 地址'); return; }
+    if (!cfg.key) { setApiStatus('fail', '❌ 请先填写 API Key'); return; }
+    if (!cfg.model) { setApiStatus('fail', '❌ 请先填写模型名称'); return; }
 
-    if (!cfg.endpoint) {
-      showTestResult('error', '✗ 请先填写 API 地址');
-      return;
-    }
-    if (!cfg.key) {
-      showTestResult('error', '✗ 请先填写 API Key');
-      return;
-    }
-    if (!cfg.model) {
-      showTestResult('error', '✗ 请先填写模型名称');
-      return;
-    }
-
-    showTestResult('testing', '⏳ 正在测试连接…');
+    const btn = document.getElementById('testApiBtn');
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = '测试中…';
+    setApiStatus('pending', '⏳ 正在连接，请稍候…');
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
-    const startTime = Date.now();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
     try {
-      const resp = await fetch(cfg.endpoint, {
+      const response = await fetch(cfg.endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2088,46 +2096,46 @@
         },
         body: JSON.stringify({
           model: cfg.model,
-          messages: [{ role: 'user', content: 'Hi' }],
-          max_tokens: 8,
+          messages: [{ role: 'user', content: 'Reply with the single word: OK' }],
+          max_tokens: 16,
           temperature: 0
         }),
         signal: controller.signal
       });
       clearTimeout(timeoutId);
-      const elapsed = Date.now() - startTime;
 
-      if (!resp.ok) {
+      if (!response.ok) {
         let errText = '';
-        try {
-          const errData = await resp.json();
-          errText = (errData && errData.error && errData.error.message) ||
-                    (errData && errData.message) ||
-                    JSON.stringify(errData);
-        } catch (e) {
-          try { errText = await resp.text(); } catch (e2) { errText = ''; }
-        }
-        showTestResult('error', `✗ 连接失败 (HTTP ${resp.status})：${(errText || '未知错误').slice(0, 200)}`);
+        try { errText = await response.text(); } catch(e) {}
+        setApiStatus('fail', `❌ 连接失败（HTTP ${response.status}）\n${(errText || '').slice(0, 300)}`);
         return;
       }
 
-      const data = await resp.json();
+      let data = null;
+      try { data = await response.json(); } catch(e) {
+        setApiStatus('fail', '❌ 服务器返回的不是 JSON，请检查 API 地址是否正确');
+        return;
+      }
       const reply = (data && data.choices && data.choices[0] &&
                      (data.choices[0].message?.content || data.choices[0].text)) || '';
-
-      showTestResult(
-        'success',
-        `✓ 连接成功 · ${elapsed}ms · 模型回复："${(reply || '(空)').replace(/\s+/g, ' ').trim().slice(0, 40)}"`
-      );
+      setApiStatus('ok', `✅ 连接成功！模型回复：${reply ? reply.trim().slice(0, 100) : '（空）'}`);
     } catch (err) {
       clearTimeout(timeoutId);
       if (err.name === 'AbortError') {
-        showTestResult('error', '✗ 请求超时（20 秒），请检查网络或 API 地址');
+        setApiStatus('fail', '❌ 连接超时（25 秒），请检查网络或 API 地址');
       } else {
-        showTestResult('error', '✗ 请求失败：' + (err.message || '网络错误，可能是 CORS 限制或地址不正确'));
+        setApiStatus('fail',
+          '❌ 连接失败：' + (err.message || '未知错误') +
+          '\n提示：可能是 CORS 跨域、网络问题或 API 地址/Key 错误。\n' +
+          '若浏览器控制台显示 CORS，请改用支持浏览器直连的 API（如 OpenAI / DeepSeek / OpenRouter）。');
       }
+    } finally {
+      btn.disabled = false;
+      btn.innerText = originalText;
     }
-  });
+  }
+
+  document.getElementById('testApiBtn').addEventListener('click', testApiConnection);
 
   function updateApiPresetList() {
     const sel = document.getElementById('apiPresetSelect');
@@ -2164,7 +2172,7 @@
       const cfg = JSON.parse(localStorage.getItem(API_PRESET_PREFIX + name) || '{}');
       applyApiConfigToForm(cfg);
       localStorage.setItem(API_CONFIG_KEY, JSON.stringify(cfg));
-      alert('已应用预设：' + name);
+      setApiStatus('ok', '✅ 已应用预设：' + name);
     } catch (e) { alert('预设损坏，无法应用'); }
   });
 
@@ -2181,10 +2189,9 @@
     openScreen('settingsScreen');
     applyApiConfigToForm(loadApiConfig() || {});
     updateApiPresetList();
-    // 重置测试结果
-    testResultEl.style.display = 'none';
-    testResultEl.className = '';
-    testResultEl.innerText = '';
+    const statusEl = document.getElementById('apiTestStatus');
+    statusEl.style.display = 'none';
+    statusEl.innerText = '';
   }
 
   // ================= 全部数据导出 / 导入 =================
@@ -2223,7 +2230,7 @@
       try {
         const data = JSON.parse(event.target.result);
         if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON');
-        if (!confirm('导入将覆盖当前所有数据（包括人设、世界书、API 配置、美化设置等），确定继续吗？')) {
+        if (!confirm('导入将覆盖当前所有数据（包括人设、世界书、API配置、美化设置等），确定继续吗？')) {
           return;
         }
         try { localStorage.clear(); } catch(e) {}
@@ -2242,7 +2249,7 @@
     this.value = '';
   });
 
-  // 初始化
+  // 初始化设置界面
   applyApiConfigToForm(loadApiConfig() || {});
   updateApiPresetList();
 </script>
