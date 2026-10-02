@@ -1497,24 +1497,6 @@ function genId() {
   return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }
 
-// ★★★ 核心：只按空行拆分，保留单换行。不再按长度或标点强行拆分。 ★★★
-function splitTextIntoBubbles(raw) {
-  if (raw == null) return [];
-  let s = String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  // 去掉首尾的空白行（保留行内换行）
-  s = s.replace(/^(?:[ \t]*\n)+/, '').replace(/(?:\n[ \t]*)+$/, '');
-  if (!s.trim()) return [];
-
-  // 仅按空行（连续换行）拆分，不按标点拆
-  let parts = s.split(/\n[ \t]*\n+/);
-  let out = [];
-  for (let p of parts) {
-    let t = p.replace(/^[ \t]*\n+/, '').replace(/\n+[ \t]*$/, '');
-    if (t.trim()) out.push(t);
-  }
-  return out.length ? out : [s];
-}
-
 // ================= 全局界面管理 =================
 function openScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -3418,22 +3400,19 @@ function handleChatInputKeydown(e) {
   // 其它情况交给浏览器默认处理，Enter 会插入换行
 }
 
-// 用户发消息：按空行拆成多条气泡；单换行保留在同一条气泡里
+// 用户发消息：不再拆分，输入框里的整个内容就是一个气泡
 function sendMessage() {
   const input = document.getElementById('jxChatInput');
   if (!input) return false;
-  const segments = splitTextIntoBubbles(input.value);
-  if (segments.length === 0) return false;
+  const content = input.value.trim();
+  if (!content) return false;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return false;
 
   const quoteSnapshot = currentQuote ? { ...currentQuote } : null;
-
-  segments.forEach(seg => {
-    const msg = { id: genId(), role: 'me', type: 'text', content: seg };
-    if (quoteSnapshot) msg.quote = { ...quoteSnapshot };
-    chat.messages.push(msg);
-  });
+  const msg = { id: genId(), role: 'me', type: 'text', content: content };
+  if (quoteSnapshot) msg.quote = { ...quoteSnapshot };
+  chat.messages.push(msg);
 
   clearQuote();
   input.value = '';
@@ -4219,7 +4198,6 @@ function buildCharSystemPrompt(chat) {
   sp += ' • 不要滥用，正常闲聊不用每句都加动作；但上面说必须用的情况一定要用。\n';
   sp += ' • 不需要执行动作时，直接正常回复文字即可。\n';
 
-  // 强化长文本和分段发送的说明
   sp += '\n【关于长文本、小作文与多条消息 —— 非常重要】\n';
   sp += '1. 当你想发一段长文案、小作文、或者有格式排版的文本时，**直接用换行符（回车）来排版**。\n';
   sp += '   系统会完整保留你的排版，在一个聊天气泡里显示出来，绝不会丢失换行。\n';
@@ -4438,7 +4416,7 @@ async function generateCharReply(chat) {
   return clean || raw;
 }
 
-// 角色回复：只按 [[SPLIT]] 或空行拆分，保留单换行
+// 角色回复：只按 [[SPLIT]] 拆分，保留单个换行在一个气泡内
 async function triggerCharReply(chat) {
   if (chat._replying) return;
   chat._replying = true;
@@ -4451,17 +4429,18 @@ async function triggerCharReply(chat) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
 
-    const rawReply = String(reply == null ? '' : reply);
-    // 把 [[SPLIT]] 统一转成空行，然后走同一个拆气泡逻辑
-    const normalized = rawReply.replace(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi, '\n\n');
-    const segments = splitTextIntoBubbles(normalized);
+    const rawReply = String(reply == null ? '' : reply).trim();
 
-    if (segments.length > 0) {
-      segments.forEach(seg => {
-        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
-      });
-    } else if (rawReply.trim()) {
-      chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply.trim() });
+    if (rawReply) {
+      // 只按 [[SPLIT]] 拆分
+      const segments = rawReply.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(s => s.length > 0);
+      if (segments.length > 0) {
+        segments.forEach(seg => {
+          chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
+        });
+      } else {
+        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply });
+      }
     }
 
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
