@@ -1430,7 +1430,7 @@ https://xxx.com/a.png
 </div>
 
 <script>
-// ================= DOCX 预处理（修复 mammoth mc:Fallback 报错） =================
+// ================= DOCX 预处理 =================
 async function sanitizeDocxForMammoth(arrayBuffer) {
   if (typeof JSZip === 'undefined') return arrayBuffer;
   try {
@@ -1622,7 +1622,7 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   }
 })();
 
-// ================= 图片压缩（高清不模糊） =================
+// ================= 图片压缩 =================
 function compressImageFile(file, maxDim, quality) {
   maxDim = maxDim || 1600;
   quality = quality || 0.9;
@@ -2319,7 +2319,6 @@ function extractEntriesFromJson(data, defaultEntry) {
   }
 })();
 
-// 夜间模式
 function applyDarkMode(on) {
   const pc = document.getElementById('phoneCase');
   if (!pc) return;
@@ -2399,7 +2398,6 @@ function triggerAppIconUpload(appId, previewElement) {
   input.click();
 }
 
-// 预设管理
 const presetSelect = document.getElementById('presetSelect');
 function updatePresetList() {
   if (!presetSelect) return;
@@ -2793,6 +2791,21 @@ updateApiPresetList();
 let jianxunChats = [];
 let currentChatId = null;
 
+function getCharImageRefs(chat) {
+  const refs = [];
+  const userAvatar = localStorage.getItem('moments_avatar');
+  if (userAvatar) {
+    refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, desc: '用户当前的头像（最新，用户自选的）' });
+  }
+  const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
+  pool.forEach(img => {
+    if (!img || !img.data) return;
+    if (img.isAvatar && userAvatar && img.data === userAvatar) return;
+    refs.push(img);
+  });
+  return refs;
+}
+
 const AWARENESS_KEY = 'jx_awareness_log';
 function loadAwarenessLog() {
   try {
@@ -2814,9 +2827,6 @@ function saveJianxunChats() {
   catch (e) { alert('存储空间不足，请删除一些聊天中的图片后重试'); }
 }
 
-/* ============================================================
-   表情合集：存储层
-   ============================================================ */
 let _stickerPacksMigrated = false;
 let expandedStickerPackIds = new Set();
 
@@ -2938,7 +2948,7 @@ function loadJxMeProfile() {
         if (jianxunChats.length === 0) loadJianxunChats();
         jianxunChats.forEach(chat => {
           if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-          chat.imagePool.push({ id: genId(), data: base64, time: Date.now() });
+          chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
           if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
         });
         saveJianxunChats();
@@ -3132,7 +3142,6 @@ function openChat(id) {
 let multiSelectMode = false;
 let selectedMsgIds = new Set();
 
-// ============ 引用 ============
 let currentQuote = null;
 
 function startQuote(msgId) {
@@ -3342,7 +3351,7 @@ function voiceSend() {
     compressImageFile(file, 1400, 0.85).then((base64) => {
       if (!base64) { alert('图片处理失败'); return; }
       chat.messages.push({ id: genId(), role: 'me', type: 'image', image: base64, content: '[图片]' });
-      chat.imagePool.push({ id: genId(), data: base64, time: Date.now() });
+      chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), desc: '用户发来的图片' });
       if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
       saveJianxunChats();
       renderChatMessages();
@@ -3351,7 +3360,6 @@ function voiceSend() {
   });
 })();
 
-// ============ 表情面板 ============
 let currentStickerPackId = null;
 
 function toggleStickerPanel() {
@@ -3793,7 +3801,6 @@ function addStickersFromLinks() {
   });
 })();
 
-// ---------- 长按菜单 ----------
 let menuMsgId = null;
 function openMsgMenu(msgId) {
   menuMsgId = msgId;
@@ -3828,13 +3835,13 @@ function menuEdit() {
     return;
   }
   const newText = prompt('编辑消息内容：', msg.content || '');
-  if (newText === null) return;
-  msg.content = newText;
-  saveJianxunChats();
+  = if (newText === null) return;
+  msg.content = document new.getElementByIdText;
+  saveJianxun('Chats();
   renderChatMessages();
-  renderJianxunChatList();
+ jx renderJianxunChatList();
 }
-async function menuTranslate() {
+async function menuTranslateMulti() {
   const id = menuMsgId;
   closeMsgMenu();
   if (!id) return;
@@ -3883,7 +3890,7 @@ function exitMultiSelect(silent) {
   multiSelectMode = false;
   selectedMsgIds.clear();
   const ib = document.getElementById('jxChatInputBar');
-  const mb = document.getElementById('jxMultiBar');
+  const mbBar');
   if (ib) ib.style.display = 'flex';
   if (mb) mb.classList.remove('show');
   if (!silent) renderChatMessages();
@@ -4036,28 +4043,46 @@ function buildCharSystemPrompt(chat) {
   sp += '\n【关于用户】\n';
   sp += '用户名：' + (localStorage.getItem('moments_name') || '用户') + '\n';
   if (localStorage.getItem('jx_wechat_id')) sp += '微信号：' + localStorage.getItem('jx_wechat_id') + '\n';
-  const _userAvatarData = localStorage.getItem('moments_avatar');
-  if (_userAvatarData) {
-    sp += '用户头像：你有时会在消息里看到用户发来的头像图片（如果用户换了头像，会以图片形式附带在最近的消息中）。\n';
+  const _userAvatarForPrompt = localStorage.getItem('moments_avatar');
+  if (_userAvatarForPrompt) {
+    sp += '★ 用户头像：系统会把你收到的每条用户消息末尾附上一张图片，标注为"（这是我现在的头像）"。\n';
+    sp += '   这张图片就是用户当前的头像内容，你可以看清它长什么样。如果用户换了新头像，你会收到新的图片。\n';
+    sp += '   请在合适的时机自然地体现出"你知道用户头像长什么样"，比如夸一句、调侃一句。\n';
   }
   sp += buildWorldBookPrompt(chat);
   sp += buildStickerPrompt(chat);
-  if (chat.imagePool && chat.imagePool.length > 0) {
-    sp += '\n【用户曾发给你过的图片】（编号用于下面的动作标记）\n';
-    chat.imagePool.forEach((img, i) => {
-      const d = new Date(img.time);
-      sp += '图片' + (i + 1) + '：' + d.toLocaleString('zh-CN') + '\n';
+
+  const refs = getCharImageRefs(chat);
+  sp += '\n【你可以引用 / 发布的图片资源】（图片编号从 1 开始）\n';
+  if (refs.length === 0) {
+    sp += '（当前没有可引用的图片。等用户发图后，这里会列出图片。）\n';
+  } else {
+    refs.forEach((img, i) => {
+      const d = img.time ? new Date(img.time).toLocaleString('zh-CN') : '';
+      const isAvatarTag = img.isAvatar ? '★头像' : '照片';
+      sp += `图片${i + 1}：${isAvatarTag} · ${img.desc || (img.isAvatar ? '用户的头像' : '用户发来的图片')}${d ? '（' + d + '）' : ''}\n`;
     });
   }
-  sp += '\n【你可以执行的隐藏动作】\n';
-  sp += '当且仅当符合你的角色性格、并且当前对话情境非常自然时，你可以在回复中夹带以下特殊标记，系统会自动执行，用户看不到标记本身：\n';
-  sp += '1. 把用户发过的某张图片设置为你自己的聊天头像：[[SET_AVATAR:图片编号]]\n';
-  sp += '2. 发布一条朋友圈动态（可配图也可纯文字）：[[POST_MOMENT:动态文字|图片编号]]\n';
-  sp += '   不配图时写成 [[POST_MOMENT:动态文字|]]\n';
-  sp += '   多张配图时用逗号分隔：[[POST_MOMENT:动态文字|1,2,3]]\n';
-  sp += '图片编号必须是上面【用户曾发给你过的图片】列表中存在的编号。\n';
-  sp += '这些动作要克制使用：只有真的符合人设和对话内容时才用，不要每句话都加，不要滥用。\n';
-  sp += '如果不需要执行动作，就正常回复即可。\n';
+
+  sp += '\n【你可以执行的隐藏动作 —— 请务必掌握】\n';
+  sp += '你可以在回复正文中间夹带下面这些特殊标记，系统会自动识别并执行，用户看不到标记本身。\n';
+  sp += '正确用法举例（标记要嵌在正常文字里，前后不留换行）：\n';
+  sp += '  "好呀我这就发～ [[POST_MOMENT:今天收到一张超好看的照片，分享一下|1]] 你也去看看吧"\n\n';
+  sp += '▶ 可用动作及格式：\n';
+  sp += ' 1) 把某张图片设置为你自己的聊天头像：[[SET_AVATAR:图片编号]]\n';
+  sp += ' 2) 发一条朋友圈动态（带图）：[[POST_MOMENT:动态文字|图片编号]]\n';
+  sp += ' 3) 发一条朋友圈动态（多图）：[[POST_MOMENT:动态文字|1,2,3]]\n';
+  sp += ' 4) 发一条朋友圈动态（纯文字）：[[POST_MOMENT:动态文字|]]\n';
+  sp += ' 5) 给朋友圈某条动态点赞：[[LIKE_MOMENT:动态编号]]\n';
+  sp += ' 6) 评论朋友圈某条动态：[[COMMENT_MOMENT:动态编号|评论内容]]\n\n';
+  sp += '⚠️ 使用规则（务必遵守，否则用户会觉得你"失灵"了）：\n';
+  sp += ' • 当用户明确说"把这张图发朋友圈""发条动态""帮我发出去"等 —— 你必须立刻执行 [[POST_MOMENT:...]]，并且必须带上图片编号。\n';
+  sp += ' • 当用户把一张照片发给你、你的人设自然想分享时 —— 使用 [[POST_MOMENT:你的想法|图片编号]]。\n';
+  sp += ' • 图片编号只能引用上面【你可以引用 / 发布的图片资源】里列出的编号。\n';
+  sp += ' • 只发朋友圈不带图时，写成 [[POST_MOMENT:你的文字|]]（竖线后面直接跟 ]]）。\n';
+  sp += ' • 不要滥用，正常闲聊不用每句都加动作；但上面说必须用的情况一定要用。\n';
+  sp += ' • 不需要执行动作时，直接正常回复文字即可。\n';
+
   sp += buildMomentsPrompt();
   const log = loadAwarenessLog();
   if (log.length > 0) {
@@ -4128,7 +4153,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   return '';
 }
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT)\s*:\s*([\s\S]*?)\]\]/g;
+  const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT)\s*[:：]\s*([\s\S]*?)\s*\]\]/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -4139,7 +4164,8 @@ function parseAndExecuteActions(chat, rawText) {
 function executeCharAction(chat, action) {
   if (action.type === 'SET_AVATAR') {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
-    const img = chat.imagePool && chat.imagePool[idx];
+    const refs = getCharImageRefs(chat);
+    const img = refs[idx];
     if (img && img.data) chat.avatar = img.data;
     return;
   }
@@ -4165,13 +4191,14 @@ function executeCharAction(chat, action) {
   if (action.type === 'POST_MOMENT') {
     const parts = String(action.payload).split('|');
     const text = (parts[0] || '').trim();
-    const numStr = (parts[1] || '').trim();
+    const numStr = (parts.slice(1).join('|') || '').trim();
     const imgs = [];
     if (numStr) {
+      const refs = getCharImageRefs(chat);
       numStr.split(/[,，、\s]+/).forEach(n => {
         if (!n) return;
         const idx = parseInt(n, 10) - 1;
-        const img = chat.imagePool && chat.imagePool[idx];
+        const img = refs[idx];
         if (img && img.data) imgs.push(img.data);
       });
     }
@@ -4194,16 +4221,13 @@ function executeCharAction(chat, action) {
     renderMomentsPosts();
     return;
   }
-  if (action.type === 'LIKE_MOMENT') {
-    const idx = parseInt(String(action.payload).trim(), 10) - 1;
+  if (action.type === 'LIKE_MOMENT:') {
+    const idx = parseInt(String(action.payload).trim '(),text 10) -',  content1;
     loadMomentsPosts();
-    const post = momentsPosts[idx];
+    const: post = momentsPosts[idx];
     if (!post) return;
     const charName = chat.customRemark || chat.name || 'TA';
-    if (!Array.isArray(post.likes)) {
-      post.likes = [];
-      delete post.liked;
-    }
+    if (!Array.isArray(post.likes)) { post.likes = []; delete post.liked; }
     if (!post.likes.includes(charName)) post.likes.push(charName);
     saveMomentsPosts();
     renderMomentsPosts();
@@ -4228,30 +4252,23 @@ function executeCharAction(chat, action) {
 async function generateCharReply(chat) {
   const cfg = loadApiConfig();
   const useAI = cfg && cfg.endpoint && cfg.key && cfg.model;
-  if (!useAI) {
-    throw new Error('尚未配置 API');
-  }
+  if (!useAI) throw new Error('尚未配置 API');
+
   const systemPrompt = buildCharSystemPrompt(chat);
   const history = buildChatHistory(chat);
 
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar && history.length > 0) {
-    const hashKey = 'last_seen_avatar_hash_' + (chat.id || 'default');
-    const curHash = simpleHash(userAvatar);
-    const lastHash = localStorage.getItem(hashKey);
-    if (curHash !== lastHash) {
-      for (let i = history.length - 1; i >= 0; i--) {
-        if (history[i].role === 'user') {
-          let contentArr;
-          if (Array.isArray(history[i].content)) contentArr = history[i].content.slice();
-          else contentArr = [{ type: 'text', text: String(history[i].content || '') }];
-          contentArr.push({ type: 'text', text: '（这是我现在的头像）' });
-          contentArr.push({ type: 'image_url', image_url: { url: userAvatar } });
-          history[i].content = contentArr;
-          break;
-        }
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].role === 'user') {
+        let contentArr;
+        if (Array.isArray(history[i].content)) contentArr = history[i].content.slice();
+        else contentArr = [{ type: 'text', text: String(history[i].content || '') }];
+        contentArr.push({ type: 'text', text: '（这是我现在的头像）' });
+        contentArr.push({ type: 'image_url', image_url: { url: userAvatar } });
+        history[i].content = contentArr;
+        break;
       }
-      try { localStorage.setItem(hashKey, curHash); } catch (e) {}
     }
   }
 
@@ -4279,7 +4296,7 @@ async function triggerCharReply(chat) {
     const reply = await generateCharReply(chat);
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
-    if (reply) chat.messages.push({ id: genId(), role: 'char', type: 'text', content: reply });
+    if (reply) chat.messages.push({ id: genId(), role: 'char', type reply });
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
       chat._pendingStickers.forEach(st => {
         chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]' });
@@ -4505,6 +4522,17 @@ function addPersonaToChat(index) {
   const persona = personaList[index]; if (!persona) return;
   const exists = jianxunChats.find(c => c.name === persona.name);
   if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
+  const imagePool = [];
+  const userAvatar = localStorage.getItem('moments_avatar');
+  if (userAvatar) {
+    imagePool.push({
+      id: genId(),
+      data: userAvatar,
+      time: Date.now(),
+      isAvatar: true,
+      desc: '用户当前的头像（用户自选的）'
+    });
+  }
   jianxunChats.push({
     id: genId(),
     name: persona.name || '未命名',
@@ -4518,7 +4546,7 @@ function addPersonaToChat(index) {
     boundStickerPacks: [],
     chatBg: '',
     myAvatar: '',
-    imagePool: []
+    imagePool: imagePool
   });
   saveJianxunChats();
   renderJianxunChatList();
@@ -4577,7 +4605,7 @@ function loadMomentsData() {
       if (jianxunChats.length === 0) loadJianxunChats();
       jianxunChats.forEach(chat => {
         if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-        chat.imagePool.push({ id: genId(), data: base64, time: Date.now() });
+        chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
         if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
       });
       saveJianxunChats();
