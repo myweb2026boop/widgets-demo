@@ -2793,18 +2793,28 @@ updateApiPresetList();
 let jianxunChats = [];
 let currentChatId = null;
 
+// ★ 关键修复：图片列表倒序（最新在前），并对头像做明确标注
 function getCharImageRefs(chat) {
   const refs = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) {
-    refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, desc: '用户当前的头像（最新，用户自选的）' });
+    refs.push({
+      id: 'avatar_current',
+      data: userAvatar,
+      isAvatar: true,
+      time: 0,
+      desc: '用户当前的头像（个人头像，非照片）'
+    });
   }
   const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
-  pool.forEach(img => {
-    if (!img || !img.data) return;
-    if (img.isAvatar && userAvatar && img.data === userAvatar) return;
-    refs.push(img);
+  const filtered = pool.filter(img => {
+    if (!img || !img.data) return false;
+    if (img.isAvatar && userAvatar && img.data === userAvatar) return false;
+    return true;
   });
+  // 按时间倒序：最新的排最前面
+  filtered.sort((a, b) => (b.time || 0) - (a.time || 0));
+  filtered.forEach(img => refs.push(img));
   return refs;
 }
 
@@ -3371,17 +3381,31 @@ function openImageViewer(src) {
   overlay.style.display = 'flex';
 }
 
+// ★ 用户发消息 —— 支持用 \n\n 空行分段发多条
 function sendMessage() {
   const input = document.getElementById('jxChatInput');
   const content = input.value.trim();
   if (!content) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  const msg = { id: genId(), role: 'me', type: 'text', content: content };
-  if (currentQuote) msg.quote = { ...currentQuote };
-  chat.messages.push(msg);
+
+  // 用空行 \n\n 分段发送
+  const segments = content.split(/\n\s*\n/).map(s => s.trim()).filter(s => s);
+  if (segments.length > 1) {
+    segments.forEach(seg => {
+      const msg = { id: genId(), role: 'me', type: 'text', content: seg };
+      if (currentQuote) msg.quote = { ...currentQuote };
+      chat.messages.push(msg);
+    });
+    clearQuote();
+  } else {
+    const msg = { id: genId(), role: 'me', type: 'text', content: content };
+    if (currentQuote) msg.quote = { ...currentQuote };
+    chat.messages.push(msg);
+    clearQuote();
+  }
+
   input.value = '';
-  clearQuote();
   saveJianxunChats();
   renderChatMessages();
   renderJianxunChatList();
@@ -3398,11 +3422,21 @@ function voiceSend() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   if (content) {
-    const msg = { id: genId(), role: 'me', type: 'text', content: content };
-    if (currentQuote) msg.quote = { ...currentQuote };
-    chat.messages.push(msg);
+    const segments = content.split(/\n\s*\n/).map(s => s.trim()).filter(s => s);
+    if (segments.length > 1) {
+      segments.forEach(seg => {
+        const msg = { id: genId(), role: 'me', type: 'text', content: seg };
+        if (currentQuote) msg.quote = { ...currentQuote };
+        chat.messages.push(msg);
+      });
+      clearQuote();
+    } else {
+      const msg = { id: genId(), role: 'me', type: 'text', content: content };
+      if (currentQuote) msg.quote = { ...currentQuote };
+      chat.messages.push(msg);
+      clearQuote();
+    }
     input.value = '';
-    clearQuote();
     saveJianxunChats();
     renderChatMessages();
     renderJianxunChatList();
@@ -4125,26 +4159,34 @@ function buildCharSystemPrompt(chat) {
   sp += buildWorldBookPrompt(chat);
   sp += buildStickerPrompt(chat);
 
+  // ★ 图片资源列表（最新在前，头像固定是编号 1）
   const refs = getCharImageRefs(chat);
   sp += '\n【你可以引用 / 发布的图片资源】（图片编号从 1 开始）\n';
+  sp += '★ 重要说明：\n';
+  sp += '  · 图片 1 永远是"用户的头像"（用户自选的个人头像，不是照片）。\n';
+  sp += '  · 从图片 2 开始才是"用户发来的照片"，且时间最新的照片编号最小（图片 2 就是用户最近发的那张）。\n';
+  sp += '  · 当用户说"把刚才那张图发出去""帮我把这张照片发朋友圈""发我发给你的图"时，通常指的是"用户最近发来的照片"，也就是图片 2（如果存在）。\n';
   if (refs.length === 0) {
     sp += '（当前没有可引用的图片。等用户发图后，这里会列出图片。）\n';
   } else {
     refs.forEach((img, i) => {
       const d = img.time ? new Date(img.time).toLocaleString('zh-CN') : '';
       const isAvatarTag = img.isAvatar ? '★头像' : '照片';
-      sp += `图片${i + 1}：${isAvatarTag} · ${img.desc || (img.isAvatar ? '用户的头像' : '用户发来的图片')}${d ? '（' + d + '）' : ''}\n`;
+      let note = '';
+      if (i === 0 && img.isAvatar) note = '（个人头像，不要误解为照片）';
+      else if (i === 1 && !img.isAvatar) note = '（用户最近发来的照片）';
+      sp += `图片${i + 1}：${isTagOrDesc(isAvatarTag, img, d)}${note}\n`;
     });
   }
 
   sp += '\n【你可以执行的隐藏动作 —— 请务必掌握】\n';
   sp += '你可以在回复正文中间夹带下面这些特殊标记，系统会自动识别并执行，用户看不到标记本身。\n';
   sp += '正确用法举例（标记要嵌在正常文字里，前后不留换行）：\n';
-  sp += '  "好呀我这就发～ [[POST_MOMENT:今天收到一张超好看的照片，分享一下|1]] 你也去看看吧"\n\n';
+  sp += '  "好呀我这就发～ [[POST_MOMENT:今天收到一张超好看的照片，分享一下|2]] 你也去看看吧"\n\n';
   sp += '▶ 可用动作及格式：\n';
   sp += ' 1) 把某张图片设置为你自己的聊天头像：[[SET_AVATAR:图片编号]]\n';
   sp += ' 2) 发一条朋友圈动态（带图）：[[POST_MOMENT:动态文字|图片编号]]\n';
-  sp += ' 3) 发一条朋友圈动态（多图）：[[POST_MOMENT:动态文字|1,2,3]]\n';
+  sp += ' 3) 发一条朋友圈动态（多图）：[[POST_MOMENT:动态文字|2,3]]\n';
   sp += ' 4) 发一条朋友圈动态（纯文字）：[[POST_MOMENT:动态文字|]]\n';
   sp += ' 5) 给朋友圈某条动态点赞：[[LIKE_MOMENT:动态编号]]\n';
   sp += ' 6) 评论朋友圈某条动态：[[COMMENT_MOMENT:动态编号|评论内容]]\n\n';
@@ -4152,9 +4194,20 @@ function buildCharSystemPrompt(chat) {
   sp += ' • 当用户明确说"把这张图发朋友圈""发条动态""帮我发出去"等 —— 你必须立刻执行 [[POST_MOMENT:...]]，并且必须带上图片编号。\n';
   sp += ' • 当用户把一张照片发给你、你的人设自然想分享时 —— 使用 [[POST_MOMENT:你的想法|图片编号]]。\n';
   sp += ' • 图片编号只能引用上面【你可以引用 / 发布的图片资源】里列出的编号。\n';
+  sp += ' • 用户说"这张""刚才那张"时，优先选择"用户最近发来的照片"（编号 2），除非用户明确指头像。\n';
   sp += ' • 只发朋友圈不带图时，写成 [[POST_MOMENT:你的文字|]]（竖线后面直接跟 ]]）。\n';
   sp += ' • 不要滥用，正常闲聊不用每句都加动作；但上面说必须用的情况一定要用。\n';
   sp += ' • 不需要执行动作时，直接正常回复文字即可。\n';
+
+  // ★ 分段发消息说明
+  sp += '\n【分段发送多条消息 —— 很重要】\n';
+  sp += '你可以像真人一样"连发几条消息"。方法：用单独一行的 [[SPLIT]] 来分隔每一条。\n';
+  sp += '系统会自动把它们拆成独立的消息，逐条显示给用户。\n';
+  sp += '示例（用户让你连发 3 条）：\n';
+  sp += '第一条消息内容\n[[SPLIT]]\n第二条消息内容\n[[SPLIT]]\n第三条消息内容\n\n';
+  sp += '★ 当用户明确要求"发 N 条""分段发""连发几条""一条一条发"时，你必须用 [[SPLIT]] 分开，分成用户要求的条数。\n';
+  sp += '★ 普通回复不要用 [[SPLIT]]，否则会显得别扭。\n';
+  sp += '★ [[SPLIT]] 必须单独占一行，前后不要有多余空格。\n';
 
   sp += buildMomentsPrompt();
   const log = loadAwarenessLog();
@@ -4165,6 +4218,12 @@ function buildCharSystemPrompt(chat) {
   sp += '\n现在，用户发来了消息，请以角色的身份自然回复。\n';
   return sp;
 }
+
+// 辅助：拼装图片描述行
+function isTagOrDesc(isAvatarTag, img, d) {
+  return `${isAvatarTag} · ${img.desc || (img.isAvatar ? '用户的头像' : '用户发来的图片')}${d ? '（' + d + '）' : ''}`;
+}
+
 function buildChatHistory(chat) {
   const recent = chat.messages.filter(m => m.content !== '__typing__').slice(-16);
   const imgIdxSet = new Set();
@@ -4226,6 +4285,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   return '';
 }
 function parseAndExecuteActions(chat, rawText) {
+  // ★ 关键：不拆 [[SPLIT]]，保留给调用方按分段处理
   const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT)\s*[:：]\s*([\s\S]*?)\s*\]\]/g;
   const actions = [];
   let m;
@@ -4358,6 +4418,8 @@ async function generateCharReply(chat) {
   const clean = parseAndExecuteActions(chat, raw);
   return clean || raw;
 }
+
+// ★ 关键修复：triggerCharReply 里处理 [[SPLIT]] 分段
 async function triggerCharReply(chat) {
   if (chat._replying) return;
   chat._replying = true;
@@ -4369,7 +4431,22 @@ async function triggerCharReply(chat) {
     const reply = await generateCharReply(chat);
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
-    if (reply) chat.messages.push({ id: genId(), role: 'char', type: 'text', content: reply });
+
+    if (reply) {
+      // 按 [[SPLIT]] 分段
+      const segments = reply.split(/\[\[\s*SPLIT\s*\]\]/i)
+        .map(s => s.replace(/^\s+|\s+$/g, ''))
+        .filter(s => s.length > 0);
+      if (segments.length > 1) {
+        // 多条消息
+        segments.forEach(seg => {
+          chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
+        });
+      } else {
+        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: reply });
+      }
+    }
+
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
       chat._pendingStickers.forEach(st => {
         chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]' });
