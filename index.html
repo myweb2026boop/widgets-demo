@@ -672,6 +672,32 @@
   .phone-case.dark-mode .jx-msg-menu-item { color: #ddd; border-bottom-color: #2c2c2e; }
   .phone-case.dark-mode .jx-msg-menu-item.cancel { background: #2c2c2e; color: #888; }
   .phone-case.dark-mode #stickerLinkInput { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+
+  /* ===== 引用消息样式 ===== */
+  .jx-quote-preview { display: none; padding: 8px 14px; background: #f0f0f0; border-top: 1px solid #dcdcdc; align-items: center; gap: 8px; font-size: 13px; flex-shrink: 0; }
+  .jx-quote-preview.show { display: flex; }
+  .jx-quote-content { flex: 1; overflow: hidden; padding-left: 8px; border-left: 3px solid #07c160; }
+  .jx-quote-content .jx-quote-name { display: block; color: #07c160; font-weight: 500; font-size: 12px; margin-bottom: 2px; }
+  .jx-quote-content .jx-quote-text { display: block; color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jx-quote-close { color: #999; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+
+  .jx-msg-quote { background: rgba(0,0,0,0.06); border-left: 2px solid rgba(0,0,0,0.15); padding: 4px 8px; margin-bottom: 6px; font-size: 12px; border-radius: 3px; }
+  .jx-msg-quote .qname { color: #576b95; font-weight: 500; display: block; margin-bottom: 1px; }
+  .jx-msg-quote .qtext { color: #888; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  .jx-msg-bubble.media .jx-msg-quote { background: rgba(255,255,255,0.8); }
+
+  .phone-case.dark-mode .jx-quote-preview { background: #1c1c1e; border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-quote-content .jx-quote-text { color: #aaa; }
+  .phone-case.dark-mode .jx-msg-quote { background: rgba(255,255,255,0.08); border-left-color: rgba(255,255,255,0.2); }
+  .phone-case.dark-mode .jx-msg-quote .qname { color: #82a7e0; }
+  .phone-case.dark-mode .jx-msg-quote .qtext { color: #bbb; }
+  .phone-case.dark-mode .jx-msg-bubble.media .jx-msg-quote { background: rgba(0,0,0,0.45); }
+
+  /* ===== 朋友圈点赞列表 ===== */
+  .jx-post-likes { font-size: 13px; color: #576b95; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.06); line-height: 1.5; }
+  .jx-post-likes svg { width: 13px; height: 13px; fill: #576b95; flex-shrink: 0; }
+  .phone-case.dark-mode .jx-post-likes { color: #82a7e0; border-bottom-color: rgba(255,255,255,0.1); }
+  .phone-case.dark-mode .jx-post-likes svg { fill: #82a7e0; }
 </style>
 </head>
 <body>
@@ -1222,6 +1248,14 @@ https://xxx.com/a.png
         <div class="sticker-panel-tip">点击表情发送 · 点合集名前的 ☆ 可整体绑定/解绑给该角色</div>
       </div>
 
+      <div class="jx-quote-preview" id="jxQuotePreview">
+        <div class="jx-quote-content">
+          <span class="jx-quote-name"></span>
+          <span class="jx-quote-text"></span>
+        </div>
+        <span class="jx-quote-close" onclick="clearQuote()">×</span>
+      </div>
+
       <div class="jx-chat-input-bar" id="jxChatInputBar">
         <svg class="icon icon-voice" viewBox="0 0 24 24" onclick="voiceSend()"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
         <input type="text" id="jxChatInput" placeholder="输入消息..." onkeydown="if(event.key === 'Enter') sendMessage()">
@@ -1385,6 +1419,7 @@ https://xxx.com/a.png
       <div class="jx-msg-menu-inner">
         <div class="jx-msg-menu-item" onclick="menuDelete()">删除</div>
         <div class="jx-msg-menu-item" onclick="menuEdit()">编辑</div>
+        <div class="jx-msg-menu-item" onclick="menuQuote()">引用</div>
         <div class="jx-msg-menu-item" onclick="menuTranslate()">翻译</div>
         <div class="jx-msg-menu-item" onclick="menuMultiSelect()">多选</div>
         <div class="jx-msg-menu-item cancel" onclick="closeMsgMenu()">取消</div>
@@ -1459,6 +1494,11 @@ function truncate(s, n) {
 function genId() {
   return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }
+function simpleHash(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return String(h) + '_' + s.length;
+}
 
 // ================= 全局界面管理 =================
 function openScreen(screenId) {
@@ -1495,8 +1535,8 @@ const PERSONA_KEY = 'persona_list';
 const WORLDBOOK_KEY = 'worldbook_entries';
 const API_CONFIG_KEY = 'api_config';
 const API_PRESET_PREFIX = 'api_preset_';
-const STICKER_KEY = 'jx_stickers';           // 旧 key（用于兼容迁移）
-const STICKER_PACKS_KEY = 'jx_sticker_packs'; // 新 key：表情合集
+const STICKER_KEY = 'jx_stickers';
+const STICKER_PACKS_KEY = 'jx_sticker_packs';
 
 if (localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
 if (localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
@@ -2776,11 +2816,9 @@ function saveJianxunChats() {
 
 /* ============================================================
    表情合集：存储层
-   - 数据结构：jx_sticker_packs = [ { id, name, stickers: [ {id,name,url,meaning} ] } ]
-   - 兼容旧数据：jx_stickers 数组 → 自动迁移为一个名为"我的表情包"的合集
    ============================================================ */
 let _stickerPacksMigrated = false;
-let expandedStickerPackIds = new Set(); // 记录展开的合集
+let expandedStickerPackIds = new Set();
 
 function loadStickerPacks() {
   try {
@@ -2816,7 +2854,6 @@ function loadStickerPacks() {
         } catch (e) {}
       }
     }
-    // 规范化
     packs.forEach(pack => {
       if (!pack.id) pack.id = genId();
       if (!pack.name) pack.name = '未命名合集';
@@ -2832,7 +2869,6 @@ function saveStickerPacks(packs) {
   catch (e) { alert('存储空间不足，表情合集保存失败'); }
 }
 
-// 兼容函数：返回所有合集里的全部表情（扁平），每项都带 packId / packName
 function loadStickers() {
   const packs = loadStickerPacks();
   const out = [];
@@ -2847,9 +2883,9 @@ function loadStickers() {
 function openJianxunApp() {
   loadPersonaList();
   loadWorldBook();
+  loadJianxunChats();
   openScreen('jianxunScreen');
   switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item'));
-  loadJianxunChats();
   renderJianxunChatList();
   loadMomentsData();
   renderJianxunContacts();
@@ -2899,6 +2935,13 @@ function loadJxMeProfile() {
         localStorage.setItem('moments_avatar', base64);
         const m = document.getElementById('momentsAvatarImg');
         if (m) m.src = base64;
+        if (jianxunChats.length === 0) loadJianxunChats();
+        jianxunChats.forEach(chat => {
+          if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+          chat.imagePool.push({ id: genId(), data: base64, time: Date.now() });
+          if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
+        });
+        saveJianxunChats();
         renderJianxunChatList();
         renderJianxunContacts();
         renderMomentsPosts();
@@ -3011,7 +3054,6 @@ function loadJianxunChats() {
       chat.boundWorldBook = entry ? [entry.id] : [];
     } else if (!Array.isArray(chat.boundWorldBook)) chat.boundWorldBook = [];
 
-    // === 表情合集绑定迁移 ===
     if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
     if (Array.isArray(chat.boundStickers) && chat.boundStickers.length > 0) {
       const packs = loadStickerPacks();
@@ -3079,6 +3121,7 @@ function openChat(id) {
   document.getElementById('jxChatScreen').classList.add('active');
   document.getElementById('jxChatInput').value = '';
   document.getElementById('jxStickerPanel').classList.remove('show');
+  clearQuote();
   exitMultiSelect(true);
   setTimeout(() => {
     const msgContainer = document.getElementById('jxChatMessages');
@@ -3088,6 +3131,52 @@ function openChat(id) {
 
 let multiSelectMode = false;
 let selectedMsgIds = new Set();
+
+// ============ 引用 ============
+let currentQuote = null;
+
+function startQuote(msgId) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === msgId);
+  if (!msg) return;
+  const myName = localStorage.getItem('moments_name') || '我';
+  const charName = chat.customRemark || chat.name || 'TA';
+  const senderName = msg.role === 'me' ? myName : charName;
+  let text = '';
+  if (msg.type === 'image') text = '[图片]';
+  else if (msg.type === 'sticker') text = '[表情]';
+  else if (msg.type === 'merged') text = '[聊天记录]';
+  else text = msg.content || '';
+  currentQuote = { msgId: msg.id, name: senderName, text: text };
+  renderQuotePreview();
+  const inp = document.getElementById('jxChatInput');
+  if (inp) inp.focus();
+}
+
+function renderQuotePreview() {
+  const el = document.getElementById('jxQuotePreview');
+  if (!el) return;
+  if (currentQuote) {
+    el.classList.add('show');
+    el.querySelector('.jx-quote-name').innerText = currentQuote.name;
+    el.querySelector('.jx-quote-text').innerText = currentQuote.text;
+  } else {
+    el.classList.remove('show');
+  }
+}
+
+function clearQuote() {
+  currentQuote = null;
+  renderQuotePreview();
+}
+
+function menuQuote() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  startQuote(id);
+}
 
 function renderChatMessages() {
   if (!currentChatId) return;
@@ -3124,6 +3213,11 @@ function renderChatMessages() {
       inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
     } else {
       inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
+    }
+    if (msg.quote) {
+      const qName = escapeHtml(msg.quote.name || '');
+      const qText = escapeHtml(msg.quote.text || '');
+      inner = `<div class="jx-msg-quote"><span class="qname">${qName}</span><span class="qtext">${qText}</span></div>` + inner;
     }
     const checkboxHtml = multiSelectMode ? `<div class="msg-checkbox ${selectedMsgIds.has(msg.id) ? 'checked' : ''}"></div>` : '';
     return `<div class="jx-msg-row ${isMe ? 'me' : 'other'}" data-msg-id="${msg.id}">
@@ -3201,8 +3295,11 @@ function sendMessage() {
   if (!content) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  chat.messages.push({ id: genId(), role: 'me', type: 'text', content: content });
+  const msg = { id: genId(), role: 'me', type: 'text', content: content };
+  if (currentQuote) msg.quote = { ...currentQuote };
+  chat.messages.push(msg);
   input.value = '';
+  clearQuote();
   saveJianxunChats();
   renderChatMessages();
   renderJianxunChatList();
@@ -3219,8 +3316,11 @@ function voiceSend() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   if (content) {
-    chat.messages.push({ id: genId(), role: 'me', type: 'text', content: content });
+    const msg = { id: genId(), role: 'me', type: 'text', content: content };
+    if (currentQuote) msg.quote = { ...currentQuote };
+    chat.messages.push(msg);
     input.value = '';
+    clearQuote();
     saveJianxunChats();
     renderChatMessages();
     renderJianxunChatList();
@@ -3251,7 +3351,7 @@ function voiceSend() {
   });
 })();
 
-// ============ 表情面板（合集选择 + 表情网格） ============
+// ============ 表情面板 ============
 let currentStickerPackId = null;
 
 function toggleStickerPanel() {
@@ -3340,7 +3440,6 @@ function sendSticker(id) {
   renderJianxunChatList();
 }
 
-// ============ 表情管理页 ============
 function openStickerScreen() {
   document.getElementById('jxStickerScreen').style.display = 'flex';
   renderStickerPackList();
@@ -3387,7 +3486,7 @@ function uploadImagesToPack(packId) {
     const pack = packs.find(p => p.id === packId);
     if (!pack) return;
     if (!pack.stickers) pack.stickers = [];
-    
+
     for (const file of Array.from(files)) {
       const base64 = await compressImageFile(file, 600, 0.8);
       if (base64) {
@@ -3411,22 +3510,22 @@ function renderStickerPackList() {
   const empty = document.getElementById('stickerEmpty');
   const count = document.getElementById('stickerPackCount');
   if (!list || !empty || !count) return;
-  
+
   const packs = loadStickerPacks();
   count.innerText = '(' + packs.length + ')';
-  
+
   if (packs.length === 0) {
     list.innerHTML = '';
     empty.style.display = 'block';
     return;
   }
-  
+
   empty.style.display = 'none';
-  
+
   list.innerHTML = packs.map(pack => {
     const stickers = pack.stickers || [];
     const isExpanded = expandedStickerPackIds.has(pack.id);
-    
+
     const cells = stickers.length === 0
       ? '<div style="grid-column:1/-1; text-align:center; color:#ccc; font-size:12px; padding:14px 0;">（空合集，请点击上方按钮上传图片）</div>'
       : stickers.map(s => {
@@ -3775,6 +3874,7 @@ function enterMultiSelect() {
   selectedMsgIds.clear();
   document.getElementById('jxChatInputBar').style.display = 'none';
   document.getElementById('jxStickerPanel').classList.remove('show');
+  document.getElementById('jxQuotePreview').classList.remove('show');
   document.getElementById('jxMultiBar').classList.add('show');
   document.getElementById('multiSelectCount').innerText = '已选 0 条';
   renderChatMessages();
@@ -3902,12 +4002,21 @@ function buildMomentsPrompt() {
   if (momentsPosts.length === 0) return '';
   const name = localStorage.getItem('moments_name') || '用户';
   const recent = momentsPosts.slice(0, 6);
-  let sp = '\n【朋友圈动态（你都看得到，可以自然地提起，但不必每次都提）】\n';
-  recent.forEach(p => {
+  let sp = '\n【朋友圈动态（你都看得到）】\n';
+  recent.forEach((p, i) => {
     const who = p.author || name;
     const text = (p.content || '').replace(/\s+/g, ' ').slice(0, 80);
-    sp += `- ${who}：${text}${p.images && p.images.length ? '（' + p.images.length + '张图片）' : ''}\n`;
+    sp += `${i + 1}. ${who}：${text}${p.images && p.images.length ? '（' + p.images.length + '张图片）' : ''}\n`;
+    const likes = Array.isArray(p.likes) ? p.likes : (p.liked ? [name] : []);
+    if (likes.length) sp += `   已点赞：${likes.join('、')}\n`;
+    if (p.comments && p.comments.length) {
+      p.comments.forEach(c => { sp += `   评论 ${c.user}：${c.text}\n`; });
+    }
   });
+  sp += '\n你可以对上面的动态点赞或评论（编号就是上面的数字）：\n';
+  sp += '- 点赞某条动态：[[LIKE_MOMENT:编号]]\n';
+  sp += '- 评论某条动态：[[COMMENT_MOMENT:编号|评论内容]]\n';
+  sp += '要克制使用，不要对每条都点赞/评论，只在真的想互动时用。\n';
   return sp;
 }
 function buildCharSystemPrompt(chat) {
@@ -3924,6 +4033,13 @@ function buildCharSystemPrompt(chat) {
     if (persona.age) sp += '年龄：' + persona.age + '\n';
     if (persona.details) sp += '详细设定：\n' + persona.details + '\n';
   }
+  sp += '\n【关于用户】\n';
+  sp += '用户名：' + (localStorage.getItem('moments_name') || '用户') + '\n';
+  if (localStorage.getItem('jx_wechat_id')) sp += '微信号：' + localStorage.getItem('jx_wechat_id') + '\n';
+  const _userAvatarData = localStorage.getItem('moments_avatar');
+  if (_userAvatarData) {
+    sp += '用户头像：你有时会在消息里看到用户发来的头像图片（如果用户换了头像，会以图片形式附带在最近的消息中）。\n';
+  }
   sp += buildWorldBookPrompt(chat);
   sp += buildStickerPrompt(chat);
   if (chat.imagePool && chat.imagePool.length > 0) {
@@ -3938,6 +4054,7 @@ function buildCharSystemPrompt(chat) {
   sp += '1. 把用户发过的某张图片设置为你自己的聊天头像：[[SET_AVATAR:图片编号]]\n';
   sp += '2. 发布一条朋友圈动态（可配图也可纯文字）：[[POST_MOMENT:动态文字|图片编号]]\n';
   sp += '   不配图时写成 [[POST_MOMENT:动态文字|]]\n';
+  sp += '   多张配图时用逗号分隔：[[POST_MOMENT:动态文字|1,2,3]]\n';
   sp += '图片编号必须是上面【用户曾发给你过的图片】列表中存在的编号。\n';
   sp += '这些动作要克制使用：只有真的符合人设和对话内容时才用，不要每句话都加，不要滥用。\n';
   sp += '如果不需要执行动作，就正常回复即可。\n';
@@ -3972,7 +4089,12 @@ function buildChatHistory(chat) {
       content = '[表情包]';
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
       content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
-    } else content = m.content || '';
+    } else {
+      content = m.content || '';
+      if (m.quote) {
+        content = `【引用 ${m.quote.name} 的消息：${m.quote.text}】\n` + content;
+      }
+    }
     const last = result[result.length - 1];
     if (last && last.role === role && typeof last.content === 'string' && typeof content === 'string') {
       last.content += '\n' + content;
@@ -4006,7 +4128,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   return '';
 }
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[(SET_AVATAR|POST_MOMENT|STICKER)\s*:\s*([\s\S]*?)\]\]/g;
+  const re = /\[\[(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT)\s*:\s*([\s\S]*?)\]\]/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -4046,9 +4168,12 @@ function executeCharAction(chat, action) {
     const numStr = (parts[1] || '').trim();
     const imgs = [];
     if (numStr) {
-      const idx = parseInt(numStr, 10) - 1;
-      const img = chat.imagePool && chat.imagePool[idx];
-      if (img && img.data) imgs.push(img.data);
+      numStr.split(/[,，、\s]+/).forEach(n => {
+        if (!n) return;
+        const idx = parseInt(n, 10) - 1;
+        const img = chat.imagePool && chat.imagePool[idx];
+        if (img && img.data) imgs.push(img.data);
+      });
     }
     if (!text && imgs.length === 0) return;
     loadMomentsPosts();
@@ -4060,15 +4185,44 @@ function executeCharAction(chat, action) {
       visibility: 'public',
       mentions: [],
       customVisibles: [],
-      liked: false,
+      likes: [],
       comments: [],
       author: chat.customRemark || chat.name || 'TA',
       authorAvatar: chat.avatar || ''
     });
     saveMomentsPosts();
-    if (document.getElementById('jx-moments') && document.getElementById('jx-moments').classList.contains('active')) {
-      renderMomentsPosts();
+    renderMomentsPosts();
+    return;
+  }
+  if (action.type === 'LIKE_MOMENT') {
+    const idx = parseInt(String(action.payload).trim(), 10) - 1;
+    loadMomentsPosts();
+    const post = momentsPosts[idx];
+    if (!post) return;
+    const charName = chat.customRemark || chat.name || 'TA';
+    if (!Array.isArray(post.likes)) {
+      post.likes = [];
+      delete post.liked;
     }
+    if (!post.likes.includes(charName)) post.likes.push(charName);
+    saveMomentsPosts();
+    renderMomentsPosts();
+    return;
+  }
+  if (action.type === 'COMMENT_MOMENT') {
+    const parts = String(action.payload).split('|');
+    const idx = parseInt((parts[0] || '').trim(), 10) - 1;
+    const text = (parts.slice(1).join('|') || '').trim();
+    if (!text) return;
+    loadMomentsPosts();
+    const post = momentsPosts[idx];
+    if (!post) return;
+    if (!post.comments) post.comments = [];
+    const charName = chat.customRemark || chat.name || 'TA';
+    post.comments.push({ user: charName, text: text });
+    saveMomentsPosts();
+    renderMomentsPosts();
+    return;
   }
 }
 async function generateCharReply(chat) {
@@ -4079,6 +4233,28 @@ async function generateCharReply(chat) {
   }
   const systemPrompt = buildCharSystemPrompt(chat);
   const history = buildChatHistory(chat);
+
+  const userAvatar = localStorage.getItem('moments_avatar');
+  if (userAvatar && history.length > 0) {
+    const hashKey = 'last_seen_avatar_hash_' + (chat.id || 'default');
+    const curHash = simpleHash(userAvatar);
+    const lastHash = localStorage.getItem(hashKey);
+    if (curHash !== lastHash) {
+      for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].role === 'user') {
+          let contentArr;
+          if (Array.isArray(history[i].content)) contentArr = history[i].content.slice();
+          else contentArr = [{ type: 'text', text: String(history[i].content || '') }];
+          contentArr.push({ type: 'text', text: '（这是我现在的头像）' });
+          contentArr.push({ type: 'image_url', image_url: { url: userAvatar } });
+          history[i].content = contentArr;
+          break;
+        }
+      }
+      try { localStorage.setItem(hashKey, curHash); } catch (e) {}
+    }
+  }
+
   let raw = '';
   try {
     raw = await callChatAPI(history, systemPrompt, cfg);
@@ -4129,6 +4305,7 @@ async function triggerCharReply(chat) {
 
 function closeChatScreen() {
   document.getElementById('jxStickerPanel').classList.remove('show');
+  clearQuote();
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
@@ -4397,6 +4574,13 @@ function loadMomentsData() {
       renderMomentsPosts();
       const meEl = document.getElementById('jxMeAvatarImg');
       if (meEl) meEl.src = base64;
+      if (jianxunChats.length === 0) loadJianxunChats();
+      jianxunChats.forEach(chat => {
+        if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+        chat.imagePool.push({ id: genId(), data: base64, time: Date.now() });
+        if (chat.imagePool.length > 12) chat.imagePool = chat.imagePool.slice(-12);
+      });
+      saveJianxunChats();
       pushAwareness('用户更换了新的头像');
       input.value = '';
     });
@@ -4459,6 +4643,8 @@ function renderMomentsPosts() {
     const isChar = !!post.author;
     const authorName = post.author || currentName;
     const authorAvatar = isChar ? (post.authorAvatar || '') : myAvatar;
+    const likesArr = Array.isArray(post.likes) ? post.likes : (post.liked ? [currentName] : []);
+    const likedClass = likesArr.includes(currentName) ? ' liked' : '';
     let imagesHtml = '';
     if (post.images && post.images.length > 0) {
       imagesHtml = `<div class="jx-post-images">${post.images.map(img => {
@@ -4468,9 +4654,14 @@ function renderMomentsPosts() {
     }
     let mentionsHtml = '';
     if (post.mentions && post.mentions.length > 0) mentionsHtml = `<div style="font-size:12px; color:#576b95; margin-top:4px;">@ ${post.mentions.map(escapeHtml).join('、')}</div>`;
+    let likesHtml = '';
+    if (likesArr.length > 0) {
+      likesHtml = `<div class="jx-post-likes"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>${likesArr.map(escapeHtml).join('，')}</span></div>`;
+    }
     let commentsHtml = '';
-    if (post.comments && post.comments.length > 0) {
-      commentsHtml = `<div class="jx-post-comments">${post.comments.map(c => `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}：</span><span class="jx-comment-text">${escapeHtml(c.text)}</span></div>`).join('')}</div>`;
+    const hasComments = post.comments && post.comments.length > 0;
+    if (hasComments || likesHtml) {
+      commentsHtml = `<div class="jx-post-comments">${likesHtml}${hasComments ? post.comments.map(c => `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}：</span><span class="jx-comment-text">${escapeHtml(c.text)}</span></div>`).join('') : ''}</div>`;
     }
     let visibilityIcon = '';
     let visibilityText = '';
@@ -4485,7 +4676,6 @@ function renderMomentsPosts() {
       visibilityText = '公开';
     }
     const deleteBtnIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-    const likedClass = post.liked ? ' liked' : '';
     return `<div class="jx-post">
       <div class="jx-post-header">
         <div class="jx-post-avatar">${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : ''}</div>
@@ -4510,8 +4700,16 @@ function toggleLike(postId) {
   loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
-  post.liked = !post.liked;
-  if (post.liked) {
+  const myName = localStorage.getItem('moments_name') || 'Koi Buono';
+  if (!Array.isArray(post.likes)) {
+    post.likes = post.liked ? [myName] : [];
+    delete post.liked;
+  }
+  const i = post.likes.indexOf(myName);
+  if (i >= 0) {
+    post.likes.splice(i, 1);
+  } else {
+    post.likes.push(myName);
     pushAwareness('用户点赞了' + (post.author ? ('「' + post.author + '」') : '') + '的一条朋友圈动态：' + (post.content || '[图片]').slice(0, 30));
   }
   saveMomentsPosts();
@@ -4597,7 +4795,7 @@ function publishPost() {
     visibility: visibility,
     mentions: mentions,
     customVisibles: customVisibles,
-    liked: false,
+    likes: [],
     comments: []
   };
   loadMomentsPosts();
@@ -4649,7 +4847,56 @@ function sendComment() {
     renderMomentsPosts();
     closeCommentModal();
     pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
+    if (post.author) {
+      const chat = jianxunChats.find(c => (c.customRemark || c.name) === post.author);
+      if (chat) {
+        setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
+      }
+    }
   }
+}
+
+async function replyToMomentsComment(chat, postId, userComment) {
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
+  loadMomentsPosts();
+  const post = momentsPosts.find(p => p.id === postId);
+  if (!post) return;
+  const charName = chat.customRemark || chat.name || 'TA';
+  const userName = localStorage.getItem('moments_name') || '用户';
+  const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
+    `你之前发过一条朋友圈：「${post.content || '[图片]'}」。\n` +
+    `现在「${userName}」在这条动态下评论了你：「${userComment}」。\n` +
+    `请用 1~2 句简短、口语化的话回复这条评论，符合你的性格。\n` +
+    `只输出评论内容本身，不要加引号、不要解释、不要带"回复："这样的前缀。`;
+  try {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [{ role: 'user', content: sys }],
+        temperature: cfg.temperature || 0.8,
+        max_tokens: 256
+      })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    let text = '';
+    if (typeof c === 'string') text = c;
+    else if (Array.isArray(c)) text = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    text = (text || '').trim();
+    if (!text) return;
+    loadMomentsPosts();
+    const p2 = momentsPosts.find(x => x.id === postId);
+    if (!p2) return;
+    if (!p2.comments) p2.comments = [];
+    p2.comments.push({ user: charName, text: text });
+    saveMomentsPosts();
+    renderMomentsPosts();
+  } catch (e) { console.warn('回复朋友圈评论失败', e); }
 }
 </script>
 
