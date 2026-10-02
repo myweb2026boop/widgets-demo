@@ -378,18 +378,32 @@
 
   .sticker-panel { display: none; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; height: 230px; flex-direction: column; }
   .sticker-panel.show { display: flex; }
+  .sticker-pack-bar { display: flex; overflow-x: auto; padding: 8px 10px; gap: 8px; border-bottom: 1px solid #e5e5e5; flex-shrink: 0; scrollbar-width: none; }
+  .sticker-pack-bar::-webkit-scrollbar { display: none; }
+  .sticker-pack-chip { flex-shrink: 0; padding: 5px 10px; border-radius: 14px; background: #fff; border: 1px solid #ddd; font-size: 12px; color: #333; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; user-select: none; transition: all .15s; }
+  .sticker-pack-chip.active { background: #07c160; color: #fff; border-color: #07c160; }
+  .sticker-pack-chip .sticker-pack-star { font-size: 14px; color: #bbb; cursor: pointer; line-height: 1; padding: 0 1px; }
+  .sticker-pack-chip .sticker-pack-star.on { color: #ffb400; }
+  .sticker-pack-chip.active .sticker-pack-star { color: rgba(255,255,255,0.7); }
+  .sticker-pack-chip.active .sticker-pack-star.on { color: #ffe082; }
   .sticker-panel-body { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start; }
   .sticker-panel-tip { font-size: 11px; color: #999; text-align: center; padding: 6px 0 12px; flex-shrink: 0; }
   .sticker-cell { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #eee; }
   .sticker-cell img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
-  .sticker-bind { position: absolute; top: 0px; right: 2px; font-size: 15px; color: #ccc; cursor: pointer; text-shadow: 0 0 4px #fff, 0 0 4px #fff; padding: 2px; line-height: 1; user-select: none; }
-  .sticker-bind.on { color: #ffb400; }
   .sticker-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #bbb; font-size: 13px; line-height: 1.8; }
 
   .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .sticker-item { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 1px solid #eee; }
   .sticker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .sticker-item .sticker-del { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff; font-size: 13px; line-height: 17px; text-align: center; cursor: pointer; }
+
+  .sticker-pack-card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  .sticker-pack-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+  .sticker-pack-card-title { display: flex; align-items: center; gap: 8px; overflow: hidden; flex: 1; min-width: 0; }
+  .sticker-pack-card-name { font-size: 14px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sticker-pack-card-count { font-size: 11px; color: #999; flex-shrink: 0; }
+  .sticker-pack-del-btn { font-size: 11px; padding: 4px 10px; border: none; border-radius: 6px; background: #ffeaea; color: #ff4757; cursor: pointer; flex-shrink: 0; }
+  .sticker-pack-name-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; margin-bottom: 8px; font-family: inherit; background: #fff; color: #333; }
 
   .jx-msg-menu { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: flex-end; justify-content: center; z-index: 50000; }
   .jx-msg-menu.show { display: flex; }
@@ -603,6 +617,12 @@
   .phone-case.dark-mode .jx-chat-input-bar .icon { fill: #ddd; }
   .phone-case.dark-mode .sticker-panel { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .sticker-cell { background: #2c2c2e; border-color: #3a3a3c; }
+  .phone-case.dark-mode .sticker-pack-bar { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .sticker-pack-chip { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
+  .phone-case.dark-mode .sticker-pack-chip.active { background: #07c160; color: #fff; border-color: #07c160; }
+  .phone-case.dark-mode .sticker-pack-card { background: #1c1c1e; border-color: #2c2c2e; }
+  .phone-case.dark-mode .sticker-pack-card-name { color: #eee; }
+  .phone-case.dark-mode .sticker-pack-name-input { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
   .phone-case.dark-mode .jx-multi-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .jx-multi-bar span { color: #ddd; }
   .phone-case.dark-mode .merged-title { color: #eee; border-bottom-color: rgba(255,255,255,0.1); }
@@ -1160,23 +1180,24 @@
       </div>
       <div class="jx-info-scroll">
         <div class="jx-info-block" style="padding: 16px;">
-          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">批量添加表情包链接</h4>
+          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">新建表情合集（粘贴链接）</h4>
+          <input type="text" id="stickerPackNameInput" class="sticker-pack-name-input" placeholder="合集名称（留空则自动命名）">
           <textarea id="stickerLinkInput" placeholder="每行一个表情包链接，可选格式：
 https://xxx.com/a.png
 名称|https://xxx.com/a.png
 名称|https://xxx.com/a.png|含义描述" style="width:100%; height:110px; border:1px solid #ddd; border-radius:8px; padding:10px; font-size:13px; resize:vertical; outline:none; font-family:inherit; line-height:1.5;"></textarea>
-          <button class="btn btn-primary" style="margin-top:10px; width:100%; padding:11px;" onclick="addStickersFromLinks()">添加链接</button>
+          <button class="btn btn-primary" style="margin-top:10px; width:100%; padding:11px;" onclick="addStickersFromLinks()">添加为合集</button>
         </div>
         <div class="jx-info-block" style="padding: 16px;">
           <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">上传文件</h4>
-          <p style="font-size:12px; color:#999; margin-bottom:10px; line-height:1.6;">支持 docx / json / txt。格式同上方文本框（每行一条）。</p>
+          <p style="font-size:12px; color:#999; margin-bottom:10px; line-height:1.6;">支持 docx / json / txt，上传后会自动创建一个表情合集（合集名 = 文件名）。</p>
           <button class="btn btn-success" style="width:100%; padding:11px;" onclick="document.getElementById('stickerFileInput').click()">选择文件</button>
           <input type="file" id="stickerFileInput" accept=".docx,.json,.txt" style="display:none;">
         </div>
         <div class="jx-info-block" style="padding: 16px;">
-          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">已添加表情包 <span id="stickerCount" style="color:#999; font-weight:normal; font-size:13px;">(0)</span></h4>
-          <div id="stickerGrid" class="sticker-grid"></div>
-          <div id="stickerEmpty" style="text-align:center; padding:30px 0; color:#ccc; font-size:13px;">暂无表情包</div>
+          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">表情合集 <span id="stickerPackCount" style="color:#999; font-weight:normal; font-size:13px;">(0)</span></h4>
+          <div id="stickerPackList"></div>
+          <div id="stickerEmpty" style="text-align:center; padding:30px 0; color:#ccc; font-size:13px;">暂无表情合集</div>
         </div>
       </div>
     </div>
@@ -1191,8 +1212,9 @@ https://xxx.com/a.png
       <div class="jx-chat-messages" id="jxChatMessages"></div>
 
       <div class="sticker-panel" id="jxStickerPanel">
+        <div class="sticker-pack-bar" id="stickerPackBar"></div>
         <div class="sticker-panel-body" id="stickerPanelBody"></div>
-        <div class="sticker-panel-tip">点击表情发送 · 点右上角☆可绑定给该角色使用</div>
+        <div class="sticker-panel-tip">点击表情发送 · 点合集名前的 ☆ 可整体绑定/解绑给该角色</div>
       </div>
 
       <div class="jx-chat-input-bar" id="jxChatInputBar">
@@ -1468,7 +1490,8 @@ const PERSONA_KEY = 'persona_list';
 const WORLDBOOK_KEY = 'worldbook_entries';
 const API_CONFIG_KEY = 'api_config';
 const API_PRESET_PREFIX = 'api_preset_';
-const STICKER_KEY = 'jx_stickers';
+const STICKER_KEY = 'jx_stickers';           // 旧 key（用于兼容迁移）
+const STICKER_PACKS_KEY = 'jx_sticker_packs'; // 新 key：表情合集
 
 if (localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
 if (localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
@@ -2351,7 +2374,8 @@ const isBackupKey = (key) => (
   key === 'is_fullscreen' || key === 'dark_mode' || key === 'api_config' ||
   key.startsWith('api_preset_') || key.startsWith('moments_') ||
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
-  key === 'jx_awareness_log' || key === 'jx_wechat_id' || key === STICKER_KEY
+  key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
+  key === STICKER_KEY || key === STICKER_PACKS_KEY
 );
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
@@ -2745,15 +2769,73 @@ function saveJianxunChats() {
   catch (e) { alert('存储空间不足，请删除一些聊天中的图片后重试'); }
 }
 
-function loadStickers() {
+/* ============================================================
+   表情合集：存储层
+   - 数据结构：jx_sticker_packs = [ { id, name, stickers: [ {id,name,url,meaning} ] } ]
+   - 兼容旧数据：jx_stickers 数组 → 自动迁移为一个名为"我的表情包"的合集
+   ============================================================ */
+let _stickerPacksMigrated = false;
+
+function loadStickerPacks() {
   try {
-    const v = JSON.parse(localStorage.getItem(STICKER_KEY) || '[]');
-    return Array.isArray(v) ? v : [];
+    let packs = [];
+    const packsRaw = localStorage.getItem(STICKER_PACKS_KEY);
+    if (packsRaw) {
+      try {
+        const p = JSON.parse(packsRaw);
+        if (Array.isArray(p)) packs = p;
+      } catch (e) {}
+    }
+    if (!_stickerPacksMigrated) {
+      _stickerPacksMigrated = true;
+      const oldRaw = localStorage.getItem(STICKER_KEY);
+      if (oldRaw && packs.length === 0) {
+        try {
+          const oldArr = JSON.parse(oldRaw);
+          if (Array.isArray(oldArr) && oldArr.length > 0) {
+            packs = [{
+              id: genId(),
+              name: '我的表情包',
+              stickers: oldArr.map(s => ({
+                id: s.id || genId(),
+                name: s.name || '',
+                url: s.url || '',
+                meaning: s.meaning || ''
+              })),
+              createdAt: Date.now()
+            }];
+            localStorage.setItem(STICKER_PACKS_KEY, JSON.stringify(packs));
+            localStorage.removeItem(STICKER_KEY);
+          }
+        } catch (e) {}
+      }
+    }
+    // 规范化
+    packs.forEach(pack => {
+      if (!pack.id) pack.id = genId();
+      if (!pack.name) pack.name = '未命名合集';
+      if (!Array.isArray(pack.stickers)) pack.stickers = [];
+      pack.stickers.forEach(s => { if (!s.id) s.id = genId(); });
+    });
+    return packs;
   } catch (e) { return []; }
 }
-function saveStickers(list) {
-  try { localStorage.setItem(STICKER_KEY, JSON.stringify(list)); }
-  catch (e) { alert('存储空间不足，表情包保存失败'); }
+
+function saveStickerPacks(packs) {
+  try { localStorage.setItem(STICKER_PACKS_KEY, JSON.stringify(packs)); }
+  catch (e) { alert('存储空间不足，表情合集保存失败'); }
+}
+
+// 兼容函数：返回所有合集里的全部表情（扁平），每项都带 packId / packName
+function loadStickers() {
+  const packs = loadStickerPacks();
+  const out = [];
+  packs.forEach(pack => {
+    (pack.stickers || []).forEach(s => {
+      out.push({ ...s, packId: pack.id, packName: pack.name });
+    });
+  });
+  return out;
 }
 
 function openJianxunApp() {
@@ -2916,13 +2998,28 @@ function loadJianxunChats() {
     if (chat.chatBg === undefined) chat.chatBg = '';
     if (chat.myAvatar === undefined) chat.myAvatar = '';
     if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-    if (!Array.isArray(chat.boundStickers)) chat.boundStickers = [];
     delete chat._replying;
     if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
     else if (typeof chat.boundWorldBook === 'string') {
       const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
       chat.boundWorldBook = entry ? [entry.id] : [];
     } else if (!Array.isArray(chat.boundWorldBook)) chat.boundWorldBook = [];
+
+    // === 表情合集绑定迁移 ===
+    if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
+    if (Array.isArray(chat.boundStickers) && chat.boundStickers.length > 0) {
+      // 老字段 boundStickers 里存的是 sticker.id，迁移为对应的 packId
+      const packs = loadStickerPacks();
+      const stickerToPack = {};
+      packs.forEach(p => (p.stickers || []).forEach(s => { stickerToPack[s.id] = p.id; }));
+      chat.boundStickers.forEach(sid => {
+        const pid = stickerToPack[sid];
+        if (pid && !chat.boundStickerPacks.includes(pid)) chat.boundStickerPacks.push(pid);
+      });
+      delete chat.boundStickers;
+    }
+    if (chat.boundStickers !== undefined) delete chat.boundStickers;
+
     chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
   });
 }
@@ -3149,6 +3246,9 @@ function voiceSend() {
   });
 })();
 
+// ============ 表情面板（合集选择 + 表情网格） ============
+let currentStickerPackId = null;   // 当前在面板里查看哪个合集
+
 function toggleStickerPanel() {
   const panel = document.getElementById('jxStickerPanel');
   if (panel.classList.contains('show')) {
@@ -3165,24 +3265,63 @@ function toggleStickerPanel() {
 
 function renderStickerPanel() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
-  const stickers = loadStickers();
+  const packs = loadStickerPacks();
+  const bar = document.getElementById('stickerPackBar');
   const body = document.getElementById('stickerPanelBody');
-  if (!body) return;
-  if (stickers.length === 0) {
-    body.innerHTML = '<div class="sticker-empty">还没有表情包<br>去「我 → 表情」里添加吧</div>';
+  if (!bar || !body) return;
+
+  if (packs.length === 0) {
+    bar.innerHTML = '';
+    body.innerHTML = '<div class="sticker-empty">还没有表情合集<br>去「我 → 表情」里添加吧</div>';
     return;
   }
-  const bound = (chat && Array.isArray(chat.boundStickers)) ? chat.boundStickers : [];
-  body.innerHTML = stickers.map(s => {
-    const on = bound.includes(s.id);
-    const safeUrl = escapeHtml(s.url).replace(/'/g, '%27');
-    return `<div class="sticker-cell">
-      <img src="${safeUrl}" alt="表情" onclick="sendSticker('${s.id}')">
-      <span class="sticker-bind ${on ? 'on' : ''}" onclick="toggleStickerBind('${s.id}', event)">${on ? '★' : '☆'}</span>
+
+  const bound = (chat && Array.isArray(chat.boundStickerPacks)) ? chat.boundStickerPacks : [];
+
+  if (!currentStickerPackId || !packs.find(p => p.id === currentStickerPackId)) {
+    currentStickerPackId = packs[0].id;
+  }
+
+  bar.innerHTML = packs.map(pack => {
+    const active = pack.id === currentStickerPackId ? ' active' : '';
+    const isBound = bound.includes(pack.id);
+    return `<div class="sticker-pack-chip${active}" onclick="selectStickerPack('${pack.id}')">
+      <span class="sticker-pack-star${isBound ? ' on' : ''}" onclick="toggleStickerPackBind('${pack.id}', event)">${isBound ? '★' : '☆'}</span>
+      <span class="sticker-pack-name">${escapeHtml(pack.name || '未命名')}</span>
     </div>`;
   }).join('');
+
+  const cur = packs.find(p => p.id === currentStickerPackId);
+  const stickers = cur ? (cur.stickers || []) : [];
+  if (stickers.length === 0) {
+    body.innerHTML = '<div class="sticker-empty">这个合集还没有表情</div>';
+  } else {
+    body.innerHTML = stickers.map(s => {
+      const safeUrl = escapeHtml(s.url).replace(/'/g, '%27');
+      return `<div class="sticker-cell"><img src="${safeUrl}" alt="表情" onclick="sendSticker('${s.id}')"></div>`;
+    }).join('');
+  }
 }
 
+function selectStickerPack(packId) {
+  currentStickerPackId = packId;
+  renderStickerPanel();
+}
+
+// 整体绑定/解绑一个合集
+function toggleStickerPackBind(packId, e) {
+  if (e) e.stopPropagation();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
+  const i = chat.boundStickerPacks.indexOf(packId);
+  if (i >= 0) chat.boundStickerPacks.splice(i, 1);
+  else chat.boundStickerPacks.push(packId);
+  saveJianxunChats();
+  renderStickerPanel();
+}
+
+// 发送一个表情（按 sticker.id 查找）
 function sendSticker(id) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   const stickers = loadStickers();
@@ -3194,58 +3333,84 @@ function sendSticker(id) {
   renderJianxunChatList();
 }
 
-function toggleStickerBind(id, e) {
-  if (e) e.stopPropagation();
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  if (!Array.isArray(chat.boundStickers)) chat.boundStickers = [];
-  const i = chat.boundStickers.indexOf(id);
-  if (i >= 0) chat.boundStickers.splice(i, 1);
-  else chat.boundStickers.push(id);
-  saveJianxunChats();
-  renderStickerPanel();
-}
-
+// ============ 表情管理页 ============
 function openStickerScreen() {
   document.getElementById('jxStickerScreen').style.display = 'flex';
-  renderStickerManageGrid();
+  renderStickerPackList();
 }
 function closeStickerScreen() {
   document.getElementById('jxStickerScreen').style.display = 'none';
 }
-function renderStickerManageGrid() {
-  const grid = document.getElementById('stickerGrid');
+
+function renderStickerPackList() {
+  const list = document.getElementById('stickerPackList');
   const empty = document.getElementById('stickerEmpty');
-  const count = document.getElementById('stickerCount');
-  const stickers = loadStickers();
-  count.innerText = '(' + stickers.length + ')';
-  if (stickers.length === 0) {
-    grid.innerHTML = '';
+  const count = document.getElementById('stickerPackCount');
+  if (!list || !empty || !count) return;
+  const packs = loadStickerPacks();
+  count.innerText = '(' + packs.length + ')';
+  if (packs.length === 0) {
+    list.innerHTML = '';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
-  grid.innerHTML = stickers.map(s => {
-    const safeUrl = escapeHtml(s.url);
-    return `<div class="sticker-item">
-      <img src="${safeUrl}" alt="${escapeHtml(s.name || '')}" title="${escapeHtml(s.name || '')}${s.meaning ? ' · ' + escapeHtml(s.meaning) : ''}">
-      <span class="sticker-del" onclick="deleteSticker('${s.id}')">×</span>
+  list.innerHTML = packs.map(pack => {
+    const stickers = pack.stickers || [];
+    const cells = stickers.length === 0
+      ? '<div style="grid-column:1/-1; text-align:center; color:#ccc; font-size:12px; padding:14px 0;">（空合集）</div>'
+      : stickers.map(s => {
+          const safeUrl = escapeHtml(s.url);
+          const safeName = escapeHtml(s.name || '');
+          const safeMeaning = escapeHtml(s.meaning || '');
+          return `<div class="sticker-item">
+            <img src="${safeUrl}" alt="${safeName}" title="${safeName}${safeMeaning ? ' · ' + safeMeaning : ''}">
+            <span class="sticker-del" onclick="deleteStickerItem('${pack.id}', '${s.id}')">×</span>
+          </div>`;
+        }).join('');
+    return `<div class="sticker-pack-card">
+      <div class="sticker-pack-card-header">
+        <div class="sticker-pack-card-title">
+          <span class="sticker-pack-card-name">${escapeHtml(pack.name || '未命名合集')}</span>
+          <span class="sticker-pack-card-count">${stickers.length} 张</span>
+        </div>
+        <button class="sticker-pack-del-btn" onclick="deleteStickerPack('${pack.id}')">删除合集</button>
+      </div>
+      <div class="sticker-grid">${cells}</div>
     </div>`;
   }).join('');
 }
-function deleteSticker(id) {
-  if (!confirm('确定删除这个表情包吗？')) return;
-  let stickers = loadStickers().filter(s => s.id !== id);
-  saveStickers(stickers);
+
+// 删除整个合集
+function deleteStickerPack(packId) {
+  if (!confirm('确定删除整个表情合集吗？合集内所有表情都会一起删除。')) return;
+  const packs = loadStickerPacks().filter(p => p.id !== packId);
+  saveStickerPacks(packs);
+  // 从所有聊天的绑定里移除
   jianxunChats.forEach(c => {
-    if (Array.isArray(c.boundStickers)) {
-      c.boundStickers = c.boundStickers.filter(x => x !== id);
+    if (Array.isArray(c.boundStickerPacks)) {
+      c.boundStickerPacks = c.boundStickerPacks.filter(x => x !== packId);
     }
   });
   saveJianxunChats();
-  renderStickerManageGrid();
+  if (currentStickerPackId === packId) currentStickerPackId = null;
+  renderStickerPackList();
 }
 
+// 删除合集里的单个表情
+function deleteStickerItem(packId, stickerId) {
+  if (!confirm('确定删除这个表情吗？')) return;
+  const packs = loadStickerPacks();
+  const pack = packs.find(p => p.id === packId);
+  if (!pack) return;
+  pack.stickers = (pack.stickers || []).filter(s => s.id !== stickerId);
+  saveStickerPacks(packs);
+  renderStickerPackList();
+}
+
+/* ============================================================
+   表情文本 / JSON 解析
+   ============================================================ */
 function parseStickerLines(text) {
   const out = [];
   const lines = String(text || '')
@@ -3324,17 +3489,34 @@ function parseStickerJson(data) {
   return out;
 }
 
+// 从文本框创建合集
 function addStickersFromLinks() {
-  const text = document.getElementById('stickerLinkInput').value;
-  const newOnes = parseStickerLines(text);
-  if (newOnes.length === 0) { alert('没有解析到有效的表情包链接\n请检查格式（每行一个链接，需以 http/https 或 data:image 开头）'); return; }
-  const all = loadStickers().concat(newOnes);
-  saveStickers(all);
-  document.getElementById('stickerLinkInput').value = '';
-  renderStickerManageGrid();
-  alert('成功添加 ' + newOnes.length + ' 个表情包');
+  const nameInput = document.getElementById('stickerPackNameInput');
+  const textarea = document.getElementById('stickerLinkInput');
+  if (!nameInput || !textarea) return;
+  const name = (nameInput.value || '').trim();
+  const text = textarea.value;
+  const stickers = parseStickerLines(text);
+  if (stickers.length === 0) {
+    alert('没有解析到有效的表情包链接\n请检查格式（每行一个链接，需以 http/https 或 data:image 开头）');
+    return;
+  }
+  const packs = loadStickerPacks();
+  const finalName = name || ('合集 ' + (packs.length + 1));
+  packs.push({
+    id: genId(),
+    name: finalName,
+    stickers: stickers,
+    createdAt: Date.now()
+  });
+  saveStickerPacks(packs);
+  nameInput.value = '';
+  textarea.value = '';
+  renderStickerPackList();
+  alert('成功创建合集「' + finalName + '」，包含 ' + stickers.length + ' 个表情');
 }
 
+// 上传文件创建合集（一个文件 = 一个合集）
 (function initStickerFileInput() {
   const input = document.getElementById('stickerFileInput');
   if (!input) return;
@@ -3346,16 +3528,24 @@ function addStickersFromLinks() {
 
     const dotIdx = file.name.lastIndexOf('.');
     const ext = dotIdx >= 0 ? file.name.slice(dotIdx).toLowerCase() : '';
+    const baseName = dotIdx >= 0 ? file.name.slice(0, dotIdx) : file.name;
+    const packName = baseName || ('合集 ' + (loadStickerPacks().length + 1));
 
     const finish = (list) => {
       if (!list || list.length === 0) {
-        alert('未从文件中解析出有效表情包\n\n请检查文件内容是否包含图片链接（http/https 或 data:image 开头）');
+        alert('未从文件中解析出有效表情\n\n请检查文件内容是否包含图片链接（http/https 或 data:image 开头）');
         return;
       }
-      const all = loadStickers().concat(list);
-      saveStickers(all);
-      renderStickerManageGrid();
-      alert('成功导入 ' + list.length + ' 个表情包');
+      const packs = loadStickerPacks();
+      packs.push({
+        id: genId(),
+        name: packName,
+        stickers: list,
+        createdAt: Date.now()
+      });
+      saveStickerPacks(packs);
+      renderStickerPackList();
+      alert('成功导入合集「' + packName + '」，共 ' + list.length + ' 个表情');
     };
 
     if (ext === '.docx') {
@@ -3365,7 +3555,7 @@ function addStickersFromLinks() {
         mammothConvertHtmlSafe(evt.target.result)
           .then(result => {
             let html = result.value || '';
-
+            // 保留超链接 URL
             html = html.replace(
               /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
               (_m, href, txt) => {
@@ -3373,13 +3563,11 @@ function addStickersFromLinks() {
                 return (clean ? clean + '|' : '') + href;
               }
             );
-
             let text = html
               .replace(/<\/p>/gi, '\n')
               .replace(/<br\s*\/?>/gi, '\n')
               .replace(/<[^>]+>/g, '');
             text = decodeEntities(text);
-
             const list = parseStickerLines(text);
             if (list.length === 0) {
               alert('未从 docx 中解析出表情包链接\n\n可能原因：\n1. 文档里的链接是"以文本形式"粘贴的，请在 Word 里重新复制粘贴为超链接\n2. 链接不是 http/https 开头\n3. 文档内只有图片、没有链接地址');
@@ -3614,15 +3802,22 @@ function buildWorldBookPrompt(chat) {
   relevant.sort((a, b) => (a.order || 100) - (b.order || 100));
   return '\n【世界观 / 背景设定】\n' + relevant.map(e => e.content).join('\n\n') + '\n';
 }
+
+// 从绑定的表情合集里提取所有表情，供角色挑选
 function buildStickerPrompt(chat) {
-  const bound = Array.isArray(chat.boundStickers) ? chat.boundStickers : [];
-  if (bound.length === 0) return '';
-  const stickers = loadStickers().filter(s => bound.includes(s.id));
-  if (stickers.length === 0) return '';
+  const boundPackIds = Array.isArray(chat.boundStickerPacks) ? chat.boundStickerPacks : [];
+  if (boundPackIds.length === 0) return '';
+  const packs = loadStickerPacks().filter(p => boundPackIds.includes(p.id));
+  if (packs.length === 0) return '';
+  const allStickers = [];
+  packs.forEach(p => {
+    (p.stickers || []).forEach(s => allStickers.push(s));
+  });
+  if (allStickers.length === 0) return '';
   let sp = '\n【你可以使用的表情包】\n';
   sp += '当你想发一个表情包时，在回复中单独输出一行：[[STICKER:表情名称]]\n';
   sp += '系统会自动把它变成表情发出去，用户看到的是图片。\n';
-  stickers.forEach((s, i) => {
+  allStickers.forEach((s, i) => {
     sp += `${i + 1}. 名称：${s.name || '未命名'}${s.meaning ? '；含义：' + s.meaning : ''}\n`;
   });
   sp += '不要滥用表情包，只在自然合适的时候才发。\n';
@@ -3753,15 +3948,18 @@ function executeCharAction(chat, action) {
     return;
   }
   if (action.type === 'STICKER') {
-    const bound = Array.isArray(chat.boundStickers) ? chat.boundStickers : [];
-    const stickers = loadStickers().filter(s => bound.includes(s.id));
+    const boundPackIds = Array.isArray(chat.boundStickerPacks) ? chat.boundStickerPacks : [];
+    if (boundPackIds.length === 0) return;
+    const packs = loadStickerPacks().filter(p => boundPackIds.includes(p.id));
+    const allStickers = [];
+    packs.forEach(p => (p.stickers || []).forEach(s => allStickers.push(s)));
     const want = String(action.payload).trim();
-    if (!want || stickers.length === 0) return;
-    let target = stickers.find(s => (s.name || '') === want);
-    if (!target) target = stickers.find(s => (s.meaning || '') === want);
-    if (!target) target = stickers.find(s => (s.name || '').includes(want) || want.includes(s.name || ''));
-    if (!target) target = stickers.find(s => (s.meaning || '').includes(want) || want.includes(s.meaning || ''));
-    if (!target) target = stickers[0];
+    if (!want || allStickers.length === 0) return;
+    let target = allStickers.find(s => (s.name || '') === want);
+    if (!target) target = allStickers.find(s => (s.meaning || '') === want);
+    if (!target) target = allStickers.find(s => (s.name || '').includes(want) || want.includes(s.name || ''));
+    if (!target) target = allStickers.find(s => (s.meaning || '').includes(want) || want.includes(s.meaning || ''));
+    if (!target) target = allStickers[0];
     if (target) {
       chat._pendingStickers = chat._pendingStickers || [];
       chat._pendingStickers.push({ url: target.url, name: target.name });
@@ -4066,7 +4264,7 @@ function addPersonaToChat(index) {
     maxReply: 1,
     customRemark: '',
     boundWorldBook: [],
-    boundStickers: [],
+    boundStickerPacks: [],
     chatBg: '',
     myAvatar: '',
     imagePool: []
