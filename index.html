@@ -344,7 +344,7 @@
   .jx-msg-avatar { width: 40px; height: 40px; border-radius: 4px; overflow: hidden; flex-shrink: 0; margin-right: 10px; background: #eee; }
   .jx-msg-row.me .jx-msg-avatar { margin-right: 0; margin-left: 10px; }
   .jx-msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .jx-msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 4px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; }
+  .jx-msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 4px; font-size: 15px; line-height: 1.4; position: relative; word-wrap: break-word; overflow-wrap: break-word; }
   .jx-msg-row.me .jx-msg-bubble { background: #95ec69; color: #000; }
   .jx-msg-row.other .jx-msg-bubble { background: #fff; color: #000; }
   .jx-msg-row.me .jx-msg-bubble::after { content: ''; position: absolute; top: 12px; right: -6px; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 6px solid #95ec69; }
@@ -358,7 +358,7 @@
   .jx-chat-input-bar .icon-voice { margin-right: 8px; }
   .jx-chat-input-bar .icon-emoji { margin-left: 8px; }
   .jx-chat-input-bar .icon-plus { margin-left: 8px; }
-  .jx-chat-input-bar textarea { flex: 1; border: none; border-radius: 4px; padding: 8px 12px; font-size: 15px; outline: none; background: #fff; resize: none; min-height: 36px; max-height: 100px; overflow-y: auto; line-height: 1.4; font-family: inherit; }
+  .jx-chat-input-bar textarea { flex: 1; border: none; border-radius: 4px; padding: 8px 12px; font-size: 15px; outline: none; background: #fff; resize: none; min-height: 36px; max-height: 100px; overflow-y: auto; line-height: 1.4; font-family: inherit; white-space: pre-wrap; }
   .jx-chat-input-bar textarea::placeholder { color: #bbb; }
 
   .jx-multi-bar { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
@@ -1256,7 +1256,7 @@ https://xxx.com/a.png
 
       <div class="jx-chat-input-bar" id="jxChatInputBar">
         <svg class="icon icon-voice" viewBox="0 0 24 24" onclick="voiceSend()"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
-        <textarea id="jxChatInput" rows="1" placeholder="输入消息..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }" oninput="this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px';"></textarea>
+        <textarea id="jxChatInput" rows="1" placeholder="输入消息…（Shift+Enter 换行 / 空行分段发送多条）" onkeydown="handleChatInputKeydown(event)" oninput="this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px';"></textarea>
         <svg class="icon icon-emoji" viewBox="0 0 24 24" onclick="toggleStickerPanel()"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
         <svg class="icon icon-plus" viewBox="0 0 24 24" onclick="document.getElementById('jxChatImageInput').click()"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         <input type="file" id="jxChatImageInput" accept="image/*" style="display: none;">
@@ -1496,10 +1496,24 @@ function truncate(s, n) {
 function genId() {
   return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }
-function simpleHash(s) {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  return String(h) + '_' + s.length;
+
+// ★★★ 核心：把一段文本按"空行"拆成多条消息；单个换行保留在同一条消息里 ★★★
+function splitTextIntoBubbles(raw) {
+  if (raw == null) return [];
+  // 统一换行符
+  let s = String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // 去掉首尾的空白行（保留行内换行）
+  s = s.replace(/^(?:[ \t]*\n)+/, '').replace(/(?:\n[ \t]*)+$/, '');
+  if (!s.trim()) return [];
+  // 按"一个换行 + 可选空白 + 至少一个换行"进行切分（即空行分段）
+  const parts = s.split(/\n[ \t]*\n+/);
+  const out = [];
+  for (const p of parts) {
+    // 去掉分段后遗留的首尾换行
+    const t = p.replace(/^[ \t]*\n+/, '').replace(/\n+[ \t]*$/, '');
+    if (t.trim()) out.push(t);
+  }
+  return out.length ? out : [s];
 }
 
 // ================= 全局界面管理 =================
@@ -2793,7 +2807,6 @@ updateApiPresetList();
 let jianxunChats = [];
 let currentChatId = null;
 
-// ★ 关键修复：图片列表倒序（最新在前），并对头像做明确标注
 function getCharImageRefs(chat) {
   const refs = [];
   const userAvatar = localStorage.getItem('moments_avatar');
@@ -2812,7 +2825,6 @@ function getCharImageRefs(chat) {
     if (img.isAvatar && userAvatar && img.data === userAvatar) return false;
     return true;
   });
-  // 按时间倒序：最新的排最前面
   filtered.sort((a, b) => (b.time || 0) - (a.time || 0));
   filtered.forEach(img => refs.push(img));
   return refs;
@@ -2845,7 +2857,7 @@ function saveJianxunChats() {
         const before = chat.imagePool.length;
         const avatars = chat.imagePool.filter(img => img.isAvatar);
         let photos = chat.imagePool.filter(img => !img.isAvatar);
-        if (photos.length > 3) photos = photos.slice(-3); // 配额清理时保留最近3张
+        if (photos.length > 3) photos = photos.slice(-3);
         chat.imagePool = avatars.concat(photos);
         if (chat.imagePool.length < before) cleaned = true;
       }
@@ -3309,6 +3321,7 @@ function renderChatMessages() {
       const safeSrc = String(msg.image).replace(/'/g, '%27');
       inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
     } else {
+      // ★ 单换行 → <br>，渲染在同一个气泡内
       inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
     }
     if (msg.quote) {
@@ -3386,69 +3399,55 @@ function openImageViewer(src) {
   overlay.style.display = 'flex';
 }
 
-// ★ 用户发消息 —— 支持用 \n\n 空行分段发多条
+// ★★★ 输入框键盘处理：Enter 发送，Shift/Ctrl/Alt + Enter 换行 ★★★
+function handleChatInputKeydown(e) {
+  if (e.key !== 'Enter') return;
+  // 中文输入法组合中，不拦截
+  if (e.isComposing || e.keyCode === 229) return;
+  // 带修饰键 → 允许浏览器默认的换行行为
+  if (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+  e.preventDefault();
+  sendMessage();
+}
+
+// ★★★ 用户发消息：按空行拆成多条气泡；单换行保留在同一条气泡里 ★★★
 function sendMessage() {
   const input = document.getElementById('jxChatInput');
-  const content = input.value.trim();
-  if (!content) return;
+  if (!input) return false;
+  const segments = splitTextIntoBubbles(input.value);
+  if (segments.length === 0) return false;
   const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
+  if (!chat) return false;
 
-  // 用空行 \n\n 分段发送
-  const segments = content.split(/\n\s*\n/).map(s => s.trim()).filter(s => s);
-  if (segments.length > 1) {
-    segments.forEach(seg => {
-      const msg = { id: genId(), role: 'me', type: 'text', content: seg };
-      if (currentQuote) msg.quote = { ...currentQuote };
-      chat.messages.push(msg);
-    });
-    clearQuote();
-  } else {
-    const msg = { id: genId(), role: 'me', type: 'text', content: content };
-    if (currentQuote) msg.quote = { ...currentQuote };
+  const quoteSnapshot = currentQuote ? { ...currentQuote } : null;
+
+  segments.forEach(seg => {
+    const msg = { id: genId(), role: 'me', type: 'text', content: seg };
+    if (quoteSnapshot) msg.quote = { ...quoteSnapshot };
     chat.messages.push(msg);
-    clearQuote();
-  }
+  });
 
+  clearQuote();
   input.value = '';
   input.style.height = 'auto';
   saveJianxunChats();
   renderChatMessages();
   renderJianxunChatList();
+  return true;
 }
 
+// 发送按钮（麦克风图标）：发送 + 触发角色回复
 function voiceSend() {
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
     alert('请先在「设置 → API 配置」中完成配置，角色才能回复哦～');
     return;
   }
-  const input = document.getElementById('jxChatInput');
-  const content = input.value.trim();
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  if (content) {
-    const segments = content.split(/\n\s*\n/).map(s => s.trim()).filter(s => s);
-    if (segments.length > 1) {
-      segments.forEach(seg => {
-        const msg = { id: genId(), role: 'me', type: 'text', content: seg };
-        if (currentQuote) msg.quote = { ...currentQuote };
-        chat.messages.push(msg);
-      });
-      clearQuote();
-    } else {
-      const msg = { id: genId(), role: 'me', type: 'text', content: content };
-      if (currentQuote) msg.quote = { ...currentQuote };
-      chat.messages.push(msg);
-      clearQuote();
-    }
-    input.value = '';
-    input.style.height = 'auto';
-    saveJianxunChats();
-    renderChatMessages();
-    renderJianxunChatList();
-  }
-  document.getElementById('jxStickerPanel').classList.remove('show');
+  const panel = document.getElementById('jxStickerPanel');
+  if (panel) panel.classList.remove('show');
+  sendMessage();
   if (chat.messages.filter(m => m.content !== '__typing__').length === 0) return;
   triggerCharReply(chat);
 }
@@ -4169,7 +4168,6 @@ function buildCharSystemPrompt(chat) {
   sp += buildWorldBookPrompt(chat);
   sp += buildStickerPrompt(chat);
 
-  // ★ 图片资源列表（最新在前，头像固定是编号 1）
   const refs = getCharImageRefs(chat);
   sp += '\n【你可以引用 / 发布的图片资源】（图片编号从 1 开始）\n';
   sp += '★ 重要说明：\n';
@@ -4213,10 +4211,11 @@ function buildCharSystemPrompt(chat) {
   // ★ 分段发消息说明
   sp += '\n【分段发送多条消息 —— 很重要】\n';
   sp += '你可以像真人一样"连发几条消息"。方法：用单独一行的 [[SPLIT]] 来分隔每一条。\n';
-  sp += '系统会自动把它们拆成独立的消息，逐条显示给用户。\n';
+  sp += '系统会自动把它们拆成独立的气泡消息，逐条显示给用户。\n';
   sp += '示例（用户让你连发 3 条）：\n';
   sp += '第一条消息内容\n[[SPLIT]]\n第二条消息内容\n[[SPLIT]]\n第三条消息内容\n\n';
   sp += '★ 当用户明确要求"发 N 条""分段发""连发几条""一条一条发"时，你必须用 [[SPLIT]] 分开，分成用户要求的条数。\n';
+  sp += '★ 如果某一条消息内部还需要换行，直接在该条内部用普通换行即可（不会被拆分成多条气泡）。\n';
   sp += '★ 普通回复不要用 [[SPLIT]]，否则会显得别扭。\n';
   sp += '★ [[SPLIT]] 必须单独占一行，前后不要有多余空格。\n';
 
@@ -4230,7 +4229,6 @@ function buildCharSystemPrompt(chat) {
   return sp;
 }
 
-// 辅助：拼装图片描述行
 function isTagOrDesc(isAvatarTag, img, d) {
   return `${isAvatarTag} · ${img.desc || (img.isAvatar ? '用户的头像' : '用户发来的图片')}${d ? '（' + d + '）' : ''}`;
 }
@@ -4296,7 +4294,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   return '';
 }
 function parseAndExecuteActions(chat, rawText) {
-  // ★ 关键：不拆 [[SPLIT]]，保留给调用方按分段处理
+  // ★ 不拆 [[SPLIT]]，保留给调用方按分段处理
   const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT)\s*[:：]\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
@@ -4430,7 +4428,7 @@ async function generateCharReply(chat) {
   return clean || raw;
 }
 
-// ★ 关键修复：triggerCharReply 里处理 [[SPLIT]] 和 \n\n 分段
+// ★★★ 角色回复：先按 [[SPLIT]] 拆，再按空行拆，每条独立气泡 ★★★
 async function triggerCharReply(chat) {
   if (chat._replying) return;
   chat._replying = true;
@@ -4443,19 +4441,17 @@ async function triggerCharReply(chat) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
 
-    if (reply) {
-      // 按 [[SPLIT]] 或空行分段
-      const segments = reply.split(/\[\[\s*SPLIT\s*\]\]|\n\s*\n/i)
-        .map(s => s.replace(/^\s+|\s+$/g, ''))
-        .filter(s => s.length > 0);
-      if (segments.length > 1) {
-        // 多条消息
-        segments.forEach(seg => {
-          chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
-        });
-      } else {
-        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: reply });
-      }
+    const rawReply = String(reply == null ? '' : reply);
+    // 把 [[SPLIT]] 统一转成空行，然后走同一个拆气泡逻辑
+    const normalized = rawReply.replace(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi, '\n\n');
+    const segments = splitTextIntoBubbles(normalized);
+
+    if (segments.length > 0) {
+      segments.forEach(seg => {
+        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
+      });
+    } else if (rawReply.trim()) {
+      chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply.trim() });
     }
 
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
