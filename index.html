@@ -3287,8 +3287,6 @@ function openTransferModal(presetChatId) {
   document.getElementById('jxTransferNote').value = '';
   const relField = document.getElementById('jxTransferRelCardField');
   const chatId = presetChatId || currentChatId;
-  const chat = jianxunChats.find(c => c.id === chatId);
-  // 展示当前可用亲属卡
   const usableCards = loadRelCards().filter(c => c.to === '__me__' && c.status === 'active' && c.balance > 0);
   if (usableCards.length > 0) {
     relField.style.display = 'block';
@@ -3400,7 +3398,6 @@ function confirmRelativeCard() {
   pushBill({ title: '赠送亲属卡给 ' + target, amount: amount, direction: 'out', type: 'relcard_create' });
   pushAwareness('用户给「' + target + '」赠送了一张 ' + formatMoney(amount) + ' 元额度的亲属卡');
 
-  // 聊天消息中插入亲属卡
   const chat = jianxunChats.find(c => c.name === target);
   if (chat) {
     chat.messages.push({
@@ -3992,7 +3989,6 @@ function renderChatMessages(keepScrollPos) {
     if (msg.content === '__typing__') {
       inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
     } else if (msg.type === 'merged' && Array.isArray(msg.items)) {
-      // ==== 可点击的转发聊天记录 ====
       inner = `<div class="merged-card" onclick="openMergedDetail('${msg.id}')">
         <div class="merged-title">聊天记录</div>
         ${msg.items.slice(0, 6).map(it => `<div class="merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}
@@ -4000,7 +3996,6 @@ function renderChatMessages(keepScrollPos) {
         <div class="merged-hint">点击查看 ›</div>
       </div>`;
     } else if (msg.type === 'transfer') {
-      // ==== 转账消息 ====
       bubbleCls = 'jx-msg-transfer-bubble';
       inner = `
         <div class="jx-transfer-title">转账</div>
@@ -4009,7 +4004,6 @@ function renderChatMessages(keepScrollPos) {
         <div class="jx-transfer-status">${msg.paySource ? '支付方式：' + escapeHtml(msg.paySource) : ''}</div>
       `;
     } else if (msg.type === 'relative_card') {
-      // ==== 亲属卡消息 ====
       bubbleCls = 'jx-msg-relcard-bubble';
       inner = `
         <div class="jx-relcard-title">亲属卡</div>
