@@ -360,12 +360,12 @@
   .jx-chat-input-bar .send-btn { background: #07c160; color: #fff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 14px; font-weight: 500; cursor: pointer; flex-shrink: 0; display: none; }
   .jx-chat-input-bar .send-btn.show { display: block; }
 
-  .jx-multi-bar { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .jx-multi-bar { display: none; align-items: center; padding: 12px 16px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
   .jx-multi-bar.show { display: flex; }
   .jx-multi-bar span { font-size: 15px; color: #333; cursor: pointer; padding: 4px 8px; }
   .jx-multi-bar span.danger { color: #e74c3c; }
   .jx-multi-bar span.primary { color: #07c160; font-weight: 600; }
-  .jx-multi-bar .count { font-size: 13px; color: #888; }
+  .jx-multi-bar .count { font-size: 13px; color: #888; flex: 1; text-align: center; padding: 4px 0; cursor: default; }
 
   .msg-checkbox { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ccc; flex-shrink: 0; align-self: center; margin: 0 8px; box-sizing: border-box; background: #fff; }
   .msg-checkbox.checked { background: #07c160; border-color: #07c160; position: relative; }
@@ -485,6 +485,24 @@
   .wb-modal-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; white-space: nowrap; }
   .wb-modal-tag.global { color: #2e7d32; background: #e8f5e9; }
   .wb-modal-tag.local { color: #e65100; background: #fff3e0; }
+
+  /* ============ 收藏 ============ */
+  .jx-fav-card { background: #fff; border-radius: 10px; padding: 12px; margin: 10px 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .jx-fav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .jx-fav-source { font-size: 12px; color: #888; }
+  .jx-fav-delete { font-size: 12px; color: #bbb; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  .jx-fav-delete:active { background: #f5f5f5; }
+  .jx-fav-text { font-size: 15px; color: #333; line-height: 1.5; margin-top: 6px; white-space: pre-wrap; word-wrap: break-word; }
+  .jx-fav-time { font-size: 11px; color: #ccc; margin-top: 8px; }
+  .jx-fav-quote { font-size: 12px; color: #888; border-left: 3px solid #ddd; padding-left: 8px; margin-bottom: 4px; }
+  .jx-fav-merged { background: #f7f7f7; border-radius: 6px; padding: 8px; margin-top: 6px; font-size: 12px; }
+  .jx-fav-merged-title { font-weight: 600; color: #333; margin-bottom: 4px; }
+  .jx-fav-merged-line { color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
+  .jx-fav-img { max-width: 100%; border-radius: 8px; display: block; margin-top: 6px; cursor: pointer; }
+  .jx-fav-sticker-img { max-width: 120px; border-radius: 8px; display: block; margin-top: 6px; cursor: pointer; }
+  .jx-fav-empty { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; line-height: 1.8; }
+  .jx-fav-clear-bar { display: flex; justify-content: flex-end; padding: 6px 16px 0 16px; }
+  .jx-fav-clear-btn { font-size: 12px; color: #999; padding: 6px 12px; border: 1px solid #e0e0e0; border-radius: 14px; background: #fff; cursor: pointer; }
 
   .phone-case.dark-mode { background-color: #0d0d0d; }
   .phone-case.dark-mode .phone-content { background-color: #0d0d0d; }
@@ -671,6 +689,17 @@
   .phone-case.dark-mode .jx-msg-menu-item { color: #ddd; border-bottom-color: #2c2c2e; }
   .phone-case.dark-mode .jx-msg-menu-item.cancel { background: #2c2c2e; color: #888; }
   .phone-case.dark-mode #stickerLinkInput { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .jx-fav-card { background: #1c1c1e; box-shadow: none; }
+  .phone-case.dark-mode .jx-fav-source { color: #999; }
+  .phone-case.dark-mode .jx-fav-text { color: #ddd; }
+  .phone-case.dark-mode .jx-fav-quote { color: #999; border-left-color: #444; }
+  .phone-case.dark-mode .jx-fav-merged { background: #2c2c2e; }
+  .phone-case.dark-mode .jx-fav-merged-title { color: #eee; }
+  .phone-case.dark-mode .jx-fav-merged-line { color: #aaa; }
+  .phone-case.dark-mode .jx-fav-empty { color: #888; }
+  .phone-case.dark-mode .jx-fav-clear-btn { background: #1c1c1e; border-color: #2c2c2e; color: #aaa; }
+  .phone-case.dark-mode .jx-fav-delete:active { background: #2c2c2e; }
+  .phone-case.dark-mode #jxFavoritesScreen { background: #121212; }
 
   .jx-quote-preview { display: none; padding: 8px 14px; background: #f0f0f0; border-top: 1px solid #dcdcdc; align-items: center; gap: 8px; font-size: 13px; flex-shrink: 0; }
   .jx-quote-preview.show { display: flex; }
@@ -696,7 +725,6 @@
   .phone-case.dark-mode .jx-post-likes { color: #82a7e0; border-bottom-color: rgba(255,255,255,0.1); }
   .phone-case.dark-mode .jx-post-likes svg { fill: #82a7e0; }
 
-  /* 新增编辑弹窗样式 */
   .jx-edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 20001; display: none; }
   .jx-edit-modal.show { display: flex; }
   .jx-edit-modal-content { background: #fff; width: 90%; max-width: 380px; border-radius: 12px; padding: 20px; text-align: left; display: flex; flex-direction: column; }
@@ -1185,7 +1213,7 @@
             <span class="jx-me-menu-text">钱包</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
-          <div class="jx-me-menu-item" onclick="alert('收藏功能暂未开放')">
+          <div class="jx-me-menu-item" onclick="openFavoritesScreen()">
             <div class="jx-me-menu-icon jx-me-bg-fav"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
             <span class="jx-me-menu-text">收藏</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
@@ -1209,6 +1237,16 @@
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-contacts', this)"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>通讯录</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-me', this)"><svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg><span>我</span></div>
       </div>
+    </div>
+
+    <!-- ================= 收藏页 ================= -->
+    <div id="jxFavoritesScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1005;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeFavoritesScreen()">‹</span>
+        <span class="title">收藏</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll" id="jxFavoritesList"></div>
     </div>
 
     <!-- ================= 表情管理页 ================= -->
@@ -1269,17 +1307,14 @@ https://xxx.com/a.png
       </div>
 
       <div class="jx-chat-input-bar" id="jxChatInputBar">
-        <!-- 语音键：触发发送 + 角色回复 -->
         <svg class="icon icon-voice" viewBox="0 0 24 24" onclick="voiceSend()"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
         
-        <!-- 输入框：Enter换行，Ctrl+Enter发送并触发回复 -->
         <textarea id="jxChatInput" rows="1" placeholder="输入消息..." onkeydown="handleChatInputKeydown(event)" oninput="handleChatInput(this)"></textarea>
         
         <svg class="icon icon-emoji" viewBox="0 0 24 24" onclick="toggleStickerPanel()"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
         <svg class="icon icon-plus" viewBox="0 0 24 24" onclick="document.getElementById('jxChatImageInput').click()"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         <input type="file" id="jxChatImageInput" accept="image/*" style="display: none;">
         
-        <!-- 发送键：只发送消息，不触发回复 -->
         <button class="send-btn" id="jxChatSendBtn" onclick="sendMessage()">发送</button>
       </div>
 
@@ -1287,6 +1322,7 @@ https://xxx.com/a.png
         <span onclick="exitMultiSelect()">取消</span>
         <span class="count" id="multiSelectCount">已选 0 条</span>
         <span class="danger" onclick="deleteSelected()">删除</span>
+        <span class="primary" onclick="favoriteSelected()">收藏</span>
         <span class="primary" onclick="forwardSelected()">转发</span>
       </div>
     </div>
@@ -1419,7 +1455,7 @@ https://xxx.com/a.png
       </div>
     </div>
 
-    <!-- 编辑消息弹窗（新增） -->
+    <!-- 编辑消息弹窗 -->
     <div class="jx-edit-modal" id="jxEditMsgModal">
       <div class="jx-edit-modal-content">
         <h3>编辑消息内容</h3>
@@ -1452,6 +1488,7 @@ https://xxx.com/a.png
     <!-- 长按消息菜单 -->
     <div class="jx-msg-menu" id="jxMsgMenu">
       <div class="jx-msg-menu-inner">
+        <div class="jx-msg-menu-item" onclick="menuFavorite()">收藏</div>
         <div class="jx-msg-menu-item" onclick="menuDelete()">删除</div>
         <div class="jx-msg-menu-item" onclick="menuEdit()">编辑</div>
         <div class="jx-msg-menu-item" onclick="menuQuote()">引用</div>
@@ -1567,6 +1604,7 @@ const API_CONFIG_KEY = 'api_config';
 const API_PRESET_PREFIX = 'api_preset_';
 const STICKER_KEY = 'jx_stickers';
 const STICKER_PACKS_KEY = 'jx_sticker_packs';
+const FAVORITES_KEY = 'jx_favorites';
 
 if (localStorage.getItem('app_name_qqmusic') === 'QQ音乐') localStorage.setItem('app_name_qqmusic', '音乐');
 if (localStorage.getItem('app_name_play') === '玩法') localStorage.setItem('app_name_play', '多功能');
@@ -2448,7 +2486,7 @@ const isBackupKey = (key) => (
   key.startsWith('api_preset_') || key.startsWith('moments_') ||
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
-  key === STICKER_KEY || key === STICKER_PACKS_KEY
+  key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY
 );
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
@@ -2823,7 +2861,6 @@ let currentChatId = null;
 
 function getCharImageRefs(chat) {
   const refs = [];
-  // 优先使用本聊天专属头像
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
   if (userAvatar) {
     refs.push({
@@ -3965,6 +4002,143 @@ function addStickersFromLinks() {
   });
 })();
 
+// ================= 收藏功能 =================
+function loadFavorites() {
+  try {
+    const v = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function saveFavorites(list) {
+  try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(list)); }
+  catch (e) { alert('存储空间不足，收藏保存失败（图片可能过大）'); }
+}
+function cloneSerializable(obj) {
+  try { return JSON.parse(JSON.stringify(obj)); } catch (e) { return obj; }
+}
+function addFavoriteFromMsg(chat, msg) {
+  if (!chat || !msg) return null;
+  if (msg.content === '__typing__') return null;
+  const myName = localStorage.getItem('moments_name') || '我';
+  const charName = chat.customRemark || chat.name || 'TA';
+  const senderName = msg.role === 'me' ? myName : charName;
+  const fav = {
+    id: genId(),
+    msgId: msg.id || '',
+    type: msg.type || 'text',
+    content: msg.content || '',
+    image: msg.image || '',
+    stickerName: msg.stickerName || '',
+    items: Array.isArray(msg.items) ? cloneSerializable(msg.items) : null,
+    quote: msg.quote ? cloneSerializable(msg.quote) : null,
+    source: charName,
+    senderRole: msg.role,
+    senderName: senderName,
+    time: Date.now()
+  };
+  const favorites = loadFavorites();
+  favorites.unshift(fav);
+  saveFavorites(favorites);
+  return fav;
+}
+function menuFavorite() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === id);
+  if (!msg) return;
+  if (msg.content === '__typing__') return;
+  const fav = addFavoriteFromMsg(chat, msg);
+  if (fav) {
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e){} }
+    alert('已收藏');
+  }
+}
+function favoriteSelected() {
+  if (selectedMsgIds.size === 0) { alert('请先选择消息'); return; }
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msgs = chat.messages.filter(m => selectedMsgIds.has(m.id) && m.content !== '__typing__');
+  if (msgs.length === 0) { alert('没有可收藏的消息'); return; }
+  let count = 0;
+  msgs.forEach(m => { if (addFavoriteFromMsg(chat, m)) count++; });
+  exitMultiSelect(true);
+  renderChatMessages(true);
+  alert(`已收藏 ${count} 条消息`);
+}
+function openFavoritesScreen() {
+  document.getElementById('jxFavoritesScreen').style.display = 'flex';
+  renderFavoritesList();
+}
+function closeFavoritesScreen() {
+  document.getElementById('jxFavoritesScreen').style.display = 'none';
+}
+function deleteFavorite(id) {
+  if (!confirm('确定删除这条收藏吗？')) return;
+  const favorites = loadFavorites().filter(f => f.id !== id);
+  saveFavorites(favorites);
+  renderFavoritesList();
+}
+function clearAllFavorites() {
+  if (!confirm('确定清空全部收藏吗？此操作不可恢复。')) return;
+  saveFavorites([]);
+  renderFavoritesList();
+}
+function formatFavTime(t) {
+  if (!t) return '';
+  const d = new Date(t);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function renderFavoritesList() {
+  const container = document.getElementById('jxFavoritesList');
+  if (!container) return;
+  const favorites = loadFavorites();
+  if (favorites.length === 0) {
+    container.innerHTML = '<div class="jx-fav-empty">暂无收藏<br>在聊天中长按消息即可收藏<br>也可以多选消息后批量收藏</div>';
+    return;
+  }
+  let html = `<div class="jx-fav-clear-bar"><button class="jx-fav-clear-btn" onclick="clearAllFavorites()">清空全部</button></div>`;
+  html += favorites.map(fav => {
+    let quoteHtml = '';
+    if (fav.quote) {
+      quoteHtml = `<div class="jx-fav-quote">${escapeHtml(fav.quote.name || '')}：${escapeHtml(fav.quote.text || '')}</div>`;
+    }
+    let contentHtml = '';
+    if (fav.type === 'image' && fav.image) {
+      const safeSrc = String(fav.image).replace(/'/g, '%27');
+      contentHtml = `<img class="jx-fav-img" src="${safeSrc}" onclick="openImageViewer('${safeSrc}')">`;
+      if (fav.content && fav.content !== '[图片]') {
+        contentHtml += `<div class="jx-fav-text">${escapeHtml(fav.content).replace(/\n/g, '<br>')}</div>`;
+      }
+    } else if (fav.type === 'sticker' && fav.image) {
+      const safeSrc = String(fav.image).replace(/'/g, '%27');
+      contentHtml = `<img class="jx-fav-sticker-img" src="${safeSrc}" onclick="openImageViewer('${safeSrc}')">`;
+    } else if (fav.type === 'merged' && Array.isArray(fav.items)) {
+      contentHtml = `<div class="jx-fav-merged">
+        <div class="jx-fav-merged-title">聊天记录</div>
+        ${fav.items.slice(0, 8).map(it => `<div class="jx-fav-merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}
+        ${fav.items.length > 8 ? `<div class="jx-fav-merged-line">…共 ${fav.items.length} 条</div>` : ''}
+      </div>`;
+    } else {
+      const text = escapeHtml(fav.content || '').replace(/\n/g, '<br>');
+      contentHtml = `<div class="jx-fav-text">${text || '（空消息）'}</div>`;
+    }
+    return `<div class="jx-fav-card">
+      <div class="jx-fav-header">
+        <span class="jx-fav-source">${escapeHtml(fav.senderName || '')} · ${escapeHtml(fav.source || '')}</span>
+        <span class="jx-fav-delete" onclick="deleteFavorite('${fav.id}')">删除</span>
+      </div>
+      ${quoteHtml}
+      ${contentHtml}
+      <div class="jx-fav-time">${formatFavTime(fav.time)}</div>
+    </div>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
 let menuMsgId = null;
 function openMsgMenu(msgId) {
   menuMsgId = msgId;
@@ -3983,11 +4157,10 @@ function menuDelete() {
   if (!confirm('确定删除这条消息吗？')) return;
   chat.messages = chat.messages.filter(m => m.id !== id);
   saveJianxunChats();
-  renderChatMessages(true); // 删除后保持滚动位置
+  renderChatMessages(true);
   renderJianxunChatList();
 }
 
-// === 修改：弹出编辑弹窗，保留换行 ===
 let editingMsgId = null;
 function menuEdit() {
   const id = menuMsgId;
@@ -4018,7 +4191,7 @@ function saveEditedMsg() {
   if (msg) {
     msg.content = newText;
     saveJianxunChats();
-    renderChatMessages(true); // 编辑后保持滚动位置，不跳到底部
+    renderChatMessages(true);
     renderJianxunChatList();
   }
   closeEditMsgModal();
@@ -4043,7 +4216,7 @@ async function menuTranslate() {
   }
   const original = msg.content;
   msg.content = '（翻译中…）';
-  renderChatMessages(true); // 翻译中保持位置
+  renderChatMessages(true);
   try {
     const result = await translateText(original, cfg);
     msg.content = result || original;
@@ -4052,7 +4225,7 @@ async function menuTranslate() {
     alert('翻译失败：' + (e.message || '未知错误'));
   }
   saveJianxunChats();
-  renderChatMessages(true); // 翻译完成后保持位置
+  renderChatMessages(true);
   renderJianxunChatList();
 }
 function menuMultiSelect() {
@@ -4503,7 +4676,6 @@ async function generateCharReply(chat) {
   return clean || raw;
 }
 
-// 角色回复：只按 [[SPLIT]] 拆分，保留单个换行在一个气泡内
 async function triggerCharReply(chat) {
   if (chat._replying) {
     alert('角色正在回复中，请稍候...');
