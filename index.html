@@ -1186,7 +1186,10 @@
 https://xxx.com/a.png
 名称|https://xxx.com/a.png
 名称|https://xxx.com/a.png|含义描述" style="width:100%; height:110px; border:1px solid #ddd; border-radius:8px; padding:10px; font-size:13px; resize:vertical; outline:none; font-family:inherit; line-height:1.5;"></textarea>
-          <button class="btn btn-primary" style="margin-top:10px; width:100%; padding:11px;" onclick="addStickersFromLinks()">添加为合集</button>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn btn-primary" style="flex:1; padding:11px;" onclick="addStickersFromLinks()">添加为合集</button>
+            <button class="btn btn-success" style="flex:1; padding:11px;" onclick="createBlankStickerPack()">新建空白合集</button>
+          </div>
         </div>
         <div class="jx-info-block" style="padding: 16px;">
           <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">上传文件</h4>
@@ -2775,6 +2778,7 @@ function saveJianxunChats() {
    - 兼容旧数据：jx_stickers 数组 → 自动迁移为一个名为"我的表情包"的合集
    ============================================================ */
 let _stickerPacksMigrated = false;
+let expandedStickerPackIds = new Set(); // 记录展开的合集
 
 function loadStickerPacks() {
   try {
@@ -3008,7 +3012,6 @@ function loadJianxunChats() {
     // === 表情合集绑定迁移 ===
     if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
     if (Array.isArray(chat.boundStickers) && chat.boundStickers.length > 0) {
-      // 老字段 boundStickers 里存的是 sticker.id，迁移为对应的 packId
       const packs = loadStickerPacks();
       const stickerToPack = {};
       packs.forEach(p => (p.stickers || []).forEach(s => { stickerToPack[s.id] = p.id; }));
@@ -3247,7 +3250,7 @@ function voiceSend() {
 })();
 
 // ============ 表情面板（合集选择 + 表情网格） ============
-let currentStickerPackId = null;   // 当前在面板里查看哪个合集
+let currentStickerPackId = null;
 
 function toggleStickerPanel() {
   const panel = document.getElementById('jxStickerPanel');
@@ -3308,7 +3311,6 @@ function selectStickerPack(packId) {
   renderStickerPanel();
 }
 
-// 整体绑定/解绑一个合集
 function toggleStickerPackBind(packId, e) {
   if (e) e.stopPropagation();
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -3321,7 +3323,6 @@ function toggleStickerPackBind(packId, e) {
   renderStickerPanel();
 }
 
-// 发送一个表情（按 sticker.id 查找）
 function sendSticker(id) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   const stickers = loadStickers();
@@ -3342,51 +3343,121 @@ function closeStickerScreen() {
   document.getElementById('jxStickerScreen').style.display = 'none';
 }
 
+function togglePackExpand(packId) {
+  if (expandedStickerPackIds.has(packId)) {
+    expandedStickerPackIds.delete(packId);
+  } else {
+    expandedStickerPackIds.add(packId);
+  }
+  renderStickerPackList();
+}
+
+function createBlankStickerPack() {
+  const name = prompt('请输入空白合集名称：', '空白合集');
+  if (name === null) return;
+  const finalName = name.trim() || '空白合集';
+  const packs = loadStickerPacks();
+  const newId = genId();
+  packs.push({
+    id: newId,
+    name: finalName,
+    stickers: [],
+    createdAt: Date.now()
+  });
+  saveStickerPacks(packs);
+  expandedStickerPackIds.add(newId);
+  renderStickerPackList();
+}
+
+function uploadImagesToPack(packId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.onchange = async (e) => {
+    const files = e.target.files;
+    if (!files || !files.length) return;
+    const packs = loadStickerPacks();
+    const pack = packs.find(p => p.id === packId);
+    if (!pack) return;
+    if (!pack.stickers) pack.stickers = [];
+    
+    for (const file of Array.from(files)) {
+      const base64 = await compressImageFile(file, 600, 0.8);
+      if (base64) {
+        pack.stickers.push({
+          id: genId(),
+          name: file.name.replace(/\.[^/.]+$/, ""),
+          url: base64,
+          meaning: ''
+        });
+      }
+    }
+    saveStickerPacks(packs);
+    expandedStickerPackIds.add(packId);
+    renderStickerPackList();
+  };
+  input.click();
+}
+
 function renderStickerPackList() {
   const list = document.getElementById('stickerPackList');
   const empty = document.getElementById('stickerEmpty');
   const count = document.getElementById('stickerPackCount');
   if (!list || !empty || !count) return;
+  
   const packs = loadStickerPacks();
   count.innerText = '(' + packs.length + ')';
+  
   if (packs.length === 0) {
     list.innerHTML = '';
     empty.style.display = 'block';
     return;
   }
+  
   empty.style.display = 'none';
+  
   list.innerHTML = packs.map(pack => {
     const stickers = pack.stickers || [];
+    const isExpanded = expandedStickerPackIds.has(pack.id);
+    
     const cells = stickers.length === 0
-      ? '<div style="grid-column:1/-1; text-align:center; color:#ccc; font-size:12px; padding:14px 0;">（空合集）</div>'
+      ? '<div style="grid-column:1/-1; text-align:center; color:#ccc; font-size:12px; padding:14px 0;">（空合集，请点击上方按钮上传图片）</div>'
       : stickers.map(s => {
           const safeUrl = escapeHtml(s.url);
           const safeName = escapeHtml(s.name || '');
           const safeMeaning = escapeHtml(s.meaning || '');
           return `<div class="sticker-item">
             <img src="${safeUrl}" alt="${safeName}" title="${safeName}${safeMeaning ? ' · ' + safeMeaning : ''}">
-            <span class="sticker-del" onclick="deleteStickerItem('${pack.id}', '${s.id}')">×</span>
+            <span class="sticker-del" onclick="event.stopPropagation(); deleteStickerItem('${pack.id}', '${s.id}')">×</span>
           </div>`;
         }).join('');
+
     return `<div class="sticker-pack-card">
-      <div class="sticker-pack-card-header">
+      <div class="sticker-pack-card-header" onclick="togglePackExpand('${pack.id}')" style="cursor:pointer; user-select:none;">
         <div class="sticker-pack-card-title">
           <span class="sticker-pack-card-name">${escapeHtml(pack.name || '未命名合集')}</span>
           <span class="sticker-pack-card-count">${stickers.length} 张</span>
+          <span style="font-size:12px; color:#999; margin-left:6px;">${isExpanded ? '▾' : '▸'}</span>
         </div>
-        <button class="sticker-pack-del-btn" onclick="deleteStickerPack('${pack.id}')">删除合集</button>
+        <div style="display:flex; gap:8px;" onclick="event.stopPropagation();">
+          <button class="sticker-pack-del-btn" onclick="deleteStickerPack('${pack.id}')">删除合集</button>
+        </div>
       </div>
-      <div class="sticker-grid">${cells}</div>
+      <div id="pack-body-${pack.id}" style="display: ${isExpanded ? 'block' : 'none'}; margin-top: 10px;">
+         <div style="display:flex; justify-content:flex-end; margin-bottom: 8px;">
+           <button class="sticker-pack-del-btn" style="background:#eef2ff; color:#4b7bec;" onclick="uploadImagesToPack('${pack.id}')">+ 上传图片</button>
+         </div>
+         <div class="sticker-grid">${cells}</div>
+      </div>
     </div>`;
   }).join('');
 }
 
-// 删除整个合集
 function deleteStickerPack(packId) {
   if (!confirm('确定删除整个表情合集吗？合集内所有表情都会一起删除。')) return;
   const packs = loadStickerPacks().filter(p => p.id !== packId);
   saveStickerPacks(packs);
-  // 从所有聊天的绑定里移除
   jianxunChats.forEach(c => {
     if (Array.isArray(c.boundStickerPacks)) {
       c.boundStickerPacks = c.boundStickerPacks.filter(x => x !== packId);
@@ -3394,10 +3465,10 @@ function deleteStickerPack(packId) {
   });
   saveJianxunChats();
   if (currentStickerPackId === packId) currentStickerPackId = null;
+  expandedStickerPackIds.delete(packId);
   renderStickerPackList();
 }
 
-// 删除合集里的单个表情
 function deleteStickerItem(packId, stickerId) {
   if (!confirm('确定删除这个表情吗？')) return;
   const packs = loadStickerPacks();
@@ -3408,9 +3479,6 @@ function deleteStickerItem(packId, stickerId) {
   renderStickerPackList();
 }
 
-/* ============================================================
-   表情文本 / JSON 解析
-   ============================================================ */
 function parseStickerLines(text) {
   const out = [];
   const lines = String(text || '')
@@ -3489,7 +3557,6 @@ function parseStickerJson(data) {
   return out;
 }
 
-// 从文本框创建合集
 function addStickersFromLinks() {
   const nameInput = document.getElementById('stickerPackNameInput');
   const textarea = document.getElementById('stickerLinkInput');
@@ -3503,20 +3570,21 @@ function addStickersFromLinks() {
   }
   const packs = loadStickerPacks();
   const finalName = name || ('合集 ' + (packs.length + 1));
+  const newPackId = genId();
   packs.push({
-    id: genId(),
+    id: newPackId,
     name: finalName,
     stickers: stickers,
     createdAt: Date.now()
   });
   saveStickerPacks(packs);
+  expandedStickerPackIds.add(newPackId);
   nameInput.value = '';
   textarea.value = '';
   renderStickerPackList();
   alert('成功创建合集「' + finalName + '」，包含 ' + stickers.length + ' 个表情');
 }
 
-// 上传文件创建合集（一个文件 = 一个合集）
 (function initStickerFileInput() {
   const input = document.getElementById('stickerFileInput');
   if (!input) return;
@@ -3537,13 +3605,15 @@ function addStickersFromLinks() {
         return;
       }
       const packs = loadStickerPacks();
+      const newPackId = genId();
       packs.push({
-        id: genId(),
+        id: newPackId,
         name: packName,
         stickers: list,
         createdAt: Date.now()
       });
       saveStickerPacks(packs);
+      expandedStickerPackIds.add(newPackId);
       renderStickerPackList();
       alert('成功导入合集「' + packName + '」，共 ' + list.length + ' 个表情');
     };
@@ -3555,7 +3625,6 @@ function addStickersFromLinks() {
         mammothConvertHtmlSafe(evt.target.result)
           .then(result => {
             let html = result.value || '';
-            // 保留超链接 URL
             html = html.replace(
               /<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
               (_m, href, txt) => {
@@ -3803,7 +3872,6 @@ function buildWorldBookPrompt(chat) {
   return '\n【世界观 / 背景设定】\n' + relevant.map(e => e.content).join('\n\n') + '\n';
 }
 
-// 从绑定的表情合集里提取所有表情，供角色挑选
 function buildStickerPrompt(chat) {
   const boundPackIds = Array.isArray(chat.boundStickerPacks) ? chat.boundStickerPacks : [];
   if (boundPackIds.length === 0) return '';
