@@ -3302,12 +3302,16 @@ function menuQuote() {
   startQuote(id);
 }
 
-function renderChatMessages() {
+// === 修改：增加 keepScrollPos 参数 ===
+function renderChatMessages(keepScrollPos) {
   if (!currentChatId) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   const container = document.getElementById('jxChatMessages');
   if (!container) return;
+  
+  const prevScrollTop = keepScrollPos ? container.scrollTop : null;
+
   if (chat.messages.length === 0) {
     container.innerHTML = `<div class="jx-chat-empty">开始和 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 聊天吧</div>`;
     return;
@@ -3336,7 +3340,6 @@ function renderChatMessages() {
       const safeSrc = String(msg.image).replace(/'/g, '%27');
       inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
     } else {
-      // 单换行渲染为 <br>，保留在同一个气泡内
       inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
     }
     if (msg.quote) {
@@ -3351,8 +3354,14 @@ function renderChatMessages() {
       <div class="${bubbleCls}">${inner}</div>
     </div>`;
   }).join('');
+  
   attachMsgLongPress(container);
-  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
+  
+  if (keepScrollPos && prevScrollTop !== null) {
+    setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
+  } else {
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
+  }
 }
 
 let suppressRowClick = false;
@@ -3431,7 +3440,6 @@ function handleChatInputKeydown(e) {
     voiceSend();
     return;
   }
-  // 其它情况交给浏览器默认处理，Enter 会插入换行
 }
 
 // 用户发消息：只发送消息，不触发回复
@@ -3482,11 +3490,9 @@ function voiceSend() {
     if (panel) panel.classList.remove('show');
     
     if (content) {
-      // 输入框有内容：发送消息并触发回复
       const sent = sendMessage();
       if (sent) triggerCharReply(chat);
     } else {
-      // 输入框为空：直接触发角色基于上下文回复
       triggerCharReply(chat);
     }
   } catch (err) {
@@ -3977,11 +3983,11 @@ function menuDelete() {
   if (!confirm('确定删除这条消息吗？')) return;
   chat.messages = chat.messages.filter(m => m.id !== id);
   saveJianxunChats();
-  renderChatMessages();
+  renderChatMessages(true); // 删除后保持滚动位置
   renderJianxunChatList();
 }
 
-// ==== 修改：弹出编辑弹窗，保留换行 ====
+// === 修改：弹出编辑弹窗，保留换行 ===
 let editingMsgId = null;
 function menuEdit() {
   const id = menuMsgId;
@@ -4010,9 +4016,9 @@ function saveEditedMsg() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === editingMsgId);
   if (msg) {
-    msg.content = newText; // 包含换行符
+    msg.content = newText;
     saveJianxunChats();
-    renderChatMessages();
+    renderChatMessages(true); // 编辑后保持滚动位置，不跳到底部
     renderJianxunChatList();
   }
   closeEditMsgModal();
@@ -4037,7 +4043,7 @@ async function menuTranslate() {
   }
   const original = msg.content;
   msg.content = '（翻译中…）';
-  renderChatMessages();
+  renderChatMessages(true); // 翻译中保持位置
   try {
     const result = await translateText(original, cfg);
     msg.content = result || original;
@@ -4046,7 +4052,7 @@ async function menuTranslate() {
     alert('翻译失败：' + (e.message || '未知错误'));
   }
   saveJianxunChats();
-  renderChatMessages();
+  renderChatMessages(true); // 翻译完成后保持位置
   renderJianxunChatList();
 }
 function menuMultiSelect() {
@@ -4061,7 +4067,7 @@ function enterMultiSelect() {
   document.getElementById('jxQuotePreview').classList.remove('show');
   document.getElementById('jxMultiBar').classList.add('show');
   document.getElementById('multiSelectCount').innerText = '已选 0 条';
-  renderChatMessages();
+  renderChatMessages(true);
 }
 function exitMultiSelect(silent) {
   multiSelectMode = false;
@@ -4070,7 +4076,7 @@ function exitMultiSelect(silent) {
   const mb = document.getElementById('jxMultiBar');
   if (ib) ib.style.display = 'flex';
   if (mb) mb.classList.remove('show');
-  if (!silent) renderChatMessages();
+  if (!silent) renderChatMessages(true);
 }
 function deleteSelected() {
   if (selectedMsgIds.size === 0) { alert('请先选择消息'); return; }
@@ -4080,7 +4086,7 @@ function deleteSelected() {
   chat.messages = chat.messages.filter(m => !selectedMsgIds.has(m.id));
   saveJianxunChats();
   exitMultiSelect(true);
-  renderChatMessages();
+  renderChatMessages(true);
   renderJianxunChatList();
 }
 function forwardSelected() {
@@ -4123,7 +4129,7 @@ function doForward(targetChatId) {
   });
   saveJianxunChats();
   exitMultiSelect(true);
-  renderChatMessages();
+  renderChatMessages(true);
   renderJianxunChatList();
   alert('已转发 ' + msgs.length + ' 条消息给「' + (target.customRemark || target.name || 'TA') + '」');
 }
@@ -4221,7 +4227,6 @@ function buildCharSystemPrompt(chat) {
   sp += '用户名：' + (localStorage.getItem('moments_name') || '用户') + '\n';
   if (localStorage.getItem('jx_wechat_id')) sp += '微信号：' + localStorage.getItem('jx_wechat_id') + '\n';
   
-  // ==== 修改：优先读取 chat.myAvatar ====
   const _userAvatarForPrompt = chat.myAvatar || localStorage.getItem('moments_avatar');
   if (_userAvatarForPrompt) {
     sp += '★ 用户头像：系统会把你收到的每条用户消息末尾附上一张图片，标注为"（这是我现在的头像）"。\n';
@@ -4341,7 +4346,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
     max_tokens: cfg.maxTokens
   };
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -4469,7 +4474,6 @@ async function generateCharReply(chat) {
   const systemPrompt = buildCharSystemPrompt(chat);
   const history = buildChatHistory(chat);
 
-  // ==== 修改：优先读取本聊天头像 ====
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
   if (userAvatar && history.length > 0) {
     for (let i = history.length - 1; i >= 0; i--) {
@@ -4518,7 +4522,6 @@ async function triggerCharReply(chat) {
     const rawReply = String(reply == null ? '' : reply).trim();
 
     if (rawReply) {
-      // 只按 [[SPLIT]] 拆分
       const segments = rawReply.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(s => s.length > 0);
       if (segments.length > 0) {
         segments.forEach(seg => {
@@ -4689,7 +4692,6 @@ function changeMyChatAvatar() {
         chat.myAvatar = base64;
         saveJianxunChats();
         renderChatMessages();
-        // 加入聊天图片池，以便AI可以通过图片资源看到
         if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
         chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换的本聊天专属头像' });
         saveJianxunChats();
