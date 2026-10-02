@@ -386,14 +386,14 @@
   .sticker-pack-chip .sticker-pack-star.on { color: #ffb400; }
   .sticker-pack-chip.active .sticker-pack-star { color: rgba(255,255,255,0.7); }
   .sticker-pack-chip.active .sticker-pack-star.on { color: #ffe082; }
-  .sticker-panel-body { flex: 1; overflow-y: auto; padding: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start; }
+  .sticker-panel-body { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; box-sizing: border-box; }
   .sticker-panel-tip { font-size: 11px; color: #999; text-align: center; padding: 6px 0 12px; flex-shrink: 0; }
-  .sticker-cell { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #eee; }
+  .sticker-cell { position: relative; width: calc(25% - 6px); aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #eee; box-sizing: border-box; }
   .sticker-cell img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
   .sticker-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #bbb; font-size: 13px; line-height: 1.8; }
 
-  .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .sticker-item { position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 1px solid #eee; }
+  .sticker-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sticker-item { position: relative; width: calc(25% - 6px); aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #f0f0f0; border: 1px solid #eee; box-sizing: border-box; }
   .sticker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .sticker-item .sticker-del { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff; font-size: 13px; line-height: 17px; text-align: center; cursor: pointer; }
 
