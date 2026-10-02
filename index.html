@@ -3433,19 +3433,38 @@ function sendMessage() {
 
 // 点击语音键：发送消息 + 触发角色回复
 function voiceSend() {
-  const cfg = loadApiConfig();
-  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
-    alert('请先在「设置 → API 配置」中完成配置，角色才能回复哦～');
-    return;
+  try {
+    const cfg = loadApiConfig();
+    if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
+      alert('请先在「设置 → API 配置」中完成配置，角色才能回复哦～');
+      return;
+    }
+    const chat = jianxunChats.find(c => c.id === currentChatId);
+    if (!chat) return;
+    
+    // 检查输入框是否有内容，如果为空则提示
+    const input = document.getElementById('jxChatInput');
+    const content = input ? input.value.trim() : '';
+    if (!content) {
+      alert('请先在输入框中输入内容，再点击左侧语音键发送并让角色回复！');
+      return;
+    }
+
+    if (chat._replying) {
+      alert('角色正在回复中，请稍候...');
+      return;
+    }
+
+    const panel = document.getElementById('jxStickerPanel');
+    if (panel) panel.classList.remove('show');
+    
+    const sent = sendMessage(); // 发送消息
+    if (!sent) return;
+    
+    triggerCharReply(chat); // 触发角色回复
+  } catch (err) {
+    alert('点击语音键发生错误：' + (err.message || '未知错误'));
   }
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  const panel = document.getElementById('jxStickerPanel');
-  if (panel) panel.classList.remove('show');
-  const sent = sendMessage(); // 先发送
-  if (!sent) return; // 如果没发出去（空输入），就不触发回复
-  if (chat.messages.filter(m => m.content !== '__typing__').length === 0) return;
-  triggerCharReply(chat); // 触发回复
 }
 
 (function initChatImageInput() {
@@ -4273,20 +4292,29 @@ async function callChatAPI(messages, systemPrompt, cfg) {
     temperature: cfg.temperature,
     max_tokens: cfg.maxTokens
   };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    let t = ''; try { t = await res.text(); } catch (e) {}
-    throw new Error('HTTP ' + res.status + ' ' + (t || '').slice(0, 160));
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      let t = ''; try { t = await res.text(); } catch (e) {}
+      throw new Error('HTTP ' + res.status + ' ' + (t || '').slice(0, 160));
+    }
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (typeof c === 'string') return c;
+    if (Array.isArray(c)) return c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    return '';
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
   }
-  const data = await res.json();
-  const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-  if (typeof c === 'string') return c;
-  if (Array.isArray(c)) return c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
-  return '';
 }
 function parseAndExecuteActions(chat, rawText) {
   const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT)\s*[:：]\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
@@ -4424,7 +4452,10 @@ async function generateCharReply(chat) {
 
 // 角色回复：只按 [[SPLIT]] 拆分，保留单个换行在一个气泡内
 async function triggerCharReply(chat) {
-  if (chat._replying) return;
+  if (chat._replying) {
+    alert('角色正在回复中，请稍候...');
+    return;
+  }
   chat._replying = true;
   chat._pendingStickers = [];
   const typingId = genId();
