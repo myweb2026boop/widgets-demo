@@ -1837,7 +1837,7 @@ function openPersonaApp() { loadPersonaList(); openScreen('personaScreen'); rend
 function openWorldBookApp() { loadWorldBook(); loadPersonaList(); openScreen('worldBookScreen'); renderWorldBookList(); }
 function openSettingsApp() {
   openScreen('settingsScreen');
-  applyApiConfigToForm(loadApiConfig() || {});
+  applyApiConfigFromForm(loadApiConfig() || {});
   updateApiPresetList();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
@@ -3658,33 +3658,48 @@ function loadStickers() {
 }
 
 function openJianxunApp() {
-  loadPersonaList();
-  loadWorldBook();
-  loadJianxunChats();
-  // 重置所有覆盖层，防止卡住导致打不开
-  document.getElementById('jxWalletScreen').style.display = 'none';
-  document.getElementById('jxRelativeCardScreen').style.display = 'none';
-  document.getElementById('jxBillScreen').style.display = 'none';
-  document.getElementById('jxMergedDetailScreen').classList.remove('active');
-  document.getElementById('jxTransferModal').classList.remove('show');
-  document.getElementById('jxRelativeCardModal').classList.remove('show');
-  document.getElementById('jxStickerScreen').style.display = 'none';
-  document.getElementById('jxFavoritesScreen').style.display = 'none';
-  document.getElementById('jxStickerPanel').classList.remove('show');
-  document.getElementById('jxAttachPanel').classList.remove('show');
-  document.getElementById('jxMsgMenu').classList.remove('show');
-  document.getElementById('jxChatInfoScreen').classList.remove('active');
-  document.getElementById('jxChatScreen').classList.remove('active');
+  // 1. 先把主界面显示出来，确保用户点击有反馈
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const jxScreen = document.getElementById('jianxunScreen');
+  if (jxScreen) jxScreen.classList.add('active');
+
+  // 2. 强制隐藏所有可能卡住的覆盖层（不管是钱包、亲属卡还是聊天界面、弹窗）
+  const overlayIds = [
+    'jxWalletScreen', 'jxRelativeCardScreen', 'jxBillScreen', 
+    'jxMergedDetailScreen', 'jxTransferModal', 'jxRelativeCardModal', 
+    'jxStickerScreen', 'jxFavoritesScreen', 'jxStickerPanel', 
+    'jxAttachPanel', 'jxMsgMenu', 'jxChatInfoScreen', 'jxChatScreen',
+    'jxCommentModal', 'jxEditMsgModal', 'personaSelectorModal', 'forwardTargetModal',
+    'worldBookSelectScreen', 'jxPublishScreen'
+  ];
+  overlayIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (el.style) el.style.display = 'none';
+      if (el.classList) {
+        el.classList.remove('active');
+        el.classList.remove('show');
+      }
+    }
+  });
+
+  // 3. 安全加载数据（每个模块独立try-catch，防止一个坏了导致整个打不开）
+  try { loadPersonaList(); } catch(e) { console.warn('loadPersonaList错误:', e); }
+  try { loadWorldBook(); } catch(e) { console.warn('loadWorldBook错误:', e); }
+  try { loadJianxunChats(); } catch(e) { console.warn('loadJianxunChats错误:', e); }
   
-  openScreen('jianxunScreen');
-  switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item'));
-  renderJianxunChatList();
-  loadMomentsData();
-  renderJianxunContacts();
-  loadMomentsPosts();
-  renderMomentsPosts();
-  loadJxMeProfile();
+  // 4. 安全渲染
+  try { renderJianxunChatList(); } catch(e) { console.warn('renderJianxunChatList错误:', e); }
+  try { loadMomentsData(); } catch(e) { console.warn('loadMomentsData错误:', e); }
+  try { renderJianxunContacts(); } catch(e) { console.warn('renderJianxunContacts错误:', e); }
+  try { loadMomentsPosts(); } catch(e) { console.warn('loadMomentsPosts错误:', e); }
+  try { renderMomentsPosts(); } catch(e) { console.warn('renderMomentsPosts错误:', e); }
+  try { loadJxMeProfile(); } catch(e) { console.warn('loadJxMeProfile错误:', e); }
+  
+  // 5. 切换到底部第一个标签
+  try { switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item')); } catch(e) { console.warn('switchJianxunTab错误:', e); }
 }
+
 function switchJianxunTab(tabId, navElement) {
   document.querySelectorAll('#jianxunScreen .jx-tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('#jianxunScreen .jx-nav-item').forEach(el => el.classList.remove('active'));
