@@ -386,10 +386,11 @@
   .sticker-pack-chip .sticker-pack-star.on { color: #ffb400; }
   .sticker-pack-chip.active .sticker-pack-star { color: rgba(255,255,255,0.7); }
   .sticker-pack-chip.active .sticker-pack-star.on { color: #ffe082; }
-  .sticker-panel-body { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; box-sizing: border-box; }
+  .sticker-panel-body { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; box-sizing: border-box; background: #f7f7f7; }
   .sticker-panel-tip { font-size: 11px; color: #999; text-align: center; padding: 6px 0 12px; flex-shrink: 0; }
-  .sticker-cell { position: relative; width: calc(25% - 6px); aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #eee; box-sizing: border-box; }
-  .sticker-cell img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+  .sticker-cell { position: relative; width: calc(25% - 5px); display: flex; flex-direction: column; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: #fff; box-sizing: border-box; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+  .sticker-cell img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; border-bottom: 1px solid #f0f0f0; }
+  .sticker-cell-name { font-size: 10px; color: #666; text-align: center; padding: 4px 2px; background: #fafafa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
   .sticker-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: #bbb; font-size: 13px; line-height: 1.8; }
 
   .sticker-grid { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -617,6 +618,7 @@
   .phone-case.dark-mode .jx-chat-input-bar .icon { fill: #ddd; }
   .phone-case.dark-mode .sticker-panel { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .sticker-cell { background: #2c2c2e; border-color: #3a3a3c; }
+  .phone-case.dark-mode .sticker-cell-name { background: #2c2c2e; color: #aaa; border-top-color: #3a3a3c; }
   .phone-case.dark-mode .sticker-pack-bar { border-bottom-color: #2c2c2e; }
   .phone-case.dark-mode .sticker-pack-chip { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
   .phone-case.dark-mode .sticker-pack-chip.active { background: #07c160; color: #fff; border-color: #07c160; }
@@ -3301,7 +3303,11 @@ function renderStickerPanel() {
   } else {
     body.innerHTML = stickers.map(s => {
       const safeUrl = escapeHtml(s.url).replace(/'/g, '%27');
-      return `<div class="sticker-cell"><img src="${safeUrl}" alt="表情" onclick="sendSticker('${s.id}')"></div>`;
+      const nameText = escapeHtml(s.name || '表情');
+      return `<div class="sticker-cell" onclick="sendSticker('${s.id}')">
+                <img src="${safeUrl}" alt="${nameText}">
+                <div class="sticker-cell-name">${nameText}</div>
+              </div>`;
     }).join('');
   }
 }
