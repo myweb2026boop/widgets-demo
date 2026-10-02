@@ -293,8 +293,6 @@
   .jx-comment-item:last-child { margin-bottom: 0; }
   .jx-comment-user { color: #576b95; font-weight: 500; }
   .jx-comment-text { color: #333; }
-  .jx-post-likes { display: flex; align-items: center; gap: 4px; color: #576b95; font-size: 12px; padding: 4px 0; }
-  .jx-post-likes svg { width: 14px; height: 14px; fill: #576b95; flex-shrink: 0; }
 
   .jx-contacts-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; position: sticky; top: 0; z-index: 10; }
   .jx-contacts-header .title { font-size: 17px; font-weight: 600; color: #000; flex: 1; text-align: center; }
@@ -355,28 +353,12 @@
   .jx-msg-bubble.media::after, .jx-msg-bubble.media::before { display: none !important; }
   .jx-msg-bubble img { max-width: 190px; max-height: 240px; border-radius: 6px; display: block; }
   .jx-msg-bubble .sticker-img { max-width: 120px; max-height: 120px; }
-
-  /* 消息引用块 */
-  .jx-msg-quote { background: rgba(0,0,0,0.06); border-left: 3px solid #999; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #666; margin-bottom: 6px; }
-  .jx-msg-quote .qname { color: #576b95; margin-right: 4px; }
-  .jx-msg-quote .qtext { color: #777; }
-  .jx-msg-row.me .jx-msg-quote { background: rgba(0,0,0,0.08); }
-  .jx-msg-row.me .jx-msg-quote .qname { color: #3d6cb9; }
-
   .jx-chat-input-bar { display: flex; align-items: center; padding: 8px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); box-sizing: content-box; gap: 8px; }
   .jx-chat-input-bar .icon { width: 30px; height: 30px; fill: #333; cursor: pointer; flex-shrink: 0; }
   .jx-chat-input-bar textarea { flex: 1; border: none; border-radius: 4px; padding: 8px 12px; font-size: 15px; outline: none; background: #fff; resize: none; min-height: 36px; max-height: 100px; overflow-y: auto; line-height: 1.4; font-family: inherit; white-space: pre-wrap; box-sizing: border-box; }
   .jx-chat-input-bar textarea::placeholder { color: #bbb; }
   .jx-chat-input-bar .send-btn { background: #07c160; color: #fff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 14px; font-weight: 500; cursor: pointer; flex-shrink: 0; display: none; }
   .jx-chat-input-bar .send-btn.show { display: block; }
-
-  /* 引用消息预览条 */
-  .jx-quote-preview { display: none; background: #f7f7f7; border-top: 1px solid #e0e0e0; padding: 8px 12px; font-size: 12px; color: #666; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
-  .jx-quote-preview.show { display: flex; }
-  .jx-quote-content { flex: 1; overflow: hidden; display: flex; gap: 6px; align-items: center; }
-  .jx-quote-name { color: #576b95; flex-shrink: 0; }
-  .jx-quote-text { color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .jx-quote-close { padding: 0 6px; color: #999; cursor: pointer; font-size: 18px; line-height: 1; flex-shrink: 0; user-select: none; }
 
   .jx-multi-bar { display: none; align-items: center; padding: 12px 16px; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
   .jx-multi-bar.show { display: flex; }
@@ -458,22 +440,11 @@
   .jx-comment-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 20000; display: none; }
   .jx-comment-modal.show { display: flex; }
   .jx-comment-modal-content { background: #fff; width: 80%; max-width: 320px; border-radius: 12px; padding: 20px; }
-  .jx-comment-modal-content textarea { width: 100%; height: 80px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; box-sizing: border-box; }
+  .jx-comment-modal-content textarea { width: 100%; height: 80px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; }
   .jx-comment-modal-actions { display: flex; gap: 10px; margin-top: 15px; }
   .jx-comment-modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
   .jx-comment-modal-actions .cancel { background: #f0f0f0; color: #333; }
   .jx-comment-modal-actions .send { background: #07c160; color: #fff; }
-
-  /* 编辑消息弹窗 */
-  .jx-edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
-  .jx-edit-modal.show { display: flex; }
-  .jx-edit-modal-content { background: #fff; width: 80%; max-width: 340px; border-radius: 12px; padding: 18px; box-sizing: border-box; }
-  .jx-edit-modal-content h3 { font-size: 16px; margin-bottom: 12px; color: #333; text-align: center; }
-  .jx-edit-textarea { width: 100%; height: 100px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; box-sizing: border-box; }
-  .jx-edit-actions { display: flex; gap: 10px; margin-top: 14px; }
-  .jx-edit-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; }
-  .jx-edit-actions .cancel { background: #f0f0f0; color: #333; }
-  .jx-edit-actions .save { background: #07c160; color: #fff; }
 
   .jx-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; display: none; }
   .jx-modal.show { display: flex; }
@@ -572,7 +543,7 @@
   /* ============ 亲属卡列表 ============ */
   .jx-relcard-section { padding: 16px; }
   .jx-relcard-section-title { font-size: 13px; color: #888; margin-bottom: 10px; }
-  .jx-relcard-card { background: linear-gradient(135deg, #f5c542, #f0b800); border-radius: 12px; padding: 16px; color: #fff; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(240,184,0,0.3); cursor: pointer; }
+  .jx-relcard-card { background: linear-gradient(135deg, #f5c542, #f0b800); border-radius: 12px; padding: 16px; color: #fff; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(240,184,0,0.3); }
   .jx-relcard-card.received { background: linear-gradient(135deg, #5b9bf5, #4b7bec); box-shadow: 0 4px 12px rgba(75,123,236,0.3); }
   .jx-relcard-card .title { font-size: 13px; opacity: 0.9; }
   .jx-relcard-card .name { font-size: 17px; font-weight: 600; margin: 6px 0 10px; }
@@ -625,7 +596,7 @@
   .jx-action-modal-body { padding: 18px 16px; }
   .jx-action-field { margin-bottom: 14px; }
   .jx-action-field label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
-  .jx-action-field input, .jx-action-field textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; box-sizing: border-box; }
+  .jx-action-field input, .jx-action-field textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; font-family: inherit; }
   .jx-action-field textarea { height: 70px; resize: none; }
   .jx-action-modal-footer { display: flex; border-top: 1px solid #f0f0f0; }
   .jx-action-modal-footer button { flex: 1; padding: 14px; border: none; background: #fff; font-size: 15px; cursor: pointer; }
@@ -635,7 +606,6 @@
   .jx-relcard-pay-option { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #333; }
   .jx-relcard-pay-option:last-child { border-bottom: none; }
   .jx-relcard-pay-option input { margin-right: 10px; }
-  .jx-relcard-pay-option label { cursor: pointer; flex: 1; }
   .jx-relcard-pay-option .desc { color: #999; font-size: 12px; margin-left: auto; }
 
   .phone-case.dark-mode { background-color: #0d0d0d; }
@@ -756,8 +726,6 @@
   .phone-case.dark-mode .jx-post-content { color: #ddd; }
   .phone-case.dark-mode .jx-post-comments { background: #1c1c1e; }
   .phone-case.dark-mode .jx-comment-text { color: #ccc; }
-  .phone-case.dark-mode .jx-post-likes { color: #7aa2f7; }
-  .phone-case.dark-mode .jx-post-likes svg { fill: #7aa2f7; }
 
   .phone-case.dark-mode #jxChatScreen { background-color: #121212; }
   .phone-case.dark-mode .jx-chat-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
@@ -766,15 +734,9 @@
   .phone-case.dark-mode .jx-chat-top-bar .more-btn { color: #ddd; }
   .phone-case.dark-mode .jx-msg-row.other .jx-msg-bubble { background: #2c2c2e; color: #eee; }
   .phone-case.dark-mode .jx-msg-row.other .jx-msg-bubble::before { border-right-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-msg-quote { background: rgba(255,255,255,0.08); color: #bbb; }
-  .phone-case.dark-mode .jx-msg-quote .qname { color: #7aa2f7; }
-  .phone-case.dark-mode .jx-msg-quote .qtext { color: #999; }
   .phone-case.dark-mode .jx-chat-input-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .jx-chat-input-bar textarea { background: #2c2c2e; color: #eee; }
   .phone-case.dark-mode .jx-chat-input-bar .icon { fill: #ddd; }
-  .phone-case.dark-mode .jx-quote-preview { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-quote-name { color: #7aa2f7; }
-  .phone-case.dark-mode .jx-quote-text { color: #888; }
   .phone-case.dark-mode .sticker-panel { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .sticker-cell { background: #2c2c2e; border-color: #3a3a3c; }
   .phone-case.dark-mode .sticker-cell-name { background: #2c2c2e; color: #aaa; border-top-color: #3a3a3c; }
@@ -806,17 +768,13 @@
   .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span { color: #eee; }
 
   .phone-case.dark-mode .jx-modal-content,
-  .phone-case.dark-mode .jx-comment-modal-content,
-  .phone-case.dark-mode .jx-edit-modal-content { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-modal-content h3,
-  .phone-case.dark-mode .jx-edit-modal-content h3 { color: #eee; }
+  .phone-case.dark-mode .jx-comment-modal-content { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-modal-content h3 { color: #eee; }
   .phone-case.dark-mode .jx-modal-item { border-bottom-color: #2c2c2e; }
   .phone-case.dark-mode .jx-modal-item span { color: #eee; }
   .phone-case.dark-mode .jx-modal-btn { background: #2c2c2e; color: #ddd; }
-  .phone-case.dark-mode .jx-comment-modal-content textarea,
-  .phone-case.dark-mode .jx-edit-textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .jx-comment-modal-actions .cancel,
-  .phone-case.dark-mode .jx-edit-actions .cancel { background: #2c2c2e; color: #ddd; }
+  .phone-case.dark-mode .jx-comment-modal-content textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .jx-comment-modal-actions .cancel { background: #2c2c2e; color: #ddd; }
 
   .phone-case.dark-mode #jxPublishScreen { background: #121212; }
   .phone-case.dark-mode .publish-header { background: #1c1c1e; border-bottom-color: #2c2c2e; }
@@ -1531,7 +1489,7 @@
           <textarea id="stickerLinkInput" placeholder="每行一个表情包链接，可选格式：
 https://xxx.com/a.png
 名称|https://xxx.com/a.png
-名称|https://xxx.com/a.png|含义描述" style="width:100%; height:110px; border:1px solid #ddd; border-radius:8px; padding:10px; font-size:13px; resize:vertical; outline:none; font-family:inherit; line-height:1.5; box-sizing:border-box;"></textarea>
+名称|https://xxx.com/a.png|含义描述" style="width:100%; height:110px; border:1px solid #ddd; border-radius:8px; padding:10px; font-size:13px; resize:vertical; outline:none; font-family:inherit; line-height:1.5;"></textarea>
           <div style="display:flex; gap:10px; margin-top:10px;">
             <button class="btn btn-primary" style="flex:1; padding:11px;" onclick="addStickersFromLinks()">添加为合集</button>
             <button class="btn btn-success" style="flex:1; padding:11px;" onclick="createBlankStickerPack()">新建空白合集</button>
@@ -1879,7 +1837,7 @@ function openPersonaApp() { loadPersonaList(); openScreen('personaScreen'); rend
 function openWorldBookApp() { loadWorldBook(); loadPersonaList(); openScreen('worldBookScreen'); renderWorldBookList(); }
 function openSettingsApp() {
   openScreen('settingsScreen');
-  applyApiConfigFromForm(loadApiConfig() || {});
+  applyApiConfigToForm(loadApiConfig() || {});
   updateApiPresetList();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
@@ -3700,50 +3658,44 @@ function loadStickers() {
 }
 
 function openJianxunApp() {
-  // 1. 先把主界面显示出来，确保用户点击有反馈
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const jxScreen = document.getElementById('jianxunScreen');
-  if (jxScreen) jxScreen.classList.add('active');
-
-  // 2. 强制隐藏所有可能卡住的覆盖层
-  // 2a. 使用内联 display 显示/隐藏的（保留显示时用 style.display='flex'）
-  ['jxWalletScreen', 'jxRelativeCardScreen', 'jxBillScreen', 'jxFavoritesScreen', 'jxStickerScreen'].forEach(id => {
+  // 1. 强制隐藏所有可能卡住的覆盖层
+  const overlayIds = [
+    'jxWalletScreen', 'jxRelativeCardScreen', 'jxBillScreen', 
+    'jxMergedDetailScreen', 'jxTransferModal', 'jxRelativeCardModal', 
+    'jxStickerScreen', 'jxFavoritesScreen', 'jxStickerPanel', 
+    'jxAttachPanel', 'jxMsgMenu', 'jxChatInfoScreen', 'jxChatScreen',
+    'jxCommentModal', 'jxEditMsgModal', 'personaSelectorModal', 'forwardTargetModal',
+    'worldBookSelectScreen', 'jxPublishScreen'
+  ];
+  overlayIds.forEach(id => {
     const el = document.getElementById(id);
-    if (el && el.style) el.style.display = 'none';
-  });
-
-  // 2b. 使用 classList (active / show) 控制的（只移除类，不动内联 display）
-  ['jxMergedDetailScreen', 'jxTransferModal', 'jxRelativeCardModal', 'jxMsgMenu',
-   'jxChatInfoScreen', 'jxChatScreen', 'jxCommentModal', 'jxEditMsgModal',
-   'personaSelectorModal', 'forwardTargetModal', 'worldBookSelectScreen',
-   'jxPublishScreen', 'jxStickerPanel', 'jxAttachPanel', 'jxQuotePreview', 'jxMultiBar'
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && el.classList) {
-      el.classList.remove('active');
-      el.classList.remove('show');
+    if (el) {
+      if (el.style) el.style.display = 'none';
+      if (el.classList) {
+        el.classList.remove('active');
+        el.classList.remove('show');
+      }
     }
   });
 
-  // 2c. 复位聊天输入栏（如果之前在多选模式，可能被设置了 display:none）
-  const inputBar = document.getElementById('jxChatInputBar');
-  if (inputBar) inputBar.style.display = '';
+  // 2. 安全加载数据（防止旧数据格式错误导致崩溃）
+  try { loadPersonaList(); } catch(e) { console.warn('加载人设失败:', e); }
+  try { loadWorldBook(); } catch(e) { console.warn('加载世界书失败:', e); }
+  try { loadJianxunChats(); } catch(e) { console.warn('加载聊天失败:', e); }
 
-  // 3. 安全加载数据（每个模块独立try-catch，防止一个坏了导致整个打不开）
-  try { loadPersonaList(); } catch(e) { console.warn('loadPersonaList错误:', e); }
-  try { loadWorldBook(); } catch(e) { console.warn('loadWorldBook错误:', e); }
-  try { loadJianxunChats(); } catch(e) { console.warn('loadJianxunChats错误:', e); }
-
-  // 4. 安全渲染
-  try { renderJianxunChatList(); } catch(e) { console.warn('renderJianxunChatList错误:', e); }
-  try { loadMomentsData(); } catch(e) { console.warn('loadMomentsData错误:', e); }
-  try { renderJianxunContacts(); } catch(e) { console.warn('renderJianxunContacts错误:', e); }
-  try { loadMomentsPosts(); } catch(e) { console.warn('loadMomentsPosts错误:', e); }
-  try { renderMomentsPosts(); } catch(e) { console.warn('renderMomentsPosts错误:', e); }
-  try { loadJxMeProfile(); } catch(e) { console.warn('loadJxMeProfile错误:', e); }
-
-  // 5. 切换到底部第一个标签
-  try { switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item')); } catch(e) { console.warn('switchJianxunTab错误:', e); }
+  // 3. 显示简讯主界面
+  openScreen('jianxunScreen');
+  
+  // 4. 安全渲染各个标签页的内容
+  try { renderJianxunChatList(); } catch(e) { console.warn('渲染聊天列表失败:', e); }
+  try { loadMomentsData(); } catch(e) { console.warn('加载朋友圈数据失败:', e); }
+  try { renderJianxunContacts(); } catch(e) { console.warn('渲染通讯录失败:', e); }
+  try { loadMomentsPosts(); } catch(e) { console.warn('加载朋友圈帖子失败:', e); }
+  try { renderMomentsPosts(); } catch(e) { console.warn('渲染朋友圈帖子失败:', e); }
+  try { loadJxMeProfile(); } catch(e) { console.warn('加载我的资料失败:', e); }
+  
+  // 5. 默认切换到底部第一个标签
+  try { switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item')); } catch(e) { console.warn('切换标签失败:', e); }
 }
 
 function switchJianxunTab(tabId, navElement) {
@@ -3889,42 +3841,64 @@ function renderJianxunContacts() {
 
 function loadJianxunChats() {
   loadWorldBook();
-  const data = localStorage.getItem('jianxun_chats');
-  if (data) { try { jianxunChats = JSON.parse(data); } catch(e) { jianxunChats = []; } }
-  else { jianxunChats = []; }
-  if (!Array.isArray(jianxunChats)) jianxunChats = [];
-  jianxunChats.forEach(chat => {
-    if (!chat.id) chat.id = genId();
-    if (!chat.messages) chat.messages = [];
-    if (chat.pinned === undefined) chat.pinned = false;
-    if (chat.allowActive === undefined) chat.allowActive = false;
-    if (chat.maxReply === undefined) chat.maxReply = 1;
-    if (chat.customRemark === undefined) chat.customRemark = '';
-    if (chat.chatBg === undefined) chat.chatBg = '';
-    if (chat.myAvatar === undefined) chat.myAvatar = '';
-    if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-    delete chat._replying;
-    if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
-    else if (typeof chat.boundWorldBook === 'string') {
-      const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
-      chat.boundWorldBook = entry ? [entry.id] : [];
-    } else if (!Array.isArray(chat.boundWorldBook)) chat.boundWorldBook = [];
-
-    if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
-    if (Array.isArray(chat.boundStickers) && chat.boundStickers.length > 0) {
-      const packs = loadStickerPacks();
-      const stickerToPack = {};
-      packs.forEach(p => (p.stickers || []).forEach(s => { stickerToPack[s.id] = p.id; }));
-      chat.boundStickers.forEach(sid => {
-        const pid = stickerToPack[sid];
-        if (pid && !chat.boundStickerPacks.includes(pid)) chat.boundStickerPacks.push(pid);
+  let rawData = localStorage.getItem('jianxun_chats');
+  if (!rawData) { jianxunChats = []; return; }
+  try {
+    let parsed = JSON.parse(rawData);
+    if (!Array.isArray(parsed)) throw new Error('聊天数据格式错误');
+    
+    // 强力数据修复：清理不合法字段，防止因旧数据导致渲染崩溃
+    jianxunChats = parsed.map(chat => {
+      if (!chat || typeof chat !== 'object') return null;
+      const c = { ...chat };
+      if (!c.id) c.id = genId();
+      if (!c.name) c.name = '未知角色';
+      if (!Array.isArray(c.messages)) c.messages = [];
+      if (!Array.isArray(c.imagePool)) c.imagePool = [];
+      if (!Array.isArray(c.boundWorldBook)) c.boundWorldBook = [];
+      if (!Array.isArray(c.boundStickerPacks)) c.boundStickerPacks = [];
+      if (typeof c.pinned !== 'boolean') c.pinned = false;
+      if (typeof c.allowActive !== 'boolean') c.allowActive = false;
+      if (typeof c.maxReply !== 'number') c.maxReply = 1;
+      if (typeof c.customRemark !== 'string') c.customRemark = '';
+      if (typeof c.chatBg !== 'string') c.chatBg = '';
+      if (typeof c.myAvatar !== 'string') c.myAvatar = '';
+      
+      // 深度清理消息
+      c.messages = c.messages.filter(m => m && typeof m === 'object');
+      c.messages.forEach(m => {
+        if (!m.id) m.id = genId();
+        if (typeof m.role !== 'string') m.role = 'me';
+        if (typeof m.type !== 'string') m.type = 'text';
       });
-      delete chat.boundStickers;
-    }
-    if (chat.boundStickers !== undefined) delete chat.boundStickers;
 
-    chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
-  });
+      // 清理图片池
+      c.imagePool = c.imagePool.filter(img => img && img.data);
+
+      // 兼容旧版世界书绑定
+      if (typeof c.boundWorldBook === 'string') {
+        const entry = worldBookEntries.find(e => e.name === c.boundWorldBook);
+        c.boundWorldBook = entry ? [entry.id] : [];
+      }
+      if (Array.isArray(c.boundStickers) && c.boundStickers.length > 0) {
+        const packs = loadStickerPacks();
+        const stickerToPack = {};
+        packs.forEach(p => (p.stickers || []).forEach(s => { stickerToPack[s.id] = p.id; }));
+        c.boundStickers.forEach(sid => {
+          const pid = stickerToPack[sid];
+          if (pid && !c.boundStickerPacks.includes(pid)) c.boundStickerPacks.push(pid);
+        });
+        delete c.boundStickers;
+      }
+      return c;
+    }).filter(Boolean);
+
+  } catch (e) {
+    console.error('加载聊天记录失败，数据可能损坏:', e);
+    alert('检测到聊天数据格式异常，部分损坏数据已自动清理。');
+    jianxunChats = [];
+    localStorage.removeItem('jianxun_chats'); // 清除损坏数据，防止不断崩溃
+  }
 }
 
 function renderJianxunChatList() {
