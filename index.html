@@ -3442,13 +3442,9 @@ function voiceSend() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
-    // 检查输入框是否有内容，如果为空则提示
+    // 检查输入框是否有内容
     const input = document.getElementById('jxChatInput');
     const content = input ? input.value.trim() : '';
-    if (!content) {
-      alert('请先在输入框中输入内容，再点击左侧语音键发送并让角色回复！');
-      return;
-    }
 
     if (chat._replying) {
       alert('角色正在回复中，请稍候...');
@@ -3458,10 +3454,14 @@ function voiceSend() {
     const panel = document.getElementById('jxStickerPanel');
     if (panel) panel.classList.remove('show');
     
-    const sent = sendMessage(); // 发送消息
-    if (!sent) return;
-    
-    triggerCharReply(chat); // 触发角色回复
+    if (content) {
+      // 输入框有内容：发送消息并触发回复
+      const sent = sendMessage();
+      if (sent) triggerCharReply(chat);
+    } else {
+      // 输入框为空：直接触发角色基于上下文回复
+      triggerCharReply(chat);
+    }
   } catch (err) {
     alert('点击语音键发生错误：' + (err.message || '未知错误'));
   }
