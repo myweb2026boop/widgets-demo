@@ -3442,14 +3442,13 @@ function voiceSend() {
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
     
-    // 检查输入框是否有内容
-    const input = document.getElementById('jxChatInput');
-    const content = input ? input.value.trim() : '';
-
     if (chat._replying) {
       alert('角色正在回复中，请稍候...');
       return;
     }
+
+    const input = document.getElementById('jxChatInput');
+    const content = input ? input.value.trim() : '';
 
     const panel = document.getElementById('jxStickerPanel');
     if (panel) panel.classList.remove('show');
