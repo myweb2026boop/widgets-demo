@@ -3661,6 +3661,21 @@ function openJianxunApp() {
   loadPersonaList();
   loadWorldBook();
   loadJianxunChats();
+  // 重置所有覆盖层，防止卡住导致打不开
+  document.getElementById('jxWalletScreen').style.display = 'none';
+  document.getElementById('jxRelativeCardScreen').style.display = 'none';
+  document.getElementById('jxBillScreen').style.display = 'none';
+  document.getElementById('jxMergedDetailScreen').classList.remove('active');
+  document.getElementById('jxTransferModal').classList.remove('show');
+  document.getElementById('jxRelativeCardModal').classList.remove('show');
+  document.getElementById('jxStickerScreen').style.display = 'none';
+  document.getElementById('jxFavoritesScreen').style.display = 'none';
+  document.getElementById('jxStickerPanel').classList.remove('show');
+  document.getElementById('jxAttachPanel').classList.remove('show');
+  document.getElementById('jxMsgMenu').classList.remove('show');
+  document.getElementById('jxChatInfoScreen').classList.remove('active');
+  document.getElementById('jxChatScreen').classList.remove('active');
+  
   openScreen('jianxunScreen');
   switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item'));
   renderJianxunChatList();
