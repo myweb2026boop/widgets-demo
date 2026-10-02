@@ -1497,29 +1497,21 @@ function genId() {
   return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }
 
-// ★★★ 智能拆分：优先按换行符拆，其次按标点符号拆，保留单换行 ★★★
+// ★★★ 核心：只按空行拆分，保留单换行。不再按长度或标点强行拆分。 ★★★
 function splitTextIntoBubbles(raw) {
   if (raw == null) return [];
   let s = String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // 去掉首尾的空白行（保留行内换行）
   s = s.replace(/^(?:[ \t]*\n)+/, '').replace(/(?:\n[ \t]*)+$/, '');
   if (!s.trim()) return [];
 
-  // 1. 如果有空行或连续换行，按空行拆
+  // 仅按空行（连续换行）拆分，不按标点拆
   let parts = s.split(/\n[ \t]*\n+/);
   let out = [];
   for (let p of parts) {
     let t = p.replace(/^[ \t]*\n+/, '').replace(/\n+[ \t]*$/, '');
     if (t.trim()) out.push(t);
   }
-
-  // 2. 如果只拆出一段，且文本很长（>60字），尝试按标点拆成多条气泡
-  if (out.length <= 1 && s.length > 60) {
-     let sentences = s.match(/[^。！？!?]+[。！？!?]?/g);
-     if (sentences && sentences.length > 1) {
-       out = sentences.map(x => x.trim()).filter(x => x.length > 0);
-     }
-  }
-
   return out.length ? out : [s];
 }
 
@@ -3328,6 +3320,7 @@ function renderChatMessages() {
       const safeSrc = String(msg.image).replace(/'/g, '%27');
       inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
     } else {
+      // 单换行渲染为 <br>，保留在同一个气泡内
       inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
     }
     if (msg.quote) {
@@ -3405,7 +3398,7 @@ function openImageViewer(src) {
   overlay.style.display = 'flex';
 }
 
-// ★ 修复输入框高度计算 bug
+// 输入框高度自适应
 function handleChatInput(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
@@ -3415,17 +3408,17 @@ function handleChatInput(el) {
   }
 }
 
-// ★ 输入框键盘处理：Enter 不再发送，改为真正的换行。Ctrl+Enter 或 Cmd+Enter 快捷发送
+// Enter 键：直接换行。Ctrl+Enter 或 Cmd+Enter：发送
 function handleChatInputKeydown(e) {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
     voiceSend();
     return;
   }
-  // 其它情况一律交给浏览器默认处理（换行）
+  // 其它情况交给浏览器默认处理，Enter 会插入换行
 }
 
-// ★★★ 用户发消息：按空行拆成多条气泡；单换行保留在同一条气泡里 ★★★
+// 用户发消息：按空行拆成多条气泡；单换行保留在同一条气泡里
 function sendMessage() {
   const input = document.getElementById('jxChatInput');
   if (!input) return false;
@@ -3444,7 +3437,7 @@ function sendMessage() {
 
   clearQuote();
   input.value = '';
-  input.style.height = '36px'; // 重置高度，绝对防止输入框文字溢出
+  input.style.height = '36px';
   const sendBtn = document.getElementById('jxChatSendBtn');
   if (sendBtn) sendBtn.classList.remove('show');
   saveJianxunChats();
@@ -3453,7 +3446,7 @@ function sendMessage() {
   return true;
 }
 
-// 发送按钮（麦克风图标）：发送 + 触发角色回复
+// 发送按钮 / 语音图标点击
 function voiceSend() {
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
@@ -3464,7 +3457,7 @@ function voiceSend() {
   if (!chat) return;
   const panel = document.getElementById('jxStickerPanel');
   if (panel) panel.classList.remove('show');
-  const sent = sendMessage(); // 现在 sendMessage 会清空输入框
+  const sent = sendMessage();
   if (!sent) return;
   if (chat.messages.filter(m => m.content !== '__typing__').length === 0) return;
   triggerCharReply(chat);
@@ -4226,15 +4219,16 @@ function buildCharSystemPrompt(chat) {
   sp += ' • 不要滥用，正常闲聊不用每句都加动作；但上面说必须用的情况一定要用。\n';
   sp += ' • 不需要执行动作时，直接正常回复文字即可。\n';
 
-  // ★ 强化分段发消息的说明，如果模型不用换行，系统会自动按标点拆
-  sp += '\n【分段发送多条消息 —— 非常重要】\n';
-  sp += '你可以像真人一样"连发几条消息"。方法非常简单：**直接在回复中使用换行符（回车）**。\n';
-  sp += '系统会自动把你的回复按换行符拆成独立的气泡消息，逐条显示给用户。\n';
-  sp += '⚠️ 当用户明确要求"发 N 条""分段发""连发几条""一条一条发"时，**你必须分成 N 段，每段之间用一个空行隔开**。\n';
-  sp += '例如用户让你连发 3 条，你应输出（每句之间空一行）：\n';
-  sp += '第一条消息内容\n\n第二条消息内容\n\n第三条消息内容\n\n';
-  sp += '⚠️ 系统已经配置了智能拆分，如果你不按条数输出，系统会强制拆分你的回复，这可能会破坏你的语气。请务必自己按要求的条数换行输出！\n';
-  sp += '★ 普通回复不要故意加换行，像正常人一样说话即可。只有用户要求多条，或者你想自然连发时才使用换行。\n';
+  // 强化长文本和分段发送的说明
+  sp += '\n【关于长文本、小作文与多条消息 —— 非常重要】\n';
+  sp += '1. 当你想发一段长文案、小作文、或者有格式排版的文本时，**直接用换行符（回车）来排版**。\n';
+  sp += '   系统会完整保留你的排版，在一个聊天气泡里显示出来，绝不会丢失换行。\n';
+  sp += '2. 当你想像真人一样"连发几条"消息时，**请用单独一行的 [[SPLIT]] 来分隔每一条**。\n';
+  sp += '   系统会自动把它拆分成多条独立气泡。\n';
+  sp += '   ⚠️ 当用户明确要求"发 N 条""分段发""连发几条""一条一条发"时，你必须用 [[SPLIT]] 分开，分成用户要求的条数。\n';
+  sp += '   例如：第一条消息\n[[SPLIT]]\n第二条消息\n[[SPLIT]]\n第三条消息\n';
+  sp += '3. 如果某条消息内部还需要换行，直接在该条内部用普通换行即可（不会被拆分）。\n';
+  sp += '4. 普通短回复不要故意加 [[SPLIT]] 或换行。\n';
 
   sp += buildMomentsPrompt();
   const log = loadAwarenessLog();
@@ -4444,7 +4438,7 @@ async function generateCharReply(chat) {
   return clean || raw;
 }
 
-// ★★★ 角色回复：不再依赖模型输出 [[SPLIT]]，强制按标点和换行拆分成多条气泡 ★★★
+// 角色回复：只按 [[SPLIT]] 或空行拆分，保留单换行
 async function triggerCharReply(chat) {
   if (chat._replying) return;
   chat._replying = true;
@@ -4457,16 +4451,17 @@ async function triggerCharReply(chat) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
 
-    if (reply && reply.trim()) {
-      // 核心：调用智能拆分函数，按换行/标点拆分
-      const segments = splitTextIntoBubbles(reply);
-      if (segments.length > 0) {
-        segments.forEach(seg => {
-          chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
-        });
-      } else {
-        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: reply.trim() });
-      }
+    const rawReply = String(reply == null ? '' : reply);
+    // 把 [[SPLIT]] 统一转成空行，然后走同一个拆气泡逻辑
+    const normalized = rawReply.replace(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi, '\n\n');
+    const segments = splitTextIntoBubbles(normalized);
+
+    if (segments.length > 0) {
+      segments.forEach(seg => {
+        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg });
+      });
+    } else if (rawReply.trim()) {
+      chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply.trim() });
     }
 
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
