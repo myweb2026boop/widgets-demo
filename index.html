@@ -695,6 +695,21 @@
   .jx-post-likes svg { width: 13px; height: 13px; fill: #576b95; flex-shrink: 0; }
   .phone-case.dark-mode .jx-post-likes { color: #82a7e0; border-bottom-color: rgba(255,255,255,0.1); }
   .phone-case.dark-mode .jx-post-likes svg { fill: #82a7e0; }
+
+  /* 新增编辑弹窗样式 */
+  .jx-edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 20001; display: none; }
+  .jx-edit-modal.show { display: flex; }
+  .jx-edit-modal-content { background: #fff; width: 90%; max-width: 380px; border-radius: 12px; padding: 20px; text-align: left; display: flex; flex-direction: column; }
+  .jx-edit-modal-content h3 { font-size: 16px; margin-bottom: 15px; color: #333; }
+  .jx-edit-textarea { width: 100%; height: 150px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap; word-break: break-all; }
+  .jx-edit-actions { display: flex; gap: 10px; }
+  .jx-edit-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .jx-edit-actions .cancel { background: #f0f0f0; color: #333; }
+  .jx-edit-actions .save { background: #07c160; color: #fff; }
+  .phone-case.dark-mode .jx-edit-modal-content { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-edit-modal-content h3 { color: #eee; }
+  .phone-case.dark-mode .jx-edit-textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
+  .phone-case.dark-mode .jx-edit-actions .cancel { background: #2c2c2e; color: #ddd; }
 </style>
 </head>
 <body>
@@ -1400,6 +1415,18 @@ https://xxx.com/a.png
         <div class="jx-comment-modal-actions">
           <button class="cancel" onclick="closeCommentModal()">取消</button>
           <button class="send" onclick="sendComment()">发送</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑消息弹窗（新增） -->
+    <div class="jx-edit-modal" id="jxEditMsgModal">
+      <div class="jx-edit-modal-content">
+        <h3>编辑消息内容</h3>
+        <textarea class="jx-edit-textarea" id="editMsgTextarea" placeholder="输入内容..."></textarea>
+        <div class="jx-edit-actions">
+          <button class="cancel" onclick="closeEditMsgModal()">取消</button>
+          <button class="save" onclick="saveEditedMsg()">保存</button>
         </div>
       </div>
     </div>
@@ -2796,7 +2823,8 @@ let currentChatId = null;
 
 function getCharImageRefs(chat) {
   const refs = [];
-  const userAvatar = localStorage.getItem('moments_avatar');
+  // 优先使用本聊天专属头像
+  const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
   if (userAvatar) {
     refs.push({
       id: 'avatar_current',
@@ -3952,6 +3980,9 @@ function menuDelete() {
   renderChatMessages();
   renderJianxunChatList();
 }
+
+// ==== 修改：弹出编辑弹窗，保留换行 ====
+let editingMsgId = null;
 function menuEdit() {
   const id = menuMsgId;
   closeMsgMenu();
@@ -3964,13 +3995,29 @@ function menuEdit() {
     alert('图片、表情、聊天记录不能编辑');
     return;
   }
-  const newText = prompt('编辑消息内容：', msg.content || '');
-  if (newText === null) return;
-  msg.content = newText;
-  saveJianxunChats();
-  renderChatMessages();
-  renderJianxunChatList();
+  editingMsgId = id;
+  document.getElementById('editMsgTextarea').value = msg.content || '';
+  document.getElementById('jxEditMsgModal').classList.add('show');
 }
+function closeEditMsgModal() {
+  document.getElementById('jxEditMsgModal').classList.remove('show');
+  editingMsgId = null;
+}
+function saveEditedMsg() {
+  if (!editingMsgId) return;
+  const newText = document.getElementById('editMsgTextarea').value;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === editingMsgId);
+  if (msg) {
+    msg.content = newText; // 包含换行符
+    saveJianxunChats();
+    renderChatMessages();
+    renderJianxunChatList();
+  }
+  closeEditMsgModal();
+}
+
 async function menuTranslate() {
   const id = menuMsgId;
   closeMsgMenu();
@@ -4173,7 +4220,9 @@ function buildCharSystemPrompt(chat) {
   sp += '\n【关于用户】\n';
   sp += '用户名：' + (localStorage.getItem('moments_name') || '用户') + '\n';
   if (localStorage.getItem('jx_wechat_id')) sp += '微信号：' + localStorage.getItem('jx_wechat_id') + '\n';
-  const _userAvatarForPrompt = localStorage.getItem('moments_avatar');
+  
+  // ==== 修改：优先读取 chat.myAvatar ====
+  const _userAvatarForPrompt = chat.myAvatar || localStorage.getItem('moments_avatar');
   if (_userAvatarForPrompt) {
     sp += '★ 用户头像：系统会把你收到的每条用户消息末尾附上一张图片，标注为"（这是我现在的头像）"。\n';
     sp += '   这张图片就是用户当前的头像内容，你可以看清它长什么样。如果用户换了新头像，你会收到新的图片。\n';
@@ -4420,7 +4469,8 @@ async function generateCharReply(chat) {
   const systemPrompt = buildCharSystemPrompt(chat);
   const history = buildChatHistory(chat);
 
-  const userAvatar = localStorage.getItem('moments_avatar');
+  // ==== 修改：优先读取本聊天头像 ====
+  const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
   if (userAvatar && history.length > 0) {
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].role === 'user') {
@@ -4639,6 +4689,10 @@ function changeMyChatAvatar() {
         chat.myAvatar = base64;
         saveJianxunChats();
         renderChatMessages();
+        // 加入聊天图片池，以便AI可以通过图片资源看到
+        if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+        chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换的本聊天专属头像' });
+        saveJianxunChats();
       }
     });
   };
