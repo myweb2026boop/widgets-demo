@@ -878,313 +878,341 @@
   .phone-case.dark-mode .recharge-opt { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
   .phone-case.dark-mode .recharge-opt:active { background: #3a3a3c; border-color: #07c160; color: #07c160; }
 
-  /* ===== CSS 美化编辑器 ===== */
+  /* ===== CSS 美化编辑器（卡片式） ===== */
   #jxCssEditorScreen {
     display: none;
-    flex-direction: column;
-    background: #0f1115;
-    height: 100%;
-    width: 100%;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 20000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
   }
   #jxCssEditorScreen.active { display: flex; }
 
-  .css-editor-top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    background: linear-gradient(180deg, #1a1d24 0%, #15181e 100%);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    flex-shrink: 0;
-    position: relative;
-  }
-  .css-editor-top-bar::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(120, 140, 255, 0.4), rgba(180, 120, 255, 0.4), transparent);
-  }
-  .css-editor-back-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #cfd3dc;
-    font-size: 22px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.18s ease;
-    padding-bottom: 3px;
-    flex-shrink: 0;
-  }
-  .css-editor-back-btn:active {
-    background: rgba(255,255,255,0.12);
-    transform: scale(0.94);
-  }
-  .css-editor-title-wrap {
-    flex: 1;
+  .css-editor-card {
+    width: 100%;
+    max-width: 340px;
+    max-height: 78%;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28), 0 4px 16px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    animation: cssCardIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes cssCardIn {
+    from { opacity: 0; transform: scale(0.9) translateY(16px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .css-editor-header {
+    padding: 16px 18px 14px;
+    display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 11px;
+    border-bottom: 1px solid #f2f3f5;
+    flex-shrink: 0;
   }
-  .css-editor-title {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    background: linear-gradient(135deg, #a8c0ff 0%, #d3a4ff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  .css-editor-subtitle {
-    font-size: 10px;
-    color: #6b7280;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .css-editor-quicksave-btn {
+  .css-editor-header-icon {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #4ade80, #22c55e);
-    border: none;
-    color: #fff;
-    cursor: pointer;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 3px 10px rgba(34, 197, 94, 0.35);
-    transition: all 0.18s ease;
     flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
   }
-  .css-editor-quicksave-btn:active {
-    transform: scale(0.92);
-    box-shadow: 0 1px 5px rgba(34, 197, 94, 0.5);
+  .css-editor-header-icon svg { width: 18px; height: 18px; fill: #fff; }
+  .css-editor-header-text { flex: 1; min-width: 0; }
+  .css-editor-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1c;
+    letter-spacing: 0.2px;
+    margin-bottom: 1px;
   }
-  .css-editor-quicksave-btn svg { width: 16px; height: 16px; fill: #fff; }
-
-  .css-editor-toolbar {
-    display: flex;
-    gap: 8px;
-    padding: 12px 14px;
-    overflow-x: auto;
-    background: #15181e;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    flex-shrink: 0;
-    scrollbar-width: none;
+  .css-editor-header-sub {
+    font-size: 11px;
+    color: #9a9aa0;
+    letter-spacing: 0.1px;
   }
-  .css-editor-toolbar::-webkit-scrollbar { display: none; }
-  .css-editor-toolbar .tool-btn {
-    flex-shrink: 0;
+  .css-editor-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f5f5f7;
+    border: none;
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
+    justify-content: center;
     cursor: pointer;
+    color: #8a8a90;
+    font-size: 20px;
+    line-height: 1;
+    padding-bottom: 2px;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
     font-family: inherit;
-    border: 1px solid transparent;
-    transition: all 0.18s ease;
-    white-space: nowrap;
   }
-  .css-editor-toolbar .tool-btn svg {
-    width: 13px;
-    height: 13px;
-    fill: currentColor;
-    opacity: 0.9;
-  }
-  .css-editor-toolbar .tool-btn:active {
-    transform: scale(0.95);
-  }
-  .tool-btn.primary {
-    background: linear-gradient(135deg, #5b8def, #4a7de0);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(91, 141, 239, 0.3);
-  }
-  .tool-btn.success {
-    background: linear-gradient(135deg, #4ade80, #22c55e);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
-  }
-  .tool-btn.danger {
-    background: linear-gradient(135deg, #f87171, #ef4444);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.25);
-  }
-  .tool-btn.neutral {
-    background: rgba(255,255,255,0.06);
-    color: #cfd3dc;
-    border-color: rgba(255,255,255,0.08);
-  }
-  .tool-btn.purple {
-    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
-  }
-  .tool-btn.pink {
-    background: linear-gradient(135deg, #f472b6, #ec4899);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(236, 72, 153, 0.3);
-  }
-  .tool-btn.orange {
-    background: linear-gradient(135deg, #fb923c, #f97316);
-    color: #fff;
-    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.28);
+  .css-editor-close:active {
+    background: #e8e8ec;
+    transform: scale(0.9);
   }
 
-  .css-editor-main {
+  .css-editor-body {
     flex: 1;
-    display: flex;
-    background: #0b0d11;
-    overflow: hidden;
-    position: relative;
+    padding: 14px 16px 6px;
+    overflow-y: auto;
     min-height: 0;
   }
-  .css-editor-gutter {
-    width: 44px;
-    flex-shrink: 0;
-    padding: 14px 0;
-    background: #0e1014;
-    color: #3d4451;
-    font-family: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+  .css-editor-label {
     font-size: 12px;
-    line-height: 1.7;
-    text-align: right;
-    user-select: none;
-    overflow: hidden;
-    border-right: 1px solid rgba(255,255,255,0.03);
+    color: #666;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
   }
-  .css-editor-gutter div {
-    padding-right: 8px;
-    height: 20.4px;
-  }
-  .css-editor-gutter div.current {
-    color: #8b9cff;
-    font-weight: 600;
+  .css-editor-label-hint {
+    font-size: 10px;
+    color: #b8b8be;
+    font-weight: 400;
+    font-family: 'SF Mono', Menlo, monospace;
   }
   #cssEditorTextarea {
-    flex: 1;
-    background: #0b0d11;
-    color: #e6e8ee;
-    border: none;
-    padding: 14px 16px;
+    width: 100%;
+    height: 170px;
+    background: #f7f8fa;
+    border: 1.5px solid #e8eaee;
+    border-radius: 12px;
+    padding: 12px 14px;
     font-family: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
     font-size: 12px;
-    line-height: 1.7;
+    line-height: 1.65;
     outline: none;
     resize: none;
+    color: #1f2024;
     white-space: pre;
     overflow: auto;
     tab-size: 2;
     -moz-tab-size: 2;
-    caret-color: #8b9cff;
-    min-width: 0;
+    caret-color: #667eea;
+    box-sizing: border-box;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
-  #cssEditorTextarea::selection {
-    background: rgba(139, 156, 255, 0.35);
+  #cssEditorTextarea:focus {
+    border-color: #667eea;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
   }
-  #cssEditorTextarea::placeholder { color: #454b58; font-style: italic; }
-  #cssEditorTextarea::-webkit-scrollbar { width: 8px; height: 8px; }
-  #cssEditorTextarea::-webkit-scrollbar-track { background: #0b0d11; }
-  #cssEditorTextarea::-webkit-scrollbar-thumb { background: #262b35; border-radius: 4px; }
-  #cssEditorTextarea::-webkit-scrollbar-thumb:hover { background: #353b47; }
+  #cssEditorTextarea::placeholder {
+    color: #b8b8be;
+    font-style: normal;
+  }
+  #cssEditorTextarea::-webkit-scrollbar { width: 6px; height: 6px; }
+  #cssEditorTextarea::-webkit-scrollbar-track { background: transparent; }
+  #cssEditorTextarea::-webkit-scrollbar-thumb {
+    background: #d5d7dc;
+    border-radius: 3px;
+  }
+  #cssEditorTextarea::-webkit-scrollbar-thumb:hover { background: #b8babf; }
 
-  .css-editor-hintbar {
-    flex-shrink: 0;
-    background: #10131a;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.28s ease;
-  }
-  .css-editor-hintbar.expanded {
-    max-height: 160px;
-    overflow-y: auto;
-  }
-  .css-editor-hint-inner {
-    padding: 12px 16px;
-    color: #8b93a1;
-    font-size: 11px;
-    line-height: 1.9;
-  }
-  .css-editor-hint-inner b { color: #cfd3dc; font-weight: 600; }
-  .css-editor-hint-inner code {
-    display: inline-block;
-    background: rgba(91, 141, 239, 0.12);
-    color: #a8c0ff;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-family: 'SF Mono', Menlo, monospace;
-    font-size: 10px;
-    margin: 2px 2px 0 0;
-    border: 1px solid rgba(91, 141, 239, 0.15);
-  }
-
-  .css-editor-status-bar {
-    padding: 8px 14px;
-    background: #0e1014;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    color: #6b7280;
-    font-size: 11px;
+  .css-editor-templates {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-    font-family: 'SF Mono', Menlo, monospace;
+    gap: 7px;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
   }
-  .css-editor-status-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    overflow: hidden;
+  .css-editor-templates::-webkit-scrollbar { display: none; }
+  .css-editor-chip {
+    flex-shrink: 0;
+    padding: 7px 13px;
+    border-radius: 18px;
+    background: #f5f5f7;
+    border: 1px solid #ebebef;
+    font-size: 12px;
+    color: #444;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
     white-space: nowrap;
-    flex: 1;
-    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
   }
-  .css-editor-status-left span {
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .css-editor-chip:active {
+    background: #eaeaf0;
+    transform: scale(0.95);
+  }
+  .css-editor-chip svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+    opacity: 0.75;
+  }
+  .css-editor-chip.bubble { color: #7c3aed; }
+  .css-editor-chip.bubble:active { background: #f3e8ff; }
+  .css-editor-chip.avatar { color: #0891b2; }
+  .css-editor-chip.avatar:active { background: #cffafe; }
+  .css-editor-chip.input { color: #16a34a; }
+  .css-editor-chip.input:active { background: #dcfce7; }
+  .css-editor-chip.tabbar { color: #2563eb; }
+  .css-editor-chip.tabbar:active { background: #dbeafe; }
+  .css-editor-chip.button { color: #db2777; }
+  .css-editor-chip.button:active { background: #fce7f3; }
+  .css-editor-chip.theme { color: #ea580c; }
+  .css-editor-chip.theme:active { background: #ffedd5; }
+  .css-editor-chip.danger { color: #dc2626; }
+  .css-editor-chip.danger:active { background: #fee2e2; }
+
+  .css-editor-footer {
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+    border-top: 1px solid #f5f5f8;
+    background: #fcfcfd;
+  }
+  .css-editor-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: #9a9aa0;
+    padding-left: 2px;
   }
   .css-editor-status-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #4ade80;
-    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+    background: #c8c8cc;
     flex-shrink: 0;
     transition: all 0.2s ease;
   }
   .css-editor-status-dot.dirty {
-    background: #fb923c;
-    box-shadow: 0 0 8px rgba(251, 146, 60, 0.6);
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.55);
   }
   .css-editor-status-dot.saved {
-    background: #4ade80;
-    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.55);
   }
-  .css-editor-status-right {
-    color: #4b5563;
-    font-size: 10px;
-    letter-spacing: 0.3px;
-    flex-shrink: 0;
-    margin-left: 10px;
+  .css-editor-actions {
+    display: flex;
+    gap: 10px;
   }
+  .css-editor-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    letter-spacing: 0.2px;
+  }
+  .css-editor-btn svg { width: 15px; height: 15px; fill: currentColor; }
+  .css-editor-btn.preview {
+    background: #f5f5f7;
+    color: #333;
+    border: 1px solid #e8eaee;
+  }
+  .css-editor-btn.preview:active {
+    background: #eaeaf0;
+    transform: scale(0.98);
+  }
+  .css-editor-btn.save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.32);
+  }
+  .css-editor-btn.save:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.5);
+  }
+
+  .phone-case.dark-mode #jxCssEditorScreen {
+    background: rgba(0, 0, 0, 0.55);
+  }
+  .phone-case.dark-mode .css-editor-card {
+    background: #1c1c1e;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+  .phone-case.dark-mode .css-editor-header {
+    border-bottom-color: #2c2c2e;
+  }
+  .phone-case.dark-mode .css-editor-header-title { color: #f0f0f2; }
+  .phone-case.dark-mode .css-editor-header-sub { color: #7a7a80; }
+  .phone-case.dark-mode .css-editor-close {
+    background: #2c2c2e;
+    color: #9a9aa0;
+  }
+  .phone-case.dark-mode .css-editor-close:active { background: #3a3a3c; }
+  .phone-case.dark-mode .css-editor-label { color: #b8b8be; }
+  .phone-case.dark-mode .css-editor-label-hint { color: #666; }
+  .phone-case.dark-mode #cssEditorTextarea {
+    background: #2c2c2e;
+    border-color: #3a3a3c;
+    color: #e6e6e8;
+  }
+  .phone-case.dark-mode #cssEditorTextarea:focus {
+    border-color: #667eea;
+    background: #1c1c1e;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
+  }
+  .phone-case.dark-mode #cssEditorTextarea::placeholder { color: #666; }
+  .phone-case.dark-mode #cssEditorTextarea::-webkit-scrollbar-thumb { background: #3a3a3c; }
+  .phone-case.dark-mode .css-editor-chip {
+    background: #2c2c2e;
+    border-color: #3a3a3c;
+    color: #ddd;
+  }
+  .phone-case.dark-mode .css-editor-chip:active { background: #3a3a3c; }
+  .phone-case.dark-mode .css-editor-chip.bubble { color: #a78bfa; }
+  .phone-case.dark-mode .css-editor-chip.bubble:active { background: #3a2e5c; }
+  .phone-case.dark-mode .css-editor-chip.avatar { color: #22d3ee; }
+  .phone-case.dark-mode .css-editor-chip.avatar:active { background: #1a3a44; }
+  .phone-case.dark-mode .css-editor-chip.input { color: #4ade80; }
+  .phone-case.dark-mode .css-editor-chip.input:active { background: #1e4032; }
+  .phone-case.dark-mode .css-editor-chip.tabbar { color: #60a5fa; }
+  .phone-case.dark-mode .css-editor-chip.tabbar:active { background: #1e3352; }
+  .phone-case.dark-mode .css-editor-chip.button { color: #f472b6; }
+  .phone-case.dark-mode .css-editor-chip.button:active { background: #4a2a3a; }
+  .phone-case.dark-mode .css-editor-chip.theme { color: #fb923c; }
+  .phone-case.dark-mode .css-editor-chip.theme:active { background: #4a3420; }
+  .phone-case.dark-mode .css-editor-chip.danger { color: #f87171; }
+  .phone-case.dark-mode .css-editor-chip.danger:active { background: #4a2626; }
+  .phone-case.dark-mode .css-editor-footer {
+    border-top-color: #2c2c2e;
+    background: #1c1c1e;
+  }
+  .phone-case.dark-mode .css-editor-status { color: #7a7a80; }
+  .phone-case.dark-mode .css-editor-status-dot { background: #4a4a4e; }
+  .phone-case.dark-mode .css-editor-btn.preview {
+    background: #2c2c2e;
+    border-color: #3a3a3c;
+    color: #e6e6e8;
+  }
+  .phone-case.dark-mode .css-editor-btn.preview:active { background: #3a3a3c; }
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1193,7 +1221,6 @@
 <div class="phone-case" id="phoneCase">
   <div class="phone-content" id="phoneContent">
 
-    <!-- 主屏 -->
     <div id="mainScreen" class="screen active">
       <div class="container">
         <div class="top-nav">
@@ -1680,87 +1707,80 @@
       </div>
     </div>
 
-    <!-- CSS 美化编辑器 -->
+    <!-- CSS 美化编辑器（卡片式） -->
     <div id="jxCssEditorScreen">
-      <div class="css-editor-top-bar">
-        <div class="css-editor-back-btn" onclick="closeCssEditor()">‹</div>
-        <div class="css-editor-title-wrap">
-          <div class="css-editor-title">CSS 美化编辑器</div>
-          <div class="css-editor-subtitle">Beauty Studio</div>
+      <div class="css-editor-card">
+        <div class="css-editor-header">
+          <div class="css-editor-header-icon">
+            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+          </div>
+          <div class="css-editor-header-text">
+            <div class="css-editor-header-title">CSS 美化</div>
+            <div class="css-editor-header-sub">自定义你的界面风格</div>
+          </div>
+          <button class="css-editor-close" onclick="closeCssEditor()">×</button>
         </div>
-        <button class="css-editor-quicksave-btn" onclick="saveCssEditor()" title="保存">
-          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        </button>
-      </div>
 
-      <div class="css-editor-toolbar">
-        <button class="tool-btn primary" onclick="applyCssEditor()">
-          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-          预览
-        </button>
-        <button class="tool-btn success" onclick="saveCssEditor()">
-          <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
-          保存
-        </button>
-        <button class="tool-btn danger" onclick="resetCssEditor()">
-          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-          重置
-        </button>
-        <button class="tool-btn neutral" onclick="loadDefaultCssToEditor()">
-          <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
-          默认CSS
-        </button>
-        <button class="tool-btn purple" onclick="loadBubbleTemplate()">
-          <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-          气泡模板
-        </button>
-        <button class="tool-btn pink" onclick="loadButtonTemplate()">
-          <svg viewBox="0 0 24 24"><path d="M5 3h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2zm7 5a4 4 0 100 8 4 4 0 000-8z"/></svg>
-          按钮模板
-        </button>
-        <button class="tool-btn orange" onclick="loadThemeTemplate()">
-          <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-          主题模板
-        </button>
-        <button class="tool-btn neutral" onclick="clearCssEditor()">
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-          清空
-        </button>
-      </div>
+        <div class="css-editor-body">
+          <div class="css-editor-label">
+            <span>样式代码</span>
+            <span class="css-editor-label-hint" id="cssEditorCursorInfo">Ln 1, Col 1</span>
+          </div>
+          <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的 CSS 样式 */
 
-      <div class="css-editor-main">
-        <div class="css-editor-gutter" id="cssEditorGutter"></div>
-        <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的自定义 CSS 美化样式 */
-
-/* 例如：修改聊天气泡颜色 */
+/* 例如修改我的气泡颜色 */
 .jx-msg-row.me .jx-msg-bubble {
-  background: linear-gradient(135deg, #ffd6e7, #ffb3cc) !important;
-}
+  background: #ffd6e7 !important;
+}"></textarea>
 
-/* 或者点击上方模板按钮快速套用预设样式 */"></textarea>
-      </div>
-
-      <div class="css-editor-hintbar" id="cssEditorHintBar">
-        <div class="css-editor-hint-inner">
-          💡 <b>常用选择器</b>：
-          <code>.jx-msg-row.me .jx-msg-bubble</code>
-          <code>.jx-msg-row.other .jx-msg-bubble</code>
-          <code>.jx-tm-submit</code>
-          <code>.btn-primary</code>
-          <code>.jx-bottom-nav</code>
-          <code>.jx-nav-item.active</code>
-          <code>.jx-chat-input-bar textarea</code>
-          <br>
-          🔧 自定义样式会追加到页面默认样式之后，优先级更高，不用怕改坏页面。
+          <div class="css-editor-templates">
+            <button class="css-editor-chip bubble" onclick="loadBubbleTemplate()">
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              气泡
+            </button>
+            <button class="css-editor-chip avatar" onclick="loadAvatarTemplate()">
+              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              头像
+            </button>
+            <button class="css-editor-chip input" onclick="loadInputTemplate()">
+              <svg viewBox="0 0 24 24"><path d="M2 6c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6zm4 0v12h12V6H6z"/></svg>
+              输入框
+            </button>
+            <button class="css-editor-chip tabbar" onclick="loadTabbarTemplate()">
+              <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+              底栏
+            </button>
+            <button class="css-editor-chip button" onclick="loadButtonTemplate()">
+              <svg viewBox="0 0 24 24"><path d="M5 3h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z"/></svg>
+              按钮
+            </button>
+            <button class="css-editor-chip theme" onclick="loadThemeTemplate()">
+              <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+              主题
+            </button>
+            <button class="css-editor-chip danger" onclick="resetCssEditor()">
+              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+              重置
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="css-editor-status-bar">
-        <div class="css-editor-status-left">
-          <div class="css-editor-status-dot" id="cssEditorStatusDot"></div>
-          <span id="cssEditorStatus">就绪</span>
+        <div class="css-editor-footer">
+          <div class="css-editor-status">
+            <span class="css-editor-status-dot" id="cssEditorStatusDot"></span>
+            <span id="cssEditorStatus">就绪</span>
+          </div>
+          <div class="css-editor-actions">
+            <button class="css-editor-btn preview" onclick="applyCssEditor()">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              预览
+            </button>
+            <button class="css-editor-btn save" onclick="saveCssEditor()">
+              <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+              保存
+            </button>
+          </div>
         </div>
-        <div class="css-editor-status-right" id="cssEditorCursorInfo">Ln 1, Col 1</div>
       </div>
     </div>
 
@@ -2263,6 +2283,7 @@ https://xxx.com/a.png
 // ================= CSS 美化编辑器 =================
 const USER_CSS_KEY = 'user_custom_css';
 let _cssEditorDirty = false;
+let _cssEditorDraft = null;
 
 function applyUserCustomCss() {
   try {
@@ -2273,35 +2294,6 @@ function applyUserCustomCss() {
 }
 applyUserCustomCss();
 
-function renderCssGutter() {
-  const ta = document.getElementById('cssEditorTextarea');
-  const gutter = document.getElementById('cssEditorGutter');
-  if (!ta || !gutter) return;
-  const lines = ta.value.split('\n').length;
-  let html = '';
-  for (let i = 1; i <= Math.max(lines, 1); i++) {
-    html += `<div>${i}</div>`;
-  }
-  gutter.innerHTML = html;
-  syncGutterScroll();
-  highlightCurrentLine();
-}
-function syncGutterScroll() {
-  const ta = document.getElementById('cssEditorTextarea');
-  const gutter = document.getElementById('cssEditorGutter');
-  if (!ta || !gutter) return;
-  gutter.scrollTop = ta.scrollTop;
-}
-function highlightCurrentLine() {
-  const ta = document.getElementById('cssEditorTextarea');
-  const gutter = document.getElementById('cssEditorGutter');
-  if (!ta || !gutter) return;
-  const pos = ta.selectionStart || 0;
-  const line = ta.value.slice(0, pos).split('\n').length;
-  gutter.querySelectorAll('div').forEach((el, i) => {
-    el.classList.toggle('current', i + 1 === line);
-  });
-}
 function updateCursorInfo() {
   const ta = document.getElementById('cssEditorTextarea');
   const info = document.getElementById('cssEditorCursorInfo');
@@ -2311,7 +2303,6 @@ function updateCursorInfo() {
   const line = before.split('\n').length;
   const col = pos - before.lastIndexOf('\n');
   info.innerText = `Ln ${line}, Col ${col}`;
-  highlightCurrentLine();
 }
 function setCssStatus(text, state) {
   const st = document.getElementById('cssEditorStatus');
@@ -2325,6 +2316,7 @@ function setCssStatus(text, state) {
 }
 function markCssEditorDirty() {
   _cssEditorDirty = true;
+  _cssEditorDraft = document.getElementById('cssEditorTextarea').value;
   setCssStatus('未保存的修改', 'dirty');
 }
 
@@ -2332,9 +2324,8 @@ function openCssEditor() {
   const saved = localStorage.getItem(USER_CSS_KEY) || '';
   const ta = document.getElementById('cssEditorTextarea');
   if (ta) {
-    ta.value = saved;
-    ta.oninput = () => { renderCssGutter(); updateCursorInfo(); markCssEditorDirty(); };
-    ta.onscroll = syncGutterScroll;
+    ta.value = (_cssEditorDraft !== null) ? _cssEditorDraft : saved;
+    ta.oninput = () => { updateCursorInfo(); markCssEditorDirty(); };
     ta.onkeyup = updateCursorInfo;
     ta.onclick = updateCursorInfo;
     ta.onselect = updateCursorInfo;
@@ -2345,29 +2336,35 @@ function openCssEditor() {
         const end = ta.selectionEnd;
         ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
         ta.selectionStart = ta.selectionEnd = start + 2;
-        renderCssGutter();
         updateCursorInfo();
         markCssEditorDirty();
       }
     };
   }
   _cssEditorDirty = false;
-  setCssStatus(saved ? '已有保存的样式' : '就绪 · 可开始编辑', 'saved');
+  if (_cssEditorDraft !== null) {
+    setCssStatus('已恢复未保存的编辑内容', 'dirty');
+    _cssEditorDirty = true;
+  } else {
+    setCssStatus(saved ? '已加载保存的样式' : '就绪 · 可开始编辑', 'saved');
+  }
   updateCursorInfo();
-  setTimeout(renderCssGutter, 10);
   document.getElementById('jxCssEditorScreen').classList.add('active');
 }
 function closeCssEditor() {
-  if (_cssEditorDirty && !confirm('有未保存的修改，确定要离开吗？')) return;
   document.getElementById('jxCssEditorScreen').classList.remove('active');
 }
 function applyCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
   if (!ta) return;
+  _cssEditorDraft = ta.value;
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = ta.value;
-  setCssStatus('已应用预览（尚未保存）', 'dirty');
   _cssEditorDirty = true;
+  setCssStatus('已应用预览（未保存）', 'dirty');
+  setTimeout(() => {
+    document.getElementById('jxCssEditorScreen').classList.remove('active');
+  }, 220);
 }
 function saveCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
@@ -2377,6 +2374,7 @@ function saveCssEditor() {
     const styleEl = document.getElementById('userCustomStyle');
     if (styleEl) styleEl.textContent = ta.value;
     _cssEditorDirty = false;
+    _cssEditorDraft = null;
     setCssStatus('已保存 · 刷新后依然生效', 'saved');
   } catch (e) {
     alert('保存失败：' + (e && e.message ? e.message : '存储空间可能已满'));
@@ -2390,7 +2388,7 @@ function resetCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
   if (ta) ta.value = '';
   _cssEditorDirty = false;
-  renderCssGutter();
+  _cssEditorDraft = null;
   updateCursorInfo();
   setCssStatus('已恢复默认样式', 'saved');
 }
@@ -2398,7 +2396,6 @@ function clearCssEditor() {
   if (!confirm('清空编辑框内容？（未保存前不影响已保存的样式）')) return;
   const ta = document.getElementById('cssEditorTextarea');
   if (ta) ta.value = '';
-  renderCssGutter();
   updateCursorInfo();
   markCssEditorDirty();
 }
@@ -2408,7 +2405,6 @@ function loadDefaultCssToEditor() {
   const ta = document.getElementById('cssEditorTextarea');
   if (mainStyle && ta) {
     ta.value = mainStyle.textContent;
-    renderCssGutter();
     updateCursorInfo();
     markCssEditorDirty();
     setCssStatus('已载入默认 CSS（谨慎保存）', 'dirty');
@@ -2419,7 +2415,6 @@ function appendTemplateToEditor(template, label) {
   if (!ta) return;
   const prefix = ta.value && !ta.value.endsWith('\n') ? '\n\n' : '';
   ta.value = ta.value + prefix + template;
-  renderCssGutter();
   ta.scrollTop = ta.scrollHeight;
   updateCursorInfo();
   markCssEditorDirty();
@@ -2453,10 +2448,160 @@ function loadBubbleTemplate() {
 /* 气泡小三角同色 */
 .jx-msg-row.me .jx-msg-bubble::after { border-left-color: #95e26c !important; }
 .jx-msg-row.other .jx-msg-bubble::before { border-right-color: #ffffff !important; }
-
-/* 输入框圆角 */
-.jx-chat-input-bar textarea { border-radius: 14px !important; }
 `, '气泡美化');
+}
+function loadAvatarTemplate() {
+  appendTemplateToEditor(`/* ═══ 头像美化 ═══ */
+
+/* 方法：把下面的图片 URL 换成你自己的图片链接（支持 http/https / data:image）
+   因为 <img> 无法用纯 CSS 直接换 src，所以这里用「隐藏原图 + 背景图」的方案 */
+
+/* 聊天气泡·我的头像（右下角） */
+.jx-msg-row.me .jx-msg-avatar img {
+  display: none !important;
+}
+.jx-msg-row.me .jx-msg-avatar {
+  background-image: url('https://i.pravatar.cc/120?img=12') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border-radius: 50% !important;  /* 圆形头像（默认是圆角方形） */
+}
+
+/* 聊天气泡·对方头像（左下角） */
+.jx-msg-row.other .jx-msg-avatar img {
+  display: none !important;
+}
+.jx-msg-row.other .jx-msg-avatar {
+  background-image: url('https://i.pravatar.cc/120?img=32') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border-radius: 50% !important;
+}
+
+/* 聊天列表头像 */
+.jx-chat-avatar img { display: none !important; }
+.jx-chat-avatar {
+  background-image: url('https://i.pravatar.cc/120?img=45') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* 「我」页面的头像 */
+.jx-me-avatar img { display: none !important; }
+.jx-me-avatar {
+  background-image: url('https://i.pravatar.cc/120?img=24') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* 朋友圈的头像 */
+.jx-moments-avatar img { display: none !important; }
+.jx-moments-avatar {
+  background-image: url('https://i.pravatar.cc/120?img=60') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* 通讯录头像 */
+.jx-contact-avatar img { display: none !important; }
+.jx-contact-avatar {
+  background-image: url('https://i.pravatar.cc/120?img=15') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+`, '头像美化');
+}
+function loadInputTemplate() {
+  appendTemplateToEditor(`/* ═══ 输入框美化 ═══ */
+
+/* 底部聊天输入框（白色圆角胶囊） */
+.jx-chat-input-bar textarea {
+  background: #ffffff !important;
+  border: 1.5px solid #e0e0e6 !important;
+  border-radius: 20px !important;
+  padding: 10px 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+.jx-chat-input-bar textarea:focus {
+  border-color: #07c160 !important;
+  box-shadow: 0 0 0 3px rgba(7, 193, 96, 0.12);
+}
+
+/* 输入栏整体背景（浅灰渐变） */
+.jx-chat-input-bar {
+  background: linear-gradient(180deg, #f7f7f9 0%, #eef0f4 100%) !important;
+  border-top: 1px solid #e0e0e6 !important;
+}
+
+/* 发送按钮（渐变绿） */
+.jx-chat-input-bar .send-btn {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 3px 10px rgba(34, 197, 94, 0.32);
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+}
+
+/* 输入栏图标颜色 */
+.jx-chat-input-bar .icon {
+  fill: #667eea !important;
+}
+
+/* 消息多选时的输入框 */
+.jx-chat-input-bar textarea::placeholder {
+  color: #b8b8be !important;
+}
+`, '输入框美化');
+}
+function loadTabbarTemplate() {
+  appendTemplateToEditor(`/* ═══ 底部导航栏美化 ═══ */
+
+/* 底部导航整体（毛玻璃白） */
+.jx-bottom-nav {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.04);
+  height: 64px !important;
+}
+
+/* 普通状态图标 */
+.jx-nav-item {
+  color: #8a8a90 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease;
+}
+
+/* 激活状态（渐变绿 + 上移一点点） */
+.jx-nav-item.active {
+  color: #07c160 !important;
+  transform: translateY(-1px);
+}
+
+/* 激活状态图标加强 */
+.jx-nav-item.active svg {
+  transform: scale(1.08);
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 6px rgba(7, 193, 96, 0.3));
+}
+
+/* 标签文字 */
+.jx-nav-item span {
+  font-size: 10px !important;
+  letter-spacing: 0.3px;
+}
+
+/* 主页/聊天列表顶部栏也可以换成毛玻璃白 */
+.jx-header {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.02);
+}
+`, '底栏美化');
 }
 function loadButtonTemplate() {
   appendTemplateToEditor(`/* ═══ 按钮美化 ═══ */
@@ -2506,7 +2651,7 @@ function loadButtonTemplate() {
 `, '按钮美化');
 }
 function loadThemeTemplate() {
-  appendTemplateToEditor(`/* ═══ 梦幻紫主题 ═══ */
+  appendTemplateToEditor(`/* ═══ 梦幻紫主题（全套） ═══ */
 
 /* 底部导航栏 */
 .jx-bottom-nav {
@@ -2530,17 +2675,41 @@ function loadThemeTemplate() {
   background: #f5f0ff !important;
   border-top: 1px solid rgba(168, 85, 247, 0.1) !important;
 }
+.jx-chat-input-bar textarea {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(168, 85, 247, 0.15) !important;
+  border-radius: 18px !important;
+}
 
 /* 我页面 */
 #jx-me { background: #faf7ff !important; }
 .jx-me-menu-item:active { background: rgba(168, 85, 247, 0.06) !important; }
+.jx-me-menu-icon.jx-me-bg-settings { background: linear-gradient(135deg, #a78bfa, #8b5cf6) !important; }
 
 /* 我的气泡换成紫色系 */
 .jx-msg-row.me .jx-msg-bubble {
   background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%) !important;
   color: #ffffff !important;
+  border-radius: 16px 16px 4px 16px !important;
 }
 .jx-msg-row.me .jx-msg-bubble::after { border-left-color: #a78bfa !important; }
+
+/* 对方气泡 */
+.jx-msg-row.other .jx-msg-bubble {
+  border-radius: 16px 16px 16px 4px !important;
+  box-shadow: 0 3px 12px rgba(139, 92, 246, 0.08);
+}
+
+/* 发送按钮紫色 */
+.jx-chat-input-bar .send-btn {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.3);
+}
+
+/* 头像圆角 */
+.jx-msg-avatar { border-radius: 50% !important; }
+.jx-chat-avatar { border-radius: 50% !important; }
 `, '梦幻紫主题');
 }
 
@@ -4216,7 +4385,6 @@ function openWalletScreen() {
 }
 function closeWalletScreen() { document.getElementById('jxWalletScreen').style.display = 'none'; }
 
-// ---------- 充值 / 提现 ----------
 function openRechargeModal() {
   const input = document.getElementById('jxRechargeAmount');
   if (input) input.value = '';
@@ -4257,7 +4425,6 @@ function confirmWithdraw() {
   alert('提现成功！已扣除 ¥' + amount.toFixed(2));
 }
 
-// ---------- 转账操作（收下 / 退回） ----------
 let transferActionMsgId = null;
 function openTransferActionModal(msgId) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
