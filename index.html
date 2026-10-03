@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js"></script>
-<style>
+<style id="mainStyle">
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #e5e5e5; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
   .phone-case { width: 100%; max-width: 400px; height: 800px; max-height: 95vh; background-color: #fff; border-radius: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); overflow: hidden; position: relative; transition: all 0.3s ease; }
@@ -1041,7 +1041,114 @@
   .phone-case.dark-mode .jx-relative-card-amount .lbl { color: #888 !important; }
   .phone-case.dark-mode .recharge-opt { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
   .phone-case.dark-mode .recharge-opt:active { background: #3a3a3c; border-color: #07c160; color: #07c160; }
+
+  /* ===== CSS 美化编辑器 ===== */
+  #jxCssEditorScreen {
+    display: none;
+    flex-direction: column;
+    background: #1e1e1e;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20000;
+  }
+  #jxCssEditorScreen.active { display: flex; }
+  .css-editor-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #252526;
+    border-bottom: 1px solid #333;
+    flex-shrink: 0;
+  }
+  .css-editor-top-bar .back-btn {
+    font-size: 24px;
+    color: #ddd;
+    cursor: pointer;
+    width: 28px;
+    text-align: left;
+    line-height: 1;
+  }
+  .css-editor-top-bar .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .css-editor-toolbar {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #252526;
+    border-bottom: 1px solid #333;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .css-editor-toolbar button {
+    border: none;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .css-editor-toolbar .btn-apply { background: #0e639c; color: #fff; }
+  .css-editor-toolbar .btn-save { background: #07c160; color: #fff; }
+  .css-editor-toolbar .btn-reset { background: #c75450; color: #fff; }
+  .css-editor-toolbar .btn-view { background: #444; color: #ddd; }
+  .css-editor-toolbar .btn-template { background: #6a4c93; color: #fff; }
+  #cssEditorTextarea {
+    flex: 1;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border: none;
+    padding: 14px;
+    font-family: 'Menlo', 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    outline: none;
+    resize: none;
+    white-space: pre;
+    overflow: auto;
+    tab-size: 2;
+    -moz-tab-size: 2;
+  }
+  #cssEditorTextarea::placeholder { color: #555; }
+  .css-editor-status-bar {
+    padding: 8px 14px;
+    background: #007acc;
+    color: #fff;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 28px;
+  }
+  .css-editor-hint {
+    padding: 8px 14px;
+    background: #2d2d30;
+    color: #999;
+    font-size: 11px;
+    line-height: 1.6;
+    flex-shrink: 0;
+    border-top: 1px solid #333;
+    max-height: 80px;
+    overflow-y: auto;
+  }
+  .css-editor-hint code {
+    background: #3c3c3c;
+    color: #4ec9b0;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 10px;
+  }
 </style>
+<style id="userCustomStyle"></style>
 </head>
 <body>
 
@@ -1518,7 +1625,7 @@
             <span class="jx-me-menu-text">表情</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
-          <div class="jx-me-menu-item" onclick="alert('设置功能暂未开放')">
+          <div class="jx-me-menu-item" onclick="openCssEditor()">
             <div class="jx-me-menu-icon jx-me-bg-settings"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
             <span class="jx-me-menu-text">设置</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
@@ -1531,6 +1638,43 @@
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-moments', this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg><span>朋友圈</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-contacts', this)"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>通讯录</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-me', this)"><svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg><span>我</span></div>
+      </div>
+    </div>
+
+    <!-- ===== CSS 美化编辑器 ===== -->
+    <div id="jxCssEditorScreen">
+      <div class="css-editor-top-bar">
+        <span class="back-btn" onclick="closeCssEditor()">‹</span>
+        <span class="title">CSS 美化编辑器</span>
+        <span style="width:28px;"></span>
+      </div>
+      <div class="css-editor-toolbar">
+        <button class="btn-apply" onclick="applyCssEditor()">应用预览</button>
+        <button class="btn-save" onclick="saveCssEditor()">保存</button>
+        <button class="btn-reset" onclick="resetCssEditor()">恢复默认</button>
+        <button class="btn-view" onclick="loadDefaultCssToEditor()">载入默认CSS</button>
+        <button class="btn-template" onclick="loadBubbleTemplate()">气泡模板</button>
+        <button class="btn-template" onclick="loadButtonTemplate()" style="background:#8e44ad;">按钮模板</button>
+      </div>
+      <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的自定义 CSS 美化样式 */
+/* 例如：修改聊天气泡颜色 */
+.jx-msg-row.me .jx-msg-bubble {
+  background: linear-gradient(135deg, #ffd6e7, #ffb3cc) !important;
+}
+
+/* 点击上方按钮应用预览，满意后点保存 */"></textarea>
+      <div class="css-editor-hint">
+        💡 <b>提示</b>：自定义 CSS 会追加到页面默认样式之后，优先级更高。常用选择器：
+        <code>.jx-msg-row.me .jx-msg-bubble</code>
+        <code>.jx-msg-row.other .jx-msg-bubble</code>
+        <code>.jx-tm-submit</code>
+        <code>.btn-primary</code>
+        <code>.jx-bottom-nav</code>
+        <code>.jx-nav-item.active</code>
+      </div>
+      <div class="css-editor-status-bar">
+        <span id="cssEditorStatus">就绪 · 编辑后点"应用预览"查看效果</span>
+        <span id="cssEditorSavedTip"></span>
       </div>
     </div>
 
@@ -1783,7 +1927,6 @@ https://xxx.com/a.png
         </div>
       </div>
 
-      <!-- 转账操作弹窗：收下 / 退回 -->
       <div class="jx-transfer-modal" id="jxTransferActionModal">
         <div class="jx-transfer-modal-inner" style="max-width:340px;">
           <div class="jx-tm-header">
@@ -1808,7 +1951,6 @@ https://xxx.com/a.png
         </div>
       </div>
 
-      <!-- 充值弹窗 -->
       <div class="jx-transfer-modal" id="jxRechargeModal">
         <div class="jx-transfer-modal-inner" style="max-width:340px;">
           <div class="jx-tm-header">
@@ -1835,7 +1977,6 @@ https://xxx.com/a.png
         </div>
       </div>
 
-      <!-- 提现弹窗 -->
       <div class="jx-transfer-modal" id="jxWithdrawModal">
         <div class="jx-transfer-modal-inner" style="max-width:340px;">
           <div class="jx-tm-header">
@@ -2033,6 +2174,170 @@ https://xxx.com/a.png
 </div>
 
 <script>
+// ================= CSS 美化编辑器 =================
+const USER_CSS_KEY = 'user_custom_css';
+
+function applyUserCustomCss() {
+  try {
+    const saved = localStorage.getItem(USER_CSS_KEY) || '';
+    const styleEl = document.getElementById('userCustomStyle');
+    if (styleEl) styleEl.textContent = saved;
+  } catch (e) {}
+}
+applyUserCustomCss();
+
+function openCssEditor() {
+  const saved = localStorage.getItem(USER_CSS_KEY) || '';
+  const ta = document.getElementById('cssEditorTextarea');
+  if (ta) ta.value = saved;
+  const st = document.getElementById('cssEditorStatus');
+  if (st) st.innerText = '就绪 · 编辑后点"应用预览"查看效果';
+  const tip = document.getElementById('cssEditorSavedTip');
+  if (tip) tip.innerText = saved ? '✓ 当前已有保存的样式' : '当前无自定义样式';
+  document.getElementById('jxCssEditorScreen').classList.add('active');
+}
+function closeCssEditor() {
+  document.getElementById('jxCssEditorScreen').classList.remove('active');
+}
+function applyCssEditor() {
+  const ta = document.getElementById('cssEditorTextarea');
+  if (!ta) return;
+  const styleEl = document.getElementById('userCustomStyle');
+  if (styleEl) styleEl.textContent = ta.value;
+  const st = document.getElementById('cssEditorStatus');
+  if (st) st.innerText = '已应用预览（未保存）';
+}
+function saveCssEditor() {
+  const ta = document.getElementById('cssEditorTextarea');
+  if (!ta) return;
+  try {
+    localStorage.setItem(USER_CSS_KEY, ta.value);
+    const styleEl = document.getElementById('userCustomStyle');
+    if (styleEl) styleEl.textContent = ta.value;
+    const st = document.getElementById('cssEditorStatus');
+    if (st) st.innerText = '✓ 已保存，刷新后依然生效';
+    const tip = document.getElementById('cssEditorSavedTip');
+    if (tip) tip.innerText = '✓ 已保存';
+  } catch (e) {
+    alert('保存失败：' + (e && e.message ? e.message : '存储空间可能已满'));
+  }
+}
+function resetCssEditor() {
+  if (!confirm('确定清空自定义 CSS 吗？将恢复到页面默认样式。')) return;
+  try { localStorage.removeItem(USER_CSS_KEY); } catch (e) {}
+  const styleEl = document.getElementById('userCustomStyle');
+  if (styleEl) styleEl.textContent = '';
+  const ta = document.getElementById('cssEditorTextarea');
+  if (ta) ta.value = '';
+  const st = document.getElementById('cssEditorStatus');
+  if (st) st.innerText = '已恢复默认样式';
+  const tip = document.getElementById('cssEditorSavedTip');
+  if (tip) tip.innerText = '';
+}
+function loadDefaultCssToEditor() {
+  if (!confirm('⚠️ 载入默认 CSS 会覆盖当前编辑内容。\n\n注意：默认 CSS 是页面完整样式，如果直接保存会完全替换页面样式（效果相同，但体积庞大）。\n\n建议：只在查找/复制某条规则时使用，编辑后仅保留你自己新增的部分再点保存。\n\n确定继续吗？')) return;
+  const mainStyle = document.getElementById('mainStyle');
+  const ta = document.getElementById('cssEditorTextarea');
+  if (mainStyle && ta) {
+    ta.value = mainStyle.textContent;
+    const st = document.getElementById('cssEditorStatus');
+    if (st) st.innerText = '已载入默认 CSS（谨慎保存）';
+  }
+}
+function loadBubbleTemplate() {
+  const template = `/* ===== 微信聊天气泡美化模板 ===== */
+/* 修改后点"应用预览"查看效果，"保存"永久生效 */
+
+/* 我的气泡（右侧） */
+.jx-msg-row.me .jx-msg-bubble {
+  background: linear-gradient(135deg, #95ec69 0%, #7dd956 100%) !important;
+  color: #000 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(122, 200, 90, 0.25);
+  padding: 10px 14px !important;
+}
+
+/* 对方气泡（左侧） */
+.jx-msg-row.other .jx-msg-bubble {
+  background: #ffffff !important;
+  color: #000 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 10px 14px !important;
+}
+
+/* 气泡小三角配色（与气泡保持一致） */
+.jx-msg-row.me .jx-msg-bubble::after {
+  border-left-color: #95ec69 !important;
+}
+.jx-msg-row.other .jx-msg-bubble::before {
+  border-right-color: #ffffff !important;
+}
+
+/* 气泡字体 */
+.jx-msg-bubble {
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+}
+
+/* 输入框圆角 */
+.jx-chat-input-bar textarea {
+  border-radius: 12px !important;
+}
+`;
+  const ta = document.getElementById('cssEditorTextarea');
+  if (ta) {
+    ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + '\n\n' : '') + template;
+    const st = document.getElementById('cssEditorStatus');
+    if (st) st.innerText = '已插入气泡模板（点"应用预览"查看）';
+  }
+}
+function loadButtonTemplate() {
+  const template = `/* ===== 按钮美化模板 ===== */
+
+/* 主按钮（发送、确定、保存） */
+.btn-primary {
+  background: linear-gradient(135deg, #07c160, #05a352) !important;
+  box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+}
+
+/* 聊天底部导航激活色 */
+.jx-nav-item.active { color: #07c160 !important; }
+
+/* 转账弹窗确认按钮 */
+.jx-tm-submit {
+  background: linear-gradient(135deg, #07c160, #05a352) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 3px 10px rgba(7, 193, 96, 0.3);
+}
+
+/* 危险按钮（删除） */
+.btn-danger, .btn-delete {
+  background: linear-gradient(135deg, #ff4757, #e83647) !important;
+  border-radius: 10px !important;
+}
+
+/* 弹窗圆角 */
+.jx-modal-content, .jx-comment-modal-content, .jx-transfer-modal-inner {
+  border-radius: 16px !important;
+}
+
+/* 输入框 */
+.jx-chat-input-bar textarea:focus {
+  box-shadow: 0 0 0 2px rgba(7, 193, 96, 0.2);
+}
+`;
+  const ta = document.getElementById('cssEditorTextarea');
+  if (ta) {
+    ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + '\n\n' : '') + template;
+    const st = document.getElementById('cssEditorStatus');
+    if (st) st.innerText = '已插入按钮模板（点"应用预览"查看）';
+  }
+}
+
 // ================= DOCX 预处理 =================
 async function sanitizeDocxForMammoth(arrayBuffer) {
   if (typeof JSZip === 'undefined') return arrayBuffer;
@@ -2984,7 +3289,7 @@ const isBackupKey = (key) => (
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
-  key === BILLS_KEY || key === CARDS_KEY ||
+  key === BILLS_KEY || key === CARDS_KEY || key === 'user_custom_css' ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
@@ -3510,7 +3815,6 @@ function confirmTransfer() {
     if (ix >= 0) { rc[ix] = card; saveRecv(rc); }
     payByCard = true;
   } else {
-    // 使用零钱支付：检查余额
     const balance = getWalletBalance();
     if (amount > balance) { alert('零钱余额不足，当前余额 ¥' + balance.toFixed(2)); return; }
   }
@@ -5470,14 +5774,12 @@ function executeCharAction(chat, action) {
       if (m.role === 'me' && m.type === 'transfer' && (!m.status || m.status === 'pending')) {
         m.status = 'refunded';
         m.opened = true;
-        // 删除对应 bill（相当于把钱退回给用户）
         if (m.billId) {
           const bills = loadBills().filter(b => b.id !== m.billId);
           saveBills(bills);
         }
         const charName = chat.customRemark || chat.name || 'TA';
         pushAwareness(`${charName} 退回了你转来的 ¥${(m.amount || 0).toFixed(2)}`);
-        // 追加一条角色消息说明退款
         chat.messages.push({ id: genId(), role: 'char', type: 'transfer', amount: m.amount, note: '退回', content: '[转账退回]', status: 'refunded', opened: true });
         break;
       }
