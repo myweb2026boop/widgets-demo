@@ -887,6 +887,8 @@
   .jx-bill-icon.in { background: #ff9800; }
   .jx-bill-icon.out { background: #ffa726; }
   .jx-bill-icon.card { background: #ec407a; }
+  .jx-bill-icon.recharge { background: #07c160; }
+  .jx-bill-icon.withdraw { background: #ff9800; }
   .jx-bill-info { flex: 1; display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
   .jx-bill-info .nm { font-size: 15px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .jx-bill-info .tm { font-size: 12px; color: #999; }
@@ -1003,6 +1005,25 @@
   .jx-tm-pay .value svg { width: 16px; height: 16px; fill: #ccc; }
   .jx-tm-submit { margin: 0 20px 20px; padding: 13px; background: #07c160; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
 
+  /* 充值弹窗快捷金额 */
+  .recharge-opt {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .recharge-opt:active {
+    background: #f0fdf4;
+    border-color: #07c160;
+    color: #07c160;
+  }
+
   .phone-case.dark-mode .jx-chat-tools { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .jx-chat-tool-icon { background: #2c2c2e; border-color: #3a3a3c; }
   .phone-case.dark-mode .jx-chat-tool-item { color: #aaa; }
@@ -1018,6 +1039,8 @@
   .phone-case.dark-mode .jx-relative-card-name { color: #eee !important; }
   .phone-case.dark-mode .jx-relative-card-amount .val { color: #eee !important; }
   .phone-case.dark-mode .jx-relative-card-amount .lbl { color: #888 !important; }
+  .phone-case.dark-mode .recharge-opt { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
+  .phone-case.dark-mode .recharge-opt:active { background: #3a3a3c; border-color: #07c160; color: #07c160; }
 </style>
 </head>
 <body>
@@ -1533,8 +1556,8 @@
             <span style="font-size:24px; font-weight:500; margin-right:4px;">¥</span><span id="jxWalletBalance">500.00</span>
           </div>
           <div style="display:flex; gap:12px;">
-            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="alert('充值功能暂未开放')">充值</button>
-            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="alert('提现功能暂未开放')">提现</button>
+            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="openRechargeModal()">充值</button>
+            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="openWithdrawModal()">提现</button>
           </div>
         </div>
         
@@ -1757,6 +1780,78 @@ https://xxx.com/a.png
             <span style="width:36px;"></span>
           </div>
           <div id="jxPayMethodList" style="padding: 0; max-height: 320px; overflow-y: auto;"></div>
+        </div>
+      </div>
+
+      <!-- 转账操作弹窗：收下 / 退回 -->
+      <div class="jx-transfer-modal" id="jxTransferActionModal">
+        <div class="jx-transfer-modal-inner" style="max-width:340px;">
+          <div class="jx-tm-header">
+            <span class="cancel" onclick="closeTransferActionModal()">取消</span>
+            <span class="title">待确认转账</span>
+            <span style="width:36px;"></span>
+          </div>
+          <div class="jx-tm-body">
+            <div class="jx-tm-receiver">
+              <img id="jxTfrActAvatar" src="">
+              <span class="nm" id="jxTfrActName">对方</span>
+            </div>
+            <div style="text-align:center; padding:12px 0;">
+              <div style="font-size:32px; font-weight:600; color:#fa9d3b;">¥<span id="jxTfrActAmount">0.00</span></div>
+              <div style="font-size:12px; color:#999; margin-top:6px;" id="jxTfrActNote"></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; margin:0 20px 20px;">
+            <button class="jx-tm-submit" style="margin:0; flex:1; background:#fff; color:#333; border:1px solid #ddd;" onclick="rejectTransferAction()">退回</button>
+            <button class="jx-tm-submit" style="margin:0; flex:1;" onclick="acceptTransferAction()">收下</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 充值弹窗 -->
+      <div class="jx-transfer-modal" id="jxRechargeModal">
+        <div class="jx-transfer-modal-inner" style="max-width:340px;">
+          <div class="jx-tm-header">
+            <span class="cancel" onclick="closeRechargeModal()">取消</span>
+            <span class="title">充值</span>
+            <span style="width:36px;"></span>
+          </div>
+          <div class="jx-tm-body">
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(50)">¥50</button>
+              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(100)">¥100</button>
+              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(200)">¥200</button>
+              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(500)">¥500</button>
+              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(1000)">¥1000</button>
+              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(2000)">¥2000</button>
+            </div>
+            <div class="jx-tm-amount-row" style="margin-top:14px;">
+              <span class="cur">¥</span>
+              <input type="number" id="jxRechargeAmount" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <p style="font-size:11px; color:#999; margin-top:6px;">点击上方快捷金额或手动输入</p>
+          </div>
+          <button class="jx-tm-submit" onclick="confirmRecharge()">确认充值</button>
+        </div>
+      </div>
+
+      <!-- 提现弹窗 -->
+      <div class="jx-transfer-modal" id="jxWithdrawModal">
+        <div class="jx-transfer-modal-inner" style="max-width:340px;">
+          <div class="jx-tm-header">
+            <span class="cancel" onclick="closeWithdrawModal()">取消</span>
+            <span class="title">提现</span>
+            <span style="width:36px;"></span>
+          </div>
+          <div class="jx-tm-body">
+            <div style="text-align:center; font-size:13px; color:#888; margin-bottom:6px;">当前零钱余额：¥<span id="jxWithdrawBalance">0.00</span></div>
+            <div class="jx-tm-amount-row">
+              <span class="cur">¥</span>
+              <input type="number" id="jxWithdrawAmount" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <p style="font-size:11px; color:#999; margin-top:6px;">提现不可超过当前余额</p>
+          </div>
+          <button class="jx-tm-submit" onclick="confirmWithdraw()">确认提现</button>
         </div>
       </div>
     </div>
@@ -3295,9 +3390,15 @@ function findRecv(id){return getRecv().find(function(c){return c.fromCharId===id
 
 function loadBills() { try { const v = JSON.parse(localStorage.getItem(BILLS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function saveBills(list) { try { localStorage.setItem(BILLS_KEY, JSON.stringify(list)); } catch (e) {} }
-function addBill(bill) { const bills = loadBills(); bills.unshift(bill); while (bills.length > 300) bills.pop(); saveBills(bills); }
+function addBill(bill) { const bills = loadBills(); bills.unshift(bill); while (bills.length > 300) bills.pop(); saveBills(bills); return bill.id; }
 function getMyName() { return localStorage.getItem('moments_name') || 'Koi Buono'; }
 function getMyAvatar() { return localStorage.getItem('moments_avatar') || ''; }
+function getWalletBalance() {
+  const bills = loadBills();
+  let balance = 0;
+  bills.forEach(b => { if (b.direction === 'in') balance += Number(b.amount || 0); else balance -= Number(b.amount || 0); });
+  return balance;
+}
 
 function toggleChatTools() {
   const panel = document.getElementById('jxChatTools');
@@ -3408,15 +3509,20 @@ function confirmTransfer() {
     const ix = rc.findIndex(x => x.id === card.id);
     if (ix >= 0) { rc[ix] = card; saveRecv(rc); }
     payByCard = true;
-  }
-
-  if (payByCard) {
-    addBill({ id: genId(), time: Date.now(), type: 'card', direction: 'out', amount: amount, peerName: receiverName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
   } else {
-    addBill({ id: genId(), time: Date.now(), type: 'transfer', direction: 'out', amount: amount, peerName: receiverName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
+    // 使用零钱支付：检查余额
+    const balance = getWalletBalance();
+    if (amount > balance) { alert('零钱余额不足，当前余额 ¥' + balance.toFixed(2)); return; }
   }
 
-  chat.messages.push({ id: genId(), role: 'me', type: 'transfer', amount: amount, note: note, content: '[转账]', opened: false, payType: payByCard ? 'card' : 'balance' });
+  const billId = genId();
+  if (payByCard) {
+    addBill({ id: billId, time: Date.now(), type: 'card', direction: 'out', amount: amount, peerName: receiverName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
+  } else {
+    addBill({ id: billId, time: Date.now(), type: 'transfer', direction: 'out', amount: amount, peerName: receiverName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
+  }
+
+  chat.messages.push({ id: genId(), role: 'me', type: 'transfer', amount: amount, note: note, content: '[转账]', status: 'pending', billId: billId, payType: payByCard ? 'card' : 'balance' });
   saveJianxunChats();
   closeTransferModal();
   renderChatMessages();
@@ -3595,12 +3701,107 @@ function createRelativeCardForChat() {
 
 function openWalletScreen() {
   document.getElementById('jxWalletScreen').style.display = 'flex';
-  const bills = loadBills();
-  let income = 0, expense = 0;
-  bills.forEach(b => { if (b.direction === 'in') income += b.amount; else expense += b.amount; });
-  document.getElementById('jxWalletBalance').innerText = Math.max(0, income - expense).toFixed(2);
+  const balance = getWalletBalance();
+  document.getElementById('jxWalletBalance').innerText = balance.toFixed(2);
 }
 function closeWalletScreen() { document.getElementById('jxWalletScreen').style.display = 'none'; }
+
+// ---------- 充值 / 提现 ----------
+function openRechargeModal() {
+  const input = document.getElementById('jxRechargeAmount');
+  if (input) input.value = '';
+  document.getElementById('jxRechargeModal').classList.add('show');
+}
+function closeRechargeModal() { document.getElementById('jxRechargeModal').classList.remove('show'); }
+function selectRechargeAmount(amount) {
+  const input = document.getElementById('jxRechargeAmount');
+  if (input) input.value = amount;
+}
+function confirmRecharge() {
+  const input = document.getElementById('jxRechargeAmount');
+  const amount = parseFloat(input ? input.value : '');
+  if (isNaN(amount) || amount <= 0) { alert('请输入正确的充值金额'); return; }
+  if (amount > 100000) { alert('单次充值金额不得超过 ¥100000'); return; }
+  addBill({ id: genId(), time: Date.now(), type: 'recharge', direction: 'in', amount: amount, peerName: '充值', peerAvatar: '', note: '零钱充值', chatId: '' });
+  closeRechargeModal();
+  openWalletScreen();
+  alert('充值成功！已到账 ¥' + amount.toFixed(2));
+}
+function openWithdrawModal() {
+  const bal = getWalletBalance();
+  document.getElementById('jxWithdrawBalance').innerText = bal.toFixed(2);
+  const input = document.getElementById('jxWithdrawAmount');
+  if (input) input.value = '';
+  document.getElementById('jxWithdrawModal').classList.add('show');
+}
+function closeWithdrawModal() { document.getElementById('jxWithdrawModal').classList.remove('show'); }
+function confirmWithdraw() {
+  const input = document.getElementById('jxWithdrawAmount');
+  const amount = parseFloat(input ? input.value : '');
+  if (isNaN(amount) || amount <= 0) { alert('请输入正确的提现金额'); return; }
+  const bal = getWalletBalance();
+  if (amount > bal) { alert('零钱余额不足，当前余额 ¥' + bal.toFixed(2)); return; }
+  addBill({ id: genId(), time: Date.now(), type: 'withdraw', direction: 'out', amount: amount, peerName: '提现', peerAvatar: '', note: '零钱提现', chatId: '' });
+  closeWithdrawModal();
+  openWalletScreen();
+  alert('提现成功！已扣除 ¥' + amount.toFixed(2));
+}
+
+// ---------- 转账操作（收下 / 退回） ----------
+let transferActionMsgId = null;
+function openTransferActionModal(msgId) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === msgId);
+  if (!msg || msg.type !== 'transfer') return;
+  const st = msg.status || (msg.opened ? 'accepted' : 'pending');
+  if (st !== 'pending') { alert('该转账已处理'); return; }
+  if (msg.role !== 'char') { alert('只能操作对方发来的转账'); return; }
+  transferActionMsgId = msgId;
+  document.getElementById('jxTfrActAvatar').src = chat.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
+  document.getElementById('jxTfrActName').innerText = chat.customRemark || chat.name || '对方';
+  document.getElementById('jxTfrActAmount').innerText = (msg.amount || 0).toFixed(2);
+  document.getElementById('jxTfrActNote').innerText = msg.note ? '备注：' + msg.note : '';
+  document.getElementById('jxTransferActionModal').classList.add('show');
+}
+function closeTransferActionModal() {
+  document.getElementById('jxTransferActionModal').classList.remove('show');
+  transferActionMsgId = null;
+}
+function acceptTransferAction() {
+  if (!transferActionMsgId) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === transferActionMsgId);
+  if (!msg || (msg.status && msg.status !== 'pending')) { closeTransferActionModal(); return; }
+  msg.status = 'accepted';
+  msg.opened = true;
+  saveJianxunChats();
+  const amt = (msg.amount || 0).toFixed(2);
+  closeTransferActionModal();
+  renderChatMessages(true);
+  pushAwareness(`你收下了 ${chat.customRemark || chat.name || '对方'} 转来的 ¥${amt}`);
+  alert('已收款 ¥' + amt);
+}
+function rejectTransferAction() {
+  if (!transferActionMsgId) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === transferActionMsgId);
+  if (!msg || (msg.status && msg.status !== 'pending')) { closeTransferActionModal(); return; }
+  msg.status = 'refunded';
+  msg.opened = true;
+  if (msg.billId) {
+    const bills = loadBills().filter(b => b.id !== msg.billId);
+    saveBills(bills);
+  }
+  saveJianxunChats();
+  const amt = (msg.amount || 0).toFixed(2);
+  closeTransferActionModal();
+  renderChatMessages(true);
+  pushAwareness(`你退回了 ${chat.customRemark || chat.name || '对方'} 转来的 ¥${amt}`);
+  alert('已退回 ¥' + amt);
+}
 
 function openBillsScreen() { document.getElementById('jxBillsScreen').style.display = 'flex'; renderBills(); }
 function closeBillsScreen() { document.getElementById('jxBillsScreen').style.display = 'none'; }
@@ -3626,6 +3827,12 @@ function renderBills() {
       if (b.type === 'card') {
         iconCls = 'card';
         iconSvg = '<svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>';
+      } else if (b.type === 'recharge') {
+        iconCls = 'recharge';
+        iconSvg = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
+      } else if (b.type === 'withdraw') {
+        iconCls = 'withdraw';
+        iconSvg = '<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>';
       } else if (b.direction === 'in') {
         iconCls = 'in';
         iconSvg = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>';
@@ -4167,13 +4374,20 @@ function renderChatMessages(keepScrollPos) {
       </div>`;
     } else if (msg.type === 'transfer') {
       bubbleCls += ' transfer';
-      const opened = msg.opened;
-      inner = `<div class="jx-transfer-card${opened ? ' opened' : ''}">
+      const st = msg.status || (msg.opened ? 'accepted' : 'pending');
+      const isClosed = (st === 'accepted' || st === 'refunded');
+      let footerText = '待收款';
+      if (st === 'accepted') footerText = '已收款';
+      else if (st === 'refunded') footerText = '已退回';
+      else if (msg.role === 'me') footerText = '待对方确认';
+      const clickable = (msg.role === 'char' && st === 'pending');
+      const clickAttr = clickable ? ` data-transfer-id="${msg.id}" style="cursor:pointer;"` : '';
+      inner = `<div class="jx-transfer-card${isClosed ? ' opened' : ''}"${clickAttr}>
         <div class="t-amount">¥${(msg.amount || 0).toFixed(2)}</div>
         ${msg.note ? `<div class="t-note">${escapeHtml(msg.note)}</div>` : ''}
         <div class="t-footer">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
-          ${opened ? '已收款' : '微信转账'}
+          ${footerText}
         </div>
       </div>`;
     } else if (msg.type === 'familyCard') {
@@ -4229,6 +4443,13 @@ function renderChatMessages(keepScrollPos) {
         document.getElementById('wxAcceptText').textContent = '接受来自 ' + charName + ' 的亲属卡（每月额度 ¥' + (msg.limit || 0).toFixed(2) + '）吗？';
         document.getElementById('wxAcceptMask').classList.add('show');
       }
+    });
+  });
+
+  container.querySelectorAll('.jx-transfer-card[data-transfer-id]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      const tid = this.getAttribute('data-transfer-id');
+      if (tid) openTransferActionModal(tid);
     });
   });
 
@@ -5011,10 +5232,12 @@ function buildCharSystemPrompt(chat) {
   sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
   sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
-  sp += '[[TRANSFER:金额|备注]] 转账（谨慎）\n';
+  sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
   sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
   sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡（用户明确要求退还/解绑时）\n';
   sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
+  sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
+  sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用\n';
   sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。\n';
 
@@ -5025,7 +5248,7 @@ function buildCharSystemPrompt(chat) {
     sp += '\n【近期钱包】\n';
     bills.slice(0, 4).forEach(b => {
       const dir = b.direction === 'in' ? '收到' : '支出';
-      const t = b.type === 'card' ? '亲属卡' : '转账';
+      const t = b.type === 'card' ? '亲属卡' : (b.type === 'recharge' ? '充值' : (b.type === 'withdraw' ? '提现' : '转账'));
       sp += `${b.peerName} ${dir}¥${(b.amount || 0).toFixed(2)}(${t}${b.note ? ',' + b.note : ''})\n`;
     });
   }
@@ -5046,7 +5269,7 @@ function buildCharSystemPrompt(chat) {
 
   const log = loadAwarenessLog();
   if (log.length > 0) {
-    sp += '\n【用户近期朋友圈操作】（你都知道，可自然提及，不必每次提）\n';
+    sp += '\n【用户近期操作】（你都知道，可自然提及，不必每次提）\n';
     log.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
   }
 
@@ -5072,7 +5295,7 @@ function buildChatHistory(chat) {
     } else if (m.type === 'sticker') {
       content = '[表情包]';
     } else if (m.type === 'transfer') {
-      content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
+      content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
     } else if (m.type === 'familyCard') {
       content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
@@ -5116,7 +5339,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
 }
 
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD)\s*[:：]\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -5158,8 +5381,9 @@ function executeCharAction(chat, action) {
     const note = (parts.slice(1).join('|') || '').trim();
     if (isNaN(amount) || amount <= 0) return;
     const charName = chat.customRemark || chat.name || 'TA';
-    chat.messages.push({ id: genId(), role: 'char', type: 'transfer', amount: amount, note: note, content: '[转账]', opened: true });
-    addBill({ id: genId(), time: Date.now(), type: 'transfer', direction: 'in', amount: amount, peerName: charName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
+    const billId = genId();
+    addBill({ id: billId, time: Date.now(), type: 'transfer', direction: 'in', amount: amount, peerName: charName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
+    chat.messages.push({ id: genId(), role: 'char', type: 'transfer', amount: amount, note: note, content: '[转账]', status: 'pending', billId: billId, opened: false });
     pushAwareness(`${charName} 向你转账 ¥${amount.toFixed(2)}${note ? '（' + note + '）' : ''}`);
     return;
   }
@@ -5223,6 +5447,39 @@ function executeCharAction(chat, action) {
         }
         pushAwareness(`${charName} 退还了你送给他的亲属卡`);
         if (currentChatId === chat.id) setTimeout(() => renderChatMessages(true), 0);
+      }
+    }
+    return;
+  }
+  if (action.type === 'ACCEPT_TRANSFER') {
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type === 'transfer' && (!m.status || m.status === 'pending')) {
+        m.status = 'accepted';
+        m.opened = true;
+        const charName = chat.customRemark || chat.name || 'TA';
+        pushAwareness(`${charName} 收下了你转来的 ¥${(m.amount || 0).toFixed(2)}`);
+        break;
+      }
+    }
+    return;
+  }
+  if (action.type === 'REFUND_TRANSFER') {
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type === 'transfer' && (!m.status || m.status === 'pending')) {
+        m.status = 'refunded';
+        m.opened = true;
+        // 删除对应 bill（相当于把钱退回给用户）
+        if (m.billId) {
+          const bills = loadBills().filter(b => b.id !== m.billId);
+          saveBills(bills);
+        }
+        const charName = chat.customRemark || chat.name || 'TA';
+        pushAwareness(`${charName} 退回了你转来的 ¥${(m.amount || 0).toFixed(2)}`);
+        // 追加一条角色消息说明退款
+        chat.messages.push({ id: genId(), role: 'char', type: 'transfer', amount: m.amount, note: '退回', content: '[转账退回]', status: 'refunded', opened: true });
+        break;
       }
     }
     return;
