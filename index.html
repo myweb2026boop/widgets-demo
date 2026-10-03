@@ -738,14 +738,12 @@
   .phone-case.dark-mode .jx-edit-textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
   .phone-case.dark-mode .jx-edit-actions .cancel { background: #2c2c2e; color: #ddd; }
 
-  /* ===== 聊天工具栏 ===== */
   .jx-chat-tools { display: none; background: #f7f7f7; border-top: 1px solid #dcdcdc; padding: 18px 12px; grid-template-columns: repeat(3, 1fr); gap: 18px 0; flex-shrink: 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
   .jx-chat-tools.show { display: grid; }
   .jx-chat-tool-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; color: #666; }
   .jx-chat-tool-icon { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #ececec; }
   .jx-chat-tool-icon svg { width: 28px; height: 28px; }
 
-  /* ===== 转账 / 亲属卡 气泡 ===== */
   .jx-msg-bubble.transfer, .jx-msg-bubble.card { padding: 0 !important; background: transparent !important; max-width: 75% !important; }
   .jx-msg-bubble.transfer::after, .jx-msg-bubble.transfer::before, .jx-msg-bubble.card::after, .jx-msg-bubble.card::before { display: none !important; }
   .jx-transfer-card { background: #fa9d3b; border-radius: 6px; padding: 16px 18px; color: #fff; display: flex; flex-direction: column; gap: 10px; min-width: 180px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
@@ -790,93 +788,20 @@
   .wx-tf-family-label input[type="checkbox"]{width:18px;height:18px;accent-color:#07c160}
   .wx-tf-family-balance{font-size:11px;color:#f7b64d;margin-top:4px;padding-left:26px}
 
-  .jx-wallet-header {
-    background: #1a3c34 !important;
-    padding: 24px 20px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    border-radius: 0 0 16px 16px !important;
-    margin: 12px !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-  }
-  .jx-wallet-header .lbl {
-    font-size: 14px !important;
-    color: #a0b5ad !important;
-    margin-bottom: 8px !important;
-  }
-  .jx-wallet-header .amt {
-    font-size: 36px !important;
-    color: #fff !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.5px !important;
-    margin-bottom: 20px !important;
-  }
-  .jx-wallet-header .amt .yuan {
-    font-size: 24px !important;
-    font-weight: 500 !important;
-    margin-right: 4px !important;
-  }
-  .jx-wallet-btns {
-    display: flex !important;
-    gap: 12px !important;
-  }
-  .jx-wallet-btn {
-    flex: 1 !important;
-    padding: 12px !important;
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    color: #fff !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    transition: background 0.2s !important;
-  }
-  .jx-wallet-btn:active {
-    background: rgba(255, 255, 255, 0.25) !important;
-  }
-  .jx-wallet-menu {
-    background: #fff !important;
-    margin-top: 12px !important;
-    border-radius: 12px !important;
-    margin: 0 12px 12px 12px !important;
-    overflow: hidden !important;
-  }
-  .jx-wallet-menu-item {
-    display: flex !important;
-    align-items: center !important;
-    padding: 16px !important;
-    border-bottom: 1px solid #f0f0f0 !important;
-    cursor: pointer !important;
-  }
-  .jx-wallet-menu-item:last-child {
-    border-bottom: none !important;
-  }
-  .jx-wallet-menu-icon {
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-right: 14px !important;
-    flex-shrink: 0 !important;
-  }
-  .jx-wallet-menu-icon svg {
-    width: 18px !important;
-    height: 18px !important;
-    fill: #fff !important;
-  }
-  .jx-wallet-menu-item .text {
-    flex: 1 !important;
-    font-size: 16px !important;
-    color: #333 !important;
-  }
-  .jx-wallet-menu-item .arrow {
-    width: 16px !important;
-    height: 16px !important;
-    fill: #c0c0c0 !important;
-  }
+  .jx-wallet-header { background: #1a3c34 !important; padding: 24px 20px !important; display: flex !important; flex-direction: column !important; border-radius: 0 0 16px 16px !important; margin: 12px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important; }
+  .jx-wallet-header .lbl { font-size: 14px !important; color: #a0b5ad !important; margin-bottom: 8px !important; }
+  .jx-wallet-header .amt { font-size: 36px !important; color: #fff !important; font-weight: 600 !important; letter-spacing: 0.5px !important; margin-bottom: 20px !important; }
+  .jx-wallet-header .amt .yuan { font-size: 24px !important; font-weight: 500 !important; margin-right: 4px !important; }
+  .jx-wallet-btns { display: flex !important; gap: 12px !important; }
+  .jx-wallet-btn { flex: 1 !important; padding: 12px !important; background: rgba(255, 255, 255, 0.15) !important; border: none !important; border-radius: 8px !important; color: #fff !important; font-size: 15px !important; font-weight: 500 !important; cursor: pointer !important; transition: background 0.2s !important; }
+  .jx-wallet-btn:active { background: rgba(255, 255, 255, 0.25) !important; }
+  .jx-wallet-menu { background: #fff !important; margin-top: 12px !important; border-radius: 12px !important; margin: 0 12px 12px 12px !important; overflow: hidden !important; }
+  .jx-wallet-menu-item { display: flex !important; align-items: center !important; padding: 16px !important; border-bottom: 1px solid #f0f0f0 !important; cursor: pointer !important; }
+  .jx-wallet-menu-item:last-child { border-bottom: none !important; }
+  .jx-wallet-menu-icon { width: 28px !important; height: 28px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-right: 14px !important; flex-shrink: 0 !important; }
+  .jx-wallet-menu-icon svg { width: 18px !important; height: 18px !important; fill: #fff !important; }
+  .jx-wallet-menu-item .text { flex: 1 !important; font-size: 16px !important; color: #333 !important; }
+  .jx-wallet-menu-item .arrow { width: 16px !important; height: 16px !important; fill: #c0c0c0 !important; }
 
   .jx-bill-group { background: #fff; margin-bottom: 12px; }
   .jx-bill-group-title { padding: 10px 16px; font-size: 12px; color: #999; font-weight: 500; background: #f7f8fa; }
@@ -896,93 +821,20 @@
   .jx-bill-amt.in { color: #07c160; }
   .jx-bill-empty { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
 
-  .jx-card-section {
-    background: transparent !important;
-    margin-bottom: 12px !important;
-    padding: 0 12px !important;
-  }
-  .jx-card-section-title {
-    padding: 16px 4px 10px !important;
-    font-size: 14px !important;
-    color: #888 !important;
-    font-weight: 500 !important;
-  }
-  .jx-relative-card {
-    background: #fef9e8 !important;
-    border-radius: 12px !important;
-    padding: 20px !important;
-    display: flex !important;
-    align-items: flex-start !important;
-    gap: 16px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
-  }
-  .jx-relative-card-icon {
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    background: #fbc02d !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    margin-top: 2px !important;
-  }
-  .jx-relative-card-icon svg {
-    width: 22px !important;
-    height: 22px !important;
-    fill: #fff !important;
-  }
-  .jx-relative-card-info {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-  }
-  .jx-relative-card-name {
-    font-size: 16px !important;
-    color: #333 !important;
-    font-weight: 600 !important;
-  }
-  .jx-relative-card-amount {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-  }
-  .jx-relative-card-amount .lbl {
-    font-size: 12px !important;
-    color: #999 !important;
-    margin-bottom: 4px !important;
-  }
-  .jx-relative-card-amount .val {
-    font-size: 24px !important;
-    color: #333 !important;
-    font-weight: 600 !important;
-  }
-  .jx-card-empty {
-    text-align: center !important;
-    padding: 30px 20px !important;
-    color: #999 !important;
-    font-size: 13px !important;
-  }
+  .jx-card-section { background: transparent !important; margin-bottom: 12px !important; padding: 0 12px !important; }
+  .jx-card-section-title { padding: 16px 4px 10px !important; font-size: 14px !important; color: #888 !important; font-weight: 500 !important; }
+  .jx-relative-card { background: #fef9e8 !important; border-radius: 12px !important; padding: 20px !important; display: flex !important; align-items: flex-start !important; gap: 16px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important; }
+  .jx-relative-card-icon { width: 40px !important; height: 40px !important; border-radius: 50% !important; background: #fbc02d !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; margin-top: 2px !important; }
+  .jx-relative-card-icon svg { width: 22px !important; height: 22px !important; fill: #fff !important; }
+  .jx-relative-card-info { flex: 1 !important; display: flex !important; flex-direction: column !important; gap: 16px !important; }
+  .jx-relative-card-name { font-size: 16px !important; color: #333 !important; font-weight: 600 !important; }
+  .jx-relative-card-amount { display: flex !important; flex-direction: column !important; align-items: flex-end !important; }
+  .jx-relative-card-amount .lbl { font-size: 12px !important; color: #999 !important; margin-bottom: 4px !important; }
+  .jx-relative-card-amount .val { font-size: 24px !important; color: #333 !important; font-weight: 600 !important; }
+  .jx-card-empty { text-align: center !important; padding: 30px 20px !important; color: #999 !important; font-size: 13px !important; }
 
-  /* ===== 亲属卡解绑按钮 ===== */
-  .wx-fc-unbind {
-    margin-left: auto;
-    padding: 5px 12px;
-    border-radius: 12px;
-    background: rgba(90, 66, 24, 0.12);
-    color: #5a4218;
-    border: none;
-    font-size: 12px;
-    cursor: pointer;
-    flex-shrink: 0;
-    font-family: inherit;
-    font-weight: 500;
-    transition: background 0.15s;
-  }
-  .wx-fc-unbind:active {
-    background: rgba(90, 66, 24, 0.25);
-  }
+  .wx-fc-unbind { margin-left: auto; padding: 5px 12px; border-radius: 12px; background: rgba(90, 66, 24, 0.12); color: #5a4218; border: none; font-size: 12px; cursor: pointer; flex-shrink: 0; font-family: inherit; font-weight: 500; transition: background 0.15s; }
+  .wx-fc-unbind:active { background: rgba(90, 66, 24, 0.25); }
 
   .jx-transfer-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
   .jx-transfer-modal.show { display: flex; }
@@ -1005,24 +857,8 @@
   .jx-tm-pay .value svg { width: 16px; height: 16px; fill: #ccc; }
   .jx-tm-submit { margin: 0 20px 20px; padding: 13px; background: #07c160; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
 
-  /* 充值弹窗快捷金额 */
-  .recharge-opt {
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 15px;
-    color: #333;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 500;
-    transition: all 0.15s;
-  }
-  .recharge-opt:active {
-    background: #f0fdf4;
-    border-color: #07c160;
-    color: #07c160;
-  }
+  .recharge-opt { padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; font-size: 15px; color: #333; cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.15s; }
+  .recharge-opt:active { background: #f0fdf4; border-color: #07c160; color: #07c160; }
 
   .phone-case.dark-mode .jx-chat-tools { background: #1c1c1e; border-top-color: #2c2c2e; }
   .phone-case.dark-mode .jx-chat-tool-icon { background: #2c2c2e; border-color: #3a3a3c; }
@@ -1046,106 +882,308 @@
   #jxCssEditorScreen {
     display: none;
     flex-direction: column;
-    background: #1e1e1e;
+    background: #0f1115;
     height: 100%;
     width: 100%;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 20000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   #jxCssEditorScreen.active { display: flex; }
+
   .css-editor-top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    background: #252526;
-    border-bottom: 1px solid #333;
+    padding: 14px 16px;
+    background: linear-gradient(180deg, #1a1d24 0%, #15181e 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .css-editor-top-bar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(120, 140, 255, 0.4), rgba(180, 120, 255, 0.4), transparent);
+  }
+  .css-editor-back-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #cfd3dc;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+    padding-bottom: 3px;
     flex-shrink: 0;
   }
-  .css-editor-top-bar .back-btn {
-    font-size: 24px;
-    color: #ddd;
-    cursor: pointer;
-    width: 28px;
-    text-align: left;
-    line-height: 1;
+  .css-editor-back-btn:active {
+    background: rgba(255,255,255,0.12);
+    transform: scale(0.94);
   }
-  .css-editor-top-bar .title {
+  .css-editor-title-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .css-editor-title {
     font-size: 15px;
     font-weight: 600;
-    color: #fff;
+    letter-spacing: 0.3px;
+    background: linear-gradient(135deg, #a8c0ff 0%, #d3a4ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
   }
-  .css-editor-toolbar {
+  .css-editor-subtitle {
+    font-size: 10px;
+    color: #6b7280;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .css-editor-quicksave-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    border: none;
+    color: #fff;
+    cursor: pointer;
     display: flex;
-    gap: 6px;
-    padding: 8px 12px;
-    background: #252526;
-    border-bottom: 1px solid #333;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(34, 197, 94, 0.35);
+    transition: all 0.18s ease;
     flex-shrink: 0;
   }
-  .css-editor-toolbar button {
-    border: none;
-    padding: 7px 12px;
-    border-radius: 6px;
+  .css-editor-quicksave-btn:active {
+    transform: scale(0.92);
+    box-shadow: 0 1px 5px rgba(34, 197, 94, 0.5);
+  }
+  .css-editor-quicksave-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+  .css-editor-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    background: #15181e;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .css-editor-toolbar::-webkit-scrollbar { display: none; }
+  .css-editor-toolbar .tool-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 20px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
+    border: 1px solid transparent;
+    transition: all 0.18s ease;
+    white-space: nowrap;
   }
-  .css-editor-toolbar .btn-apply { background: #0e639c; color: #fff; }
-  .css-editor-toolbar .btn-save { background: #07c160; color: #fff; }
-  .css-editor-toolbar .btn-reset { background: #c75450; color: #fff; }
-  .css-editor-toolbar .btn-view { background: #444; color: #ddd; }
-  .css-editor-toolbar .btn-template { background: #6a4c93; color: #fff; }
+  .css-editor-toolbar .tool-btn svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+    opacity: 0.9;
+  }
+  .css-editor-toolbar .tool-btn:active {
+    transform: scale(0.95);
+  }
+  .tool-btn.primary {
+    background: linear-gradient(135deg, #5b8def, #4a7de0);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(91, 141, 239, 0.3);
+  }
+  .tool-btn.success {
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
+  }
+  .tool-btn.danger {
+    background: linear-gradient(135deg, #f87171, #ef4444);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.25);
+  }
+  .tool-btn.neutral {
+    background: rgba(255,255,255,0.06);
+    color: #cfd3dc;
+    border-color: rgba(255,255,255,0.08);
+  }
+  .tool-btn.purple {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+  }
+  .tool-btn.pink {
+    background: linear-gradient(135deg, #f472b6, #ec4899);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(236, 72, 153, 0.3);
+  }
+  .tool-btn.orange {
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.28);
+  }
+
+  .css-editor-main {
+    flex: 1;
+    display: flex;
+    background: #0b0d11;
+    overflow: hidden;
+    position: relative;
+    min-height: 0;
+  }
+  .css-editor-gutter {
+    width: 44px;
+    flex-shrink: 0;
+    padding: 14px 0;
+    background: #0e1014;
+    color: #3d4451;
+    font-family: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    text-align: right;
+    user-select: none;
+    overflow: hidden;
+    border-right: 1px solid rgba(255,255,255,0.03);
+  }
+  .css-editor-gutter div {
+    padding-right: 8px;
+    height: 20.4px;
+  }
+  .css-editor-gutter div.current {
+    color: #8b9cff;
+    font-weight: 600;
+  }
   #cssEditorTextarea {
     flex: 1;
-    background: #1e1e1e;
-    color: #d4d4d4;
+    background: #0b0d11;
+    color: #e6e8ee;
     border: none;
-    padding: 14px;
-    font-family: 'Menlo', 'Consolas', 'Monaco', 'Courier New', monospace;
+    padding: 14px 16px;
+    font-family: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
     font-size: 12px;
-    line-height: 1.6;
+    line-height: 1.7;
     outline: none;
     resize: none;
     white-space: pre;
     overflow: auto;
     tab-size: 2;
     -moz-tab-size: 2;
+    caret-color: #8b9cff;
+    min-width: 0;
   }
-  #cssEditorTextarea::placeholder { color: #555; }
+  #cssEditorTextarea::selection {
+    background: rgba(139, 156, 255, 0.35);
+  }
+  #cssEditorTextarea::placeholder { color: #454b58; font-style: italic; }
+  #cssEditorTextarea::-webkit-scrollbar { width: 8px; height: 8px; }
+  #cssEditorTextarea::-webkit-scrollbar-track { background: #0b0d11; }
+  #cssEditorTextarea::-webkit-scrollbar-thumb { background: #262b35; border-radius: 4px; }
+  #cssEditorTextarea::-webkit-scrollbar-thumb:hover { background: #353b47; }
+
+  .css-editor-hintbar {
+    flex-shrink: 0;
+    background: #10131a;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.28s ease;
+  }
+  .css-editor-hintbar.expanded {
+    max-height: 160px;
+    overflow-y: auto;
+  }
+  .css-editor-hint-inner {
+    padding: 12px 16px;
+    color: #8b93a1;
+    font-size: 11px;
+    line-height: 1.9;
+  }
+  .css-editor-hint-inner b { color: #cfd3dc; font-weight: 600; }
+  .css-editor-hint-inner code {
+    display: inline-block;
+    background: rgba(91, 141, 239, 0.12);
+    color: #a8c0ff;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 10px;
+    margin: 2px 2px 0 0;
+    border: 1px solid rgba(91, 141, 239, 0.15);
+  }
+
   .css-editor-status-bar {
     padding: 8px 14px;
-    background: #007acc;
-    color: #fff;
+    background: #0e1014;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    color: #6b7280;
     font-size: 11px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
-    min-height: 28px;
+    font-family: 'SF Mono', Menlo, monospace;
   }
-  .css-editor-hint {
-    padding: 8px 14px;
-    background: #2d2d30;
-    color: #999;
-    font-size: 11px;
-    line-height: 1.6;
+  .css-editor-status-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+  }
+  .css-editor-status-left span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .css-editor-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
     flex-shrink: 0;
-    border-top: 1px solid #333;
-    max-height: 80px;
-    overflow-y: auto;
+    transition: all 0.2s ease;
   }
-  .css-editor-hint code {
-    background: #3c3c3c;
-    color: #4ec9b0;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-family: monospace;
+  .css-editor-status-dot.dirty {
+    background: #fb923c;
+    box-shadow: 0 0 8px rgba(251, 146, 60, 0.6);
+  }
+  .css-editor-status-dot.saved {
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+  }
+  .css-editor-status-right {
+    color: #4b5563;
     font-size: 10px;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+    margin-left: 10px;
   }
 </style>
 <style id="userCustomStyle"></style>
@@ -1155,6 +1193,7 @@
 <div class="phone-case" id="phoneCase">
   <div class="phone-content" id="phoneContent">
 
+    <!-- 主屏 -->
     <div id="mainScreen" class="screen active">
       <div class="container">
         <div class="top-nav">
@@ -1641,40 +1680,87 @@
       </div>
     </div>
 
-    <!-- ===== CSS 美化编辑器 ===== -->
+    <!-- CSS 美化编辑器 -->
     <div id="jxCssEditorScreen">
       <div class="css-editor-top-bar">
-        <span class="back-btn" onclick="closeCssEditor()">‹</span>
-        <span class="title">CSS 美化编辑器</span>
-        <span style="width:28px;"></span>
+        <div class="css-editor-back-btn" onclick="closeCssEditor()">‹</div>
+        <div class="css-editor-title-wrap">
+          <div class="css-editor-title">CSS 美化编辑器</div>
+          <div class="css-editor-subtitle">Beauty Studio</div>
+        </div>
+        <button class="css-editor-quicksave-btn" onclick="saveCssEditor()" title="保存">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </button>
       </div>
+
       <div class="css-editor-toolbar">
-        <button class="btn-apply" onclick="applyCssEditor()">应用预览</button>
-        <button class="btn-save" onclick="saveCssEditor()">保存</button>
-        <button class="btn-reset" onclick="resetCssEditor()">恢复默认</button>
-        <button class="btn-view" onclick="loadDefaultCssToEditor()">载入默认CSS</button>
-        <button class="btn-template" onclick="loadBubbleTemplate()">气泡模板</button>
-        <button class="btn-template" onclick="loadButtonTemplate()" style="background:#8e44ad;">按钮模板</button>
+        <button class="tool-btn primary" onclick="applyCssEditor()">
+          <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          预览
+        </button>
+        <button class="tool-btn success" onclick="saveCssEditor()">
+          <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+          保存
+        </button>
+        <button class="tool-btn danger" onclick="resetCssEditor()">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          重置
+        </button>
+        <button class="tool-btn neutral" onclick="loadDefaultCssToEditor()">
+          <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+          默认CSS
+        </button>
+        <button class="tool-btn purple" onclick="loadBubbleTemplate()">
+          <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          气泡模板
+        </button>
+        <button class="tool-btn pink" onclick="loadButtonTemplate()">
+          <svg viewBox="0 0 24 24"><path d="M5 3h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2zm7 5a4 4 0 100 8 4 4 0 000-8z"/></svg>
+          按钮模板
+        </button>
+        <button class="tool-btn orange" onclick="loadThemeTemplate()">
+          <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+          主题模板
+        </button>
+        <button class="tool-btn neutral" onclick="clearCssEditor()">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          清空
+        </button>
       </div>
-      <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的自定义 CSS 美化样式 */
+
+      <div class="css-editor-main">
+        <div class="css-editor-gutter" id="cssEditorGutter"></div>
+        <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的自定义 CSS 美化样式 */
+
 /* 例如：修改聊天气泡颜色 */
 .jx-msg-row.me .jx-msg-bubble {
   background: linear-gradient(135deg, #ffd6e7, #ffb3cc) !important;
 }
 
-/* 点击上方按钮应用预览，满意后点保存 */"></textarea>
-      <div class="css-editor-hint">
-        💡 <b>提示</b>：自定义 CSS 会追加到页面默认样式之后，优先级更高。常用选择器：
-        <code>.jx-msg-row.me .jx-msg-bubble</code>
-        <code>.jx-msg-row.other .jx-msg-bubble</code>
-        <code>.jx-tm-submit</code>
-        <code>.btn-primary</code>
-        <code>.jx-bottom-nav</code>
-        <code>.jx-nav-item.active</code>
+/* 或者点击上方模板按钮快速套用预设样式 */"></textarea>
       </div>
+
+      <div class="css-editor-hintbar" id="cssEditorHintBar">
+        <div class="css-editor-hint-inner">
+          💡 <b>常用选择器</b>：
+          <code>.jx-msg-row.me .jx-msg-bubble</code>
+          <code>.jx-msg-row.other .jx-msg-bubble</code>
+          <code>.jx-tm-submit</code>
+          <code>.btn-primary</code>
+          <code>.jx-bottom-nav</code>
+          <code>.jx-nav-item.active</code>
+          <code>.jx-chat-input-bar textarea</code>
+          <br>
+          🔧 自定义样式会追加到页面默认样式之后，优先级更高，不用怕改坏页面。
+        </div>
+      </div>
+
       <div class="css-editor-status-bar">
-        <span id="cssEditorStatus">就绪 · 编辑后点"应用预览"查看效果</span>
-        <span id="cssEditorSavedTip"></span>
+        <div class="css-editor-status-left">
+          <div class="css-editor-status-dot" id="cssEditorStatusDot"></div>
+          <span id="cssEditorStatus">就绪</span>
+        </div>
+        <div class="css-editor-status-right" id="cssEditorCursorInfo">Ln 1, Col 1</div>
       </div>
     </div>
 
@@ -2176,6 +2262,7 @@ https://xxx.com/a.png
 <script>
 // ================= CSS 美化编辑器 =================
 const USER_CSS_KEY = 'user_custom_css';
+let _cssEditorDirty = false;
 
 function applyUserCustomCss() {
   try {
@@ -2186,17 +2273,92 @@ function applyUserCustomCss() {
 }
 applyUserCustomCss();
 
+function renderCssGutter() {
+  const ta = document.getElementById('cssEditorTextarea');
+  const gutter = document.getElementById('cssEditorGutter');
+  if (!ta || !gutter) return;
+  const lines = ta.value.split('\n').length;
+  let html = '';
+  for (let i = 1; i <= Math.max(lines, 1); i++) {
+    html += `<div>${i}</div>`;
+  }
+  gutter.innerHTML = html;
+  syncGutterScroll();
+  highlightCurrentLine();
+}
+function syncGutterScroll() {
+  const ta = document.getElementById('cssEditorTextarea');
+  const gutter = document.getElementById('cssEditorGutter');
+  if (!ta || !gutter) return;
+  gutter.scrollTop = ta.scrollTop;
+}
+function highlightCurrentLine() {
+  const ta = document.getElementById('cssEditorTextarea');
+  const gutter = document.getElementById('cssEditorGutter');
+  if (!ta || !gutter) return;
+  const pos = ta.selectionStart || 0;
+  const line = ta.value.slice(0, pos).split('\n').length;
+  gutter.querySelectorAll('div').forEach((el, i) => {
+    el.classList.toggle('current', i + 1 === line);
+  });
+}
+function updateCursorInfo() {
+  const ta = document.getElementById('cssEditorTextarea');
+  const info = document.getElementById('cssEditorCursorInfo');
+  if (!ta || !info) return;
+  const pos = ta.selectionStart || 0;
+  const before = ta.value.slice(0, pos);
+  const line = before.split('\n').length;
+  const col = pos - before.lastIndexOf('\n');
+  info.innerText = `Ln ${line}, Col ${col}`;
+  highlightCurrentLine();
+}
+function setCssStatus(text, state) {
+  const st = document.getElementById('cssEditorStatus');
+  const dot = document.getElementById('cssEditorStatusDot');
+  if (st) st.innerText = text;
+  if (dot) {
+    dot.classList.remove('dirty', 'saved');
+    if (state === 'dirty') dot.classList.add('dirty');
+    else if (state === 'saved') dot.classList.add('saved');
+  }
+}
+function markCssEditorDirty() {
+  _cssEditorDirty = true;
+  setCssStatus('未保存的修改', 'dirty');
+}
+
 function openCssEditor() {
   const saved = localStorage.getItem(USER_CSS_KEY) || '';
   const ta = document.getElementById('cssEditorTextarea');
-  if (ta) ta.value = saved;
-  const st = document.getElementById('cssEditorStatus');
-  if (st) st.innerText = '就绪 · 编辑后点"应用预览"查看效果';
-  const tip = document.getElementById('cssEditorSavedTip');
-  if (tip) tip.innerText = saved ? '✓ 当前已有保存的样式' : '当前无自定义样式';
+  if (ta) {
+    ta.value = saved;
+    ta.oninput = () => { renderCssGutter(); updateCursorInfo(); markCssEditorDirty(); };
+    ta.onscroll = syncGutterScroll;
+    ta.onkeyup = updateCursorInfo;
+    ta.onclick = updateCursorInfo;
+    ta.onselect = updateCursorInfo;
+    ta.onkeydown = (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        ta.value = ta.value.substring(0, start) + '  ' + ta.value.substring(end);
+        ta.selectionStart = ta.selectionEnd = start + 2;
+        renderCssGutter();
+        updateCursorInfo();
+        markCssEditorDirty();
+      }
+    };
+  }
+  _cssEditorDirty = false;
+  setCssStatus(saved ? '已有保存的样式' : '就绪 · 可开始编辑', 'saved');
+  updateCursorInfo();
+  setTimeout(renderCssGutter, 10);
   document.getElementById('jxCssEditorScreen').classList.add('active');
 }
 function closeCssEditor() {
+  if (_cssEditorDirty && !confirm('有未保存的修改，确定要离开吗？')) return;
   document.getElementById('jxCssEditorScreen').classList.remove('active');
 }
 function applyCssEditor() {
@@ -2204,8 +2366,8 @@ function applyCssEditor() {
   if (!ta) return;
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = ta.value;
-  const st = document.getElementById('cssEditorStatus');
-  if (st) st.innerText = '已应用预览（未保存）';
+  setCssStatus('已应用预览（尚未保存）', 'dirty');
+  _cssEditorDirty = true;
 }
 function saveCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
@@ -2214,10 +2376,8 @@ function saveCssEditor() {
     localStorage.setItem(USER_CSS_KEY, ta.value);
     const styleEl = document.getElementById('userCustomStyle');
     if (styleEl) styleEl.textContent = ta.value;
-    const st = document.getElementById('cssEditorStatus');
-    if (st) st.innerText = '✓ 已保存，刷新后依然生效';
-    const tip = document.getElementById('cssEditorSavedTip');
-    if (tip) tip.innerText = '✓ 已保存';
+    _cssEditorDirty = false;
+    setCssStatus('已保存 · 刷新后依然生效', 'saved');
   } catch (e) {
     alert('保存失败：' + (e && e.message ? e.message : '存储空间可能已满'));
   }
@@ -2229,113 +2389,159 @@ function resetCssEditor() {
   if (styleEl) styleEl.textContent = '';
   const ta = document.getElementById('cssEditorTextarea');
   if (ta) ta.value = '';
-  const st = document.getElementById('cssEditorStatus');
-  if (st) st.innerText = '已恢复默认样式';
-  const tip = document.getElementById('cssEditorSavedTip');
-  if (tip) tip.innerText = '';
+  _cssEditorDirty = false;
+  renderCssGutter();
+  updateCursorInfo();
+  setCssStatus('已恢复默认样式', 'saved');
+}
+function clearCssEditor() {
+  if (!confirm('清空编辑框内容？（未保存前不影响已保存的样式）')) return;
+  const ta = document.getElementById('cssEditorTextarea');
+  if (ta) ta.value = '';
+  renderCssGutter();
+  updateCursorInfo();
+  markCssEditorDirty();
 }
 function loadDefaultCssToEditor() {
-  if (!confirm('⚠️ 载入默认 CSS 会覆盖当前编辑内容。\n\n注意：默认 CSS 是页面完整样式，如果直接保存会完全替换页面样式（效果相同，但体积庞大）。\n\n建议：只在查找/复制某条规则时使用，编辑后仅保留你自己新增的部分再点保存。\n\n确定继续吗？')) return;
+  if (!confirm('⚠️ 载入默认 CSS 会覆盖当前编辑内容。\n\n默认 CSS 是页面完整样式，直接保存等于重写全部样式。\n\n建议：只在查找/复制规则时使用，编辑后仅保留新增部分再保存。\n\n确定继续吗？')) return;
   const mainStyle = document.getElementById('mainStyle');
   const ta = document.getElementById('cssEditorTextarea');
   if (mainStyle && ta) {
     ta.value = mainStyle.textContent;
-    const st = document.getElementById('cssEditorStatus');
-    if (st) st.innerText = '已载入默认 CSS（谨慎保存）';
+    renderCssGutter();
+    updateCursorInfo();
+    markCssEditorDirty();
+    setCssStatus('已载入默认 CSS（谨慎保存）', 'dirty');
   }
 }
+function appendTemplateToEditor(template, label) {
+  const ta = document.getElementById('cssEditorTextarea');
+  if (!ta) return;
+  const prefix = ta.value && !ta.value.endsWith('\n') ? '\n\n' : '';
+  ta.value = ta.value + prefix + template;
+  renderCssGutter();
+  ta.scrollTop = ta.scrollHeight;
+  updateCursorInfo();
+  markCssEditorDirty();
+  setCssStatus(`已插入「${label}」模板`, 'dirty');
+}
 function loadBubbleTemplate() {
-  const template = `/* ===== 微信聊天气泡美化模板 ===== */
-/* 修改后点"应用预览"查看效果，"保存"永久生效 */
+  appendTemplateToEditor(`/* ═══ 聊天气泡美化 ═══ */
 
-/* 我的气泡（右侧） */
+/* 我的气泡（右侧 · 嫩绿渐变） */
 .jx-msg-row.me .jx-msg-bubble {
-  background: linear-gradient(135deg, #95ec69 0%, #7dd956 100%) !important;
-  color: #000 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 2px 8px rgba(122, 200, 90, 0.25);
-  padding: 10px 14px !important;
-}
-
-/* 对方气泡（左侧） */
-.jx-msg-row.other .jx-msg-bubble {
-  background: #ffffff !important;
-  color: #000 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 10px 14px !important;
-}
-
-/* 气泡小三角配色（与气泡保持一致） */
-.jx-msg-row.me .jx-msg-bubble::after {
-  border-left-color: #95ec69 !important;
-}
-.jx-msg-row.other .jx-msg-bubble::before {
-  border-right-color: #ffffff !important;
-}
-
-/* 气泡字体 */
-.jx-msg-bubble {
+  background: linear-gradient(135deg, #a8ed7d 0%, #7dd956 100%) !important;
+  color: #0f2416 !important;
+  border-radius: 16px 16px 4px 16px !important;
+  box-shadow: 0 3px 12px rgba(125, 217, 86, 0.28);
+  padding: 11px 15px !important;
   font-size: 15px !important;
   line-height: 1.55 !important;
 }
 
-/* 输入框圆角 */
-.jx-chat-input-bar textarea {
-  border-radius: 12px !important;
+/* 对方气泡（左侧 · 纯净白） */
+.jx-msg-row.other .jx-msg-bubble {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  border-radius: 16px 16px 16px 4px !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  padding: 11px 15px !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
 }
-`;
-  const ta = document.getElementById('cssEditorTextarea');
-  if (ta) {
-    ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + '\n\n' : '') + template;
-    const st = document.getElementById('cssEditorStatus');
-    if (st) st.innerText = '已插入气泡模板（点"应用预览"查看）';
-  }
+
+/* 气泡小三角同色 */
+.jx-msg-row.me .jx-msg-bubble::after { border-left-color: #95e26c !important; }
+.jx-msg-row.other .jx-msg-bubble::before { border-right-color: #ffffff !important; }
+
+/* 输入框圆角 */
+.jx-chat-input-bar textarea { border-radius: 14px !important; }
+`, '气泡美化');
 }
 function loadButtonTemplate() {
-  const template = `/* ===== 按钮美化模板 ===== */
+  appendTemplateToEditor(`/* ═══ 按钮美化 ═══ */
 
-/* 主按钮（发送、确定、保存） */
+/* 主按钮 */
 .btn-primary {
-  background: linear-gradient(135deg, #07c160, #05a352) !important;
-  box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
-  border-radius: 10px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+}
+.btn-primary:active { transform: scale(0.97); }
+
+/* 成功按钮 */
+.btn-success {
+  background: linear-gradient(135deg, #4ade80, #22c55e) !important;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+  border-radius: 12px !important;
   font-weight: 600 !important;
 }
 
-/* 聊天底部导航激活色 */
-.jx-nav-item.active { color: #07c160 !important; }
-
-/* 转账弹窗确认按钮 */
-.jx-tm-submit {
-  background: linear-gradient(135deg, #07c160, #05a352) !important;
-  border-radius: 10px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 3px 10px rgba(7, 193, 96, 0.3);
-}
-
-/* 危险按钮（删除） */
+/* 危险按钮 */
 .btn-danger, .btn-delete {
-  background: linear-gradient(135deg, #ff4757, #e83647) !important;
-  border-radius: 10px !important;
+  background: linear-gradient(135deg, #f87171, #ef4444) !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
 }
 
-/* 弹窗圆角 */
+/* 弹窗容器圆角 + 阴影 */
 .jx-modal-content, .jx-comment-modal-content, .jx-transfer-modal-inner {
-  border-radius: 16px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
 }
 
-/* 输入框 */
-.jx-chat-input-bar textarea:focus {
-  box-shadow: 0 0 0 2px rgba(7, 193, 96, 0.2);
+/* 转账弹窗确认键 */
+.jx-tm-submit {
+  background: linear-gradient(135deg, #4ade80, #22c55e) !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
 }
-`;
-  const ta = document.getElementById('cssEditorTextarea');
-  if (ta) {
-    ta.value = (ta.value ? ta.value.replace(/\s+$/, '') + '\n\n' : '') + template;
-    const st = document.getElementById('cssEditorStatus');
-    if (st) st.innerText = '已插入按钮模板（点"应用预览"查看）';
-  }
+.jx-tm-submit:active { transform: scale(0.98); }
+
+/* 底部导航激活 */
+.jx-nav-item.active { color: #07c160 !important; }
+`, '按钮美化');
+}
+function loadThemeTemplate() {
+  appendTemplateToEditor(`/* ═══ 梦幻紫主题 ═══ */
+
+/* 底部导航栏 */
+.jx-bottom-nav {
+  background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%) !important;
+  border-top: 1px solid rgba(168, 85, 247, 0.15) !important;
+}
+.jx-nav-item.active { color: #8b5cf6 !important; }
+
+/* 聊天标题栏 */
+.jx-chat-top-bar {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%) !important;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
+}
+
+/* 聊天消息区背景 */
+.jx-chat-messages { background: linear-gradient(180deg, #fdfbff 0%, #f8f4ff 100%); }
+#jxChatScreen { background: #faf7ff !important; }
+
+/* 输入栏 */
+.jx-chat-input-bar {
+  background: #f5f0ff !important;
+  border-top: 1px solid rgba(168, 85, 247, 0.1) !important;
+}
+
+/* 我页面 */
+#jx-me { background: #faf7ff !important; }
+.jx-me-menu-item:active { background: rgba(168, 85, 247, 0.06) !important; }
+
+/* 我的气泡换成紫色系 */
+.jx-msg-row.me .jx-msg-bubble {
+  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%) !important;
+  color: #ffffff !important;
+}
+.jx-msg-row.me .jx-msg-bubble::after { border-left-color: #a78bfa !important; }
+`, '梦幻紫主题');
 }
 
 // ================= DOCX 预处理 =================
