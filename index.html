@@ -757,91 +757,44 @@
   .jx-transfer-card.opened .t-footer { border-top-color: rgba(0,0,0,0.08); }
   .jx-transfer-card.opened .t-footer svg { fill: #999; }
   
-  /* 亲属卡气泡 - P1 样式完美复刻 */
-  .jx-card-bubble {
-    background: #fef5e7 !important;
-    border-radius: 8px !important;
-    padding: 16px !important;
-    color: #333 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    min-width: 230px !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
-    text-align: left;
-  }
-  .jx-card-bubble .c-content {
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  .jx-card-bubble .c-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #fbc02d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-right: 12px;
-  }
-  .jx-card-bubble .c-icon svg {
-    width: 24px;
-    height: 24px;
-    fill: #fff;
-  }
-  .jx-card-bubble .c-text {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-  .jx-card-bubble .c-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 4px;
-  }
-  .jx-card-bubble .c-desc {
-    font-size: 12px;
-    color: #999;
-  }
-  .jx-card-bubble .c-footer {
-    font-size: 11px;
-    color: #aaa;
-    margin-top: 12px;
-  }
+  /* ===== 亲属卡相关样式（完美复刻 P1 & P3） ===== */
+  /* 聊天里的亲属卡消息卡片（黄色小卡片） */
+  .wx-family-card{max-width:230px;border-radius:8px;background:#fff;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06);position:relative;overflow:hidden;padding:12px 12px 8px;min-height:80px}
+  .wx-family-card::after{content:'';position:absolute;right:-26px;top:-16px;width:90px;height:90px;border-radius:50%;background:#fdf2c8}
+  .wx-family-card-content{display:flex;align-items:flex-start;gap:8px;position:relative;z-index:1}
+  .wx-family-card-icon{width:34px;height:34px;border-radius:50%;background:#f7c948;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .wx-family-card-icon svg{width:18px;height:18px}
+  .wx-family-card-title{font-size:13.5px;color:#5a4218;font-weight:500;margin-bottom:3px}
+  .wx-family-card-subtitle{font-size:12px;color:#8a6a2f}
+  .wx-family-card-footer{margin-top:8px;font-size:10px;color:#bbb}
 
-  /* ===== 合并聊天记录详情 ===== */
-  .jx-merged-view-item { display: flex; margin-bottom: 14px; font-size: 14px; }
-  .jx-merged-view-item .nm { color: #b2b2b2; font-size: 12px; margin-bottom: 4px; display: block; }
-  .jx-merged-view-item .bb { background: #fff; border-radius: 6px; padding: 8px 12px; color: #333; max-width: 75%; line-height: 1.4; word-break: break-word; }
-  .jx-merged-view-item.me { justify-content: flex-end; }
-  .jx-merged-view-item.me .bb { background: #95ec69; }
-  .jx-merged-view-item img { max-width: 140px; border-radius: 6px; display: block; }
+  /* 亲属卡页面（钱包 → 亲属卡） */
+  .wx-family-view{transform:translateX(100%);z-index:6;transition:transform .28s}
+  .wx-family-view.active{transform:translateX(0)}
+  .wx-family-body{flex:1;overflow-y:auto;background:#ededed;padding:16px 12px}
+  .wx-family-body::-webkit-scrollbar{display:none}
+  .wx-family-section{margin-bottom:18px}
+  .wx-family-section-title{font-size:13px;color:#666;margin:0 4px 10px;font-weight:500}
+  .wx-family-card-item{border-radius:12px;background:linear-gradient(135deg,#fffdf5 0%,#fdf3d4 60%,#fce9b8 100%);padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+  .wx-family-card-item::before{content:'';position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(247,182,77,.22)}
+  .wx-fc-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;position:relative;z-index:1}
+  .wx-fc-icon{width:34px;height:34px;border-radius:50%;background:#f7b64d;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .wx-fc-icon svg{width:18px;height:18px;fill:#fff;stroke:none}
+  .wx-fc-title{font-size:15px;color:#5a4218;font-weight:500}
+  .wx-fc-limit-label{font-size:11px;color:#a0834a;text-align:right;margin-bottom:2px}
+  .wx-fc-limit{font-size:28px;font-weight:700;color:#5a4218;text-align:right;letter-spacing:.5px}
+  .wx-family-empty{text-align:center;padding:80px 20px;color:#b8b8b8;font-size:13px;display:none}
+  .wx-family-empty.show{display:block}
+  .wx-family-empty svg{width:48px;height:48px;stroke:#c8c8c8;fill:none;stroke-width:1.4;margin-bottom:12px}
 
-  /* ===== 弹窗 ===== */
-  .jx-transfer-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
-  .jx-transfer-modal.show { display: flex; }
-  .jx-transfer-modal-inner { background: #fff; width: 88%; max-width: 360px; border-radius: 14px; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-  .jx-tm-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #333; }
-  .jx-tm-header .cancel { font-size: 14px; color: #888; font-weight: 400; cursor: pointer; }
-  .jx-tm-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-  .jx-tm-receiver { display: flex; align-items: center; gap: 10px; }
-  .jx-tm-receiver img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; background: #f0f0f0; }
-  .jx-tm-receiver .nm { font-size: 14px; color: #333; font-weight: 500; }
-  .jx-tm-amount-row { display: flex; align-items: baseline; border-bottom: 2px solid #07c160; padding-bottom: 8px; gap: 6px; }
-  .jx-tm-amount-row .cur { font-size: 28px; color: #333; font-weight: 500; }
-  .jx-tm-amount-row input { flex: 1; border: none; outline: none; font-size: 28px; font-weight: 500; color: #333; min-width: 0; background: transparent; }
-  .jx-tm-amount-row input::placeholder { color: #ccc; }
-  .jx-tm-note-row { display: flex; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-  .jx-tm-note-row input { flex: 1; border: none; outline: none; font-size: 14px; color: #333; min-width: 0; background: transparent; }
-  .jx-tm-note-row input::placeholder { color: #bbb; }
-  .jx-tm-pay { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 14px; color: #333; cursor: pointer; }
-  .jx-tm-pay .value { color: #888; display: flex; align-items: center; gap: 4px; }
-  .jx-tm-pay .value svg { width: 16px; height: 16px; fill: #ccc; }
-  .jx-tm-submit { margin: 0 20px 20px; padding: 13px; background: #07c160; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  /* 转账面板中的「使用亲属卡支付」行 */
+  .wx-tf-family-row{display:none;padding:10px 0 8px;border-bottom:1px solid #f0f0f0}
+  .wx-tf-family-row.show{display:block}
+  .wx-tf-family-label{display:flex;align-items:center;gap:8px;font-size:14px;color:#1a1a1a;cursor:pointer}
+  .wx-tf-family-label input[type="checkbox"]{width:18px;height:18px;accent-color:#07c160}
+  .wx-tf-family-balance{font-size:11px;color:#f7b64d;margin-top:4px;padding-left:26px}
 
-  /* ===== 钱包 ===== */
+  /* ===== 钱包样式（完美复刻 P2） ===== */
   .jx-wallet-header {
     background: #1a3c34 !important; /* 深绿色 */
     padding: 24px 20px !important;
@@ -947,7 +900,7 @@
   .jx-bill-amt.in { color: #07c160; }
   .jx-bill-empty { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
 
-  /* ===== 亲属卡 ===== */
+  /* ===== 亲属卡列表（完美复刻 P3） ===== */
   .jx-card-section {
     background: transparent !important;
     margin-bottom: 12px !important;
@@ -1542,15 +1495,27 @@
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll">
-        <div class="jx-wallet-header">
-          <span class="lbl">零钱</span>
-          <span class="amt"><span class="yuan">¥</span><span id="jxWalletBalance">0.00</span></span>
-          <div class="jx-wallet-btns">
-            <button class="jx-wallet-btn" onclick="alert('充值功能暂未开放')">充值</button>
-            <button class="jx-wallet-btn" onclick="alert('提现功能暂未开放')">提现</button>
+        <!-- P2 样式：深绿色钱包卡片 -->
+        <div style="background:#1a3c34; margin:12px; border-radius:12px; padding:24px 20px; color:#fff; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+          <div style="font-size:14px; color:#a0b5ad; margin-bottom:8px;">零钱</div>
+          <div style="font-size:36px; font-weight:600; letter-spacing:0.5px; margin-bottom:20px;">
+            <span style="font-size:24px; font-weight:500; margin-right:4px;">¥</span><span id="jxWalletBalance">500.00</span>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="alert('充值功能暂未开放')">充值</button>
+            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="alert('提现功能暂未开放')">提现</button>
           </div>
         </div>
+        
+        <!-- P2 菜单项 -->
         <div class="jx-wallet-menu">
+          <div class="jx-wallet-menu-item" onclick="alert('银行卡功能暂未开放')">
+            <div class="jx-wallet-menu-icon" style="background:#4b7bec;">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+            </div>
+            <span class="text">银行卡</span>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
           <div class="jx-wallet-menu-item" onclick="openRelativeCardScreen(false)">
             <div class="jx-wallet-menu-icon" style="background:#f56c8a;">
               <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
@@ -1566,6 +1531,7 @@
             <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
         </div>
+
         <div class="jx-wallet-menu" style="margin-top: 12px;">
           <div class="jx-wallet-menu-item" onclick="alert('功能暂未开放')">
             <div class="jx-wallet-menu-icon" style="background:#f0b429;">
@@ -1602,13 +1568,16 @@
       <div class="jx-info-scroll" id="jxBillsList"></div>
     </div>
 
-    <div id="jxRelativeCardScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1009;">
-      <div class="jx-info-top-bar">
-        <span class="back-btn" onclick="closeRelativeCardScreen()">‹</span>
-        <span class="title">亲属卡</span>
+    <!-- P3 样式：亲属卡界面 -->
+    <div id="jxRelativeCardScreen" style="display: none; flex-direction: column; background: #ededed; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1009;">
+      <div class="jx-info-top-bar" style="background:#fff; border-bottom:1px solid #eee;">
+        <span class="back-btn" style="color:#333;" onclick="closeRelativeCardScreen()">‹</span>
+        <span class="title" style="color:#000;">亲属卡</span>
         <span style="width: 28px;"></span>
       </div>
-      <div class="jx-info-scroll" id="jxRelativeCardList"></div>
+      <div class="wx-family-body" id="jxRelativeCardList">
+        <!-- 动态渲染 -->
+      </div>
     </div>
 
     <div id="jxFavoritesScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1005;">
@@ -1734,6 +1703,14 @@ https://xxx.com/a.png
             </div>
             <div class="jx-tm-note-row">
               <input type="text" id="jxTransferNote" placeholder="添加转账说明" maxlength="30">
+            </div>
+            <!-- 使用亲属卡支付行 -->
+            <div class="wx-tf-family-row" id="wxTransferFamilyRow">
+              <label class="wx-tf-family-label">
+                <input type="checkbox" id="wxTransferUseFamily">
+                <span>使用亲属卡支付</span>
+              </label>
+              <div class="wx-tf-family-balance" id="wxTransferFamilyBalance"></div>
             </div>
             <div class="jx-tm-pay" onclick="selectTransferPayMethod()">
               <span>支付方式</span>
@@ -1906,6 +1883,17 @@ https://xxx.com/a.png
         <h3>转发给</h3>
         <div class="jx-modal-list" id="forwardTargetList"></div>
         <button class="jx-modal-btn" onclick="closeForwardTargetModal()">取消</button>
+      </div>
+    </div>
+
+    <!-- 亲属卡接受/拒收弹层 -->
+    <div class="jx-transfer-modal" id="wxAcceptMask" style="z-index: 30001;">
+      <div class="jx-transfer-modal-inner" style="max-width: 320px; text-align: center; padding: 20px;">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #333;" id="wxAcceptText">确认接受？</div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-cancel" style="flex:1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #f0f0f0; color: #333;" id="wxAcceptReject">拒收</button>
+          <button class="btn btn-success" style="flex:1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #07c160; color: #fff;" id="wxAcceptConfirm">接受</button>
+        </div>
       </div>
     </div>
 
@@ -3246,11 +3234,44 @@ applyApiConfigToForm(loadApiConfig() || {});
 updateApiPresetList();
 
 // ================= 钱包 / 转账 / 亲属卡 =================
+// --- 亲属卡存储（适配提供的代码结构）---
+function getRecv(){try{return JSON.parse(localStorage.getItem('wx-family-received')||'[]')}catch(e){return[]}}
+function saveRecv(l){try{localStorage.setItem('wx-family-received',JSON.stringify(l))}catch(e){}}
+function getGiven(){try{return JSON.parse(localStorage.getItem('wx-family-given')||'[]')}catch(e){return[]}}
+function saveGiven(l){try{localStorage.setItem('wx-family-given',JSON.stringify(l))}catch(e){}}
+function findRecv(id){return getRecv().find(function(c){return c.fromCharId===id})}
+
+// 迁移旧数据，避免用户数据丢失
+(function migrateOldCards() {
+  try {
+    const oldRaw = localStorage.getItem(CARDS_KEY);
+    if (oldRaw) {
+      const oldList = JSON.parse(oldRaw);
+      if (Array.isArray(oldList) && oldList.length > 0) {
+        const recv = getRecv();
+        const given = getGiven();
+        oldList.forEach(c => {
+          if (c.giverIsUser) {
+            if (!given.find(x => x.id === c.id)) {
+              given.push({ id: c.id, toCharId: c.chatId, toName: c.receiverName, limit: c.limit, used: c.used || 0, createdAt: c.createdAt || Date.now() });
+            }
+          } else {
+            if (!recv.find(x => x.id === c.id)) {
+              recv.push({ id: c.id, fromCharId: c.chatId, fromName: c.giverName, limit: c.limit, used: c.used || 0, createdAt: c.createdAt || Date.now() });
+            }
+          }
+        });
+        saveRecv(recv);
+        saveGiven(given);
+        localStorage.removeItem(CARDS_KEY);
+      }
+    }
+  } catch(e) {}
+})();
+
 function loadBills() { try { const v = JSON.parse(localStorage.getItem(BILLS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
 function saveBills(list) { try { localStorage.setItem(BILLS_KEY, JSON.stringify(list)); } catch (e) {} }
 function addBill(bill) { const bills = loadBills(); bills.unshift(bill); while (bills.length > 300) bills.pop(); saveBills(bills); }
-function loadRelativeCards() { try { const v = JSON.parse(localStorage.getItem(CARDS_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
-function saveRelativeCards(list) { try { localStorage.setItem(CARDS_KEY, JSON.stringify(list)); } catch (e) {} }
 function getMyName() { return localStorage.getItem('moments_name') || 'Koi Buono'; }
 function getMyAvatar() { return localStorage.getItem('moments_avatar') || ''; }
 
@@ -3266,6 +3287,26 @@ function hideChatTools() { const panel = document.getElementById('jxChatTools');
 function toolAlbum() { hideChatTools(); document.getElementById('jxChatImageInput').click(); }
 
 let transferPayMethod = { type: 'balance' };
+
+// --- 转账面板刷新 ---
+function refreshTFR() {
+  const row = document.getElementById('wxTransferFamilyRow');
+  const bal = document.getElementById('wxTransferFamilyBalance');
+  const chk = document.getElementById('wxTransferUseFamily');
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) { row.classList.remove('show'); return; }
+  const card = findRecv(chat.id);
+  if (card) {
+    const rem = Math.max(0, card.limit - (card.used || 0));
+    row.classList.add('show');
+    bal.textContent = '可用额度 ¥' + rem.toFixed(2);
+    chk.checked = false;
+  } else {
+    row.classList.remove('show');
+    chk.checked = false;
+  }
+}
+
 function toolTransfer() {
   hideChatTools();
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -3276,16 +3317,19 @@ function toolTransfer() {
   document.getElementById('jxTransferNote').value = '';
   transferPayMethod = { type: 'balance' };
   document.getElementById('jxTransferPayValue').innerHTML = '零钱 <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>';
+  refreshTFR();
   document.getElementById('jxTransferModal').classList.add('show');
 }
 function closeTransferModal() { document.getElementById('jxTransferModal').classList.remove('show'); }
+
+// --- 支付方式选择 ---
 function selectTransferPayMethod() {
-  const cards = loadRelativeCards().filter(c => !c.giverIsUser && c.chatId === currentChatId);
+  const cards = getRecv().filter(c => c.fromCharId === currentChatId);
   const list = document.getElementById('jxPayMethodList');
   let html = `<div class="jx-pay-option" onclick="choosePayMethod('balance','')" style="padding:14px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:15px;color:#333;border-bottom:1px solid #f0f0f0;"><span>零钱</span><span style="color:#999;font-size:13px;">余额支付</span></div>`;
   cards.forEach(c => {
     const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
-    html += `<div class="jx-pay-option" onclick="choosePayMethod('card','${c.id}')" style="padding:14px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:15px;color:#333;border-bottom:1px solid #f0f0f0;"><span>${escapeHtml(c.giverName)}的亲属卡</span><span style="color:#e91e63;font-size:13px;">剩余 ¥${remaining.toFixed(2)}</span></div>`;
+    html += `<div class="jx-pay-option" onclick="choosePayMethod('card','${c.id}')" style="padding:14px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:15px;color:#333;border-bottom:1px solid #f0f0f0;"><span>${escapeHtml(c.fromName)}的亲属卡</span><span style="color:#e91e63;font-size:13px;">剩余 ¥${remaining.toFixed(2)}</span></div>`;
   });
   list.innerHTML = html;
   document.getElementById('jxPayMethodModal').classList.add('show');
@@ -3294,117 +3338,170 @@ function closePayMethodModal() { document.getElementById('jxPayMethodModal').cla
 function choosePayMethod(type, id) {
   closePayMethodModal();
   if (type === 'card') {
-    const card = loadRelativeCards().find(c => c.id === id);
+    const card = getRecv().find(c => c.id === id);
     if (card) {
-      transferPayMethod = { type: 'card', cardId: id, cardName: card.giverName + '的亲属卡' };
-      document.getElementById('jxTransferPayValue').innerHTML = escapeHtml(card.giverName) + '的亲属卡 <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>';
+      transferPayMethod = { type: 'card', cardId: id, cardName: card.fromName + '的亲属卡' };
+      document.getElementById('jxTransferPayValue').innerHTML = escapeHtml(card.fromName) + '的亲属卡 <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>';
     }
   } else {
     transferPayMethod = { type: 'balance' };
     document.getElementById('jxTransferPayValue').innerHTML = '零钱 <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>';
   }
 }
+
+// --- 确认转账 ---
 function confirmTransfer() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   const amount = parseFloat(document.getElementById('jxTransferAmount').value);
   const note = document.getElementById('jxTransferNote').value.trim();
+  const useFamily = document.getElementById('wxTransferUseFamily').checked;
   if (isNaN(amount) || amount <= 0) { alert('请输入正确的金额'); return; }
-  if (transferPayMethod.type === 'card') {
-    const cards = loadRelativeCards();
-    const card = cards.find(c => c.id === transferPayMethod.cardId);
-    if (!card) { alert('亲属卡不存在'); return; }
-    const remaining = Math.max(0, (card.limit || 0) - (card.used || 0));
-    if (amount > remaining) { alert('亲属卡余额不足，剩余 ¥' + remaining.toFixed(2)); return; }
+
+  if (useFamily) {
+    const card = findRecv(chat.id);
+    if (!card) { alert('没有可用的亲属卡'); return; }
+    const rem = Math.max(0, card.limit - (card.used || 0));
+    if (amount > rem) { alert('亲属卡余额不足，剩余 ¥' + rem.toFixed(2)); return; }
     card.used = (card.used || 0) + amount;
-    saveRelativeCards(cards);
+    const rc = getRecv();
+    const ix = rc.findIndex(x => x.id === card.id);
+    if (ix >= 0) { rc[ix] = card; saveRecv(rc); }
+    addBill({ id: genId(), time: Date.now(), type: 'card', direction: 'out', amount: amount, peerName: chat.customRemark || chat.name || '对方', peerAvatar: chat.avatar || '', note: note, chatId: chat.id, cardId: card.id });
+  } else {
+    if (transferPayMethod.type === 'card') {
+      const card = getRecv().find(c => c.id === transferPayMethod.cardId);
+      if (!card) { alert('亲属卡不存在'); return; }
+      const remaining = Math.max(0, (card.limit || 0) - (card.used || 0));
+      if (amount > remaining) { alert('亲属卡余额不足，剩余 ¥' + remaining.toFixed(2)); return; }
+      card.used = (card.used || 0) + amount;
+      const rc = getRecv();
+      const ix = rc.findIndex(x => x.id === card.id);
+      if (ix >= 0) { rc[ix] = card; saveRecv(rc); }
+      addBill({ id: genId(), time: Date.now(), type: 'card', direction: 'out', amount: amount, peerName: chat.customRemark || chat.name || '对方', peerAvatar: chat.avatar || '', note: note, chatId: chat.id, cardId: card.id });
+    } else {
+      addBill({ id: genId(), time: Date.now(), type: 'transfer', direction: 'out', amount: amount, peerName: chat.customRemark || chat.name || '对方', peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
+    }
   }
+
   const receiverName = chat.customRemark || chat.name || '对方';
-  chat.messages.push({ id: genId(), role: 'me', type: 'transfer', amount: amount, note: note, content: '[转账]', opened: false, payType: transferPayMethod.type, payCardId: transferPayMethod.cardId || '' });
-  addBill({ id: genId(), time: Date.now(), type: transferPayMethod.type === 'card' ? 'card' : 'transfer', direction: 'out', amount: amount, peerName: receiverName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id, cardId: transferPayMethod.cardId || '' });
+  chat.messages.push({ id: genId(), role: 'me', type: 'transfer', amount: amount, note: note, content: '[转账]', opened: false, payType: useFamily ? 'card' : transferPayMethod.type, payCardId: useFamily ? findRecv(chat.id).id : (transferPayMethod.cardId || '') });
   saveJianxunChats();
   closeTransferModal();
   renderChatMessages();
   renderJianxunChatList();
   pushAwareness(`用户向你转账 ¥${amount.toFixed(2)}${note ? '（' + note + '）' : ''}`);
-  if (transferPayMethod.type === 'card') pushAwareness(`用户使用了亲属卡支付 ¥${amount.toFixed(2)}`);
+  if (useFamily || transferPayMethod.type === 'card') pushAwareness(`用户使用了亲属卡支付 ¥${amount.toFixed(2)}`);
 }
 
+// --- 亲属卡操作 ---
 function toolRelativeCard() { hideChatTools(); openRelativeCardScreen(true); }
+
+// --- 打开亲属卡界面（完美适配 P3） ---
 function openRelativeCardScreen(fromChat) {
   document.getElementById('jxRelativeCardScreen').style.display = 'flex';
   const list = document.getElementById('jxRelativeCardList');
-  const cards = loadRelativeCards();
-  const received = cards.filter(c => !c.giverIsUser);
-  const sent = cards.filter(c => c.giverIsUser);
+  const recv = getRecv();
+  const given = getGiven();
+  
+  if(!recv.length && !given.length){
+    list.innerHTML = `<div class="wx-family-empty show">
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg>
+      <div>暂无亲属卡</div>
+    </div>`;
+    return;
+  }
+
   let html = '';
-  if (fromChat && currentChatId) {
-    const chat = jianxunChats.find(c => c.id === currentChatId);
-    if (chat) html += `<div class="jx-card-section"><div class="jx-card-section-title" style="color:#e91e63;cursor:pointer;padding:16px;background:#fff;border-radius:12px;margin-bottom:12px;" onclick="createRelativeCardForChat()">+ 给 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 送一张亲属卡</div></div>`;
-  }
-  if (sent.length > 0) {
-    html += `<div class="jx-card-section"><div class="jx-card-section-title">我赠送的亲属卡</div>`;
-    sent.forEach(c => {
-      const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
-      html += `<div class="jx-relative-card">
-        <div class="jx-relative-card-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="#fff"/></svg>
-        </div>
-        <div class="jx-relative-card-info">
-          <div class="jx-relative-card-name">${escapeHtml(c.receiverName)}的亲属卡</div>
-          <div class="jx-relative-card-amount">
-            <span class="lbl">本月剩余额度</span>
-            <span class="val">¥${remaining.toFixed(2)}</span>
+  if (recv.length) {
+    html += `<div class="wx-family-section" style="display:block">
+      <div class="wx-family-section-title">我收到的亲属卡</div>
+      <div>`;
+    recv.forEach(c => {
+      const rem = Math.max(0, c.limit - (c.used || 0));
+      html += `<div class="wx-family-card-item">
+        <div class="wx-fc-header">
+          <div class="wx-fc-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .8-4.5 4.4L18 20l-6-3.2L6 20l1.5-5.8L3 9.8 9 9z"/></svg>
           </div>
+          <div class="wx-fc-title">${escapeHtml(c.fromName)}送的亲属卡</div>
         </div>
+        <div class="wx-fc-limit-label">本月剩余额度</div>
+        <div class="wx-fc-limit">¥${rem.toFixed(2)}</div>
       </div>`;
     });
-    html += `</div>`;
+    html += `</div></div>`;
   }
-  if (received.length > 0) {
-    html += `<div class="jx-card-section"><div class="jx-card-section-title">我收到的亲属卡</div>`;
-    received.forEach(c => {
-      const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
-      html += `<div class="jx-relative-card">
-        <div class="jx-relative-card-icon">
-          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" fill="#fff"/></svg>
-        </div>
-        <div class="jx-relative-card-info">
-          <div class="jx-relative-card-name">${escapeHtml(c.giverName)}的亲属卡</div>
-          <div class="jx-relative-card-amount">
-            <span class="lbl">本月剩余额度</span>
-            <span class="val">¥${remaining.toFixed(2)}</span>
+
+  if (given.length) {
+    html += `<div class="wx-family-section" style="display:block">
+      <div class="wx-family-section-title">我赠送的亲属卡</div>
+      <div>`;
+    given.forEach(c => {
+      const rem = Math.max(0, c.limit - (c.used || 0));
+      html += `<div class="wx-family-card-item">
+        <div class="wx-fc-header">
+          <div class="wx-fc-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .8-4.5 4.4L18 20l-6-3.2L6 20l1.5-5.8L3 9.8 9 9z"/></svg>
           </div>
+          <div class="wx-fc-title">${escapeHtml(c.toName)}的亲属卡</div>
         </div>
+        <div class="wx-fc-limit-label">本月剩余额度</div>
+        <div class="wx-fc-limit">¥${rem.toFixed(2)}</div>
       </div>`;
     });
-    html += `</div>`;
-  }
-  if (!html) {
-    html = `<div class="jx-card-empty">暂无亲属卡</div>`;
+    html += `</div></div>`;
   }
   list.innerHTML = html;
 }
 function closeRelativeCardScreen() { document.getElementById('jxRelativeCardScreen').style.display = 'none'; }
+
+// --- 赠送亲属卡流程 ---
 function createRelativeCardForChat() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  const limitStr = prompt('请输入亲属卡额度（元）：', '500');
+  const limitStr = prompt('请输入亲属卡额度（元）：', '200');
   if (limitStr === null) return;
   const limit = parseFloat(limitStr);
   if (isNaN(limit) || limit <= 0) { alert('请输入正确的金额'); return; }
   const note = prompt('添加备注（可选）：', '') || '';
-  const card = { id: genId(), giverIsUser: true, giverName: getMyName(), receiverName: chat.customRemark || chat.name || '对方', chatId: chat.id, limit: limit, used: 0, note: note, createdAt: Date.now() };
-  const cards = loadRelativeCards(); cards.push(card); saveRelativeCards(cards);
-  chat.messages.push({ id: genId(), role: 'me', type: 'relative_card', cardId: card.id, limit: limit, note: note, content: '[亲属卡]' });
+  
+  const cid = chat.id;
+  const cn = chat.customRemark || chat.name || '对方';
+  const mi = chat.messages.length;
+  
+  // 插入待领取的亲属卡消息
+  chat.messages.push({ id: genId(), role: 'me', type: 'familyCard', limit: limit, note: note, status: 'pending', time: Date.now(), content: '[亲属卡]' });
   saveJianxunChats();
   closeRelativeCardScreen();
   renderChatMessages();
   renderJianxunChatList();
-  pushAwareness(`你送给用户一张亲属卡，额度 ¥${limit.toFixed(2)}`);
-  alert(`已给 ${card.receiverName} 发送亲属卡（额度 ¥${limit.toFixed(2)}）`);
+  alert('亲属卡已赠送');
+
+  // AI 随机接受/拒绝
+  setTimeout(function(){
+    const h2 = jianxunChats.find(c => c.id === cid);
+    if (!h2) return;
+    const m = h2.messages[mi];
+    if (!m || m.type !== 'familyCard' || m.status !== 'pending') return;
+    const acc = Math.random() < 0.85;
+    if (acc) {
+      m.status = 'accepted';
+      const gv = getGiven();
+      gv.unshift({ id: 'fc_' + Date.now(), toCharId: cid, toName: cn, limit: limit, used: 0, createdAt: Date.now() });
+      saveGiven(gv);
+      h2.messages.push({ id: genId(), role: 'char', type: 'text', content: '谢谢你的亲属卡', time: Date.now() });
+    } else {
+      m.status = 'rejected';
+      h2.messages.push({ id: genId(), role: 'char', type: 'text', content: '不用送我亲属卡啦', time: Date.now() });
+    }
+    saveJianxunChats();
+    if (currentChatId === cid) renderChatMessages();
+    renderJianxunChatList();
+  }, 2200);
 }
 
+// --- 钱包 & 账单 ---
 function openWalletScreen() {
   document.getElementById('jxWalletScreen').style.display = 'flex';
   const bills = loadBills();
@@ -3453,6 +3550,66 @@ function renderBills() {
   list.innerHTML = html;
 }
 
+// --- 接受/拒收弹层逻辑 ---
+let pendingAcceptTarget = null;
+const wxAcceptMask = document.getElementById('wxAcceptMask');
+const wxAcceptText = document.getElementById('wxAcceptText');
+const wxAcceptReject = document.getElementById('wxAcceptReject');
+const wxAcceptConfirm = document.getElementById('wxAcceptConfirm');
+
+// 在渲染聊天气泡时绑定点击事件（见 renderChatMessages 中）
+
+if(wxAcceptReject)wxAcceptReject.addEventListener('click',function(){
+  if(!pendingAcceptTarget)return;
+  var cid=pendingAcceptTarget.charId, mi=pendingAcceptTarget.msgIndex;
+  var chat=jianxunChats.find(c=>c.id===cid);
+  if(!chat) return;
+  var h=chat.messages, m=h[mi];
+  if(!m||m.status!=='pending'){ wxAcceptMask.classList.remove('show'); pendingAcceptTarget=null; return; }
+  m.status='rejected';
+  saveJianxunChats();
+  wxAcceptMask.classList.remove('show');
+  pendingAcceptTarget=null;
+  if(currentChatId===cid)renderChatMessages();
+  renderJianxunChatList();
+  alert('已拒收');
+});
+
+if(wxAcceptConfirm)wxAcceptConfirm.addEventListener('click',function(){
+  if(!pendingAcceptTarget)return;
+  var cid=pendingAcceptTarget.charId,
+      mi=pendingAcceptTarget.msgIndex,
+      tp=pendingAcceptTarget.type;
+  var chat=jianxunChats.find(c=>c.id===cid);
+  if(!chat) return;
+  var h=chat.messages, m=h[mi];
+  if(!m||m.status!=='pending'){ wxAcceptMask.classList.remove('show'); pendingAcceptTarget=null; return; }
+
+  var cn=chat.customRemark||chat.name||'对方';
+  m.status='accepted';
+
+  if(tp==='familyCard'){
+    var rc=getRecv();
+    rc.unshift({
+      id:'fc_'+Date.now(),
+      fromCharId:cid,
+      fromName:cn,
+      limit:parseFloat(m.limit),
+      used:0,
+      createdAt:Date.now()
+    });
+    saveRecv(rc);
+  }
+
+  saveJianxunChats();
+  wxAcceptMask.classList.remove('show');
+  pendingAcceptTarget=null;
+  if(currentChatId===cid)renderChatMessages();
+  renderJianxunChatList();
+  alert('已接受');
+});
+
+// --- 合并聊天记录 / 聊天列表渲染等原有逻辑保持不动 ---
 function openMergedView(msgId) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -3816,7 +3973,7 @@ function renderJianxunChatList() {
       else if (lastMsgObj.type === 'sticker') lastMsg = '[表情]';
       else if (lastMsgObj.type === 'merged') lastMsg = '[聊天记录]';
       else if (lastMsgObj.type === 'transfer') lastMsg = '[转账]';
-      else if (lastMsgObj.type === 'relative_card') lastMsg = '[亲属卡]';
+      else if (lastMsgObj.type === 'familyCard') lastMsg = '[亲属卡]';
       else lastMsg = lastMsgObj.content || '[图片]';
     }
     return `<div class="jx-chat-item" onclick="openChat('${chat.id}')">
@@ -3876,7 +4033,7 @@ function startQuote(msgId) {
   else if (msg.type === 'sticker') text = '[表情]';
   else if (msg.type === 'merged') text = '[聊天记录]';
   else if (msg.type === 'transfer') text = '[转账]';
-  else if (msg.type === 'relative_card') text = '[亲属卡]';
+  else if (msg.type === 'familyCard') text = '[亲属卡]';
   else text = msg.content || '';
   currentQuote = { msgId: msg.id, name: senderName, text: text };
   renderQuotePreview();
@@ -3907,7 +4064,7 @@ function renderChatMessages(keepScrollPos) {
     return;
   }
   const myAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
-  container.innerHTML = chat.messages.map(msg => {
+  container.innerHTML = chat.messages.map((msg, idx) => {
     if (!msg.id) msg.id = genId();
     const isMe = msg.role === 'me';
     const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
@@ -3932,19 +4089,23 @@ function renderChatMessages(keepScrollPos) {
           ${opened ? '已收款' : '微信转账'}
         </div>
       </div>`;
-    } else if (msg.type === 'relative_card') {
+    } else if (msg.type === 'familyCard') {
       bubbleCls += ' card';
-      inner = `<div class="jx-card-bubble">
-        <div class="c-content">
-          <div class="c-icon">
-            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" fill="#fff"/></svg>
+      let sub = '';
+      if (msg.status === 'pending') sub = `额度${(msg.limit || 0).toFixed(2)}元，待领取`;
+      else if (msg.status === 'accepted') sub = `额度${(msg.limit || 0).toFixed(2)}元，已领取`;
+      else sub = `额度${(msg.limit || 0).toFixed(2)}元，已退还`;
+      inner = `<div class="wx-family-card" data-idx="${idx}" style="cursor:pointer;">
+        <div class="wx-family-card-content">
+          <div class="wx-family-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M12 16.5s-1.5-1.2-1.5-2.2c0-.7.6-1.3 1.3-1.3.5 0 .9.3 1.1.7.2-.4.6-.7 1.1-.7.7 0 1.3.6 1.3 1.3 0 1-1.4 2.2-1.4 2.2z" fill="#fff" stroke="none"/></svg>
           </div>
-          <div class="c-text">
-            <div class="c-title">送你一张亲属卡</div>
-            <div class="c-desc">额度${(msg.limit || 0).toFixed(2)}元，已领取</div>
+          <div class="wx-family-card-text">
+            <div class="wx-family-card-title">送你一张亲属卡</div>
+            <div class="wx-family-card-subtitle">${sub}</div>
           </div>
         </div>
-        <div class="c-footer">亲属卡</div>
+        <div class="wx-family-card-footer">亲属卡</div>
       </div>`;
     } else if (msg.type === 'sticker' && msg.image) {
       bubbleCls += ' media';
@@ -3969,6 +4130,21 @@ function renderChatMessages(keepScrollPos) {
       <div class="${bubbleCls}">${inner}</div>
     </div>`;
   }).join('');
+  
+  // 为亲属卡绑定点击事件（用于接受/拒收）
+  container.querySelectorAll('.wx-family-card').forEach(cardEl => {
+    cardEl.addEventListener('click', function(e) {
+      const idx = parseInt(this.getAttribute('data-idx'), 10);
+      const msg = chat.messages[idx];
+      if (msg && msg.role === 'assistant' && msg.type === 'familyCard' && msg.status === 'pending') {
+        pendingAcceptTarget = { charId: currentChatId, msgIndex: idx, type: 'familyCard' };
+        const charName = chat.customRemark || chat.name || '对方';
+        document.getElementById('wxAcceptText').textContent = '接受来自 ' + charName + ' 的亲属卡（每月额度 ¥' + (msg.limit || 0).toFixed(2) + '）吗？';
+        document.getElementById('wxAcceptMask').classList.add('show');
+      }
+    });
+  });
+
   attachMsgLongPress(container);
   if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
@@ -4495,7 +4671,7 @@ function renderFavoritesList() {
       contentHtml = `<div class="jx-fav-merged"><div class="jx-fav-merged-title">聊天记录</div>${fav.items.slice(0, 8).map(it => `<div class="jx-fav-merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}${fav.items.length > 8 ? `<div class="jx-fav-merged-line">…共 ${fav.items.length} 条</div>` : ''}</div>`;
     } else if (fav.type === 'transfer') {
       contentHtml = `<div class="jx-fav-text">[转账 ¥${(fav.amount || 0).toFixed(2)}${fav.note ? '，备注：' + escapeHtml(fav.note) : ''}]</div>`;
-    } else if (fav.type === 'relative_card') {
+    } else if (fav.type === 'familyCard') {
       contentHtml = `<div class="jx-fav-text">[亲属卡 ¥${(fav.limit || 0).toFixed(2)}${fav.note ? '，备注：' + escapeHtml(fav.note) : ''}]</div>`;
     } else {
       const text = escapeHtml(fav.content || '').replace(/\n/g, '<br>');
@@ -4538,7 +4714,7 @@ function menuEdit() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'relative_card') { alert('图片、表情、聊天记录、转账、亲属卡不能编辑'); return; }
+  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard') { alert('图片、表情、聊天记录、转账、亲属卡不能编辑'); return; }
   editingMsgId = id;
   document.getElementById('editMsgTextarea').value = msg.content || '';
   document.getElementById('jxEditMsgModal').classList.add('show');
@@ -4561,7 +4737,7 @@ async function menuTranslate() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged') { alert('这条消息没有可翻译的文字内容'); return; }
+  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard') { alert('这条消息没有可翻译的文字内容'); return; }
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置，才能翻译'); return; }
   const original = msg.content;
@@ -4788,13 +4964,13 @@ function buildCharSystemPrompt(chat) {
       sp += `- ${b.peerName} ${dir} ¥${(b.amount || 0).toFixed(2)}（${t}${b.note ? '，备注：' + b.note : ''}）\n`;
     });
   }
-  const _cards = loadRelativeCards();
-  const _cardsRelated = _cards.filter(c => c.chatId === chat.id);
+  const _cards = getRecv().concat(getGiven());
+  const _cardsRelated = _cards.filter(c => (c.fromCharId && c.fromCharId === chat.id) || (c.toCharId && c.toCharId === chat.id));
   if (_cardsRelated.length > 0) {
     sp += '\n【你和用户的亲属卡】\n';
     _cardsRelated.forEach(c => {
       const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
-      if (c.giverIsUser) sp += `- 用户送你一张亲属卡，额度¥${(c.limit || 0).toFixed(2)}，剩余¥${remaining.toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}。\n`;
+      if (c.fromCharId) sp += `- 用户送你一张亲属卡，额度¥${(c.limit || 0).toFixed(2)}，剩余¥${remaining.toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}。\n`;
       else sp += `- 你送用户一张亲属卡，额度¥${(c.limit || 0).toFixed(2)}，用户已用¥${(c.used || 0).toFixed(2)}，剩余¥${remaining.toFixed(2)}。\n`;
     });
     sp += '你可以自然地在聊天中提起这些记录，但不必每次都提。\n';
@@ -4830,8 +5006,8 @@ function buildChatHistory(chat) {
       content = '[表情包]';
     } else if (m.type === 'transfer') {
       content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
-    } else if (m.type === 'relative_card') {
-      content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}]`;
+    } else if (m.type === 'familyCard') {
+      content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
       content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
     } else {
@@ -4924,8 +5100,10 @@ function executeCharAction(chat, action) {
     if (isNaN(limit) || limit <= 0) return;
     const charName = chat.customRemark || chat.name || 'TA';
     const card = { id: genId(), giverIsUser: false, giverName: charName, receiverName: getMyName(), chatId: chat.id, limit: limit, used: 0, note: note, createdAt: Date.now() };
-    const cards = loadRelativeCards(); cards.push(card); saveRelativeCards(cards);
-    chat.messages.push({ id: genId(), role: 'char', type: 'relative_card', cardId: card.id, limit: limit, note: note, content: '[亲属卡]' });
+    const rc = getRecv();
+    rc.unshift({ id: card.id, fromCharId: chat.id, fromName: charName, limit: limit, used: 0, createdAt: Date.now() });
+    saveRecv(rc);
+    chat.messages.push({ id: genId(), role: 'char', type: 'familyCard', limit: limit, note: note, content: '[亲属卡]', status: 'pending' });
     pushAwareness(`${charName} 送给你一张亲属卡，额度 ¥${limit.toFixed(2)}`);
     return;
   }
