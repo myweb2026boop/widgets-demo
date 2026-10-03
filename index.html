@@ -1419,7 +1419,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
               <span>原始大小</span><span id="fontOrigSize">-</span>
             </div>
             <div class="font-size-info" id="fontCompressedInfo" style="display:none;">
-              <span>压缩后（存储）</span><span id="fontCompSize">-</span>
+              <span>存储大小（IndexedDB）</span><span id="fontCompSize">-</span>
             </div>
           </div>
 
@@ -1432,9 +1432,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
 
           <p class="font-hint">
-            · 支持所有 .ttf 格式的字体（不限体积，超出 localStorage 时自动分段存储）<br>
-            · 上传后浏览器使用 gzip 自动压缩字体数据，通常可减小 40~60% 体积<br>
-            · 若字体超大（如 20MB 以上），建议使用精简版字体以获得更佳体验
+            · 支持所有 .ttf 格式的字体（不再受 localStorage 5MB 限制，已迁移至 IndexedDB）<br>
+            · 字体文件以二进制形式原生存储，无需转码，无损耗，大字体完美支持<br>
+            · 若字体超大（如 20MB 以上），首次加载可能需要几秒钟时间
           </p>
         </div>
       </div>
@@ -1936,10 +1936,12 @@ https://xxx.com/a.png
 </div>
 
 <script>
-// ================= CSS 美化编辑器 + 字体管理（含 gzip 压缩） =================
+// ================= 核心修复：使用 IndexedDB 存储大字体，突破 localStorage 5MB 限制 =================
 const USER_CSS_KEY = 'user_custom_css';
-const USER_FONT_KEY = 'user_custom_font';
-const USER_FONT_NAME = 'UserCustomGlobalFont';
+const FONT_DB_NAME = 'TuTooth_FontDB';
+const FONT_STORE_NAME = 'fonts';
+const FONT_RECORD_KEY = 'global_font';
+
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
 let _appliedFontFace = null;
@@ -1954,7 +1956,55 @@ function applyUserCustomCss() {
 }
 applyUserCustomCss();
 
-// ========== 二进制 ↔ base64（分块，避免栈溢出） ==========
+// ========== IndexedDB 操作封装 ==========
+function openFontDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(FONT_DB_NAME, 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(FONT_STORE_NAME)) {
+        db.createObjectStore(FONT_STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveFontToDB(arrayBuffer, origSize) {
+  const db = await openFontDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FONT_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(FONT_STORE_NAME);
+    store.put({ data: arrayBuffer, origSize: origSize, time: Date.now() }, FONT_RECORD_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getFontFromDB() {
+  const db = await openFontDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FONT_STORE_NAME, 'readonly');
+    const store = tx.objectStore(FONT_STORE_NAME);
+    const req = store.get(FONT_RECORD_KEY);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function deleteFontFromDB() {
+  const db = await openFontDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FONT_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(FONT_STORE_NAME);
+    store.delete(FONT_RECORD_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+// ========== 二进制 ↔ base64（用于导出备份，不用于存储） ==========
 function ab2b64(buffer) {
   const bytes = new Uint8Array(buffer);
   let binary = '';
@@ -1973,41 +2023,11 @@ function b642ab(b64) {
   return bytes.buffer;
 }
 
-// ========== gzip 压缩 / 解压（使用浏览器原生 CompressionStream） ==========
-async function gzipCompress(arrayBuffer) {
-  if (typeof CompressionStream === 'undefined') return null;
-  try {
-    const cs = new CompressionStream('gzip');
-    const writer = cs.writable.getWriter();
-    writer.write(new Uint8Array(arrayBuffer));
-    writer.close();
-    const ab = await new Response(cs.readable).arrayBuffer();
-    return ab;
-  } catch (e) { return null; }
-}
-async function gzipDecompress(arrayBuffer) {
-  if (typeof DecompressionStream === 'undefined') return arrayBuffer;
-  try {
-    const ds = new DecompressionStream('gzip');
-    const writer = ds.writable.getWriter();
-    writer.write(new Uint8Array(arrayBuffer));
-    writer.close();
-    return await new Response(ds.readable).arrayBuffer();
-  } catch (e) { return arrayBuffer; }
-}
-
 // ========== 字体应用 ==========
 async function applyGlobalFont() {
   try {
-    const stored = localStorage.getItem(USER_FONT_KEY);
-    if (!stored) return;
-    let fontBuffer;
-    if (stored.startsWith('GZ:')) {
-      const compressed = b642ab(stored.slice(3));
-      fontBuffer = await gzipDecompress(compressed);
-    } else {
-      fontBuffer = b642ab(stored);
-    }
+    const fontData = await getFontFromDB();
+    if (!fontData || !fontData.data) return;
     if (_appliedFontFace) {
       try { document.fonts.delete(_appliedFontFace); } catch (e) {}
       _appliedFontFace = null;
@@ -2016,21 +2036,20 @@ async function applyGlobalFont() {
       try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {}
       _appliedFontUrl = null;
     }
-    const blob = new Blob([fontBuffer], { type: 'font/ttf' });
+    const blob = new Blob([fontData.data], { type: 'font/ttf' });
     const url = URL.createObjectURL(blob);
     _appliedFontUrl = url;
-    const font = new FontFace(USER_FONT_NAME, `url(${url})`);
+    const font = new FontFace('UserCustomGlobalFont', `url(${url})`);
     await font.load();
     document.fonts.add(font);
     _appliedFontFace = font;
-    const family = `'${USER_FONT_NAME}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+    const family = `'UserCustomGlobalFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
     document.documentElement.style.fontFamily = family;
     document.body.style.fontFamily = family;
   } catch (e) {
     console.warn('字体加载失败', e);
   }
 }
-applyGlobalFont();
 
 function switchEditorTab(tab) {
   document.querySelectorAll('.css-editor-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
@@ -2047,30 +2066,22 @@ function formatBytes(n) {
   return (n / 1024 / 1024).toFixed(2) + ' MB';
 }
 
-function updateFontUI() {
-  const stored = localStorage.getItem(USER_FONT_KEY);
+async function updateFontUI() {
+  const fontData = await getFontFromDB();
   const nameEl = document.getElementById('fontCurrentName');
   const descEl = document.getElementById('fontCurrentDesc');
   const sizeInfo = document.getElementById('fontSizeInfo');
   const compInfo = document.getElementById('fontCompressedInfo');
   if (!nameEl || !descEl) return;
-  if (stored) {
+  if (fontData && fontData.data) {
     nameEl.textContent = '自定义字体（已应用）';
     descEl.textContent = '当前使用你上传的 TTF 字体';
-    let payload = stored;
-    let isGz = false;
-    if (stored.startsWith('GZ:')) { isGz = true; payload = stored.slice(3); }
-    else if (stored.startsWith('RAW:')) { payload = stored.slice(4); }
-    const storedBytes = Math.floor(payload.length * 0.75);
     if (sizeInfo) { sizeInfo.style.display = 'flex'; }
     if (compInfo) { compInfo.style.display = 'flex'; }
-    const storedEl = document.getElementById('fontCompSize');
-    if (storedEl) storedEl.textContent = formatBytes(storedBytes) + (isGz ? ' (gzip)' : ' (原始)');
     const origEl = document.getElementById('fontOrigSize');
-    if (origEl) {
-      const orig = localStorage.getItem('user_custom_font_orig_size');
-      origEl.textContent = orig ? formatBytes(parseInt(orig, 10)) : '未知';
-    }
+    if (origEl) origEl.textContent = formatBytes(fontData.origSize);
+    const storedEl = document.getElementById('fontCompSize');
+    if (storedEl) storedEl.textContent = formatBytes(fontData.data.byteLength) + ' (原生二进制)';
   } else {
     nameEl.textContent = '系统默认字体';
     descEl.textContent = '上传 .ttf 文件即可替换全局字体';
@@ -2081,9 +2092,7 @@ function updateFontUI() {
 
 function resetGlobalFont() {
   if (!confirm('确定恢复系统默认字体吗？')) return;
-  try {
-    localStorage.removeItem(USER_FONT_KEY);
-    localStorage.removeItem('user_custom_font_orig_size');
+  deleteFontFromDB().then(() => {
     if (_appliedFontFace) {
       try { document.fonts.delete(_appliedFontFace); } catch (e) {}
       _appliedFontFace = null;
@@ -2096,10 +2105,10 @@ function resetGlobalFont() {
     document.body.style.fontFamily = '';
     updateFontUI();
     alert('已恢复默认字体');
-  } catch (e) { alert('操作失败：' + (e.message || '未知错误')); }
+  }).catch(e => alert('操作失败：' + (e.message || '未知错误')));
 }
 
-(function initFontUpload() {
+(async function initFontUpload() {
   const input = document.getElementById('fontUploadInput');
   if (!input) return;
   input.addEventListener('change', async function(e) {
@@ -2113,37 +2122,20 @@ function resetGlobalFont() {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const origSize = arrayBuffer.byteLength;
-      // 尝试 gzip 压缩
-      let compressed = await gzipCompress(arrayBuffer);
-      let prefix, payload, isGz = false;
-      if (compressed && compressed.byteLength < origSize * 0.98) {
-        prefix = 'GZ:';
-        payload = ab2b64(compressed);
-        isGz = true;
-      } else {
-        prefix = 'RAW:';
-        payload = ab2b64(arrayBuffer);
-      }
-      const storeStr = prefix + payload;
-      try {
-        localStorage.setItem(USER_FONT_KEY, storeStr);
-        localStorage.setItem('user_custom_font_orig_size', String(origSize));
-      } catch (err) {
-        // 存储失败（超出配额）：尝试回退到不压缩，或者提示
-        alert('保存失败：存储空间不足（字体约 ' + formatBytes(origSize) + '）。\n\n建议：\n1. 使用精简版 TTF 字体\n2. 清理其他不必要数据后再试');
-        return;
-      }
+      
+      // 存入 IndexedDB，完全无视 localStorage 限制
+      await saveFontToDB(arrayBuffer, origSize);
+      
       await applyGlobalFont();
-      updateFontUI();
-      const savedBytes = Math.floor(payload.length * 0.75);
-      const ratio = ((1 - savedBytes / origSize) * 100).toFixed(0);
-      alert('字体已应用！\n\n原始大小：' + formatBytes(origSize) +
-            '\n存储大小：' + formatBytes(savedBytes) + (isGz ? '（gzip 压缩）' : '') +
-            (isGz ? '\n压缩比：减小约 ' + ratio + '%' : ''));
+      await updateFontUI();
+      alert('字体已应用！\n\n原始大小：' + formatBytes(origSize) + '\n已使用 IndexedDB 原生存储，无任何容量限制。');
     } catch (err) {
       alert('字体处理失败：' + (err.message || '未知错误'));
     }
   });
+  // 页面加载时尝试恢复之前保存的字体
+  await applyGlobalFont();
+  updateFontUI();
 })();
 
 function updateCursorInfo() {
@@ -3478,19 +3470,26 @@ const isBackupKey = (key) => (
       const key = localStorage.key(i);
       if (isBackupKey(key)) data[key] = localStorage.getItem(key);
     }
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ai_phone_beautify_${new Date().getTime()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setTimeout(() => {
-      if (confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击\"确定\"后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）")) {
-        prompt("请长按复制以下美化配置代码（建议保存到备忘录）：", json);
+    // 同时导出 IndexedDB 中的字体
+    getFontFromDB().then(fontData => {
+      if (fontData && fontData.data) {
+        data['__font_b64__'] = ab2b64(fontData.data);
+        data['__font_orig_size__'] = String(fontData.origSize);
       }
-    }, 500);
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai_phone_beautify_${new Date().getTime()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        if (confirm("配置导出成功！\n\n如果您的手机没有直接下载文件，请点击\"确定\"后，长按下方代码进行复制保存。\n\n（如果已经成功下载，请忽略此提示）")) {
+          prompt("请长按复制以下美化配置代码（建议保存到备忘录）：", json);
+        }
+      }, 500);
+    });
   });
   if (importBtn) importBtn.addEventListener('click', () => importInput.click());
   if (importInput) importInput.addEventListener('change', function(e) {
@@ -3500,11 +3499,33 @@ const isBackupKey = (key) => (
       try {
         const data = JSON.parse(event.target.result);
         if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON format');
+        
+        let fontB64 = null;
+        let fontOrigSize = 0;
+        if (data['__font_b64__']) {
+          fontB64 = data['__font_b64__'];
+          fontOrigSize = parseInt(data['__font_orig_size__'] || '0', 10);
+          delete data['__font_b64__'];
+          delete data['__font_orig_size__'];
+        }
+
         for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) localStorage.setItem(key, data[key]);
         }
-        alert('导入成功！页面即将重新加载以应用新的美化配置。');
-        location.reload();
+
+        if (fontB64) {
+          const fontBuffer = b642ab(fontB64);
+          saveFontToDB(fontBuffer, fontOrigSize).then(() => {
+            alert('导入成功（含字体）！页面即将重新加载。');
+            location.reload();
+          }).catch(() => {
+            alert('字体导入失败，但其他数据已导入。页面即将重新加载。');
+            location.reload();
+          });
+        } else {
+          alert('导入成功！页面即将重新加载以应用新的美化配置。');
+          location.reload();
+        }
       } catch (err) { alert('导入失败，文件内容可能损坏或不是合法的 JSON 文件。'); }
     };
     reader.readAsText(file);
@@ -3757,21 +3778,28 @@ function updateApiPresetList() {
       const key = localStorage.key(i);
       data[key] = localStorage.getItem(key);
     }
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `all_data_${new Date().getTime()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setTimeout(() => {
-      if (confirm("全部数据导出成功！\n\n如果您的手机没有直接下载文件，请点击\"确定\"后，长按下方代码进行复制保存。")) {
-        prompt("请长按复制以下全部数据代码（建议保存到备忘录或云笔记）：", json);
+    // 提取 IndexedDB 中的字体并转为 Base64 放入导出数据
+    getFontFromDB().then(fontData => {
+      if (fontData && fontData.data) {
+        data['__font_b64__'] = ab2b64(fontData.data);
+        data['__font_orig_size__'] = String(fontData.origSize);
       }
-    }, 500);
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `all_data_${new Date().getTime()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        if (confirm("全部数据导出成功！\n\n如果您的手机没有直接下载文件，请点击\"确定\"后，长按下方代码进行复制保存。")) {
+          prompt("请长按复制以下全部数据代码（建议保存到备忘录或云笔记）：", json);
+        }
+      }, 500);
+    });
   });
   if (importBtn) importBtn.addEventListener('click', () => importInput.click());
   if (importInput) importInput.addEventListener('change', function(e) {
@@ -3782,14 +3810,36 @@ function updateApiPresetList() {
         const data = JSON.parse(event.target.result);
         if (typeof data !== 'object' || data === null) throw new Error('Invalid JSON');
         if (!confirm('导入将覆盖当前所有数据（包括人设、世界书、API配置、美化设置等），确定继续吗？')) return;
+
+        let fontB64 = null;
+        let fontOrigSize = 0;
+        if (data['__font_b64__']) {
+          fontB64 = data['__font_b64__'];
+          fontOrigSize = parseInt(data['__font_orig_size__'] || '0', 10);
+          delete data['__font_b64__'];
+          delete data['__font_orig_size__'];
+        }
+
         try { localStorage.clear(); } catch(e) {}
         for (const key in data) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
             try { localStorage.setItem(key, data[key]); } catch(e) {}
           }
         }
-        alert('导入成功！页面即将重新加载。');
-        location.reload();
+
+        if (fontB64) {
+          const fontBuffer = b642ab(fontB64);
+          saveFontToDB(fontBuffer, fontOrigSize).then(() => {
+            alert('导入成功（含字体）！页面即将重新加载。');
+            location.reload();
+          }).catch(() => {
+            alert('字体导入失败，但其他数据已导入。页面即将重新加载。');
+            location.reload();
+          });
+        } else {
+          alert('导入成功！页面即将重新加载。');
+          location.reload();
+        }
       } catch (err) { alert('导入失败，文件内容可能损坏或不是合法的 JSON 文件。'); }
     };
     reader.readAsText(file);
