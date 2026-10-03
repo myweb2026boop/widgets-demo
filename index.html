@@ -248,7 +248,7 @@
   .jx-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; position: sticky; top: 0; z-index: 10; }
   .jx-header .left { font-size: 16px; color: #333; cursor: pointer; }
   .jx-header .title { font-size: 17px; font-weight: 600; color: #000; }
-  .jx-header .right { font-size: 24px; color: #333; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; line-height: 1; background: #f0f0f0; padding-bottom: 2px; cursor: pointer; }
+  .jx-header .right { font-size: 24px; color: #333; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; line-height: 1; background: #f0f0f0; cursor: pointer; user-select: none; }
   .jx-search-bar { margin: 0 16px 10px; background: #ededed; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; font-size: 14px; color: #999; }
   .jx-search-bar svg { width: 16px; height: 16px; margin-right: 6px; fill: #999; }
   .jx-chat-list { border-top: 1px solid #f5f5f5; }
@@ -263,14 +263,14 @@
   .jx-chat-msg { font-size: 14px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .jx-moments-header { position: relative; height: 180px; background: #121212; cursor: pointer; background-size: cover; background-position: center; background-repeat: no-repeat; }
-  .jx-moments-user-info { position: relative; padding: 50px 24px 16px 24px; border-bottom: 1px solid #f0f0f0; background: #fff; }
+  .jx-moments-user-info { position: relative; padding: 50px 24px 60px 24px; border-bottom: 1px solid #f0f0f0; background: #fff; }
   .jx-moments-avatar { position: absolute; top: -40px; right: 24px; width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; overflow: hidden; flex-shrink: 0; cursor: pointer; border: 2px solid #fff; z-index: 10; }
   .jx-moments-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .jx-moments-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #333; display: block; }
   .jx-moments-signature { font-size: 13px; color: #666; margin-bottom: 8px; display: block; }
   .jx-moments-join-date { font-size: 12px; color: #999; margin-bottom: 4px; display: block; }
   .jx-moments-post-count { font-size: 12px; color: #999; display: block; margin-bottom: 4px; }
-  .jx-moments-add-btn { position: absolute; bottom: 18px; right: 24px; width: 28px; height: 28px; border-radius: 50%; background: #000; color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; padding-bottom: 2px; }
+  .jx-moments-add-btn { position: absolute; bottom: 18px; right: 24px; width: 32px; height: 32px; border-radius: 50%; background: #000; color: #fff; font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 20; user-select: none; line-height: 1; }
   .jx-moments-posts { padding: 16px; background: #fff; min-height: 100px; }
   .jx-post { margin-bottom: 24px; border-bottom: 1px solid #f5f5f5; padding-bottom: 16px; position: relative; }
   .jx-post:last-child { border-bottom: none; }
@@ -356,7 +356,6 @@
   .jx-msg-bubble img { max-width: 190px; max-height: 240px; border-radius: 6px; display: block; }
   .jx-msg-bubble .sticker-img { max-width: 120px; max-height: 120px; }
 
-  /* 消息引用块 */
   .jx-msg-quote { background: rgba(0,0,0,0.06); border-left: 3px solid #999; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #666; margin-bottom: 6px; }
   .jx-msg-quote .qname { color: #576b95; margin-right: 4px; }
   .jx-msg-quote .qtext { color: #777; }
@@ -370,7 +369,6 @@
   .jx-chat-input-bar .send-btn { background: #07c160; color: #fff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 14px; font-weight: 500; cursor: pointer; flex-shrink: 0; display: none; }
   .jx-chat-input-bar .send-btn.show { display: block; }
 
-  /* 引用消息预览条 */
   .jx-quote-preview { display: none; background: #f7f7f7; border-top: 1px solid #e0e0e0; padding: 8px 12px; font-size: 12px; color: #666; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
   .jx-quote-preview.show { display: flex; }
   .jx-quote-content { flex: 1; overflow: hidden; display: flex; gap: 6px; align-items: center; }
@@ -455,7 +453,7 @@
   .jx-danger-text { color: #e74c3c; }
   .jx-danger-item .label { color: #e74c3c; }
 
-  .jx-comment-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 20000; display: none; }
+  .jx-comment-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 20000; display: none; }
   .jx-comment-modal.show { display: flex; }
   .jx-comment-modal-content { background: #fff; width: 80%; max-width: 320px; border-radius: 12px; padding: 20px; }
   .jx-comment-modal-content textarea { width: 100%; height: 80px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; box-sizing: border-box; }
@@ -464,7 +462,6 @@
   .jx-comment-modal-actions .cancel { background: #f0f0f0; color: #333; }
   .jx-comment-modal-actions .send { background: #07c160; color: #fff; }
 
-  /* 编辑消息弹窗 */
   .jx-edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
   .jx-edit-modal.show { display: flex; }
   .jx-edit-modal-content { background: #fff; width: 80%; max-width: 340px; border-radius: 12px; padding: 18px; box-sizing: border-box; }
@@ -475,7 +472,7 @@
   .jx-edit-actions .cancel { background: #f0f0f0; color: #333; }
   .jx-edit-actions .save { background: #07c160; color: #fff; }
 
-  .jx-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; display: none; }
+  .jx-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 10000; display: none; }
   .jx-modal.show { display: flex; }
   .jx-modal-content { background: #fff; width: 80%; max-width: 320px; border-radius: 12px; padding: 20px; text-align: center; max-height: 70vh; display: flex; flex-direction: column; }
   .jx-modal-content h3 { font-size: 16px; margin-bottom: 15px; color: #333; }
@@ -488,8 +485,8 @@
 
   #jxPublishScreen { display: none; flex-direction: column; background: #f7f7f7; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1500; }
   #jxPublishScreen.active { display: flex; }
-  .publish-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; border-bottom: 1px solid #eee; position: relative; z-index: 10; }
-  .publish-header .cancel-btn { font-size: 15px; color: #666; cursor: pointer; }
+  .publish-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; border-bottom: 1px solid #eee; position: relative; z-index: 10; flex-shrink: 0; }
+  .publish-header .cancel-btn { font-size: 15px; color: #666; cursor: pointer; padding: 4px 8px; }
   .publish-header .publish-title { font-size: 16px; font-weight: 600; color: #333; }
   .publish-header .publish-btn { font-size: 15px; color: #fff; background: #07c160; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
   .publish-body { flex: 1; overflow-y: auto; padding: 16px; }
@@ -516,7 +513,6 @@
   .wb-modal-tag.global { color: #2e7d32; background: #e8f5e9; }
   .wb-modal-tag.local { color: #e65100; background: #fff3e0; }
 
-  /* ============ 收藏 ============ */
   .jx-fav-card { background: #fff; border-radius: 10px; padding: 12px; margin: 10px 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
   .jx-fav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .jx-fav-source { font-size: 12px; color: #888; }
@@ -534,7 +530,6 @@
   .jx-fav-clear-bar { display: flex; justify-content: flex-end; padding: 6px 16px 0 16px; }
   .jx-fav-clear-btn { font-size: 12px; color: #999; padding: 6px 12px; border: 1px solid #e0e0e0; border-radius: 14px; background: #fff; cursor: pointer; }
 
-  /* ============ 转发聊天记录详情页 ============ */
   .jx-merged-detail-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ededed; z-index: 1500; display: none; flex-direction: column; }
   .jx-merged-detail-screen.active { display: flex; }
   .jx-merged-detail-messages { flex: 1; overflow-y: auto; padding: 12px; }
@@ -543,7 +538,6 @@
   .jx-merged-detail-bubble { background: #fff; border-radius: 4px; padding: 8px 12px; font-size: 14px; line-height: 1.4; color: #333; max-width: 80%; word-break: break-word; }
   .jx-merged-detail-item img { max-width: 150px; border-radius: 6px; }
 
-  /* ============ 附件面板（+按钮弹出） ============ */
   .jx-attach-panel { display: none; background: #f7f7f7; border-top: 1px solid #dcdcdc; flex-shrink: 0; padding: 18px 12px; flex-wrap: wrap; gap: 16px; justify-content: flex-start; }
   .jx-attach-panel.show { display: flex; }
   .jx-attach-item { display: flex; flex-direction: column; align-items: center; width: 60px; cursor: pointer; }
@@ -551,7 +545,6 @@
   .jx-attach-icon svg { width: 28px; height: 28px; }
   .jx-attach-label { font-size: 11px; color: #666; }
 
-  /* ============ 钱包界面 ============ */
   .jx-wallet-hero { background: linear-gradient(135deg, #4b7bec, #4b7bec); padding: 30px 20px; color: #fff; text-align: center; }
   .jx-wallet-hero .balance-label { font-size: 13px; opacity: 0.85; }
   .jx-wallet-hero .balance-amount { font-size: 36px; font-weight: 600; margin: 8px 0 16px; }
@@ -569,7 +562,6 @@
   .jx-wallet-icon-bill { background: #07c160; }
   .jx-wallet-icon-safe { background: #576b95; }
 
-  /* ============ 亲属卡列表 ============ */
   .jx-relcard-section { padding: 16px; }
   .jx-relcard-section-title { font-size: 13px; color: #888; margin-bottom: 10px; }
   .jx-relcard-card { background: linear-gradient(135deg, #f5c542, #f0b800); border-radius: 12px; padding: 16px; color: #fff; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(240,184,0,0.3); cursor: pointer; }
@@ -580,7 +572,6 @@
   .jx-relcard-card .bottom { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; opacity: 0.9; }
   .jx-relcard-empty { text-align: center; padding: 50px 20px; color: #999; font-size: 14px; line-height: 1.8; }
 
-  /* ============ 账单 ============ */
   .jx-bill-item { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; background: #fff; }
   .jx-bill-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
   .jx-bill-icon.out { background: #fff3e0; }
@@ -596,7 +587,6 @@
   .jx-bill-amount.in { color: #07c160; }
   .jx-bill-empty { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
 
-  /* ============ 转账消息气泡 ============ */
   .jx-msg-transfer-bubble { background: #f0a020 !important; color: #fff !important; padding: 12px 14px !important; border-radius: 6px !important; max-width: 200px !important; cursor: pointer; }
   .jx-msg-row.me .jx-msg-transfer-bubble { background: #f0a020 !important; }
   .jx-msg-row.other .jx-msg-transfer-bubble { background: #f0a020 !important; }
@@ -607,7 +597,6 @@
   .jx-transfer-note { font-size: 12px; opacity: 0.85; margin-top: 4px; }
   .jx-transfer-status { font-size: 11px; opacity: 0.8; margin-top: 6px; }
 
-  /* ============ 亲属卡消息气泡 ============ */
   .jx-msg-relcard-bubble { background: #4b7bec !important; color: #fff !important; padding: 12px 14px !important; border-radius: 6px !important; max-width: 200px !important; cursor: pointer; }
   .jx-msg-row.me .jx-msg-relcard-bubble { background: #4b7bec !important; }
   .jx-msg-row.other .jx-msg-relcard-bubble { background: #4b7bec !important; }
@@ -617,7 +606,6 @@
   .jx-relcard-amount { font-size: 22px; font-weight: 600; }
   .jx-relcard-note { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 
-  /* ============ 转账/亲属卡通用弹窗 ============ */
   .jx-action-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
   .jx-action-modal.show { display: flex; }
   .jx-action-modal-content { background: #fff; width: 88%; max-width: 360px; border-radius: 14px; overflow: hidden; }
@@ -1281,7 +1269,7 @@
         <div class="jx-header">
           <span class="left" onclick="closeScreen('jianxunScreen')">返回</span>
           <span class="title">消息</span>
-          <span class="right" onclick="showPersonaSelector()">+</span>
+          <span class="right" id="jxAddFriendBtn">+</span>
         </div>
         <div class="jx-search-bar">
           <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -1303,7 +1291,7 @@
           <div class="jx-moments-signature editable-text" id="momentsSignature" data-placeholder="点击输入个性签名">人在接近幸福的时候才最幸福</div>
           <div class="jx-moments-join-date editable-text" id="momentsJoinDate" data-placeholder="点击输入加入时间">2026年9月21日 加入</div>
           <div class="jx-moments-post-count" id="momentsPostCount">帖子数量 0</div>
-          <div class="jx-moments-add-btn" onclick="openPublishScreen()">+</div>
+          <div class="jx-moments-add-btn" id="jxAddMomentBtn">+</div>
         </div>
         <div class="jx-moments-posts" id="jx-moments-posts"></div>
       </div>
@@ -1701,7 +1689,7 @@ https://xxx.com/a.png
       <div class="publish-header">
         <span class="cancel-btn" onclick="closePublishScreen()">取消</span>
         <span class="publish-title">发布动态</span>
-        <span class="publish-btn" onclick="publishPost()">发表</span>
+        <span class="publish-btn" id="jxPublishConfirmBtn">发表</span>
       </div>
       <div class="publish-body">
         <textarea id="publishContent" placeholder="这一刻的想法..."></textarea>
@@ -3223,7 +3211,6 @@ function updateRelCard(id, patch) {
   }
 }
 
-/* 打开钱包 */
 function openWalletScreen() {
   document.getElementById('jxWalletScreen').style.display = 'flex';
   document.getElementById('jxWalletBalance').innerText = formatMoney(loadWalletBalance());
@@ -3231,17 +3218,8 @@ function openWalletScreen() {
 function closeWalletScreen() {
   document.getElementById('jxWalletScreen').style.display = 'none';
 }
-
-/* 钱包内转账入口 */
-function openTransferFromWallet() {
-  openTransferModal(null);
-}
-/* 钱包内亲属卡入口 */
-function openRelativeCardFromWallet() {
-  openRelativeCardModal(null);
-}
-
-/* 亲属卡列表界面 */
+function openTransferFromWallet() { openTransferModal(null); }
+function openRelativeCardFromWallet() { openRelativeCardModal(null); }
 function openRelativeCardScreen() {
   document.getElementById('jxRelativeCardScreen').style.display = 'flex';
   renderRelativeCards();
@@ -3287,8 +3265,6 @@ function openRelCardDetail(cardId) {
   const title = isReceived ? `来自 ${c.fromName || '好友'}` : `送给 ${c.toName || '好友'}`;
   alert(`${title}\n赠言：${c.note || '（无）'}\n余额：¥${formatMoney(c.balance)} / 每月额度：¥${formatMoney(c.limit)}\n状态：${c.status === 'active' ? '使用中' : '已停用'}`);
 }
-
-/* 账单界面 */
 function openBillsScreen() {
   document.getElementById('jxBillScreen').style.display = 'flex';
   renderBills();
@@ -3321,14 +3297,10 @@ function renderBills() {
   }).join('');
 }
 
-/* =========================================================
-   转账 / 亲属卡 弹窗
-   ========================================================= */
 function openTransferModal(presetChatId) {
   document.getElementById('jxTransferAmount').value = '';
   document.getElementById('jxTransferNote').value = '';
   const relField = document.getElementById('jxTransferRelCardField');
-  const chatId = presetChatId || currentChatId;
   const usableCards = loadRelCards().filter(c => c.to === '__me__' && c.status === 'active' && c.balance > 0);
   if (usableCards.length > 0) {
     relField.style.display = 'block';
@@ -3397,7 +3369,6 @@ function confirmTransfer() {
   closeTransferModal();
 }
 
-/* 亲属卡弹窗 */
 function openRelativeCardModal(presetTargetChatId) {
   loadPersonaList();
   const sel = document.getElementById('jxRelCardTarget');
@@ -3460,9 +3431,6 @@ function confirmRelativeCard() {
   alert('亲属卡已赠送给 ' + target);
 }
 
-/* =========================================================
-   聊天底栏 "+" 面板
-   ========================================================= */
 function toggleAttachPanel() {
   const panel = document.getElementById('jxAttachPanel');
   const stickerPanel = document.getElementById('jxStickerPanel');
@@ -3490,9 +3458,6 @@ function openRelativeCardFromChat() {
   openRelativeCardModal(currentChatId);
 }
 
-/* =========================================================
-   转发聊天记录详情
-   ========================================================= */
 function openMergedDetail(msgId) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -3517,9 +3482,6 @@ function closeMergedDetailScreen() {
   currentViewingMergedMsg = null;
 }
 
-/* =========================================================
-   聊天核心
-   ========================================================= */
 function getCharImageRefs(chat) {
   const refs = [];
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
@@ -3700,19 +3662,15 @@ function loadStickers() {
 }
 
 function openJianxunApp() {
-  // 1. 先把主界面显示出来，确保用户点击有反馈
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const jxScreen = document.getElementById('jianxunScreen');
   if (jxScreen) jxScreen.classList.add('active');
 
-  // 2. 强制隐藏所有可能卡住的覆盖层
-  // 2a. 使用内联 display 显示/隐藏的
   ['jxWalletScreen', 'jxRelativeCardScreen', 'jxBillScreen', 'jxFavoritesScreen', 'jxStickerScreen'].forEach(id => {
     const el = document.getElementById(id);
     if (el && el.style) el.style.display = 'none';
   });
 
-  // 2b. 使用 classList (active / show) 控制的
   ['jxMergedDetailScreen', 'jxTransferModal', 'jxRelativeCardModal', 'jxMsgMenu',
    'jxChatInfoScreen', 'jxChatScreen', 'jxCommentModal', 'jxEditMsgModal',
    'personaSelectorModal', 'forwardTargetModal', 'worldBookSelectScreen',
@@ -3725,16 +3683,13 @@ function openJianxunApp() {
     }
   });
 
-  // 2c. 复位聊天输入栏
   const inputBar = document.getElementById('jxChatInputBar');
   if (inputBar) inputBar.style.display = '';
 
-  // 3. 安全加载数据
   try { loadPersonaList(); } catch(e) { console.warn('loadPersonaList错误:', e); }
   try { loadWorldBook(); } catch(e) { console.warn('loadWorldBook错误:', e); }
   try { loadJianxunChats(); } catch(e) { console.warn('loadJianxunChats错误:', e); }
 
-  // 4. 安全渲染
   try { renderJianxunChatList(); } catch(e) { console.warn('renderJianxunChatList错误:', e); }
   try { loadMomentsData(); } catch(e) { console.warn('loadMomentsData错误:', e); }
   try { renderJianxunContacts(); } catch(e) { console.warn('renderJianxunContacts错误:', e); }
@@ -3742,7 +3697,6 @@ function openJianxunApp() {
   try { renderMomentsPosts(); } catch(e) { console.warn('renderMomentsPosts错误:', e); }
   try { loadJxMeProfile(); } catch(e) { console.warn('loadJxMeProfile错误:', e); }
 
-  // 5. 切换到底部第一个标签
   try { switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item')); } catch(e) { console.warn('switchJianxunTab错误:', e); }
 }
 
@@ -4038,9 +3992,6 @@ function menuQuote() {
   startQuote(id);
 }
 
-/* =========================================================
-   渲染聊天消息（核心）
-   ========================================================= */
 function renderChatMessages(keepScrollPos) {
   if (!currentChatId) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -4581,9 +4532,6 @@ function addStickersFromLinks() {
   });
 })();
 
-/* =========================================================
-   收藏
-   ========================================================= */
 function loadFavorites() {
   try { const v = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'); return Array.isArray(v) ? v : []; }
   catch (e) { return []; }
@@ -4876,9 +4824,6 @@ async function translateText(text, cfg) {
   return '';
 }
 
-/* =========================================================
-   AI 系统提示词 & 回复
-   ========================================================= */
 function buildWorldBookPrompt(chat) {
   const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
   const relevant = worldBookEntries.filter(e => e.enabled && (e.binding === 'global' || bound.includes(e.id)));
@@ -5475,59 +5420,48 @@ function deleteChat() {
   closeChatScreen();
   renderJianxunChatList();
 }
+
 function showPersonaSelector() {
-  try {
-    loadPersonaList();
-    const modal = document.getElementById('personaSelectorModal');
-    const list = document.getElementById('personaSelectorList');
-    if (!modal || !list) return;
-    if (personaList.length === 0) {
-      list.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:13px;">人设App中暂无数据<br>请先去添加人设</div>';
-    } else {
-      list.innerHTML = personaList.map((p, i) => `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">
-        ${p.avatar ? `<img src="${p.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
-        <span>${escapeHtml(p.name || '未命名')}</span>
-      </div>`).join('');
-    }
-    modal.classList.add('show');
-  } catch (e) {
-    alert('加载人设列表失败: ' + e.message);
+  loadPersonaList();
+  const modal = document.getElementById('personaSelectorModal');
+  const list = document.getElementById('personaSelectorList');
+  if (!modal || !list) return;
+  if (personaList.length === 0) {
+    list.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:13px;">人设App中暂无数据<br>请先去添加人设</div>';
+  } else {
+    list.innerHTML = personaList.map((p, i) => `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">
+      ${p.avatar ? `<img src="${p.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+      <span>${escapeHtml(p.name || '未命名')}</span>
+    </div>`).join('');
   }
+  modal.classList.add('show');
 }
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
 function addPersonaToChat(index) {
-  try {
-    const persona = personaList[index];
-    if (!persona) { alert('未找到该人设，请重试'); return; }
-    if (!Array.isArray(jianxunChats)) jianxunChats = [];
-    const exists = jianxunChats.find(c => c.name === persona.name);
-    if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
-    const imagePool = [];
-    const userAvatar = localStorage.getItem('moments_avatar');
-    if (userAvatar) {
-      imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
-    }
-    jianxunChats.push({
-      id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
-      messages: [], pinned: false, allowActive: false, maxReply: 1,
-      customRemark: '', boundWorldBook: [], boundStickerPacks: [],
-      chatBg: '', myAvatar: '', imagePool: imagePool
-    });
-    saveJianxunChats();
-    renderJianxunChatList();
-    closePersonaSelector();
-    alert('已成功添加联系人：' + (persona.name || '未命名'));
-  } catch (e) {
-    alert('添加联系人失败: ' + e.message);
+  const persona = personaList[index]; if (!persona) { alert('未找到该人设，请重试'); return; }
+  if (!Array.isArray(jianxunChats)) jianxunChats = [];
+  const exists = jianxunChats.find(c => c.name === persona.name);
+  if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
+  const imagePool = [];
+  const userAvatar = localStorage.getItem('moments_avatar');
+  if (userAvatar) {
+    imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
   }
+  jianxunChats.push({
+    id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
+    messages: [], pinned: false, allowActive: false, maxReply: 1,
+    customRemark: '', boundWorldBook: [], boundStickerPacks: [],
+    chatBg: '', myAvatar: '', imagePool: imagePool
+  });
+  saveJianxunChats();
+  renderJianxunChatList();
+  closePersonaSelector();
 }
 
-/* =========================================================
-   朋友圈
-   ========================================================= */
 function loadMomentsData() {
   const bg = localStorage.getItem('moments_bg');
   const hdr = document.getElementById('jxMomentsHeader');
+  if (!hdr) return;
   if (bg) {
     hdr.style.backgroundImage = `url(${bg})`;
     hdr.style.backgroundSize = 'cover';
@@ -5535,13 +5469,17 @@ function loadMomentsData() {
     hdr.style.backgroundRepeat = 'no-repeat';
   } else hdr.style.backgroundImage = 'none';
   const name = localStorage.getItem('moments_name');
-  if (name) document.getElementById('momentsName').innerText = name;
+  const nameEl = document.getElementById('momentsName');
+  if (name && nameEl) nameEl.innerText = name;
   const sig = localStorage.getItem('moments_sig');
-  if (sig) document.getElementById('momentsSignature').innerText = sig;
+  const sigEl = document.getElementById('momentsSignature');
+  if (sig && sigEl) sigEl.innerText = sig;
   const joinDate = localStorage.getItem('moments_join_date');
-  if (joinDate) document.getElementById('momentsJoinDate').innerText = joinDate;
+  const jdEl = document.getElementById('momentsJoinDate');
+  if (joinDate && jdEl) jdEl.innerText = joinDate;
   const avatar = localStorage.getItem('moments_avatar');
-  if (avatar) document.getElementById('momentsAvatarImg').src = avatar;
+  const avEl = document.getElementById('momentsAvatarImg');
+  if (avatar && avEl) avEl.src = avatar;
 }
 (function initMomentsBg() {
   const input = document.getElementById('momentsBgInput');
@@ -5627,7 +5565,8 @@ function renderMomentsPosts() {
   loadMomentsPosts();
   const container = document.getElementById('jx-moments-posts');
   if (!container) return;
-  document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
+  const postCountEl = document.getElementById('momentsPostCount');
+  if (postCountEl) postCountEl.innerText = `帖子数量 ${momentsPosts.length}`;
   const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
   const myAvatar = localStorage.getItem('moments_avatar') || '';
   if (momentsPosts.length === 0) {
@@ -5702,62 +5641,61 @@ function toggleLike(postId) {
   saveMomentsPosts();
   renderMomentsPosts();
 }
+
 function openPublishScreen() {
-  try {
-    loadPersonaList();
-    const screen = document.getElementById('jxPublishScreen');
-    if (screen) screen.classList.add('active');
-    const contentEl = document.getElementById('publishContent');
-    if (contentEl) contentEl.value = '';
-    tempPostImages = [];
-    const container = document.getElementById('publishImagesContainer');
-    if (container) {
-      container.innerHTML = '';
-      createAddImageBtn(container);
+  loadPersonaList();
+  const screen = document.getElementById('jxPublishScreen');
+  if (screen) screen.classList.add('active');
+  const contentEl = document.getElementById('publishContent');
+  if (contentEl) contentEl.value = '';
+  tempPostImages = [];
+  const container = document.getElementById('publishImagesContainer');
+  if (container) {
+    container.innerHTML = '';
+    const addBtn = document.createElement('div');
+    addBtn.className = 'publish-add-image';
+    addBtn.innerText = '+';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.multiple = true;
+    fileInput.style.position = 'absolute';
+    fileInput.style.top = '0';
+    fileInput.style.left = '0';
+    fileInput.style.width = '100%';
+    fileInput.style.height = '100%';
+    fileInput.style.opacity = '0';
+    fileInput.style.zIndex = '10';
+    fileInput.style.cursor = 'pointer';
+    fileInput.addEventListener('change', handlePublishImageSelect);
+    addBtn.appendChild(fileInput);
+    container.appendChild(addBtn);
+  }
+  const visibilityEl = document.getElementById('publishVisibility');
+  if (visibilityEl) visibilityEl.value = 'public';
+  const customVisEl = document.getElementById('publishCustomVisibility');
+  if (customVisEl) customVisEl.style.display = 'none';
+  const mentionList = document.getElementById('publishMentionList');
+  const customList = document.getElementById('publishCustomList');
+  if (mentionList && customList) {
+    if (personaList.length === 0) {
+      mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
+      customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>';
+    } else {
+      const buildList = (c) => { c.innerHTML = personaList.map((p) => `<div class="mention-item" onclick="toggleMention(this)">${escapeHtml(p.name || '未命名')}</div>`).join(''); };
+      buildList(mentionList); buildList(customList);
     }
-    const visibilityEl = document.getElementById('publishVisibility');
-    if (visibilityEl) visibilityEl.value = 'public';
-    const customVisEl = document.getElementById('publishCustomVisibility');
-    if (customVisEl) customVisEl.style.display = 'none';
-    const mentionList = document.getElementById('publishMentionList');
-    const customList = document.getElementById('publishCustomList');
-    if (mentionList && customList) {
-      if (personaList.length === 0) {
-        mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
-        customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>';
-      } else {
-        const buildList = (c) => { c.innerHTML = personaList.map((p) => `<div class="mention-item" onclick="toggleMention(this)">${escapeHtml(p.name || '未命名')}</div>`).join(''); };
-        buildList(mentionList); buildList(customList);
-      }
-    }
-  } catch (e) {
-    alert('打开发布界面失败: ' + e.message);
   }
 }
-function createAddImageBtn(container) {
-  const addBtn = document.createElement('div');
-  addBtn.className = 'publish-add-image';
-  addBtn.innerText = '+';
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-  fileInput.multiple = true;
-  fileInput.style.position = 'absolute';
-  fileInput.style.top = '0';
-  fileInput.style.left = '0';
-  fileInput.style.width = '100%';
-  fileInput.style.height = '100%';
-  fileInput.style.opacity = '0';
-  fileInput.style.zIndex = '10';
-  fileInput.addEventListener('change', handlePublishImageSelect);
-  addBtn.appendChild(fileInput);
-  container.appendChild(addBtn);
+function closePublishScreen() {
+  const screen = document.getElementById('jxPublishScreen');
+  if (screen) screen.classList.remove('active');
 }
-function closePublishScreen() { document.getElementById('jxPublishScreen').classList.remove('active'); }
 function toggleMention(el) { el.classList.toggle('selected'); }
 function toggleCustomVisibility() {
-  document.getElementById('publishCustomVisibility').style.display =
-    document.getElementById('publishVisibility').value === 'custom' ? 'block' : 'none';
+  const vis = document.getElementById('publishVisibility');
+  const el = document.getElementById('publishCustomVisibility');
+  if (el) el.style.display = vis && vis.value === 'custom' ? 'block' : 'none';
 }
 async function handlePublishImageSelect(e) {
   const files = e.target.files;
@@ -5781,65 +5719,72 @@ async function handlePublishImageSelect(e) {
   if (oldAddBtn) {
     container.appendChild(oldAddBtn);
     oldAddBtn.style.display = 'flex';
-  } else {
-    createAddImageBtn(container);
   }
   e.target.value = '';
 }
 function removePublishImage(el, index) {
-  try {
-    tempPostImages.splice(index, 1);
-    const item = el.parentElement;
-    if (item) item.remove();
-    const container = document.getElementById('publishImagesContainer');
-    if (!container) return;
-    container.querySelectorAll('.publish-image-item').forEach((item, i) => {
-      const btn = item.querySelector('.remove-img');
-      if (btn) btn.setAttribute('onclick', `removePublishImage(this, ${i})`);
-    });
-    if (!container.querySelector('.publish-add-image')) {
-      createAddImageBtn(container);
-    }
-  } catch (e) {
-    console.error(e);
+  tempPostImages.splice(index, 1);
+  const item = el.parentElement;
+  if (item) item.remove();
+  const container = document.getElementById('publishImagesContainer');
+  if (!container) return;
+  container.querySelectorAll('.publish-image-item').forEach((item, i) => {
+    const btn = item.querySelector('.remove-img');
+    if (btn) btn.setAttribute('onclick', `removePublishImage(this, ${i})`);
+  });
+  if (!container.querySelector('.publish-add-image')) {
+    const addBtn = document.createElement('div');
+    addBtn.className = 'publish-add-image';
+    addBtn.innerText = '+';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.multiple = true;
+    fileInput.style.position = 'absolute';
+    fileInput.style.top = '0';
+    fileInput.style.left = '0';
+    fileInput.style.width = '100%';
+    fileInput.style.height = '100%';
+    fileInput.style.opacity = '0';
+    fileInput.style.zIndex = '10';
+    fileInput.style.cursor = 'pointer';
+    fileInput.addEventListener('change', handlePublishImageSelect);
+    addBtn.appendChild(fileInput);
+    container.appendChild(addBtn);
   }
 }
 function publishPost() {
-  try {
-    const contentEl = document.getElementById('publishContent');
-    const content = contentEl ? contentEl.value.trim() : '';
-    if (!content && tempPostImages.length === 0) { alert('请输入内容或添加图片'); return; }
-    const visibilityEl = document.getElementById('publishVisibility');
-    const visibility = visibilityEl ? visibilityEl.value : 'public';
-    const mentions = Array.from(document.querySelectorAll('#publishMentionList .mention-item.selected')).map(el => el.innerText || el.textContent);
-    const customVisibles = Array.from(document.querySelectorAll('#publishCustomList .mention-item.selected')).map(el => el.innerText || el.textContent);
-    const newPost = {
-      id: genId(), content: content, images: [...tempPostImages], time: '刚刚',
-      visibility: visibility, mentions: mentions, customVisibles: customVisibles, likes: [], comments: []
-    };
-    loadMomentsPosts();
-    if (!Array.isArray(momentsPosts)) momentsPosts = [];
-    momentsPosts.unshift(newPost);
-    saveMomentsPosts();
-    renderMomentsPosts();
-    closePublishScreen();
-    pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
-    if (mentions.length > 0) {
-      setTimeout(() => {
-        const post = momentsPosts.find(p => p.id === newPost.id);
-        if (post) {
-          if (!post.comments) post.comments = [];
-          post.comments.push({ user: mentions[0], text: '收到！我会看的~' });
-          saveMomentsPosts();
-          renderMomentsPosts();
-        }
-      }, 1500);
-      alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态。`);
-    } else {
-      alert('发布成功！');
-    }
-  } catch (e) {
-    alert('发表动态时发生错误: ' + e.message);
+  const contentEl = document.getElementById('publishContent');
+  const content = contentEl ? contentEl.value.trim() : '';
+  if (!content && tempPostImages.length === 0) { alert('请输入内容或添加图片'); return; }
+  const visibilityEl = document.getElementById('publishVisibility');
+  const visibility = visibilityEl ? visibilityEl.value : 'public';
+  const mentions = Array.from(document.querySelectorAll('#publishMentionList .mention-item.selected')).map(el => el.innerText || el.textContent);
+  const customVisibles = Array.from(document.querySelectorAll('#publishCustomList .mention-item.selected')).map(el => el.innerText || el.textContent);
+  const newPost = {
+    id: genId(), content: content, images: [...tempPostImages], time: '刚刚',
+    visibility: visibility, mentions: mentions, customVisibles: customVisibles, likes: [], comments: []
+  };
+  loadMomentsPosts();
+  if (!Array.isArray(momentsPosts)) momentsPosts = [];
+  momentsPosts.unshift(newPost);
+  saveMomentsPosts();
+  renderMomentsPosts();
+  closePublishScreen();
+  pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
+  if (mentions.length > 0) {
+    setTimeout(() => {
+      const post = momentsPosts.find(p => p.id === newPost.id);
+      if (post) {
+        if (!post.comments) post.comments = [];
+        post.comments.push({ user: mentions[0], text: '收到！我会看的~' });
+        saveMomentsPosts();
+        renderMomentsPosts();
+      }
+    }, 1500);
+    alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态。`);
+  } else {
+    alert('发布成功！');
   }
 }
 function deletePost(postId) {
@@ -5919,6 +5864,53 @@ async function replyToMomentsComment(chat, postId, userComment) {
    初始化入口
    ========================================================= */
 loadJianxunChats();
+
+/* =========================================================
+   关键修复：给 + 按钮绑定事件监听器（用 addEventListener 替代内联 onclick）
+   ========================================================= */
+(function bindPlusButtons() {
+  // 添加好友 + 按钮
+  const addFriendBtn = document.getElementById('jxAddFriendBtn');
+  if (addFriendBtn) {
+    addFriendBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      try { showPersonaSelector(); } catch (err) { alert('打开人设选择失败：' + (err.message || err)); }
+    });
+    addFriendBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      try { showPersonaSelector(); } catch (err) { alert('打开人设选择失败：' + (err.message || err)); }
+    });
+  }
+
+  // 发朋友圈 + 按钮
+  const addMomentBtn = document.getElementById('jxAddMomentBtn');
+  if (addMomentBtn) {
+    addMomentBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      try { openPublishScreen(); } catch (err) { alert('打开发布动态失败：' + (err.message || err)); }
+    });
+    addMomentBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      try { openPublishScreen(); } catch (err) { alert('打开发布动态失败：' + (err.message || err)); }
+    });
+  }
+
+  // 发表按钮
+  const publishConfirmBtn = document.getElementById('jxPublishConfirmBtn');
+  if (publishConfirmBtn) {
+    publishConfirmBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      try { publishPost(); } catch (err) { alert('发表失败：' + (err.message || err)); }
+    });
+    publishConfirmBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      try { publishPost(); } catch (err) { alert('发表失败：' + (err.message || err)); }
+    });
+  }
+})();
 </script>
 
 </body>
