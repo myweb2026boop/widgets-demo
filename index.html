@@ -405,7 +405,7 @@
   .sticker-pack-del-btn { font-size: 11px; padding: 4px 10px; border: none; border-radius: 6px; background: #ffeaea; color: #ff4757; cursor: pointer; flex-shrink: 0; }
   .sticker-pack-name-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; margin-bottom: 8px; font-family: inherit; background: #fff; color: #333; }
 
-  .jx-msg-menu { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: flex-end; justify-content: center; z-index: 50000; }
+  .jx-msg-menu { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.35); display: none; align-items: flex-end; justify-content: center; z-index: 50000; }
   .jx-msg-menu.show { display: flex; }
   .jx-msg-menu-inner { background: #fff; width: 100%; max-width: 400px; border-radius: 14px 14px 0 0; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
   .jx-msg-menu-item { padding: 15px; text-align: center; font-size: 16px; color: #333; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
@@ -758,7 +758,6 @@
   .jx-transfer-card.opened .t-footer svg { fill: #999; }
   
   /* ===== 亲属卡相关样式（完美复刻 P1 & P3） ===== */
-  /* 聊天里的亲属卡消息卡片（黄色小卡片） */
   .wx-family-card{max-width:230px;border-radius:8px;background:#fff;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06);position:relative;overflow:hidden;padding:12px 12px 8px;min-height:80px}
   .wx-family-card::after{content:'';position:absolute;right:-26px;top:-16px;width:90px;height:90px;border-radius:50%;background:#fdf2c8}
   .wx-family-card-content{display:flex;align-items:flex-start;gap:8px;position:relative;z-index:1}
@@ -768,7 +767,6 @@
   .wx-family-card-subtitle{font-size:12px;color:#8a6a2f}
   .wx-family-card-footer{margin-top:8px;font-size:10px;color:#bbb}
 
-  /* 亲属卡页面（钱包 → 亲属卡） */
   .wx-family-view{transform:translateX(100%);z-index:6;transition:transform .28s}
   .wx-family-view.active{transform:translateX(0)}
   .wx-family-body{flex:1;overflow-y:auto;background:#ededed;padding:16px 12px}
@@ -787,7 +785,6 @@
   .wx-family-empty.show{display:block}
   .wx-family-empty svg{width:48px;height:48px;stroke:#c8c8c8;fill:none;stroke-width:1.4;margin-bottom:12px}
 
-  /* 转账面板中的「使用亲属卡支付」行 */
   .wx-tf-family-row{display:none;padding:10px 0 8px;border-bottom:1px solid #f0f0f0}
   .wx-tf-family-row.show{display:block}
   .wx-tf-family-label{display:flex;align-items:center;gap:8px;font-size:14px;color:#1a1a1a;cursor:pointer}
@@ -969,6 +966,28 @@
     color: #999 !important;
     font-size: 13px !important;
   }
+
+  /* ===== 转账弹窗（核心修复区域） ===== */
+  .jx-transfer-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
+  .jx-transfer-modal.show { display: flex; }
+  .jx-transfer-modal-inner { background: #fff; width: 88%; max-width: 360px; border-radius: 14px; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .jx-tm-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #333; }
+  .jx-tm-header .cancel { font-size: 14px; color: #888; font-weight: 400; cursor: pointer; }
+  .jx-tm-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .jx-tm-receiver { display: flex; align-items: center; gap: 10px; }
+  .jx-tm-receiver img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; background: #f0f0f0; }
+  .jx-tm-receiver .nm { font-size: 14px; color: #333; font-weight: 500; }
+  .jx-tm-amount-row { display: flex; align-items: baseline; border-bottom: 2px solid #07c160; padding-bottom: 8px; gap: 6px; }
+  .jx-tm-amount-row .cur { font-size: 28px; color: #333; font-weight: 500; }
+  .jx-tm-amount-row input { flex: 1; border: none; outline: none; font-size: 28px; font-weight: 500; color: #333; min-width: 0; background: transparent; }
+  .jx-tm-amount-row input::placeholder { color: #ccc; }
+  .jx-tm-note-row { display: flex; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .jx-tm-note-row input { flex: 1; border: none; outline: none; font-size: 14px; color: #333; min-width: 0; background: transparent; }
+  .jx-tm-note-row input::placeholder { color: #bbb; }
+  .jx-tm-pay { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 14px; color: #333; cursor: pointer; }
+  .jx-tm-pay .value { color: #888; display: flex; align-items: center; gap: 4px; }
+  .jx-tm-pay .value svg { width: 16px; height: 16px; fill: #ccc; }
+  .jx-tm-submit { margin: 0 20px 20px; padding: 13px; background: #07c160; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
 
   /* 深色兼容 */
   .phone-case.dark-mode .jx-chat-tools { background: #1c1c1e; border-top-color: #2c2c2e; }
@@ -1495,7 +1514,6 @@
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll">
-        <!-- P2 样式：深绿色钱包卡片 -->
         <div style="background:#1a3c34; margin:12px; border-radius:12px; padding:24px 20px; color:#fff; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
           <div style="font-size:14px; color:#a0b5ad; margin-bottom:8px;">零钱</div>
           <div style="font-size:36px; font-weight:600; letter-spacing:0.5px; margin-bottom:20px;">
@@ -1507,7 +1525,6 @@
           </div>
         </div>
         
-        <!-- P2 菜单项 -->
         <div class="jx-wallet-menu">
           <div class="jx-wallet-menu-item" onclick="alert('银行卡功能暂未开放')">
             <div class="jx-wallet-menu-icon" style="background:#4b7bec;">
@@ -1568,16 +1585,13 @@
       <div class="jx-info-scroll" id="jxBillsList"></div>
     </div>
 
-    <!-- P3 样式：亲属卡界面 -->
     <div id="jxRelativeCardScreen" style="display: none; flex-direction: column; background: #ededed; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1009;">
       <div class="jx-info-top-bar" style="background:#fff; border-bottom:1px solid #eee;">
         <span class="back-btn" style="color:#333;" onclick="closeRelativeCardScreen()">‹</span>
         <span class="title" style="color:#000;">亲属卡</span>
         <span style="width: 28px;"></span>
       </div>
-      <div class="wx-family-body" id="jxRelativeCardList">
-        <!-- 动态渲染 -->
-      </div>
+      <div class="wx-family-body" id="jxRelativeCardList"></div>
     </div>
 
     <div id="jxFavoritesScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1005;">
@@ -1685,6 +1699,7 @@ https://xxx.com/a.png
         <span class="primary" onclick="forwardSelected()">转发</span>
       </div>
 
+      <!-- 转账弹窗（重点修复区域） -->
       <div class="jx-transfer-modal" id="jxTransferModal">
         <div class="jx-transfer-modal-inner">
           <div class="jx-tm-header">
@@ -1704,7 +1719,7 @@ https://xxx.com/a.png
             <div class="jx-tm-note-row">
               <input type="text" id="jxTransferNote" placeholder="添加转账说明" maxlength="30">
             </div>
-            <!-- 使用亲属卡支付行 -->
+            <!-- 亲属卡支付行，默认隐藏 -->
             <div class="wx-tf-family-row" id="wxTransferFamilyRow">
               <label class="wx-tf-family-label">
                 <input type="checkbox" id="wxTransferUseFamily">
@@ -3234,14 +3249,12 @@ applyApiConfigToForm(loadApiConfig() || {});
 updateApiPresetList();
 
 // ================= 钱包 / 转账 / 亲属卡 =================
-// --- 亲属卡存储（适配提供的代码结构）---
 function getRecv(){try{return JSON.parse(localStorage.getItem('wx-family-received')||'[]')}catch(e){return[]}}
 function saveRecv(l){try{localStorage.setItem('wx-family-received',JSON.stringify(l))}catch(e){}}
 function getGiven(){try{return JSON.parse(localStorage.getItem('wx-family-given')||'[]')}catch(e){return[]}}
 function saveGiven(l){try{localStorage.setItem('wx-family-given',JSON.stringify(l))}catch(e){}}
 function findRecv(id){return getRecv().find(function(c){return c.fromCharId===id})}
 
-// 迁移旧数据，避免用户数据丢失
 (function migrateOldCards() {
   try {
     const oldRaw = localStorage.getItem(CARDS_KEY);
@@ -3288,7 +3301,6 @@ function toolAlbum() { hideChatTools(); document.getElementById('jxChatImageInpu
 
 let transferPayMethod = { type: 'balance' };
 
-// --- 转账面板刷新 ---
 function refreshTFR() {
   const row = document.getElementById('wxTransferFamilyRow');
   const bal = document.getElementById('wxTransferFamilyBalance');
@@ -3322,7 +3334,6 @@ function toolTransfer() {
 }
 function closeTransferModal() { document.getElementById('jxTransferModal').classList.remove('show'); }
 
-// --- 支付方式选择 ---
 function selectTransferPayMethod() {
   const cards = getRecv().filter(c => c.fromCharId === currentChatId);
   const list = document.getElementById('jxPayMethodList');
@@ -3349,7 +3360,6 @@ function choosePayMethod(type, id) {
   }
 }
 
-// --- 确认转账 ---
 function confirmTransfer() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -3394,10 +3404,8 @@ function confirmTransfer() {
   if (useFamily || transferPayMethod.type === 'card') pushAwareness(`用户使用了亲属卡支付 ¥${amount.toFixed(2)}`);
 }
 
-// --- 亲属卡操作 ---
 function toolRelativeCard() { hideChatTools(); openRelativeCardScreen(true); }
 
-// --- 打开亲属卡界面（完美适配 P3） ---
 function openRelativeCardScreen(fromChat) {
   document.getElementById('jxRelativeCardScreen').style.display = 'flex';
   const list = document.getElementById('jxRelativeCardList');
@@ -3456,7 +3464,6 @@ function openRelativeCardScreen(fromChat) {
 }
 function closeRelativeCardScreen() { document.getElementById('jxRelativeCardScreen').style.display = 'none'; }
 
-// --- 赠送亲属卡流程 ---
 function createRelativeCardForChat() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -3470,7 +3477,6 @@ function createRelativeCardForChat() {
   const cn = chat.customRemark || chat.name || '对方';
   const mi = chat.messages.length;
   
-  // 插入待领取的亲属卡消息
   chat.messages.push({ id: genId(), role: 'me', type: 'familyCard', limit: limit, note: note, status: 'pending', time: Date.now(), content: '[亲属卡]' });
   saveJianxunChats();
   closeRelativeCardScreen();
@@ -3478,7 +3484,6 @@ function createRelativeCardForChat() {
   renderJianxunChatList();
   alert('亲属卡已赠送');
 
-  // AI 随机接受/拒绝
   setTimeout(function(){
     const h2 = jianxunChats.find(c => c.id === cid);
     if (!h2) return;
@@ -3501,7 +3506,6 @@ function createRelativeCardForChat() {
   }, 2200);
 }
 
-// --- 钱包 & 账单 ---
 function openWalletScreen() {
   document.getElementById('jxWalletScreen').style.display = 'flex';
   const bills = loadBills();
@@ -3550,14 +3554,11 @@ function renderBills() {
   list.innerHTML = html;
 }
 
-// --- 接受/拒收弹层逻辑 ---
 let pendingAcceptTarget = null;
 const wxAcceptMask = document.getElementById('wxAcceptMask');
 const wxAcceptText = document.getElementById('wxAcceptText');
 const wxAcceptReject = document.getElementById('wxAcceptReject');
 const wxAcceptConfirm = document.getElementById('wxAcceptConfirm');
-
-// 在渲染聊天气泡时绑定点击事件（见 renderChatMessages 中）
 
 if(wxAcceptReject)wxAcceptReject.addEventListener('click',function(){
   if(!pendingAcceptTarget)return;
@@ -3609,7 +3610,6 @@ if(wxAcceptConfirm)wxAcceptConfirm.addEventListener('click',function(){
   alert('已接受');
 });
 
-// --- 合并聊天记录 / 聊天列表渲染等原有逻辑保持不动 ---
 function openMergedView(msgId) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -4131,7 +4131,6 @@ function renderChatMessages(keepScrollPos) {
     </div>`;
   }).join('');
   
-  // 为亲属卡绑定点击事件（用于接受/拒收）
   container.querySelectorAll('.wx-family-card').forEach(cardEl => {
     cardEl.addEventListener('click', function(e) {
       const idx = parseInt(this.getAttribute('data-idx'), 10);
