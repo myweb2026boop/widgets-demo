@@ -878,126 +878,141 @@
   .phone-case.dark-mode .recharge-opt { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
   .phone-case.dark-mode .recharge-opt:active { background: #3a3a3c; border-color: #07c160; color: #07c160; }
 
-  /* ===== CSS 美化编辑器（卡片式） ===== */
+  /* ===== 美化设置（全屏） + 字体管理 ===== */
   #jxCssEditorScreen {
     display: none;
+    flex-direction: column;
+    background: #f7f8fa;
+    height: 100%;
+    width: 100%;
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    top: 0;
+    left: 0;
     z-index: 20000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
   }
   #jxCssEditorScreen.active { display: flex; }
 
-  .css-editor-card {
-    width: 100%;
-    max-width: 340px;
-    max-height: 78%;
-    background: #ffffff;
-    border-radius: 22px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28), 0 4px 16px rgba(0, 0, 0, 0.08);
+  .css-editor-top-bar {
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: cssCardIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-  }
-  @keyframes cssCardIn {
-    from { opacity: 0; transform: scale(0.9) translateY(16px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .css-editor-header {
-    padding: 16px 18px 14px;
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 11px;
-    border-bottom: 1px solid #f2f3f5;
+    padding: 14px 16px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
     flex-shrink: 0;
   }
-  .css-editor-header-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-  }
-  .css-editor-header-icon svg { width: 18px; height: 18px; fill: #fff; }
-  .css-editor-header-text { flex: 1; min-width: 0; }
-  .css-editor-header-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1c;
-    letter-spacing: 0.2px;
-    margin-bottom: 1px;
-  }
-  .css-editor-header-sub {
-    font-size: 11px;
-    color: #9a9aa0;
-    letter-spacing: 0.1px;
-  }
-  .css-editor-close {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #f5f5f7;
+  .css-editor-back {
+    background: none;
     border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: #4b7bec;
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
-    color: #8a8a90;
-    font-size: 20px;
-    line-height: 1;
-    padding-bottom: 2px;
-    flex-shrink: 0;
-    transition: all 0.15s ease;
+    padding: 4px 8px;
     font-family: inherit;
   }
-  .css-editor-close:active {
-    background: #e8e8ec;
-    transform: scale(0.9);
+  .css-editor-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
+  }
+  .css-editor-save-top {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+  }
+  .css-editor-save-top:active { transform: scale(0.96); }
+
+  .css-editor-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+  }
+  .css-editor-tabs .tab {
+    flex: 1;
+    padding: 12px;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: #999;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .css-editor-tabs .tab.active { color: #667eea; }
+  .css-editor-tabs .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 30%;
+    right: 30%;
+    height: 2px;
+    background: #667eea;
+    border-radius: 2px 2px 0 0;
   }
 
-  .css-editor-body {
+  .css-editor-panel {
     flex: 1;
-    padding: 14px 16px 6px;
-    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
     min-height: 0;
   }
-  .css-editor-label {
-    font-size: 12px;
-    color: #666;
-    margin-bottom: 8px;
+  .css-editor-panel.active { display: flex; }
+
+  .css-editor-toolbar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: 500;
-  }
-  .css-editor-label-hint {
-    font-size: 10px;
-    color: #b8b8be;
-    font-weight: 400;
-    font-family: 'SF Mono', Menlo, monospace;
-  }
-  #cssEditorTextarea {
-    width: 100%;
-    height: 170px;
-    background: #f7f8fa;
-    border: 1.5px solid #e8eaee;
-    border-radius: 12px;
+    gap: 7px;
     padding: 12px 14px;
-    font-family: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    overflow-x: auto;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .css-editor-toolbar::-webkit-scrollbar { display: none; }
+  .css-editor-chip {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 16px;
+    background: #f5f5f7;
+    border: 1px solid #ebebef;
     font-size: 12px;
-    line-height: 1.65;
+    color: #444;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .css-editor-chip:active { background: #e8eaee; transform: scale(0.95); }
+  .css-editor-chip.bubble { color: #7c3aed; }
+  .css-editor-chip.avatar { color: #0891b2; }
+  .css-editor-chip.input { color: #16a34a; }
+  .css-editor-chip.tabbar { color: #2563eb; }
+  .css-editor-chip.button { color: #db2777; }
+  .css-editor-chip.theme { color: #ea580c; }
+  .css-editor-chip.danger { color: #dc2626; }
+
+  #cssEditorTextarea {
+    flex: 1;
+    width: 100%;
+    background: #fff;
+    border: none;
+    padding: 16px;
+    font-family: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.7;
     outline: none;
     resize: none;
     color: #1f2024;
@@ -1007,92 +1022,18 @@
     -moz-tab-size: 2;
     caret-color: #667eea;
     box-sizing: border-box;
-    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
-  #cssEditorTextarea:focus {
-    border-color: #667eea;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
-  }
-  #cssEditorTextarea::placeholder {
-    color: #b8b8be;
-    font-style: normal;
-  }
-  #cssEditorTextarea::-webkit-scrollbar { width: 6px; height: 6px; }
-  #cssEditorTextarea::-webkit-scrollbar-track { background: transparent; }
-  #cssEditorTextarea::-webkit-scrollbar-thumb {
-    background: #d5d7dc;
-    border-radius: 3px;
-  }
-  #cssEditorTextarea::-webkit-scrollbar-thumb:hover { background: #b8babf; }
 
-  .css-editor-templates {
-    display: flex;
-    gap: 7px;
-    margin-top: 12px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-  .css-editor-templates::-webkit-scrollbar { display: none; }
-  .css-editor-chip {
-    flex-shrink: 0;
-    padding: 7px 13px;
-    border-radius: 18px;
-    background: #f5f5f7;
-    border: 1px solid #ebebef;
-    font-size: 12px;
-    color: #444;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 500;
-    white-space: nowrap;
+  .css-editor-status-bar {
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: all 0.15s ease;
-  }
-  .css-editor-chip:active {
-    background: #eaeaf0;
-    transform: scale(0.95);
-  }
-  .css-editor-chip svg {
-    width: 12px;
-    height: 12px;
-    fill: currentColor;
-    opacity: 0.75;
-  }
-  .css-editor-chip.bubble { color: #7c3aed; }
-  .css-editor-chip.bubble:active { background: #f3e8ff; }
-  .css-editor-chip.avatar { color: #0891b2; }
-  .css-editor-chip.avatar:active { background: #cffafe; }
-  .css-editor-chip.input { color: #16a34a; }
-  .css-editor-chip.input:active { background: #dcfce7; }
-  .css-editor-chip.tabbar { color: #2563eb; }
-  .css-editor-chip.tabbar:active { background: #dbeafe; }
-  .css-editor-chip.button { color: #db2777; }
-  .css-editor-chip.button:active { background: #fce7f3; }
-  .css-editor-chip.theme { color: #ea580c; }
-  .css-editor-chip.theme:active { background: #ffedd5; }
-  .css-editor-chip.danger { color: #dc2626; }
-  .css-editor-chip.danger:active { background: #fee2e2; }
-
-  .css-editor-footer {
-    padding: 12px 16px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex-shrink: 0;
-    border-top: 1px solid #f5f5f8;
-    background: #fcfcfd;
-  }
-  .css-editor-status {
-    display: flex;
-    align-items: center;
-    gap: 7px;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #fafafa;
+    border-top: 1px solid #eee;
     font-size: 11px;
-    color: #9a9aa0;
-    padding-left: 2px;
+    color: #888;
+    flex-shrink: 0;
   }
   .css-editor-status-dot {
     width: 7px;
@@ -1100,119 +1041,171 @@
     border-radius: 50%;
     background: #c8c8cc;
     flex-shrink: 0;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
   }
-  .css-editor-status-dot.dirty {
-    background: #f59e0b;
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.55);
-  }
-  .css-editor-status-dot.saved {
-    background: #22c55e;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.55);
-  }
+  .css-editor-status-dot.dirty { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+  .css-editor-status-dot.saved { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+  .css-editor-status-bar .cursor { margin-left: auto; font-family: 'SF Mono', Menlo, monospace; }
+
   .css-editor-actions {
     display: flex;
     gap: 10px;
+    padding: 12px 14px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
   .css-editor-btn {
     flex: 1;
-    padding: 11px;
+    padding: 12px;
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
     border: none;
-    transition: all 0.15s ease;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    letter-spacing: 0.2px;
+    gap: 6px;
   }
   .css-editor-btn svg { width: 15px; height: 15px; fill: currentColor; }
   .css-editor-btn.preview {
-    background: #f5f5f7;
+    background: #f0f2f5;
     color: #333;
-    border: 1px solid #e8eaee;
+    border: 1px solid #e0e2e6;
   }
-  .css-editor-btn.preview:active {
-    background: #eaeaf0;
-    transform: scale(0.98);
-  }
+  .css-editor-btn.preview:active { background: #e2e4e8; transform: scale(0.98); }
   .css-editor-btn.save {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.32);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   }
-  .css-editor-btn.save:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.5);
+  .css-editor-btn.save:active { transform: scale(0.98); }
+
+  .font-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+  .font-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .font-current-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0f0f2;
+    margin-bottom: 14px;
+  }
+  .font-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'Times New Roman', serif;
+  }
+  .font-current-info { flex: 1; min-width: 0; }
+  .font-current-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1c;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .font-current-desc {
+    font-size: 12px;
+    color: #999;
+  }
+  .font-action-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 10px;
+    transition: all 0.15s;
+  }
+  .font-action-btn.primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  .font-action-btn.primary:active { transform: scale(0.98); }
+  .font-action-btn.outline {
+    background: #fff;
+    color: #333;
+    border: 1px solid #e0e0e0;
+  }
+  .font-action-btn.outline:active { background: #f5f5f5; }
+
+  .font-preview-box {
+    background: #f7f8fa;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    font-size: 20px;
+    color: #333;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+  .font-preview-label {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 10px;
+    text-align: left;
   }
 
-  .phone-case.dark-mode #jxCssEditorScreen {
-    background: rgba(0, 0, 0, 0.55);
+  .font-hint {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.6;
+    padding: 0 4px;
+    margin-top: 8px;
   }
-  .phone-case.dark-mode .css-editor-card {
-    background: #1c1c1e;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
-  }
-  .phone-case.dark-mode .css-editor-header {
-    border-bottom-color: #2c2c2e;
-  }
-  .phone-case.dark-mode .css-editor-header-title { color: #f0f0f2; }
-  .phone-case.dark-mode .css-editor-header-sub { color: #7a7a80; }
-  .phone-case.dark-mode .css-editor-close {
-    background: #2c2c2e;
-    color: #9a9aa0;
-  }
-  .phone-case.dark-mode .css-editor-close:active { background: #3a3a3c; }
-  .phone-case.dark-mode .css-editor-label { color: #b8b8be; }
-  .phone-case.dark-mode .css-editor-label-hint { color: #666; }
-  .phone-case.dark-mode #cssEditorTextarea {
-    background: #2c2c2e;
-    border-color: #3a3a3c;
-    color: #e6e6e8;
-  }
-  .phone-case.dark-mode #cssEditorTextarea:focus {
-    border-color: #667eea;
-    background: #1c1c1e;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
-  }
-  .phone-case.dark-mode #cssEditorTextarea::placeholder { color: #666; }
-  .phone-case.dark-mode #cssEditorTextarea::-webkit-scrollbar-thumb { background: #3a3a3c; }
-  .phone-case.dark-mode .css-editor-chip {
-    background: #2c2c2e;
-    border-color: #3a3a3c;
-    color: #ddd;
-  }
+
+  .phone-case.dark-mode #jxCssEditorScreen { background: #121212; }
+  .phone-case.dark-mode .css-editor-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .css-editor-title { color: #eee; }
+  .phone-case.dark-mode .css-editor-back { color: #7aa2f7; }
+  .phone-case.dark-mode .css-editor-tabs { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .css-editor-tabs .tab { color: #777; }
+  .phone-case.dark-mode .css-editor-tabs .tab.active { color: #a78bfa; }
+  .phone-case.dark-mode .css-editor-tabs .tab.active::after { background: #a78bfa; }
+  .phone-case.dark-mode .css-editor-toolbar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .css-editor-chip { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
   .phone-case.dark-mode .css-editor-chip:active { background: #3a3a3c; }
-  .phone-case.dark-mode .css-editor-chip.bubble { color: #a78bfa; }
-  .phone-case.dark-mode .css-editor-chip.bubble:active { background: #3a2e5c; }
-  .phone-case.dark-mode .css-editor-chip.avatar { color: #22d3ee; }
-  .phone-case.dark-mode .css-editor-chip.avatar:active { background: #1a3a44; }
-  .phone-case.dark-mode .css-editor-chip.input { color: #4ade80; }
-  .phone-case.dark-mode .css-editor-chip.input:active { background: #1e4032; }
-  .phone-case.dark-mode .css-editor-chip.tabbar { color: #60a5fa; }
-  .phone-case.dark-mode .css-editor-chip.tabbar:active { background: #1e3352; }
-  .phone-case.dark-mode .css-editor-chip.button { color: #f472b6; }
-  .phone-case.dark-mode .css-editor-chip.button:active { background: #4a2a3a; }
-  .phone-case.dark-mode .css-editor-chip.theme { color: #fb923c; }
-  .phone-case.dark-mode .css-editor-chip.theme:active { background: #4a3420; }
-  .phone-case.dark-mode .css-editor-chip.danger { color: #f87171; }
-  .phone-case.dark-mode .css-editor-chip.danger:active { background: #4a2626; }
-  .phone-case.dark-mode .css-editor-footer {
-    border-top-color: #2c2c2e;
-    background: #1c1c1e;
-  }
-  .phone-case.dark-mode .css-editor-status { color: #7a7a80; }
-  .phone-case.dark-mode .css-editor-status-dot { background: #4a4a4e; }
-  .phone-case.dark-mode .css-editor-btn.preview {
-    background: #2c2c2e;
-    border-color: #3a3a3c;
-    color: #e6e6e8;
-  }
+  .phone-case.dark-mode #cssEditorTextarea { background: #1c1c1e; color: #e6e6e8; }
+  .phone-case.dark-mode .css-editor-status-bar { background: #1c1c1e; border-top-color: #2c2c2e; color: #888; }
+  .phone-case.dark-mode .css-editor-actions { background: #1c1c1e; border-top-color: #2c2c2e; }
+  .phone-case.dark-mode .css-editor-btn.preview { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
   .phone-case.dark-mode .css-editor-btn.preview:active { background: #3a3a3c; }
+  .phone-case.dark-mode .font-card { background: #1c1c1e; box-shadow: none; }
+  .phone-case.dark-mode .font-current-row { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .font-current-name { color: #eee; }
+  .phone-case.dark-mode .font-preview-box { background: #2c2c2e; color: #ddd; }
+  .phone-case.dark-mode .font-action-btn.outline { background: #2c2c2e; color: #ddd; border-color: #3a3a3c; }
+  .phone-case.dark-mode .font-action-btn.outline:active { background: #3a3a3c; }
+  .phone-case.dark-mode .font-hint { color: #888; }
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1707,79 +1700,82 @@
       </div>
     </div>
 
-    <!-- CSS 美化编辑器（卡片式） -->
+    <!-- 美化设置（全屏） + 字体管理 -->
     <div id="jxCssEditorScreen">
-      <div class="css-editor-card">
-        <div class="css-editor-header">
-          <div class="css-editor-header-icon">
-            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-          </div>
-          <div class="css-editor-header-text">
-            <div class="css-editor-header-title">CSS 美化</div>
-            <div class="css-editor-header-sub">自定义你的界面风格</div>
-          </div>
-          <button class="css-editor-close" onclick="closeCssEditor()">×</button>
-        </div>
+      <div class="css-editor-top-bar">
+        <button class="css-editor-back" onclick="closeCssEditor()">← 返回</button>
+        <span class="css-editor-title">美化设置</span>
+        <button class="css-editor-save-top" onclick="saveCssEditor()">保存</button>
+      </div>
 
-        <div class="css-editor-body">
-          <div class="css-editor-label">
-            <span>样式代码</span>
-            <span class="css-editor-label-hint" id="cssEditorCursorInfo">Ln 1, Col 1</span>
-          </div>
-          <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的 CSS 样式 */
+      <div class="css-editor-tabs">
+        <button class="tab active" data-tab="css" onclick="switchEditorTab('css')">CSS 样式</button>
+        <button class="tab" data-tab="font" onclick="switchEditorTab('font')">全局字体</button>
+      </div>
+
+      <div class="css-editor-panel active" id="panel-css">
+        <div class="css-editor-toolbar">
+          <button class="css-editor-chip bubble" onclick="loadBubbleTemplate()">气泡</button>
+          <button class="css-editor-chip avatar" onclick="loadAvatarTemplate()">头像</button>
+          <button class="css-editor-chip input" onclick="loadInputTemplate()">输入框</button>
+          <button class="css-editor-chip tabbar" onclick="loadTabbarTemplate()">底栏</button>
+          <button class="css-editor-chip button" onclick="loadButtonTemplate()">按钮</button>
+          <button class="css-editor-chip theme" onclick="loadThemeTemplate()">主题</button>
+          <button class="css-editor-chip danger" onclick="resetCssEditor()">重置</button>
+        </div>
+        <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的自定义 CSS 样式 */
 
 /* 例如修改我的气泡颜色 */
 .jx-msg-row.me .jx-msg-bubble {
   background: #ffd6e7 !important;
-}"></textarea>
+}
 
-          <div class="css-editor-templates">
-            <button class="css-editor-chip bubble" onclick="loadBubbleTemplate()">
-              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-              气泡
-            </button>
-            <button class="css-editor-chip avatar" onclick="loadAvatarTemplate()">
-              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-              头像
-            </button>
-            <button class="css-editor-chip input" onclick="loadInputTemplate()">
-              <svg viewBox="0 0 24 24"><path d="M2 6c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6zm4 0v12h12V6H6z"/></svg>
-              输入框
-            </button>
-            <button class="css-editor-chip tabbar" onclick="loadTabbarTemplate()">
-              <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-              底栏
-            </button>
-            <button class="css-editor-chip button" onclick="loadButtonTemplate()">
-              <svg viewBox="0 0 24 24"><path d="M5 3h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z"/></svg>
-              按钮
-            </button>
-            <button class="css-editor-chip theme" onclick="loadThemeTemplate()">
-              <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-              主题
-            </button>
-            <button class="css-editor-chip danger" onclick="resetCssEditor()">
-              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-              重置
-            </button>
-          </div>
+/* 或点击上方模板按钮快速套用预设样式 */"></textarea>
+        <div class="css-editor-status-bar">
+          <span class="css-editor-status-dot" id="cssEditorStatusDot"></span>
+          <span id="cssEditorStatus">就绪</span>
+          <span class="cursor" id="cssEditorCursorInfo">Ln 1, Col 1</span>
         </div>
+        <div class="css-editor-actions">
+          <button class="css-editor-btn preview" onclick="applyCssEditor()">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            预览
+          </button>
+          <button class="css-editor-btn save" onclick="saveCssEditor()">
+            <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+            保存
+          </button>
+        </div>
+      </div>
 
-        <div class="css-editor-footer">
-          <div class="css-editor-status">
-            <span class="css-editor-status-dot" id="cssEditorStatusDot"></span>
-            <span id="cssEditorStatus">就绪</span>
+      <div class="css-editor-panel" id="panel-font">
+        <div class="font-panel-body">
+          <div class="font-card">
+            <div class="font-current-row">
+              <div class="font-icon-box">Aa</div>
+              <div class="font-current-info">
+                <div class="font-current-name" id="fontCurrentName">系统默认字体</div>
+                <div class="font-current-desc" id="fontCurrentDesc">上传 .ttf 文件即可替换全局字体</div>
+              </div>
+            </div>
+            <button class="font-action-btn primary" onclick="document.getElementById('fontUploadInput').click()">上传 TTF 字体文件</button>
+            <button class="font-action-btn outline" onclick="resetGlobalFont()">恢复默认字体</button>
+            <input type="file" id="fontUploadInput" accept=".ttf,font/ttf,application/x-font-ttf,application/font-sfnt" style="display:none;">
           </div>
-          <div class="css-editor-actions">
-            <button class="css-editor-btn preview" onclick="applyCssEditor()">
-              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-              预览
-            </button>
-            <button class="css-editor-btn save" onclick="saveCssEditor()">
-              <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
-              保存
-            </button>
+
+          <div class="font-card">
+            <div class="font-preview-label">字体预览效果</div>
+            <div class="font-preview-box" id="fontPreviewBox">
+              你好，这是一段预览文字<br>
+              Hello World 1234567890
+            </div>
           </div>
+
+          <p class="font-hint">
+            · 支持 .ttf 格式的字体文件，建议使用精简过的字体（≤3MB）<br>
+            · 上传后立即生效，刷新后依然保持<br>
+            · 若字体过大导致保存失败，可用 FontForge 等工具精简后再上传
+          </p>
         </div>
       </div>
     </div>
@@ -2280,10 +2276,13 @@ https://xxx.com/a.png
 </div>
 
 <script>
-// ================= CSS 美化编辑器 =================
+// ================= CSS 美化编辑器 + 字体管理 =================
 const USER_CSS_KEY = 'user_custom_css';
+const USER_FONT_KEY = 'user_custom_font';
+const USER_FONT_NAME = 'UserCustomGlobalFont';
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
+let _appliedFontFace = null;
 
 function applyUserCustomCss() {
   try {
@@ -2293,6 +2292,99 @@ function applyUserCustomCss() {
   } catch (e) {}
 }
 applyUserCustomCss();
+
+async function applyGlobalFont() {
+  try {
+    const fontData = localStorage.getItem(USER_FONT_KEY);
+    if (!fontData) return;
+    if (_appliedFontFace) {
+      try { document.fonts.delete(_appliedFontFace); } catch (e) {}
+      _appliedFontFace = null;
+    }
+    const cleanBase64 = fontData.replace(/^data:[^;]+;base64,/, '');
+    const url = `data:font/ttf;base64,${cleanBase64}`;
+    const font = new FontFace(USER_FONT_NAME, `url(${url})`);
+    await font.load();
+    document.fonts.add(font);
+    _appliedFontFace = font;
+    const family = `'${USER_FONT_NAME}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+    document.documentElement.style.fontFamily = family;
+    document.body.style.fontFamily = family;
+  } catch (e) {
+    console.warn('字体加载失败', e);
+  }
+}
+applyGlobalFont();
+
+function switchEditorTab(tab) {
+  document.querySelectorAll('.css-editor-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.css-editor-panel').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('panel-' + tab);
+  if (target) target.classList.add('active');
+  if (tab === 'font') updateFontUI();
+}
+
+function updateFontUI() {
+  const has = !!localStorage.getItem(USER_FONT_KEY);
+  const nameEl = document.getElementById('fontCurrentName');
+  const descEl = document.getElementById('fontCurrentDesc');
+  if (!nameEl || !descEl) return;
+  if (has) {
+    nameEl.textContent = '自定义字体（已应用）';
+    descEl.textContent = '当前使用你上传的 TTF 字体';
+  } else {
+    nameEl.textContent = '系统默认字体';
+    descEl.textContent = '上传 .ttf 文件即可替换全局字体';
+  }
+}
+
+function resetGlobalFont() {
+  if (!confirm('确定恢复系统默认字体吗？')) return;
+  try {
+    localStorage.removeItem(USER_FONT_KEY);
+    if (_appliedFontFace) {
+      try { document.fonts.delete(_appliedFontFace); } catch (e) {}
+      _appliedFontFace = null;
+    }
+    document.documentElement.style.fontFamily = '';
+    document.body.style.fontFamily = '';
+    updateFontUI();
+    alert('已恢复默认字体');
+  } catch (e) { alert('操作失败：' + (e.message || '未知错误')); }
+}
+
+(function initFontUpload() {
+  const input = document.getElementById('fontUploadInput');
+  if (!input) return;
+  input.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    this.value = '';
+    if (!file) return;
+    if (!/\.ttf$/i.test(file.name)) {
+      alert('请上传 .ttf 格式的字体文件');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('字体文件过大（>5MB），请使用精简版 TTF 后再上传。');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64 = ev.target.result;
+      try {
+        localStorage.setItem(USER_FONT_KEY, base64);
+        await applyGlobalFont();
+        updateFontUI();
+        alert('字体已应用！刷新后依然生效。');
+      } catch (err) {
+        alert('保存失败：存储空间可能不足\n建议使用精简版 TTF（<2MB）\n' + (err.message || ''));
+        try { localStorage.removeItem(USER_FONT_KEY); } catch (e) {}
+      }
+    };
+    reader.onerror = () => alert('文件读取失败');
+    reader.readAsDataURL(file);
+  });
+})();
 
 function updateCursorInfo() {
   const ta = document.getElementById('cssEditorTextarea');
@@ -2349,6 +2441,8 @@ function openCssEditor() {
     setCssStatus(saved ? '已加载保存的样式' : '就绪 · 可开始编辑', 'saved');
   }
   updateCursorInfo();
+  switchEditorTab('css');
+  updateFontUI();
   document.getElementById('jxCssEditorScreen').classList.add('active');
 }
 function closeCssEditor() {
@@ -2364,7 +2458,7 @@ function applyCssEditor() {
   setCssStatus('已应用预览（未保存）', 'dirty');
   setTimeout(() => {
     document.getElementById('jxCssEditorScreen').classList.remove('active');
-  }, 220);
+  }, 200);
 }
 function saveCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
@@ -2376,6 +2470,7 @@ function saveCssEditor() {
     _cssEditorDirty = false;
     _cssEditorDraft = null;
     setCssStatus('已保存 · 刷新后依然生效', 'saved');
+    alert('已保存');
   } catch (e) {
     alert('保存失败：' + (e && e.message ? e.message : '存储空间可能已满'));
   }
@@ -2392,24 +2487,6 @@ function resetCssEditor() {
   updateCursorInfo();
   setCssStatus('已恢复默认样式', 'saved');
 }
-function clearCssEditor() {
-  if (!confirm('清空编辑框内容？（未保存前不影响已保存的样式）')) return;
-  const ta = document.getElementById('cssEditorTextarea');
-  if (ta) ta.value = '';
-  updateCursorInfo();
-  markCssEditorDirty();
-}
-function loadDefaultCssToEditor() {
-  if (!confirm('⚠️ 载入默认 CSS 会覆盖当前编辑内容。\n\n默认 CSS 是页面完整样式，直接保存等于重写全部样式。\n\n建议：只在查找/复制规则时使用，编辑后仅保留新增部分再保存。\n\n确定继续吗？')) return;
-  const mainStyle = document.getElementById('mainStyle');
-  const ta = document.getElementById('cssEditorTextarea');
-  if (mainStyle && ta) {
-    ta.value = mainStyle.textContent;
-    updateCursorInfo();
-    markCssEditorDirty();
-    setCssStatus('已载入默认 CSS（谨慎保存）', 'dirty');
-  }
-}
 function appendTemplateToEditor(template, label) {
   const ta = document.getElementById('cssEditorTextarea');
   if (!ta) return;
@@ -2422,8 +2499,6 @@ function appendTemplateToEditor(template, label) {
 }
 function loadBubbleTemplate() {
   appendTemplateToEditor(`/* ═══ 聊天气泡美化 ═══ */
-
-/* 我的气泡（右侧 · 嫩绿渐变） */
 .jx-msg-row.me .jx-msg-bubble {
   background: linear-gradient(135deg, #a8ed7d 0%, #7dd956 100%) !important;
   color: #0f2416 !important;
@@ -2433,8 +2508,6 @@ function loadBubbleTemplate() {
   font-size: 15px !important;
   line-height: 1.55 !important;
 }
-
-/* 对方气泡（左侧 · 纯净白） */
 .jx-msg-row.other .jx-msg-bubble {
   background: #ffffff !important;
   color: #1a1a1a !important;
@@ -2444,40 +2517,31 @@ function loadBubbleTemplate() {
   font-size: 15px !important;
   line-height: 1.55 !important;
 }
-
-/* 气泡小三角同色 */
 .jx-msg-row.me .jx-msg-bubble::after { border-left-color: #95e26c !important; }
 .jx-msg-row.other .jx-msg-bubble::before { border-right-color: #ffffff !important; }
 `, '气泡美化');
 }
 function loadAvatarTemplate() {
-  appendTemplateToEditor(`/* ═══ 头像美化 ═══ */
+  appendTemplateToEditor(`/* ═══ 头像美化 ═══
+   把下面的图片 URL 换成你自己的图片链接（支持 http/https / data:image）
+   因为 <img> 无法用纯 CSS 直接换 src，这里用「隐藏原图 + 背景图」方案 */
 
-/* 方法：把下面的图片 URL 换成你自己的图片链接（支持 http/https / data:image）
-   因为 <img> 无法用纯 CSS 直接换 src，所以这里用「隐藏原图 + 背景图」的方案 */
-
-/* 聊天气泡·我的头像（右下角） */
-.jx-msg-row.me .jx-msg-avatar img {
-  display: none !important;
-}
+/* 聊天气泡·我的头像 */
+.jx-msg-row.me .jx-msg-avatar img { display: none !important; }
 .jx-msg-row.me .jx-msg-avatar {
   background-image: url('https://i.pravatar.cc/120?img=12') !important;
   background-size: cover !important;
   background-position: center !important;
-  border-radius: 50% !important;  /* 圆形头像（默认是圆角方形） */
+  border-radius: 50% !important;
 }
-
-/* 聊天气泡·对方头像（左下角） */
-.jx-msg-row.other .jx-msg-avatar img {
-  display: none !important;
-}
+/* 聊天气泡·对方头像 */
+.jx-msg-row.other .jx-msg-avatar img { display: none !important; }
 .jx-msg-row.other .jx-msg-avatar {
   background-image: url('https://i.pravatar.cc/120?img=32') !important;
   background-size: cover !important;
   background-position: center !important;
   border-radius: 50% !important;
 }
-
 /* 聊天列表头像 */
 .jx-chat-avatar img { display: none !important; }
 .jx-chat-avatar {
@@ -2485,7 +2549,6 @@ function loadAvatarTemplate() {
   background-size: cover !important;
   background-position: center !important;
 }
-
 /* 「我」页面的头像 */
 .jx-me-avatar img { display: none !important; }
 .jx-me-avatar {
@@ -2493,7 +2556,6 @@ function loadAvatarTemplate() {
   background-size: cover !important;
   background-position: center !important;
 }
-
 /* 朋友圈的头像 */
 .jx-moments-avatar img { display: none !important; }
 .jx-moments-avatar {
@@ -2501,7 +2563,6 @@ function loadAvatarTemplate() {
   background-size: cover !important;
   background-position: center !important;
 }
-
 /* 通讯录头像 */
 .jx-contact-avatar img { display: none !important; }
 .jx-contact-avatar {
@@ -2513,8 +2574,6 @@ function loadAvatarTemplate() {
 }
 function loadInputTemplate() {
   appendTemplateToEditor(`/* ═══ 输入框美化 ═══ */
-
-/* 底部聊天输入框（白色圆角胶囊） */
 .jx-chat-input-bar textarea {
   background: #ffffff !important;
   border: 1.5px solid #e0e0e6 !important;
@@ -2527,14 +2586,10 @@ function loadInputTemplate() {
   border-color: #07c160 !important;
   box-shadow: 0 0 0 3px rgba(7, 193, 96, 0.12);
 }
-
-/* 输入栏整体背景（浅灰渐变） */
 .jx-chat-input-bar {
   background: linear-gradient(180deg, #f7f7f9 0%, #eef0f4 100%) !important;
   border-top: 1px solid #e0e0e6 !important;
 }
-
-/* 发送按钮（渐变绿） */
 .jx-chat-input-bar .send-btn {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%) !important;
   border-radius: 20px !important;
@@ -2542,22 +2597,12 @@ function loadInputTemplate() {
   font-weight: 600 !important;
   padding: 8px 18px !important;
 }
-
-/* 输入栏图标颜色 */
-.jx-chat-input-bar .icon {
-  fill: #667eea !important;
-}
-
-/* 消息多选时的输入框 */
-.jx-chat-input-bar textarea::placeholder {
-  color: #b8b8be !important;
-}
+.jx-chat-input-bar .icon { fill: #667eea !important; }
+.jx-chat-input-bar textarea::placeholder { color: #b8b8be !important; }
 `, '输入框美化');
 }
 function loadTabbarTemplate() {
   appendTemplateToEditor(`/* ═══ 底部导航栏美化 ═══ */
-
-/* 底部导航整体（毛玻璃白） */
 .jx-bottom-nav {
   background: rgba(255, 255, 255, 0.94) !important;
   backdrop-filter: blur(20px);
@@ -2566,34 +2611,24 @@ function loadTabbarTemplate() {
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.04);
   height: 64px !important;
 }
-
-/* 普通状态图标 */
 .jx-nav-item {
   color: #8a8a90 !important;
   font-weight: 500 !important;
   transition: all 0.2s ease;
 }
-
-/* 激活状态（渐变绿 + 上移一点点） */
 .jx-nav-item.active {
   color: #07c160 !important;
   transform: translateY(-1px);
 }
-
-/* 激活状态图标加强 */
 .jx-nav-item.active svg {
   transform: scale(1.08);
   transition: transform 0.2s ease;
   filter: drop-shadow(0 2px 6px rgba(7, 193, 96, 0.3));
 }
-
-/* 标签文字 */
 .jx-nav-item span {
   font-size: 10px !important;
   letter-spacing: 0.3px;
 }
-
-/* 主页/聊天列表顶部栏也可以换成毛玻璃白 */
 .jx-header {
   background: rgba(255, 255, 255, 0.94) !important;
   backdrop-filter: blur(20px);
@@ -2605,8 +2640,6 @@ function loadTabbarTemplate() {
 }
 function loadButtonTemplate() {
   appendTemplateToEditor(`/* ═══ 按钮美化 ═══ */
-
-/* 主按钮 */
 .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
@@ -2615,29 +2648,21 @@ function loadButtonTemplate() {
   letter-spacing: 0.3px;
 }
 .btn-primary:active { transform: scale(0.97); }
-
-/* 成功按钮 */
 .btn-success {
   background: linear-gradient(135deg, #4ade80, #22c55e) !important;
   box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
   border-radius: 12px !important;
   font-weight: 600 !important;
 }
-
-/* 危险按钮 */
 .btn-danger, .btn-delete {
   background: linear-gradient(135deg, #f87171, #ef4444) !important;
   border-radius: 12px !important;
   font-weight: 600 !important;
 }
-
-/* 弹窗容器圆角 + 阴影 */
 .jx-modal-content, .jx-comment-modal-content, .jx-transfer-modal-inner {
   border-radius: 20px !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
 }
-
-/* 转账弹窗确认键 */
 .jx-tm-submit {
   background: linear-gradient(135deg, #4ade80, #22c55e) !important;
   border-radius: 12px !important;
@@ -2645,32 +2670,22 @@ function loadButtonTemplate() {
   box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
 }
 .jx-tm-submit:active { transform: scale(0.98); }
-
-/* 底部导航激活 */
 .jx-nav-item.active { color: #07c160 !important; }
 `, '按钮美化');
 }
 function loadThemeTemplate() {
   appendTemplateToEditor(`/* ═══ 梦幻紫主题（全套） ═══ */
-
-/* 底部导航栏 */
 .jx-bottom-nav {
   background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%) !important;
   border-top: 1px solid rgba(168, 85, 247, 0.15) !important;
 }
 .jx-nav-item.active { color: #8b5cf6 !important; }
-
-/* 聊天标题栏 */
 .jx-chat-top-bar {
   background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%) !important;
   border-bottom: 1px solid rgba(168, 85, 247, 0.12) !important;
 }
-
-/* 聊天消息区背景 */
 .jx-chat-messages { background: linear-gradient(180deg, #fdfbff 0%, #f8f4ff 100%); }
 #jxChatScreen { background: #faf7ff !important; }
-
-/* 输入栏 */
 .jx-chat-input-bar {
   background: #f5f0ff !important;
   border-top: 1px solid rgba(168, 85, 247, 0.1) !important;
@@ -2680,34 +2695,23 @@ function loadThemeTemplate() {
   border: 1.5px solid rgba(168, 85, 247, 0.15) !important;
   border-radius: 18px !important;
 }
-
-/* 我页面 */
 #jx-me { background: #faf7ff !important; }
 .jx-me-menu-item:active { background: rgba(168, 85, 247, 0.06) !important; }
-.jx-me-menu-icon.jx-me-bg-settings { background: linear-gradient(135deg, #a78bfa, #8b5cf6) !important; }
-
-/* 我的气泡换成紫色系 */
 .jx-msg-row.me .jx-msg-bubble {
   background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%) !important;
   color: #ffffff !important;
   border-radius: 16px 16px 4px 16px !important;
 }
 .jx-msg-row.me .jx-msg-bubble::after { border-left-color: #a78bfa !important; }
-
-/* 对方气泡 */
 .jx-msg-row.other .jx-msg-bubble {
   border-radius: 16px 16px 16px 4px !important;
   box-shadow: 0 3px 12px rgba(139, 92, 246, 0.08);
 }
-
-/* 发送按钮紫色 */
 .jx-chat-input-bar .send-btn {
   background: linear-gradient(135deg, #a78bfa, #8b5cf6) !important;
   border-radius: 18px !important;
   box-shadow: 0 3px 10px rgba(139, 92, 246, 0.3);
 }
-
-/* 头像圆角 */
 .jx-msg-avatar { border-radius: 50% !important; }
 .jx-chat-avatar { border-radius: 50% !important; }
 `, '梦幻紫主题');
@@ -3664,7 +3668,7 @@ const isBackupKey = (key) => (
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
-  key === BILLS_KEY || key === CARDS_KEY || key === 'user_custom_css' ||
+  key === BILLS_KEY || key === CARDS_KEY || key === 'user_custom_css' || key === 'user_custom_font' ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
