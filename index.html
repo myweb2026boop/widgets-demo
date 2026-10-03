@@ -4972,17 +4972,28 @@ function deleteChat() {
   renderJianxunChatList();
 }
 function showPersonaSelector() {
-  loadPersonaList();
-  const modal = document.getElementById('personaSelectorModal');
-  const list = document.getElementById('personaSelectorList');
-  if (personaList.length === 0) list.innerHTML = '<div style="padding:20px; text-align:center; color:#999; font-size:13px;">人设App中暂无数据<br>请先去添加人设</div>';
-  else {
-    list.innerHTML = personaList.map((p, i) => `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">
-      ${p.avatar ? `<img src="${p.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
-      <span>${escapeHtml(p.name || '未命名')}</span>
-    </div>`).join('');
+  try {
+    loadPersonaList();
+    const modal = document.getElementById('personaSelectorModal');
+    const list = document.getElementById('personaSelectorList');
+    if (!modal || !list) { alert('弹窗元素缺失，请刷新页面'); return; }
+    if (!Array.isArray(personaList) || personaList.length === 0) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:#999;font-size:13px;">通讯录为空<br>请先去「人设」App 添加角色</div>';
+    } else {
+      list.innerHTML = personaList.map((p, i) => {
+        const avatar = p.avatar
+          ? `<img src="${p.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
+          : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        return `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">
+          ${avatar}
+          <span>${escapeHtml(p.name || '未命名')}</span>
+        </div>`;
+      }).join('');
+    }
+    modal.classList.add('show');
+  } catch (e) {
+    alert('打开联系人失败：' + (e && e.message ? e.message : '未知错误'));
   }
-  modal.classList.add('show');
 }
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
 function addPersonaToChat(index) {
@@ -5170,25 +5181,32 @@ function toggleLike(postId) {
 }
 
 function openPublishScreen() {
-  loadPersonaList();
-  document.getElementById('jxPublishScreen').classList.add('active');
-  document.getElementById('publishContent').value = '';
-  tempPostImages = [];
-  const container = document.getElementById('publishImagesContainer');
-  container.innerHTML = `<div class="publish-add-image">+<input type="file" id="publishImageInput" accept="image/*" multiple></div>`;
-  document.getElementById('publishVisibility').value = 'public';
-  document.getElementById('publishCustomVisibility').style.display = 'none';
-  const imgInput = document.getElementById('publishImageInput');
-  if (imgInput) imgInput.addEventListener('change', handlePublishImageSelect);
-  const mentionList = document.getElementById('publishMentionList');
-  const customList = document.getElementById('publishCustomList');
-  if (personaList.length === 0) {
-    mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
-    customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>';
-  } else {
-    const buildList = (c) => { c.innerHTML = personaList.map((p) => `<div class="mention-item" onclick="toggleMention(this)">${escapeHtml(p.name || '未命名')}</div>`).join(''); };
-    buildList(mentionList);
-    buildList(customList);
+  try {
+    loadPersonaList();
+    const screen = document.getElementById('jxPublishScreen');
+    if (!screen) { alert('发布页元素缺失，请刷新页面'); return; }
+    document.getElementById('publishContent').value = '';
+    tempPostImages = [];
+    const container = document.getElementById('publishImagesContainer');
+    if (!container) { alert('发布图片容器缺失'); return; }
+    container.innerHTML = `<div class="publish-add-image">+<input type="file" id="publishImageInput" accept="image/*" multiple></div>`;
+    document.getElementById('publishVisibility').value = 'public';
+    document.getElementById('publishCustomVisibility').style.display = 'none';
+    const imgInput = document.getElementById('publishImageInput');
+    if (imgInput) imgInput.addEventListener('change', handlePublishImageSelect);
+    const mentionList = document.getElementById('publishMentionList');
+    const customList = document.getElementById('publishCustomList');
+    if (personaList.length === 0) {
+      mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
+      customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>';
+    } else {
+      const buildList = (c) => { c.innerHTML = personaList.map((p) => `<div class="mention-item" onclick="toggleMention(this)">${escapeHtml(p.name || '未命名')}</div>`).join(''); };
+      buildList(mentionList);
+      buildList(customList);
+    }
+    screen.classList.add('active');
+  } catch (e) {
+    alert('打开发布页失败：' + (e && e.message ? e.message : '未知错误'));
   }
 }
 function closePublishScreen() { document.getElementById('jxPublishScreen').classList.remove('active'); }
