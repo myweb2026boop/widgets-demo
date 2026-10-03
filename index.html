@@ -503,350 +503,56 @@
   .jx-fav-clear-bar { display: flex; justify-content: flex-end; padding: 6px 16px 0 16px; }
   .jx-fav-clear-btn { font-size: 12px; color: #999; padding: 6px 12px; border: 1px solid #e0e0e0; border-radius: 14px; background: #fff; cursor: pointer; }
 
-  .phone-case.dark-mode { background-color: #0d0d0d; }
-  .phone-case.dark-mode .phone-content { background-color: #0d0d0d; }
-  .phone-case.dark-mode .screen { background: #121212; color: #ddd; }
-  .phone-case.dark-mode #mainScreen { background-color: #121212; }
-  .phone-case.dark-mode .top-nav { color: #7aa2f7; }
-  .phone-case.dark-mode .top-nav .divider { color: #444; }
-  .phone-case.dark-mode .captcha-box { background: #1c1c1e; border-color: #2c2c2e; }
-  .phone-case.dark-mode .input-box { background: #1c1c1e; border-color: #2c2c2e; color: #777; }
-  .phone-case.dark-mode .input-box svg { stroke: #777; }
-  .phone-case.dark-mode .widget-label { color: #bbb; }
+  /* ===== 新增：亲属卡聊天气泡（图片1） ===== */
+  .jx-card-bubble-new { background: #fff; border-radius: 10px; padding: 14px; width: 210px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+  .jx-card-bubble-new::after { content: ''; position: absolute; right: -20px; bottom: -30px; width: 100px; height: 100px; background: #fdf4d8; border-radius: 50%; z-index: 0; }
+  .jx-card-header-new { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; position: relative; z-index: 1; }
+  .jx-card-icon-new { width: 40px; height: 40px; background: #f5c242; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+  .jx-card-info-new { flex: 1; overflow: hidden; }
+  .jx-card-info-new .title { font-size: 15px; font-weight: 600; color: #5c4b2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jx-card-info-new .sub { font-size: 12px; color: #8c7b5e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .jx-card-footer-new { font-size: 11px; color: #b0a89a; margin-top: 8px; position: relative; z-index: 1; }
 
-  .phone-case.dark-mode #musicScreen { background: #121212; }
-  .phone-case.dark-mode .music-top-bar svg { fill: #ddd; }
-  .phone-case.dark-mode .music-bg-area { background-color: #1c1c1e; }
-  .phone-case.dark-mode .profile-card,
-  .phone-case.dark-mode .music-list-card { background: #1c1c1e; box-shadow: none; }
-  .phone-case.dark-mode .profile-info h2 { color: #eee; }
-  .phone-case.dark-mode .profile-info p { color: #999; }
-  .phone-case.dark-mode .stats-row { border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .stat-item .num { color: #eee; }
-  .phone-case.dark-mode .stat-item .label { color: #888; }
-  .phone-case.dark-mode .edit-btn,
-  .phone-case.dark-mode .upload-btn { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
-  .phone-case.dark-mode .upload-btn svg { fill: #ddd; }
-  .phone-case.dark-mode .music-list-header h3 { color: #eee; }
-  .phone-case.dark-mode .music-player-bar { background: #1c1c1e; box-shadow: none; }
-  .phone-case.dark-mode .bar-info .title { color: #eee; }
-  .phone-case.dark-mode .bar-controls svg { fill: #ddd; }
-  .phone-case.dark-mode .music-list-empty { color: #777; }
-
-  .phone-case.dark-mode #playerScreen { background: #121212; }
-  .phone-case.dark-mode .player-top-bar svg,
-  .phone-case.dark-mode .player-tools svg,
-  .phone-case.dark-mode .player-controls svg { fill: #ddd; }
-  .phone-case.dark-mode .player-info h2 { color: #eee; }
-  .phone-case.dark-mode .progress-bar-container { background: #333; }
-  .phone-case.dark-mode .progress-bar-fill { background: #ddd; }
-  .phone-case.dark-mode .progress-bar-fill::after { background: #ddd; }
-  .phone-case.dark-mode .play-pause-btn { background: #eee; }
-  .phone-case.dark-mode .play-pause-btn svg { fill: #111; }
-
-  .phone-case.dark-mode #personaScreen,
-  .phone-case.dark-mode #beautifyScreen,
-  .phone-case.dark-mode #worldBookScreen,
-  .phone-case.dark-mode #settingsScreen { background: #121212; }
-  .phone-case.dark-mode .persona-header,
-  .phone-case.dark-mode .beautify-header,
-  .phone-case.dark-mode .worldbook-header { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .persona-header h3,
-  .phone-case.dark-mode .beautify-header h3,
-  .phone-case.dark-mode .worldbook-header h3 { color: #eee; }
-  .phone-case.dark-mode .persona-card,
-  .phone-case.dark-mode .section-card,
-  .phone-case.dark-mode .persona-edit-view,
-  .phone-case.dark-mode .wb-stats-bar,
-  .phone-case.dark-mode .wb-entry-card { background: #1c1c1e; box-shadow: none; }
-  .phone-case.dark-mode .persona-card .info h4,
-  .phone-case.dark-mode .section-card h4,
-  .phone-case.dark-mode .wb-entry-name { color: #eee; }
-  .phone-case.dark-mode .persona-card .info p,
-  .phone-case.dark-mode .wb-entry-preview,
-  .phone-case.dark-mode .wb-entry-keys { color: #999; }
-  .phone-case.dark-mode .form-group label { color: #aaa; }
-  .phone-case.dark-mode .form-group input,
-  .phone-case.dark-mode .form-group textarea,
-  .phone-case.dark-mode .form-group select { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .btn-cancel { background: #2c2c2e; color: #ddd; }
-  .phone-case.dark-mode .btn-outline { background: #1c1c1e; }
-  .phone-case.dark-mode .wb-entry-card.disabled { opacity: .5; }
-  .phone-case.dark-mode .hint-text { color: #888; }
-  .phone-case.dark-mode .empty-state { color: #777; }
-  .phone-case.dark-mode #settingsScreen .section-card { background: #1c1c1e; border-color: #2c2c2e; }
-  .phone-case.dark-mode #settingsScreen .section-card h4 { color: #eee; }
-  .phone-case.dark-mode #settingsScreen .btn-outline-dark { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
-  .phone-case.dark-mode #settingsScreen .btn-primary { background: #eee; color: #111; }
-  .phone-case.dark-mode #settingsScreen .btn-success { background: #444; color: #fff; }
-  .phone-case.dark-mode #settingsScreen .btn-danger { background: #555; color: #fff; }
-  .phone-case.dark-mode #settingsScreen .api-status { background: #1c1c1e; border-color: #2c2c2e; color: #bbb; }
-  .phone-case.dark-mode .model-list { background: #1c1c1e; border-color: #2c2c2e; }
-  .phone-case.dark-mode .model-item { color: #ddd; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .model-item:hover { background: #2c2c2e; }
-  .phone-case.dark-mode .model-item.active { background: #3a3a3c; }
-
-  .phone-case.dark-mode #jianxunScreen { background: #121212; }
-  .phone-case.dark-mode .jx-header,
-  .phone-case.dark-mode .jx-contacts-header { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-header .title,
-  .phone-case.dark-mode .jx-contacts-header .title { color: #eee; }
-  .phone-case.dark-mode .jx-header .left { color: #ddd; }
-  .phone-case.dark-mode .jx-header .right { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
-  .phone-case.dark-mode .jx-search-bar,
-  .phone-case.dark-mode .jx-contacts-search { background: #2c2c2e; color: #888; }
-  .phone-case.dark-mode .jx-chat-list { border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-chat-item { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-chat-name { color: #eee; }
-  .phone-case.dark-mode .jx-chat-msg { color: #888; }
-  .phone-case.dark-mode .jx-bottom-nav { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-contacts-block,
-  .phone-case.dark-mode .jx-contact-user { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-contact-name { color: #eee; }
-  .phone-case.dark-mode .jx-contact-letter { background: #1c1c1e; color: #999; }
-  .phone-case.dark-mode #jx-me { background: #121212; }
-  .phone-case.dark-mode .jx-me-profile,
-  .phone-case.dark-mode .jx-me-menu { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-me-name { color: #eee; }
-  .phone-case.dark-mode .jx-me-menu-item { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-me-menu-text { color: #ddd; }
-
-  .phone-case.dark-mode .jx-moments-user-info { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-moments-name { color: #eee; }
-  .phone-case.dark-mode .jx-moments-signature,
-  .phone-case.dark-mode .jx-moments-join-date,
-  .phone-case.dark-mode .jx-moments-post-count { color: #888; }
-  .phone-case.dark-mode .jx-moments-posts { background: #121212; }
-  .phone-case.dark-mode .jx-post { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-post-content { color: #ddd; }
-  .phone-case.dark-mode .jx-post-comments { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-comment-text { color: #ccc; }
-
-  .phone-case.dark-mode #jxChatScreen { background-color: #121212; }
-  .phone-case.dark-mode .jx-chat-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-chat-top-bar .title { color: #eee; }
-  .phone-case.dark-mode .jx-chat-top-bar .back-btn,
-  .phone-case.dark-mode .jx-chat-top-bar .more-btn { color: #ddd; }
-  .phone-case.dark-mode .jx-msg-row.other .jx-msg-bubble { background: #2c2c2e; color: #eee; }
-  .phone-case.dark-mode .jx-msg-row.other .jx-msg-bubble::before { border-right-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-chat-input-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-chat-input-bar textarea { background: #2c2c2e; color: #eee; }
-  .phone-case.dark-mode .jx-chat-input-bar .icon { fill: #ddd; }
-  .phone-case.dark-mode .sticker-panel { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .sticker-cell { background: #2c2c2e; border-color: #3a3a3c; }
-  .phone-case.dark-mode .sticker-cell-name { background: #2c2c2e; color: #aaa; border-top-color: #3a3a3c; }
-  .phone-case.dark-mode .sticker-pack-bar { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .sticker-pack-chip { background: #2c2c2e; border-color: #3a3a3c; color: #ddd; }
-  .phone-case.dark-mode .sticker-pack-chip.active { background: #07c160; color: #fff; border-color: #07c160; }
-  .phone-case.dark-mode .sticker-pack-card { background: #1c1c1e; border-color: #2c2c2e; }
-  .phone-case.dark-mode .sticker-pack-card-name { color: #eee; }
-  .phone-case.dark-mode .sticker-pack-name-input { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .jx-multi-bar { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-multi-bar span { color: #ddd; }
-  .phone-case.dark-mode .merged-title { color: #eee; border-bottom-color: rgba(255,255,255,0.1); }
-  .phone-case.dark-mode .merged-line { color: #aaa; }
-
-  .phone-case.dark-mode #jxChatInfoScreen { background: #121212; }
-  .phone-case.dark-mode .jx-info-top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-info-top-bar .title { color: #eee; }
-  .phone-case.dark-mode .jx-info-top-bar .back-btn { color: #ddd; }
-  .phone-case.dark-mode .jx-info-block { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-info-item { color: #ddd; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-info-item .label { color: #ddd; }
-  .phone-case.dark-mode .jx-info-header-name { color: #eee; }
-  .phone-case.dark-mode .jx-info-header-block { border-bottom-color: #2c2c2e; }
-
-  .phone-case.dark-mode #worldBookSelectScreen { background: #121212; }
-  .phone-case.dark-mode #worldBookSelectList { background: #1c1c1e !important; }
-  .phone-case.dark-mode #wbSelectFooter { background: #1c1c1e !important; border-top-color: #2c2c2e !important; }
-  .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item { border-bottom-color: #2c2c2e !important; }
-  .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span { color: #eee; }
-
-  .phone-case.dark-mode .jx-modal-content,
-  .phone-case.dark-mode .jx-comment-modal-content { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-modal-content h3 { color: #eee; }
-  .phone-case.dark-mode .jx-modal-item { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-modal-item span { color: #eee; }
-  .phone-case.dark-mode .jx-modal-btn { background: #2c2c2e; color: #ddd; }
-  .phone-case.dark-mode .jx-comment-modal-content textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .jx-comment-modal-actions .cancel { background: #2c2c2e; color: #ddd; }
-
-  .phone-case.dark-mode #jxPublishScreen { background: #121212; }
-  .phone-case.dark-mode .publish-header { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .publish-header .publish-title { color: #eee; }
-  .phone-case.dark-mode .publish-body textarea { color: #eee; }
-  .phone-case.dark-mode .publish-options { background: #1c1c1e; }
-  .phone-case.dark-mode .publish-option-item { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .publish-option-item .label { color: #ddd; }
-  .phone-case.dark-mode .mention-item { background: #2c2c2e; color: #ddd; }
-  .phone-case.dark-mode .publish-add-image { background: #1c1c1e; border-color: #3a3a3c; }
-  .phone-case.dark-mode .app-edit-info input { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .app-edit-item { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .preset-input-row input,
-  .phone-case.dark-mode .preset-select-row select { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .jx-msg-menu-inner { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-msg-menu-item { color: #ddd; border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-msg-menu-item.cancel { background: #2c2c2e; color: #888; }
-  .phone-case.dark-mode #stickerLinkInput { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .jx-fav-card { background: #1c1c1e; box-shadow: none; }
-  .phone-case.dark-mode .jx-fav-source { color: #999; }
-  .phone-case.dark-mode .jx-fav-text { color: #ddd; }
-  .phone-case.dark-mode .jx-fav-quote { color: #999; border-left-color: #444; }
-  .phone-case.dark-mode .jx-fav-merged { background: #2c2c2e; }
-  .phone-case.dark-mode .jx-fav-merged-title { color: #eee; }
-  .phone-case.dark-mode .jx-fav-merged-line { color: #aaa; }
-  .phone-case.dark-mode .jx-fav-empty { color: #888; }
-  .phone-case.dark-mode .jx-fav-clear-btn { background: #1c1c1e; border-color: #2c2c2e; color: #aaa; }
-  .phone-case.dark-mode .jx-fav-delete:active { background: #2c2c2e; }
-  .phone-case.dark-mode #jxFavoritesScreen { background: #121212; }
-
-  .jx-quote-preview { display: none; padding: 8px 14px; background: #f0f0f0; border-top: 1px solid #dcdcdc; align-items: center; gap: 8px; font-size: 13px; flex-shrink: 0; }
-  .jx-quote-preview.show { display: flex; }
-  .jx-quote-content { flex: 1; overflow: hidden; padding-left: 8px; border-left: 3px solid #07c160; }
-  .jx-quote-content .jx-quote-name { display: block; color: #07c160; font-weight: 500; font-size: 12px; margin-bottom: 2px; }
-  .jx-quote-content .jx-quote-text { display: block; color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .jx-quote-close { color: #999; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
-
-  .jx-msg-quote { background: rgba(0,0,0,0.06); border-left: 2px solid rgba(0,0,0,0.15); padding: 4px 8px; margin-bottom: 6px; font-size: 12px; border-radius: 3px; }
-  .jx-msg-quote .qname { color: #576b95; font-weight: 500; display: block; margin-bottom: 1px; }
-  .jx-msg-quote .qtext { color: #888; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-  .jx-msg-bubble.media .jx-msg-quote { background: rgba(255,255,255,0.8); }
-
-  .phone-case.dark-mode .jx-quote-preview { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-quote-content .jx-quote-text { color: #aaa; }
-  .phone-case.dark-mode .jx-msg-quote { background: rgba(255,255,255,0.08); border-left-color: rgba(255,255,255,0.2); }
-  .phone-case.dark-mode .jx-msg-quote .qname { color: #82a7e0; }
-  .phone-case.dark-mode .jx-msg-quote .qtext { color: #bbb; }
-  .phone-case.dark-mode .jx-msg-bubble.media .jx-msg-quote { background: rgba(0,0,0,0.45); }
-
-  .jx-post-likes { font-size: 13px; color: #576b95; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.06); line-height: 1.5; }
-  .jx-post-likes svg { width: 13px; height: 13px; fill: #576b95; flex-shrink: 0; }
-  .phone-case.dark-mode .jx-post-likes { color: #82a7e0; border-bottom-color: rgba(255,255,255,0.1); }
-  .phone-case.dark-mode .jx-post-likes svg { fill: #82a7e0; }
-
-  .jx-edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 20001; display: none; }
-  .jx-edit-modal.show { display: flex; }
-  .jx-edit-modal-content { background: #fff; width: 90%; max-width: 380px; border-radius: 12px; padding: 20px; text-align: left; display: flex; flex-direction: column; }
-  .jx-edit-modal-content h3 { font-size: 16px; margin-bottom: 15px; color: #333; }
-  .jx-edit-textarea { width: 100%; height: 150px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px; resize: none; outline: none; font-family: inherit; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap; word-break: break-all; }
-  .jx-edit-actions { display: flex; gap: 10px; }
-  .jx-edit-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-  .jx-edit-actions .cancel { background: #f0f0f0; color: #333; }
-  .jx-edit-actions .save { background: #07c160; color: #fff; }
-  .phone-case.dark-mode .jx-edit-modal-content { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-edit-modal-content h3 { color: #eee; }
-  .phone-case.dark-mode .jx-edit-textarea { background: #2c2c2e; border-color: #3a3a3c; color: #eee; }
-  .phone-case.dark-mode .jx-edit-actions .cancel { background: #2c2c2e; color: #ddd; }
-
-  /* ===== 新增：聊天工具栏 ===== */
-  .jx-chat-tools { display: none; background: #f7f7f7; border-top: 1px solid #dcdcdc; padding: 18px 12px; grid-template-columns: repeat(3, 1fr); gap: 18px 0; flex-shrink: 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
-  .jx-chat-tools.show { display: grid; }
-  .jx-chat-tool-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; color: #666; }
-  .jx-chat-tool-icon { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #ececec; }
-  .jx-chat-tool-icon svg { width: 28px; height: 28px; }
-
-  /* ===== 转账 / 亲属卡 气泡 ===== */
-  .jx-msg-bubble.transfer, .jx-msg-bubble.card { padding: 0 !important; background: transparent !important; max-width: 75% !important; }
-  .jx-msg-bubble.transfer::after, .jx-msg-bubble.transfer::before, .jx-msg-bubble.card::after, .jx-msg-bubble.card::before { display: none !important; }
-  .jx-transfer-card { background: #fa9d3b; border-radius: 6px; padding: 16px 18px; color: #fff; display: flex; flex-direction: column; gap: 10px; min-width: 180px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .jx-transfer-card .t-amount { font-size: 22px; font-weight: 500; letter-spacing: 0.5px; }
-  .jx-transfer-card .t-note { font-size: 12px; opacity: 0.92; }
-  .jx-transfer-card .t-footer { display: flex; align-items: center; gap: 4px; font-size: 11px; opacity: 0.9; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.2); }
-  .jx-transfer-card .t-footer svg { width: 12px; height: 12px; fill: #fff; }
-  .jx-transfer-card.opened { background: #d8d8d8; color: #999; }
-  .jx-transfer-card.opened .t-footer { border-top-color: rgba(0,0,0,0.08); }
-  .jx-transfer-card.opened .t-footer svg { fill: #999; }
-  .jx-card-bubble { background: linear-gradient(135deg, #f56c8a 0%, #f7896c 100%); border-radius: 6px; padding: 16px 18px; color: #fff; display: flex; flex-direction: column; gap: 8px; min-width: 180px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .jx-card-bubble .c-label { font-size: 11px; opacity: 0.9; letter-spacing: 1px; }
-  .jx-card-bubble .c-amount { font-size: 22px; font-weight: 500; }
-  .jx-card-bubble .c-note { font-size: 12px; opacity: 0.92; }
-
-  /* ===== 合并聊天记录详情 ===== */
-  .jx-merged-view-item { display: flex; margin-bottom: 14px; font-size: 14px; }
-  .jx-merged-view-item .nm { color: #b2b2b2; font-size: 12px; margin-bottom: 4px; display: block; }
-  .jx-merged-view-item .bb { background: #fff; border-radius: 6px; padding: 8px 12px; color: #333; max-width: 75%; line-height: 1.4; word-break: break-word; }
-  .jx-merged-view-item.me { justify-content: flex-end; }
-  .jx-merged-view-item.me .bb { background: #95ec69; }
-  .jx-merged-view-item img { max-width: 140px; border-radius: 6px; display: block; }
-
-  /* ===== 弹窗 ===== */
-  .jx-transfer-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 30000; }
-  .jx-transfer-modal.show { display: flex; }
-  .jx-transfer-modal-inner { background: #fff; width: 88%; max-width: 360px; border-radius: 14px; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-  .jx-tm-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 16px; font-weight: 600; color: #333; }
-  .jx-tm-header .cancel { font-size: 14px; color: #888; font-weight: 400; cursor: pointer; }
-  .jx-tm-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-  .jx-tm-receiver { display: flex; align-items: center; gap: 10px; }
-  .jx-tm-receiver img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; background: #f0f0f0; }
-  .jx-tm-receiver .nm { font-size: 14px; color: #333; font-weight: 500; }
-  .jx-tm-amount-row { display: flex; align-items: baseline; border-bottom: 2px solid #07c160; padding-bottom: 8px; gap: 6px; }
-  .jx-tm-amount-row .cur { font-size: 28px; color: #333; font-weight: 500; }
-  .jx-tm-amount-row input { flex: 1; border: none; outline: none; font-size: 28px; font-weight: 500; color: #333; min-width: 0; background: transparent; }
-  .jx-tm-amount-row input::placeholder { color: #ccc; }
-  .jx-tm-note-row { display: flex; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-  .jx-tm-note-row input { flex: 1; border: none; outline: none; font-size: 14px; color: #333; min-width: 0; background: transparent; }
-  .jx-tm-note-row input::placeholder { color: #bbb; }
-  .jx-tm-pay { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 14px; color: #333; cursor: pointer; }
-  .jx-tm-pay .value { color: #888; display: flex; align-items: center; gap: 4px; }
-  .jx-tm-pay .value svg { width: 16px; height: 16px; fill: #ccc; }
-  .jx-tm-submit { margin: 0 20px 20px; padding: 13px; background: #07c160; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
-
-  /* ===== 钱包 ===== */
-  .jx-wallet-header { background: #fff; padding: 22px 20px; display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid #f0f0f0; }
-  .jx-wallet-header .lbl { font-size: 12px; color: #888; }
-  .jx-wallet-header .amt { font-size: 30px; color: #333; font-weight: 600; }
-  .jx-wallet-header .amt .yuan { font-size: 20px; font-weight: 500; margin-right: 2px; }
-  .jx-wallet-menu { background: #fff; margin-top: 12px; }
-  .jx-wallet-menu-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+  /* ===== 新增：钱包主页样式（图片3） ===== */
+  .jx-wallet-balance-card { background: linear-gradient(135deg, #1a3b2e 0%, #2c5e4a 100%); border-radius: 16px; padding: 24px 20px; color: #fff; margin: 16px; position: relative; }
+  .jx-wallet-balance-card .lbl { font-size: 14px; opacity: 0.8; margin-bottom: 8px; display: block; }
+  .jx-wallet-balance-card .amt { font-size: 36px; font-weight: 600; margin-bottom: 20px; display: block; }
+  .jx-wallet-btn-row { display: flex; gap: 12px; }
+  .jx-wallet-btn { flex: 1; background: rgba(255,255,255,0.15); border: none; border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; cursor: pointer; text-align: center; transition: background 0.2s; }
+  .jx-wallet-btn:active { background: rgba(255,255,255,0.25); }
+  .jx-wallet-menu-list { background: #fff; }
+  .jx-wallet-menu-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f0f0f0; background: #fff; cursor: pointer; }
   .jx-wallet-menu-item:last-child { border-bottom: none; }
-  .jx-wallet-menu-icon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0; }
-  .jx-wallet-menu-icon svg { width: 16px; height: 16px; fill: #fff; }
+  .jx-wallet-menu-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 14px; flex-shrink: 0; }
   .jx-wallet-menu-item .text { flex: 1; font-size: 16px; color: #333; }
   .jx-wallet-menu-item .arrow { width: 16px; height: 16px; fill: #c0c0c0; }
 
-  /* ===== 账单 ===== */
-  .jx-bill-group { background: #fff; margin-bottom: 12px; }
-  .jx-bill-group-title { padding: 10px 16px; font-size: 12px; color: #999; font-weight: 500; background: #f7f8fa; }
-  .jx-bill-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; }
-  .jx-bill-item:last-child { border-bottom: none; }
-  .jx-bill-icon { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .jx-bill-icon svg { width: 20px; height: 20px; fill: #fff; }
-  .jx-bill-icon.in { background: #ff9800; }
-  .jx-bill-icon.out { background: #ffa726; }
-  .jx-bill-icon.card { background: #ec407a; }
-  .jx-bill-info { flex: 1; display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
-  .jx-bill-info .nm { font-size: 15px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .jx-bill-info .tm { font-size: 12px; color: #999; }
-  .jx-bill-amt { font-size: 16px; font-weight: 500; color: #333; flex-shrink: 0; }
-  .jx-bill-amt.in { color: #07c160; }
-  .jx-bill-empty { text-align: center; padding: 60px 20px; color: #999; font-size: 14px; }
+  /* ===== 新增：亲属卡管理页面样式（图片2） ===== */
+  .jx-card-section-title { padding: 12px 16px 8px; font-size: 13px; color: #888; background: #f7f8fa; }
+  .jx-card-item-new { background: linear-gradient(135deg, #fdf4d8 0%, #fcf0c9 100%); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; margin: 0 16px 12px 16px; }
+  .jx-card-item-new::before { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.3); border-radius: 50%; }
+  .jx-card-item-new .header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; position: relative; z-index: 1; }
+  .jx-card-item-new .star-icon { width: 32px; height: 32px; background: #e8b83c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+  .jx-card-item-new .name { font-size: 16px; color: #5c4b2e; font-weight: 500; }
+  .jx-card-item-new .limit-label { font-size: 12px; color: #b08d4c; text-align: right; display: block; }
+  .jx-card-item-new .limit-amount { font-size: 28px; color: #5c4b2e; font-weight: 600; text-align: right; display: block; margin-top: 4px; }
+  .jx-card-item-new .limit-row { display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 1; }
+  .jx-card-empty { text-align: center; padding: 40px 20px; color: #999; font-size: 14px; }
 
-  /* ===== 亲属卡 ===== */
-  .jx-card-section { background: #fff; margin-bottom: 12px; padding: 4px 0; }
-  .jx-card-section-title { padding: 12px 16px 8px; font-size: 13px; color: #999; font-weight: 500; }
-  .jx-card-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; }
-  .jx-card-item:last-child { border-bottom: none; }
-  .jx-card-icon { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #f56c8a, #f7896c); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .jx-card-icon svg { width: 24px; height: 24px; fill: #fff; }
-  .jx-card-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-  .jx-card-info .nm { font-size: 15px; color: #333; }
-  .jx-card-info .sub { font-size: 12px; color: #999; }
-  .jx-card-amt { font-size: 14px; color: #e91e63; font-weight: 500; text-align: right; }
-  .jx-card-amt .used { font-size: 11px; color: #999; font-weight: 400; display: block; margin-top: 2px; }
-  .jx-card-empty { text-align: center; padding: 30px 20px; color: #999; font-size: 13px; }
-
-  /* 深色兼容 */
-  .phone-case.dark-mode .jx-chat-tools { background: #1c1c1e; border-top-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-chat-tool-icon { background: #2c2c2e; border-color: #3a3a3c; }
-  .phone-case.dark-mode .jx-chat-tool-item { color: #aaa; }
-  .phone-case.dark-mode .jx-transfer-modal-inner, .phone-case.dark-mode .jx-wallet-header, .phone-case.dark-mode .jx-wallet-menu, .phone-case.dark-mode .jx-bill-group, .phone-case.dark-mode .jx-card-section { background: #1c1c1e; }
-  .phone-case.dark-mode .jx-wallet-header .amt, .phone-case.dark-mode .jx-wallet-menu-item .text, .phone-case.dark-mode .jx-bill-info .nm, .phone-case.dark-mode .jx-card-info .nm, .phone-case.dark-mode .jx-tm-receiver .nm { color: #eee; }
-  .phone-case.dark-mode .jx-tm-header { border-bottom-color: #2c2c2e; color: #eee; }
-  .phone-case.dark-mode .jx-tm-amount-row .cur, .phone-case.dark-mode .jx-tm-amount-row input, .phone-case.dark-mode .jx-tm-note-row input { color: #eee; }
-  .phone-case.dark-mode .jx-tm-note-row { border-bottom-color: #3a3a3c; }
-  .phone-case.dark-mode .jx-wallet-menu-item, .phone-case.dark-mode .jx-bill-item, .phone-case.dark-mode .jx-card-item { border-bottom-color: #2c2c2e; }
-  .phone-case.dark-mode .jx-merged-view-item .bb { background: #2c2c2e; color: #eee; }
-  .phone-case.dark-mode .jx-merged-view-item.me .bb { background: #3a3a3c; }
+  /* 深色模式兼容 */
+  .phone-case.dark-mode .jx-wallet-balance-card { background: linear-gradient(135deg, #1a2b22 0%, #142b20 100%); }
+  .phone-case.dark-mode .jx-wallet-menu-list, .phone-case.dark-mode .jx-wallet-menu-item { background: #1c1c1e; }
+  .phone-case.dark-mode .jx-wallet-menu-item { border-bottom-color: #2c2c2e; }
+  .phone-case.dark-mode .jx-wallet-menu-item .text { color: #eee; }
+  .phone-case.dark-mode .jx-card-item-new { background: linear-gradient(135deg, #3a3520 0%, #2c2818 100%); }
+  .phone-case.dark-mode .jx-card-item-new .name, .phone-case.dark-mode .jx-card-item-new .limit-amount { color: #f0d9a0; }
+  .phone-case.dark-mode .jx-card-item-new .limit-label { color: #b08d4c; }
+  .phone-case.dark-mode .jx-card-section-title { background: #121212; color: #888; }
+  .phone-case.dark-mode .jx-card-bubble-new { background: #2c2c2e; box-shadow: none; }
+  .phone-case.dark-mode .jx-card-bubble-new::after { background: #3a3520; }
+  .phone-case.dark-mode .jx-card-info-new .title { color: #f0d9a0; }
+  .phone-case.dark-mode .jx-card-info-new .sub { color: #b08d4c; }
+  .phone-case.dark-mode .jx-card-footer-new { color: #888; }
 </style>
 </head>
 <body>
@@ -1355,27 +1061,8 @@
         <span class="title">钱包</span>
         <span style="width: 28px;"></span>
       </div>
-      <div class="jx-info-scroll">
-        <div class="jx-wallet-header">
-          <span class="lbl">零钱</span>
-          <span class="amt"><span class="yuan">¥</span><span id="jxWalletBalance">0.00</span></span>
-        </div>
-        <div class="jx-wallet-menu">
-          <div class="jx-wallet-menu-item" onclick="openRelativeCardScreen(false)">
-            <div class="jx-wallet-menu-icon" style="background:#f56c8a;">
-              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-            </div>
-            <span class="text">亲属卡</span>
-            <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
-          </div>
-          <div class="jx-wallet-menu-item" onclick="openBillsScreen()">
-            <div class="jx-wallet-menu-icon" style="background:#4b7bec;">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            </div>
-            <span class="text">账单</span>
-            <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
-          </div>
-        </div>
+      <div class="jx-info-scroll" id="jxWalletContent">
+        <!-- 动态注入内容 -->
       </div>
     </div>
 
@@ -3124,23 +2811,50 @@ function openRelativeCardScreen(fromChat) {
   const received = cards.filter(c => !c.giverIsUser);
   const sent = cards.filter(c => c.giverIsUser);
   let html = '';
+  
   if (fromChat && currentChatId) {
     const chat = jianxunChats.find(c => c.id === currentChatId);
-    if (chat) html += `<div class="jx-card-section"><div class="jx-card-section-title" style="color:#e91e63;cursor:pointer;padding:16px;" onclick="createRelativeCardForChat()">+ 给 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 送一张亲属卡</div></div>`;
+    if (chat) html += `<div class="jx-card-section-title" style="color:#e91e63;cursor:pointer;padding:16px;" onclick="createRelativeCardForChat()">+ 给 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 送一张亲属卡</div>`;
   }
-  html += `<div class="jx-card-section"><div class="jx-card-section-title">我收到的亲属卡</div>`;
-  if (received.length === 0) html += `<div class="jx-card-empty">暂无</div>`;
-  else received.forEach(c => {
-    const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
-    html += `<div class="jx-card-item"><div class="jx-card-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div><div class="jx-card-info"><div class="nm">${escapeHtml(c.giverName)} 送给我的</div><div class="sub">剩余 ¥${remaining.toFixed(2)} / 共 ¥${(c.limit || 0).toFixed(2)}</div></div><div class="jx-card-amt">¥${remaining.toFixed(2)}<span class="used">已用 ¥${(c.used || 0).toFixed(2)}</span></div></div>`;
-  });
-  html += `</div><div class="jx-card-section"><div class="jx-card-section-title">我送出的亲属卡</div>`;
-  if (sent.length === 0) html += `<div class="jx-card-empty">暂无</div>`;
-  else sent.forEach(c => {
-    const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
-    html += `<div class="jx-card-item"><div class="jx-card-icon" style="background: linear-gradient(135deg,#42a5f5,#7e57c2);"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div><div class="jx-card-info"><div class="nm">送给了 ${escapeHtml(c.receiverName)}</div><div class="sub">剩余 ¥${remaining.toFixed(2)} / 共 ¥${(c.limit || 0).toFixed(2)}</div></div><div class="jx-card-amt">¥${remaining.toFixed(2)}<span class="used">已用 ¥${(c.used || 0).toFixed(2)}</span></div></div>`;
-  });
-  html += `</div>`;
+
+  if (received.length > 0) {
+    html += `<div class="jx-card-section-title">我收到的亲属卡</div>`;
+    received.forEach(c => {
+      const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
+      html += `<div class="jx-card-item-new">
+        <div class="header">
+          <div class="star-icon"><svg viewBox="0 0 24 24" fill="#fff" width="18" height="18"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+          <div class="name">${escapeHtml(c.giverName)}的亲属卡</div>
+        </div>
+        <div class="limit-row">
+          <span class="limit-label">本月剩余额度</span>
+          <span class="limit-amount">¥${remaining.toFixed(2)}</span>
+        </div>
+      </div>`;
+    });
+  }
+
+  if (sent.length > 0) {
+    html += `<div class="jx-card-section-title">我赠送的亲属卡</div>`;
+    sent.forEach(c => {
+      const remaining = Math.max(0, (c.limit || 0) - (c.used || 0));
+      html += `<div class="jx-card-item-new">
+        <div class="header">
+          <div class="star-icon"><svg viewBox="0 0 24 24" fill="#fff" width="18" height="18"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+          <div class="name">${escapeHtml(c.receiverName)}的亲属卡</div>
+        </div>
+        <div class="limit-row">
+          <span class="limit-label">本月剩余额度</span>
+          <span class="limit-amount">¥${remaining.toFixed(2)}</span>
+        </div>
+      </div>`;
+    });
+  }
+
+  if (!received.length && !sent.length) {
+    html = `<div class="jx-card-empty">暂无亲属卡</div>`;
+  }
+
   list.innerHTML = html;
 }
 function closeRelativeCardScreen() { document.getElementById('jxRelativeCardScreen').style.display = 'none'; }
@@ -3168,7 +2882,53 @@ function openWalletScreen() {
   const bills = loadBills();
   let income = 0, expense = 0;
   bills.forEach(b => { if (b.direction === 'in') income += b.amount; else expense += b.amount; });
-  document.getElementById('jxWalletBalance').innerText = Math.max(0, income - expense).toFixed(2);
+  const balance = Math.max(0, income - expense);
+  
+  const walletContent = document.getElementById('jxWalletContent');
+  if (walletContent) {
+    walletContent.innerHTML = `
+      <div class="jx-wallet-balance-card">
+        <span class="lbl">零钱</span>
+        <span class="amt">¥${balance.toFixed(2)}</span>
+        <div class="jx-wallet-btn-row">
+          <button class="jx-wallet-btn" onclick="alert('充值功能暂未开放')">充值</button>
+          <button class="jx-wallet-btn" onclick="alert('提现功能暂未开放')">提现</button>
+        </div>
+      </div>
+      <div class="jx-wallet-menu-list">
+        <div class="jx-wallet-menu-item" onclick="alert('银行卡功能暂未开放')">
+          <div class="jx-wallet-menu-icon" style="background:#4b7bec;"><svg viewBox="0 0 24 24" fill="#fff" width="16" height="16"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+          <span class="text">银行卡</span>
+          <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </div>
+        <div class="jx-wallet-menu-item" onclick="openRelativeCardScreen(false)">
+          <div class="jx-wallet-menu-icon" style="background:#f56c8a;"><svg viewBox="0 0 24 24" fill="#fff" width="16" height="16"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+          <span class="text">亲属卡</span>
+          <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </div>
+        <div class="jx-wallet-menu-item" onclick="openBillsScreen()">
+          <div class="jx-wallet-menu-icon" style="background:#f5c242;"><svg viewBox="0 0 24 24" fill="#fff" width="16" height="16"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div>
+          <span class="text">账单</span>
+          <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </div>
+        <div class="jx-wallet-menu-item" onclick="alert('支付安全功能暂未开放')">
+          <div class="jx-wallet-menu-icon" style="background:#2ecc71;"><svg viewBox="0 0 24 24" fill="#fff" width="16" height="16"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></div>
+          <span class="text">支付安全</span>
+          <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </div>
+        <div class="jx-wallet-menu-item" onclick="alert('支付设置功能暂未开放')">
+          <div class="jx-wallet-menu-icon" style="background:#8e44ad;"><svg viewBox="0 0 24 24" fill="#fff" width="16" height="16"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+          <span class="text">支付设置</span>
+          <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </div>
+        <div class="jx-wallet-menu-item" onclick="alert('帮助中心功能暂未开放')">
+          <div class="jx-wallet-menu-icon" style="background:#95a5a6;"><svg viewBox="0 0 24 24" fill="#fff" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+          <span class="text">帮助中心</span>
+          <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </div>
+      </div>
+    `;
+  }
 }
 function closeWalletScreen() { document.getElementById('jxWalletScreen').style.display = 'none'; }
 
@@ -3692,10 +3452,17 @@ function renderChatMessages(keepScrollPos) {
       </div>`;
     } else if (msg.type === 'relative_card') {
       bubbleCls += ' card';
-      inner = `<div class="jx-card-bubble">
-        <div class="c-label">亲属卡</div>
-        <div class="c-amount">¥${(msg.limit || 0).toFixed(2)}</div>
-        ${msg.note ? `<div class="c-note">${escapeHtml(msg.note)}</div>` : ''}
+      inner = `<div class="jx-card-bubble-new">
+        <div class="jx-card-header-new">
+          <div class="jx-card-icon-new">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+          </div>
+          <div class="jx-card-info-new">
+            <div class="title">送你一张亲属卡</div>
+            <div class="sub">额度¥${(msg.limit || 0).toFixed(2)}，已领取</div>
+          </div>
+        </div>
+        <div class="jx-card-footer-new">亲属卡</div>
       </div>`;
     } else if (msg.type === 'sticker' && msg.image) {
       bubbleCls += ' media';
