@@ -662,7 +662,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-chat-tool-icon svg{width:28px;height:28px}
 .jx-msg-bubble.transfer,.jx-msg-bubble.card{padding:0!important;background:transparent!important;max-width:75%!important}
 .jx-msg-bubble.transfer::after,.jx-msg-bubble.transfer::before,.jx-msg-bubble.card::after,.jx-msg-bubble.card::before{display:none!important}
-/* 名片消息样式 */
 .jx-msg-bubble.card-msg{padding:0!important;background:transparent!important;max-width:75%!important}
 .jx-msg-bubble.card-msg::after,.jx-msg-bubble.card-msg::before{display:none!important}
 .jx-contact-card{background:#fff;border-radius:8px;padding:0;display:flex;flex-direction:column;min-width:210px;max-width:240px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;overflow:hidden;transition:transform .15s}
@@ -5125,7 +5124,6 @@ function renderChatMessages(keepScrollPos) {
     });
   });
 
-  // 名片点击处理：添加好友
   container.querySelectorAll('.jx-contact-card').forEach(cardEl => {
     cardEl.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -5153,12 +5151,10 @@ function toolContactCard() {
   const myName = localStorage.getItem('moments_name') || '我';
   const myAvatar = localStorage.getItem('moments_avatar') || '';
   let html = '';
-  // 我的名片
   html += `<div class="jx-modal-item" onclick="sendContactCard('user','')">
     ${myAvatar ? `<img src="${myAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
     <span>${escapeHtml(myName)}（我的名片）</span>
   </div>`;
-  // 联系人名片
   personaList.forEach((p, i) => {
     const pName = p.name || '未命名';
     const pAvatar = p.avatar || '';
@@ -5198,31 +5194,25 @@ function sendContactCard(type, idxOrName) {
   renderJianxunChatList();
 }
 
-// 点击名片：添加好友
 function handleContactCardClick(card) {
   if (!card || !card.name) return;
-  // 自己的名片
   if (card.isUser) {
     alert('这是你自己的名片');
     return;
   }
-  // 已在聊天列表
   const exists = jianxunChats.find(c => (c.name === card.name) || (c.customRemark === card.name));
   if (exists) {
     if (confirm(`「${card.name}」已在你的聊天列表中，是否打开聊天？`)) {
-      // 先关闭聊天界面
       document.getElementById('jxChatScreen').classList.remove('active');
       document.getElementById('jxStickerPanel').classList.remove('show');
       const tools = document.getElementById('jxChatTools');
       if (tools) tools.classList.remove('show');
-      // 稍后打开目标聊天
       setTimeout(() => { openChat(exists.id); }, 120);
     }
     return;
   }
   if (!confirm(`添加「${card.name}」为好友？`)) return;
 
-  // 加入通讯录（personaList）
   loadPersonaList();
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
@@ -5237,7 +5227,6 @@ function handleContactCardClick(card) {
     try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
   }
 
-  // 创建聊天
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
@@ -6027,7 +6016,8 @@ function buildCharSystemPrompt(chat) {
   }
 
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
-  sp += '[[SET_AVATAR:编号]] 把某图设为你的聊天头像\n';
+  sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
+  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一部分（边角料）作为你的头像。区域可选 tl(左上) tr(右上) bl(左下) br(右下) center(中心) random(随机)；占比0.2~1默认0.5。例：[[CROP_AVATAR:1|br|0.4]] 截取用户头像右下角40%\n';
   sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
   sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
@@ -6038,7 +6028,7 @@ function buildCharSystemPrompt(chat) {
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。\n';
+  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR 只在用户希望你从他的头像/照片里取一块做头像时使用\n';
 
   sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
 
@@ -6140,7 +6130,7 @@ async function callChatAPI(messages, systemPrompt, cfg) {
 }
 
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -6149,12 +6139,81 @@ function parseAndExecuteActions(chat, rawText) {
   return clean;
 }
 
+// 从 base64 图片中裁剪指定区域
+function cropImageRegion(base64Src, region, ratio) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = img.width;
+        const h = img.height;
+        if (!w || !h) { resolve(null); return; }
+        const side = Math.min(w, h) * ratio;
+        let sx, sy;
+        switch (region) {
+          case 'tl': sx = 0; sy = 0; break;
+          case 'tr': sx = w - side; sy = 0; break;
+          case 'bl': sx = 0; sy = h - side; break;
+          case 'br': sx = w - side; sy = h - side; break;
+          case 'center': sx = (w - side) / 2; sy = (h - side) / 2; break;
+          case 'random':
+          default:
+            sx = Math.random() * Math.max(0, w - side);
+            sy = Math.random() * Math.max(0, h - side);
+            break;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = side;
+        canvas.height = side;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
+        resolve(canvas.toDataURL('image/jpeg', 0.9));
+      } catch (e) { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = base64Src;
+  });
+}
+
 function executeCharAction(chat, action) {
   if (action.type === 'SET_AVATAR') {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
     const refs = getCharImageRefs(chat);
     const img = refs[idx];
     if (img && img.data) chat.avatar = img.data;
+    return;
+  }
+  if (action.type === 'CROP_AVATAR') {
+    const parts = String(action.payload).split('|');
+    const idx = parseInt((parts[0] || '1').trim(), 10) - 1;
+    const region = (parts[1] || 'random').trim().toLowerCase();
+    let ratio = parseFloat((parts[2] || '0.5').trim());
+    if (isNaN(ratio)) ratio = 0.5;
+    if (ratio < 0.2) ratio = 0.2;
+    if (ratio > 1) ratio = 1;
+    const refs = getCharImageRefs(chat);
+    const img = refs[idx];
+    if (img && img.data) {
+      cropImageRegion(img.data, region, ratio).then((base64) => {
+        if (base64) {
+          chat.avatar = base64;
+          saveJianxunChats();
+          if (currentChatId === chat.id) {
+            renderChatMessages(true);
+            renderJianxunChatList();
+            // 如果信息页打开，同步更新
+            const infoImg = document.getElementById('jxInfoAvatarImg');
+            if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) {
+              infoImg.src = base64;
+            }
+            const titleEl = document.getElementById('jxChatTitle');
+            if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
+          }
+        }
+      });
+    }
     return;
   }
   if (action.type === 'STICKER') {
