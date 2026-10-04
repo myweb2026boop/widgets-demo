@@ -6,7 +6,7 @@
 <title>TuTooth</title>
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
-<link rel="manifest" href='data:application/manifest+json,{"name":"TuTooth","short_name":"TuTooth","start_url":"./","display":"standalone","background_color":"#ffffff","theme_color":"#ffffff","icons":[{"src":"icon.png","sizes":"192x192","type":"image/png"},{"src":"icon.png","sizes":"512x512","type":"image/png"}]}'>
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#ffffff">
@@ -2192,6 +2192,63 @@ https://xxx.com/a.png
 </div>
 
 <script>
+// ================= 核心：IndexedDB 图片存储 =================
+const IMG_DB_NAME = 'TuTooth_ImageDB';
+const IMG_STORE_NAME = 'images';
+
+function openImgDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(IMG_DB_NAME, 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(IMG_STORE_NAME)) db.createObjectStore(IMG_STORE_NAME);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+async function saveImageToDB(id, dataURL) {
+  const db = await openImgDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IMG_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(IMG_STORE_NAME);
+    store.put(dataURL, id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function getImageFromDB(id) {
+  const db = await openImgDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IMG_STORE_NAME, 'readonly');
+    const store = tx.objectStore(IMG_STORE_NAME);
+    const req = store.get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deleteImageFromDB(id) {
+  const db = await openImgDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IMG_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(IMG_STORE_NAME);
+    store.delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+function genImgId() { return 'img_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8); }
+
+// 全局图片缓存，避免频繁读取 IndexedDB
+const imgCache = new Map();
+async function getImgSrc(id) {
+  if (!id) return '';
+  if (imgCache.has(id)) return imgCache.get(id);
+  const data = await getImageFromDB(id);
+  if (data) imgCache.set(id, data);
+  return data || '';
+}
+
 // ================= 核心：IndexedDB 存储字体 =================
 const USER_CSS_KEY = 'user_custom_css';
 const FONT_DB_NAME = 'TuTooth_FontDB';
@@ -3016,21 +3073,25 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   iconBox.addEventListener('click', (e) => { if (e.target !== fileInputIcon) fileInputIcon.click(); });
   fileInputIcon.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const base64Image = ev.target.result;
+    compressImageFile(file, 128, 0.7).then(async (base64) => {
+      if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       svgElement.style.display = 'none';
-      imgElement.src = base64Image;
+      imgElement.src = base64;
       imgElement.style.display = 'block';
-      try { localStorage.setItem(storageKey, base64Image); } catch (err) {}
-    };
-    reader.readAsDataURL(file);
+      try { localStorage.setItem(storageKey, id); } catch (err) {}
+    });
   });
-  const savedIconImage = localStorage.getItem(storageKey);
-  if (savedIconImage) {
-    svgElement.style.display = 'none';
-    imgElement.src = savedIconImage;
-    imgElement.style.display = 'block';
+  const savedId = localStorage.getItem(storageKey);
+  if (savedId) {
+    getImgSrc(savedId).then(src => {
+      if (src) {
+        svgElement.style.display = 'none';
+        imgElement.src = src;
+        imgElement.style.display = 'block';
+      }
+    });
   }
 });
 
@@ -3043,21 +3104,25 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   captchaBox.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const base64Image = ev.target.result;
+    compressImageFile(file, 800, 0.6).then(async (base64) => {
+      if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       defaultIllustration.style.display = 'none';
-      uploadedImage.src = base64Image;
+      uploadedImage.src = base64;
       uploadedImage.style.display = 'block';
-      try { localStorage.setItem('uploaded_captcha_image', base64Image); } catch (err) {}
-    };
-    reader.readAsDataURL(file);
+      try { localStorage.setItem('uploaded_captcha_image_id', id); } catch (err) {}
+    });
   });
-  const savedImage = localStorage.getItem('uploaded_captcha_image');
-  if (savedImage) {
-    defaultIllustration.style.display = 'none';
-    uploadedImage.src = savedImage;
-    uploadedImage.style.display = 'block';
+  const savedId = localStorage.getItem('uploaded_captcha_image_id');
+  if (savedId) {
+    getImgSrc(savedId).then(src => {
+      if (src) {
+        defaultIllustration.style.display = 'none';
+        uploadedImage.src = src;
+        uploadedImage.style.display = 'block';
+      }
+    });
   }
 })();
 
@@ -3108,46 +3173,66 @@ function compressImageFile(file, maxDim, quality) {
   const barCoverImg = document.getElementById('barCoverImg');
   const barCoverSvg = document.getElementById('barCoverSvg');
   if (!musicBgArea) return;
-  const savedMusicBg = localStorage.getItem(MUSIC_KEY_PREFIX + 'bg');
-  if (savedMusicBg) {
-    musicBgArea.style.backgroundImage = `url(${savedMusicBg})`;
-    musicBgArea.style.backgroundSize = 'cover';
-    musicBgArea.style.backgroundPosition = 'center';
+  const savedMusicBgId = localStorage.getItem(MUSIC_KEY_PREFIX + 'bg_id');
+  if (savedMusicBgId) {
+    getImgSrc(savedMusicBgId).then(src => {
+      if (src) {
+        musicBgArea.style.backgroundImage = `url(${src})`;
+        musicBgArea.style.backgroundSize = 'cover';
+        musicBgArea.style.backgroundPosition = 'center';
+      }
+    });
   }
-  const savedMusicAvatar = localStorage.getItem(MUSIC_KEY_PREFIX + 'avatar');
-  if (savedMusicAvatar) { musicAvatar.src = savedMusicAvatar; musicAvatar.style.display = 'block'; musicAvatarSvg.style.display = 'none'; }
-  const savedVinylCover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover');
-  if (savedVinylCover) {
-    vinylCoverImg.src = savedVinylCover; vinylCoverImg.style.display = 'block'; vinylCoverSvg.style.display = 'none';
-    barCoverImg.src = savedVinylCover; barCoverImg.style.display = 'block'; barCoverSvg.style.display = 'none';
+  const savedMusicAvatarId = localStorage.getItem(MUSIC_KEY_PREFIX + 'avatar_id');
+  if (savedMusicAvatarId) {
+    getImgSrc(savedMusicAvatarId).then(src => {
+      if (src) {
+        musicAvatar.src = src; musicAvatar.style.display = 'block'; musicAvatarSvg.style.display = 'none';
+      }
+    });
+  }
+  const savedVinylCoverId = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover_id');
+  if (savedVinylCoverId) {
+    getImgSrc(savedVinylCoverId).then(src => {
+      if (src) {
+        vinylCoverImg.src = src; vinylCoverImg.style.display = 'block'; vinylCoverSvg.style.display = 'none';
+        barCoverImg.src = src; barCoverImg.style.display = 'block'; barCoverSvg.style.display = 'none';
+      }
+    });
   }
   musicBgInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 800, 0.6).then((base64) => {
+    compressImageFile(file, 800, 0.6).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       musicBgArea.style.backgroundImage = `url(${base64})`;
       musicBgArea.style.backgroundSize = 'cover';
       musicBgArea.style.backgroundPosition = 'center';
-      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'bg', base64); } catch(err){ alert('图片过大'); }
+      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'bg_id', id); } catch(err){ alert('图片过大'); }
       this.value = '';
     });
   });
   musicAvatarInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       musicAvatar.src = base64; musicAvatar.style.display = 'block'; musicAvatarSvg.style.display = 'none';
-      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'avatar', base64); } catch(err){ alert('图片过大'); }
+      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'avatar_id', id); } catch(err){ alert('图片过大'); }
       this.value = '';
     });
   });
   vinylCoverInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 300, 0.65).then((base64) => {
+    compressImageFile(file, 300, 0.65).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       vinylCoverImg.src = base64; vinylCoverImg.style.display = 'block'; vinylCoverSvg.style.display = 'none';
       barCoverImg.src = base64; barCoverImg.style.display = 'block'; barCoverSvg.style.display = 'none';
-      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'vinyl_cover', base64); } catch(err){ alert('图片过大'); }
+      try { localStorage.setItem(MUSIC_KEY_PREFIX + 'vinyl_cover_id', id); } catch(err){ alert('图片过大'); }
       this.value = '';
     });
   });
@@ -3265,7 +3350,11 @@ function renderPersonaList() {
     card.className = 'persona-card';
     card.onclick = () => openPersonaEdit(index);
     let avatarHtml = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-    if (persona.avatar) avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
+    if (persona.avatarId) {
+      avatarHtml = `<img src="" data-avatar-id="${persona.avatarId}" class="lazy-avatar">`;
+    } else if (persona.avatar) {
+      avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
+    }
     card.innerHTML = `
       <div class="avatar">${avatarHtml}</div>
       <div class="info">
@@ -3276,6 +3365,12 @@ function renderPersonaList() {
       <div class="arrow">›</div>
     `;
     container.appendChild(card);
+  });
+  // 异步加载头像
+  container.querySelectorAll('.lazy-avatar').forEach(async (img) => {
+    const id = img.getAttribute('data-avatar-id');
+    const src = await getImgSrc(id);
+    if (src) img.src = src;
   });
 }
 
@@ -3306,7 +3401,16 @@ function openPersonaEdit(index) {
     document.getElementById('personaGender').value = persona.gender || '';
     document.getElementById('personaAge').value = persona.age || '';
     document.getElementById('personaDetails').value = persona.details || '';
-    if (persona.avatar) {
+    if (persona.avatarId) {
+      getImgSrc(persona.avatarId).then(src => {
+        if (src) {
+          tempAvatarBase64 = src;
+          document.getElementById('personaAvatarImg').src = src;
+          document.getElementById('personaAvatarImg').style.display = 'block';
+          document.getElementById('personaAvatarSvg').style.display = 'none';
+        }
+      });
+    } else if (persona.avatar) {
       tempAvatarBase64 = persona.avatar;
       document.getElementById('personaAvatarImg').src = persona.avatar;
       document.getElementById('personaAvatarImg').style.display = 'block';
@@ -3408,10 +3512,10 @@ function deletePersona() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
       tempAvatarBase64 = base64;
-      document.getElementById('personaAvatarImg').src = tempAvatarBase64;
+      document.getElementById('personaAvatarImg').src = base64;
       document.getElementById('personaAvatarImg').style.display = 'block';
       document.getElementById('personaAvatarSvg').style.display = 'none';
     });
@@ -3696,26 +3800,33 @@ function extractEntriesFromJson(data, defaultEntry) {
   changeBtn.addEventListener('click', () => input.click());
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 800, 0.6).then((base64) => {
+    compressImageFile(file, 800, 0.6).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       document.getElementById('mainScreen').style.backgroundImage = `url(${base64})`;
       document.getElementById('mainScreen').style.backgroundSize = 'cover';
       document.getElementById('mainScreen').style.backgroundPosition = 'center';
       document.getElementById('mainScreen').style.backgroundRepeat = 'no-repeat';
-      try { localStorage.setItem('saved_wallpaper', base64); } catch(err){ alert('壁纸图片过大'); }
+      try { localStorage.setItem('saved_wallpaper_id', id); } catch(err){ alert('壁纸图片过大'); }
       this.value = '';
     });
   });
   clearBtn.addEventListener('click', () => {
     document.getElementById('mainScreen').style.backgroundImage = '';
-    localStorage.removeItem('saved_wallpaper');
+    localStorage.removeItem('saved_wallpaper_id');
   });
-  if (localStorage.getItem('saved_wallpaper')) {
-    const ms = document.getElementById('mainScreen');
-    ms.style.backgroundImage = `url(${localStorage.getItem('saved_wallpaper')})`;
-    ms.style.backgroundSize = 'cover';
-    ms.style.backgroundPosition = 'center';
-    ms.style.backgroundRepeat = 'no-repeat';
+  const savedId = localStorage.getItem('saved_wallpaper_id');
+  if (savedId) {
+    getImgSrc(savedId).then(src => {
+      if (src) {
+        const ms = document.getElementById('mainScreen');
+        ms.style.backgroundImage = `url(${src})`;
+        ms.style.backgroundSize = 'cover';
+        ms.style.backgroundPosition = 'center';
+        ms.style.backgroundRepeat = 'no-repeat';
+      }
+    });
   }
 })();
 
@@ -4919,7 +5030,12 @@ function renderMaskList() {
   }
   empty.style.display = 'none';
   list.innerHTML = jxMasks.map(m => {
-    const avatarHtml = m.avatar ? `<img src="${m.avatar}">` : `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+    let avatarHtml = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+    if (m.avatarId) {
+      avatarHtml = `<img src="" data-avatar-id="${m.avatarId}" class="lazy-mask-avatar">`;
+    } else if (m.avatar) {
+      avatarHtml = `<img src="${m.avatar}">`;
+    }
     const bindCount = Array.isArray(m.boundCharIds) ? m.boundCharIds.length : 0;
     const bindText = bindCount > 0 ? `已绑定 ${bindCount} 个角色` : '未绑定角色（全局可用）';
     return `<div class="mask-card" onclick="openMaskEdit('${m.id}')">
@@ -4931,6 +5047,11 @@ function renderMaskList() {
       <span class="mask-badge">身份</span>
     </div>`;
   }).join('');
+  list.querySelectorAll('.lazy-mask-avatar').forEach(async (img) => {
+    const id = img.getAttribute('data-avatar-id');
+    const src = await getImgSrc(id);
+    if (src) img.src = src;
+  });
 }
 
 function openMaskEdit(id) {
@@ -4957,7 +5078,16 @@ function openMaskEdit(id) {
     document.getElementById('maskName').value = m.name || '';
     document.getElementById('maskWxId').value = m.wxId || '';
     document.getElementById('maskDetails').value = m.details || '';
-    if (m.avatar) {
+    if (m.avatarId) {
+      getImgSrc(m.avatarId).then(src => {
+        if (src) {
+          tempMaskAvatarBase64 = src;
+          document.getElementById('maskAvatarImg').src = src;
+          document.getElementById('maskAvatarImg').style.display = 'block';
+          document.getElementById('maskAvatarSvg').style.display = 'none';
+        }
+      });
+    } else if (m.avatar) {
       tempMaskAvatarBase64 = m.avatar;
       document.getElementById('maskAvatarImg').src = m.avatar;
       document.getElementById('maskAvatarImg').style.display = 'block';
@@ -5019,7 +5149,7 @@ function deleteMask() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
       tempMaskAvatarBase64 = base64;
       document.getElementById('maskAvatarImg').src = base64;
@@ -5075,34 +5205,9 @@ function pushAwareness(text) {
 function saveJianxunChats() {
   try { localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats)); }
   catch (e) {
-    console.warn('存储空间不足，尝试自动清理旧图片...');
-    let cleaned = false;
-    jianxunChats.forEach(chat => {
-      if (Array.isArray(chat.imagePool)) {
-        const before = chat.imagePool.length;
-        const avatars = chat.imagePool.filter(img => img.isAvatar);
-        let photos = chat.imagePool.filter(img => !img.isAvatar);
-        if (photos.length > 2) photos = photos.slice(-2);
-        chat.imagePool = avatars.concat(photos);
-        if (chat.imagePool.length < before) cleaned = true;
-      }
-      if (Array.isArray(chat.messages)) {
-        const imgMsgs = chat.messages.filter(m => m.type === 'image' || m.type === 'sticker');
-        if (imgMsgs.length > 3) {
-          const toRemove = imgMsgs.slice(0, imgMsgs.length - 3);
-          toRemove.forEach(m => { delete m.image; m.type = 'text'; m.content = '[图片已自动清理以节省空间]'; });
-          cleaned = true;
-        }
-      }
-    });
-    if (cleaned) {
-      try {
-        localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats));
-        alert('存储空间不足，已自动清理部分旧图片以释放空间。');
-        if (currentChatId) renderChatMessages();
-        renderJianxunChatList();
-      } catch (retryError) { alert('存储空间严重不足，请点击右上角菜单清理数据。'); }
-    } else { alert('存储空间不足，请删除一些聊天中的图片后重试'); }
+    // 不再自动清理图片，仅提示用户
+    console.warn('存储空间不足，请手动清理一些数据。');
+    alert('存储空间不足，请点击「聊天详情 → 清理聊天图片释放空间」或删除一些聊天记录。');
   }
 }
 
@@ -5204,13 +5309,19 @@ function switchJianxunTab(tabId, navElement) {
   }
 }
 function loadJxMeProfile() {
+  const savedAvatarId = localStorage.getItem('moments_avatar_id');
   const savedAvatar = localStorage.getItem('moments_avatar');
   const savedName = localStorage.getItem('moments_name') || 'Koi Buono';
   const savedWxId = localStorage.getItem('jx_wechat_id') || 'Koi_Buono';
   const el1 = document.getElementById('jxMeAvatarImg');
   if (el1) {
-    if (savedAvatar) el1.src = savedAvatar;
-    else el1.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
+    if (savedAvatarId) {
+      getImgSrc(savedAvatarId).then(src => { if (src) el1.src = src; });
+    } else if (savedAvatar) {
+      el1.src = savedAvatar;
+    } else {
+      el1.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
+    }
   }
   const el2 = document.getElementById('jxMeNameText');
   if (el2) el2.innerText = savedName;
@@ -5222,12 +5333,15 @@ function loadJxMeProfile() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       const el = document.getElementById('jxMeAvatarImg');
       if (el) el.src = base64;
       try {
-        localStorage.setItem('moments_avatar', base64);
+        localStorage.setItem('moments_avatar_id', id);
+        localStorage.removeItem('moments_avatar');
         const m = document.getElementById('momentsAvatarImg');
         if (m) m.src = base64;
         if (jianxunChats.length === 0) loadJianxunChats();
@@ -5317,9 +5431,11 @@ function renderJianxunContacts() {
   list.innerHTML = sortedLetters.map(letter => {
     const users = grouped[letter].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
     return `<div class="jx-contact-letter">${letter}</div>${users.map(u => {
-      const avatarUrl = u.avatar || '';
+      let avatarUrl = u.avatar || '';
+      let avatarId = u.avatarId || '';
+      const avatarHtml = avatarId ? `<img src="" data-avatar-id="${avatarId}" class="lazy-contact-avatar">` : (avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`);
       return `<div class="jx-contact-user">
-        <div class="jx-contact-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
+        <div class="jx-contact-avatar">${avatarHtml}</div>
         <div class="jx-contact-info">
           <div class="jx-contact-name">${escapeHtml(u.name)}</div>
           <div class="jx-contact-sub">最近上线于 ${new Date().toLocaleDateString('zh-CN')}</div>
@@ -5327,6 +5443,11 @@ function renderJianxunContacts() {
       </div>`;
     }).join('')}`;
   }).join('');
+  list.querySelectorAll('.lazy-contact-avatar').forEach(async (img) => {
+    const id = img.getAttribute('data-avatar-id');
+    const src = await getImgSrc(id);
+    if (src) img.src = src;
+  });
 }
 
 function loadJianxunChats() {
@@ -5383,7 +5504,9 @@ function renderJianxunChatList() {
   }
   const sortedChats = [...jianxunChats].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
   list.innerHTML = sortedChats.map((chat) => {
-    const avatarUrl = chat.avatar || '';
+    let avatarUrl = chat.avatar || '';
+    let avatarId = chat.avatarId || '';
+    const avatarHtml = avatarId ? `<img src="" data-avatar-id="${avatarId}" class="lazy-chat-avatar">` : (avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`);
     const nameText = chat.customRemark || chat.name || defaultName;
     const lastMsgObj = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
     let lastMsg = '点击开始聊天';
@@ -5399,13 +5522,18 @@ function renderJianxunChatList() {
       else lastMsg = lastMsgObj.content || '[图片]';
     }
     return `<div class="jx-chat-item" onclick="openChat('${chat.id}')">
-      <div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
+      <div class="jx-chat-avatar">${avatarHtml}</div>
       <div class="jx-chat-info">
         <div class="jx-chat-info-top"><span class="jx-chat-name">${escapeHtml(nameText)}</span><span class="jx-chat-time">刚刚</span></div>
         <span class="jx-chat-msg">${escapeHtml(lastMsg)}</span>
       </div>
     </div>`;
   }).join('');
+  list.querySelectorAll('.lazy-chat-avatar').forEach(async (img) => {
+    const id = img.getAttribute('data-avatar-id');
+    const src = await getImgSrc(id);
+    if (src) img.src = src;
+  });
 }
 
 function openChat(id) {
@@ -5476,7 +5604,7 @@ function renderQuotePreview() {
 function clearQuote() { currentQuote = null; renderQuotePreview(); }
 function menuQuote() { const id = menuMsgId; closeMsgMenu(); if (!id) return; startQuote(id); }
 
-function renderChatMessages(keepScrollPos) {
+async function renderChatMessages(keepScrollPos) {
   if (!currentChatId) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -5489,12 +5617,21 @@ function renderChatMessages(keepScrollPos) {
   }
   const activeMask = getActiveMaskForChat(chat);
   const defaultMyAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
-  const myAvatar = activeMask ? (activeMask.avatar || defaultMyAvatar) : defaultMyAvatar;
+  const myAvatarId = chat.myAvatarId || localStorage.getItem('moments_avatar_id') || '';
+  const myAvatar = activeMask ? (activeMask.avatar || defaultMyAvatar) : (myAvatarId ? await getImgSrc(myAvatarId) : defaultMyAvatar);
   const myName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '我') : (localStorage.getItem('moments_name') || '我');
-  container.innerHTML = chat.messages.map((msg, idx) => {
+
+  // 异步构建消息
+  const rows = [];
+  for (let idx = 0; idx < chat.messages.length; idx++) {
+    const msg = chat.messages[idx];
     if (!msg.id) msg.id = genId();
     const isMe = msg.role === 'me';
-    const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
+    let avatarUrl = isMe ? myAvatar : '';
+    if (!isMe) {
+      if (chat.avatarId) avatarUrl = await getImgSrc(chat.avatarId);
+      else avatarUrl = chat.avatar || '';
+    }
     let inner = '';
     let bubbleCls = 'jx-msg-bubble';
     if (msg.content === '__typing__') {
@@ -5545,7 +5682,8 @@ function renderChatMessages(keepScrollPos) {
     } else if (msg.type === 'card' && msg.card) {
       bubbleCls += ' card-msg';
       const c = msg.card;
-      const safeAvatar = c.avatar ? String(c.avatar).replace(/'/g, '%27') : '';
+      let safeAvatar = c.avatar || '';
+      if (c.avatarId) safeAvatar = await getImgSrc(c.avatarId);
       const avatarHtml = safeAvatar
         ? `<img src="${safeAvatar}" alt="">`
         : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
@@ -5566,11 +5704,13 @@ function renderChatMessages(keepScrollPos) {
       inner = `<div class="jx-html-caption">📄 ${safeName}</div><iframe class="jx-html-frame" data-html-id="${safeId}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>`;
     } else if (msg.type === 'sticker' && msg.image) {
       bubbleCls += ' media';
-      const safeSrc = String(msg.image).replace(/'/g, '%27');
+      let safeSrc = msg.image;
+      if (msg.imageId) safeSrc = await getImgSrc(msg.imageId);
       inner = `<img class="sticker-img" src="${safeSrc}" alt="表情" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
-    } else if (msg.type === 'image' && msg.image) {
+    } else if (msg.type === 'image' && (msg.image || msg.imageId)) {
       bubbleCls += ' media';
-      const safeSrc = String(msg.image).replace(/'/g, '%27');
+      let safeSrc = msg.image || '';
+      if (msg.imageId) safeSrc = await getImgSrc(msg.imageId);
       inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
     } else {
       inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
@@ -5581,13 +5721,14 @@ function renderChatMessages(keepScrollPos) {
       inner = `<div class="jx-msg-quote"><span class="qname">${qName}</span><span class="qtext">${qText}</span></div>` + inner;
     }
     const checkboxHtml = multiSelectMode ? `<div class="msg-checkbox ${selectedMsgIds.has(msg.id) ? 'checked' : ''}"></div>` : '';
-    return `<div class="jx-msg-row ${isMe ? 'me' : 'other'}" data-msg-id="${msg.id}">
+    rows.push(`<div class="jx-msg-row ${isMe ? 'me' : 'other'}" data-msg-id="${msg.id}">
       ${checkboxHtml}
       <div class="jx-msg-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
       <div class="${bubbleCls}">${inner}</div>
-    </div>`;
-  }).join('');
-  
+    </div>`);
+  }
+  container.innerHTML = rows.join('');
+  // 后续绑定事件
   container.querySelectorAll('.wx-family-card').forEach(cardEl => {
     cardEl.addEventListener('click', function(e) {
       const idx = parseInt(this.getAttribute('data-idx'), 10);
@@ -5600,14 +5741,12 @@ function renderChatMessages(keepScrollPos) {
       }
     });
   });
-
   container.querySelectorAll('.jx-transfer-card[data-transfer-id]').forEach(el => {
     el.addEventListener('click', function(e) {
       const tid = this.getAttribute('data-transfer-id');
       if (tid) openTransferActionModal(tid);
     });
   });
-
   container.querySelectorAll('.jx-contact-card').forEach(cardEl => {
     cardEl.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -5618,7 +5757,6 @@ function renderChatMessages(keepScrollPos) {
       }
     });
   });
-
   // 渲染 HTML 组件 iframe
   const htmlList = loadCustomHtmls();
   container.querySelectorAll('.jx-html-frame').forEach(frame => {
@@ -5635,7 +5773,6 @@ function renderChatMessages(keepScrollPos) {
       frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">该 HTML 组件已被删除</div>';
     }
   });
-
   attachMsgLongPress(container);
   if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
@@ -5650,21 +5787,28 @@ function toolContactCard() {
   const list = document.getElementById('contactCardSelectorList');
   if (!list) return;
   const myName = localStorage.getItem('moments_name') || '我';
+  const myAvatarId = localStorage.getItem('moments_avatar_id');
   const myAvatar = localStorage.getItem('moments_avatar') || '';
   let html = '';
   html += `<div class="jx-modal-item" onclick="sendContactCard('user','')">
-    ${myAvatar ? `<img src="${myAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+    ${myAvatarId ? `<img src="" data-avatar-id="${myAvatarId}" class="lazy-card-avatar">` : (myAvatar ? `<img src="${myAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`)}
     <span>${escapeHtml(myName)}（我的名片）</span>
   </div>`;
   personaList.forEach((p, i) => {
     const pName = p.name || '未命名';
-    const pAvatar = p.avatar || '';
+    let pAvatar = p.avatar || '';
+    const pAvatarId = p.avatarId || '';
     html += `<div class="jx-modal-item" onclick="sendContactCard('char',${i})">
-      ${pAvatar ? `<img src="${pAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+      ${pAvatarId ? `<img src="" data-avatar-id="${pAvatarId}" class="lazy-card-avatar">` : (pAvatar ? `<img src="${pAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`)}
       <span>${escapeHtml(pName)}</span>
     </div>`;
   });
   list.innerHTML = html;
+  list.querySelectorAll('.lazy-card-avatar').forEach(async (img) => {
+    const id = img.getAttribute('data-avatar-id');
+    const src = await getImgSrc(id);
+    if (src) img.src = src;
+  });
   document.getElementById('contactCardSelectorModal').classList.add('show');
 }
 function closeContactCardSelector() {
@@ -5676,15 +5820,16 @@ function sendContactCard(type, idxOrName) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   const myName = localStorage.getItem('moments_name') || '我';
+  const myAvatarId = localStorage.getItem('moments_avatar_id');
   const myAvatar = localStorage.getItem('moments_avatar') || '';
   let card = null;
   if (type === 'user') {
-    card = { name: myName, avatar: myAvatar, isUser: true };
+    card = { name: myName, avatar: myAvatar, avatarId: myAvatarId, isUser: true };
   } else {
     const i = parseInt(idxOrName, 10);
     const p = personaList[i];
     if (!p) return;
-    card = { name: p.name || '未命名', avatar: p.avatar || '', isUser: false };
+    card = { name: p.name || '未命名', avatar: p.avatar || '', avatarId: p.avatarId || '', isUser: false };
   }
   chat.messages.push({
     id: genId(), role: 'me', type: 'card', card: card,
@@ -5714,18 +5859,19 @@ function handleContactCardClick(card) {
   loadPersonaList();
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
-    personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '' });
+    personaList.push({ avatar: card.avatar || '', avatarId: card.avatarId || '', name: card.name, nickname: '', gender: '', age: '', details: '' });
     try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
   }
 
   const imagePool = [];
+  const userAvatarId = localStorage.getItem('moments_avatar_id');
   const userAvatar = localStorage.getItem('moments_avatar');
-  if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
+  if (userAvatarId || userAvatar) imagePool.push({ id: genId(), data: userAvatar || '', imageId: userAvatarId || '', time: Date.now(), isAvatar: true, desc: '用户当前的头像' });
   const newChat = {
-    id: genId(), name: card.name, avatar: card.avatar || '',
+    id: genId(), name: card.name, avatar: card.avatar || '', avatarId: card.avatarId || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1,
     customRemark: '', boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [],
-    chatBg: '', myAvatar: '', imagePool: imagePool,
+    chatBg: '', myAvatar: '', myAvatarId: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
   };
   jianxunChats.push(newChat);
@@ -5849,10 +5995,12 @@ function voiceSend() {
     if (!file) return;
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
-    compressImageFile(file, 600, 0.55).then((base64) => {
+    compressImageFile(file, 600, 0.55).then(async (base64) => {
       if (!base64) { alert('图片处理失败'); return; }
-      chat.messages.push({ id: genId(), role: 'me', type: 'image', image: base64, content: '[图片]' });
-      chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), desc: '用户发来的图片' });
+      const imgId = genImgId();
+      await saveImageToDB(imgId, base64);
+      chat.messages.push({ id: genId(), role: 'me', type: 'image', imageId: imgId, image: base64, content: '[图片]' });
+      chat.imagePool.push({ id: genId(), data: base64, imageId: imgId, time: Date.now(), desc: '用户发来的图片' });
       const avatars = chat.imagePool.filter(img => img.isAvatar);
       let photos = chat.imagePool.filter(img => !img.isAvatar);
       if (photos.length > 6) photos = photos.slice(-6);
@@ -5928,7 +6076,7 @@ function sendSticker(id) {
   const stickers = loadStickers();
   const s = stickers.find(x => x.id === id);
   if (!chat || !s) return;
-  chat.messages.push({ id: genId(), role: 'me', type: 'sticker', image: s.url, stickerName: s.name || '', content: '[表情]' });
+  chat.messages.push({ id: genId(), role: 'me', type: 'sticker', image: s.url, imageId: s.imageId || '', stickerName: s.name || '', content: '[表情]' });
   saveJianxunChats();
   renderChatMessages();
   renderJianxunChatList();
@@ -5965,7 +6113,10 @@ function uploadImagesToPack(packId) {
     if (!pack.stickers) pack.stickers = [];
     for (const file of Array.from(files)) {
       const base64 = await compressImageFile(file, 180, 0.6);
-      if (base64) pack.stickers.push({ id: genId(), name: file.name.replace(/\.[^/.]+$/, ""), url: base64, meaning: '' });
+      if (!base64) continue;
+      const imgId = genImgId();
+      await saveImageToDB(imgId, base64);
+      pack.stickers.push({ id: genId(), name: file.name.replace(/\.[^/.]+$/, ""), url: base64, imageId: imgId, meaning: '' });
     }
     saveStickerPacks(packs);
     expandedStickerPackIds.add(packId);
@@ -6181,7 +6332,7 @@ function addFavoriteFromMsg(chat, msg) {
   const senderName = msg.role === 'me' ? myName : charName;
   const fav = {
     id: genId(), msgId: msg.id || '', type: msg.type || 'text', content: msg.content || '',
-    image: msg.image || '', stickerName: msg.stickerName || '',
+    image: msg.image || '', imageId: msg.imageId || '', stickerName: msg.stickerName || '',
     items: Array.isArray(msg.items) ? cloneSerializable(msg.items) : null,
     quote: msg.quote ? cloneSerializable(msg.quote) : null,
     card: msg.card ? cloneSerializable(msg.card) : null,
@@ -6247,13 +6398,13 @@ function renderFavoritesList() {
     let quoteHtml = '';
     if (fav.quote) quoteHtml = `<div class="jx-fav-quote">${escapeHtml(fav.quote.name || '')}：${escapeHtml(fav.quote.text || '')}</div>`;
     let contentHtml = '';
-    if (fav.type === 'image' && fav.image) {
-      const safeSrc = String(fav.image).replace(/'/g, '%27');
-      contentHtml = `<img class="jx-fav-img" src="${safeSrc}" onclick="openImageViewer('${safeSrc}')">`;
+    if (fav.type === 'image' && (fav.image || fav.imageId)) {
+      const safeSrc = fav.imageId ? '' : String(fav.image).replace(/'/g, '%27');
+      contentHtml = `<img class="jx-fav-img" src="${safeSrc}" data-img-id="${fav.imageId || ''}" onclick="openImageViewerFromFav(this)">`;
       if (fav.content && fav.content !== '[图片]') contentHtml += `<div class="jx-fav-text">${escapeHtml(fav.content).replace(/\n/g, '<br>')}</div>`;
-    } else if (fav.type === 'sticker' && fav.image) {
-      const safeSrc = String(fav.image).replace(/'/g, '%27');
-      contentHtml = `<img class="jx-fav-sticker-img" src="${safeSrc}" onclick="openImageViewer('${safeSrc}')">`;
+    } else if (fav.type === 'sticker' && (fav.image || fav.imageId)) {
+      const safeSrc = fav.imageId ? '' : String(fav.image).replace(/'/g, '%27');
+      contentHtml = `<img class="jx-fav-sticker-img" src="${safeSrc}" data-img-id="${fav.imageId || ''}" onclick="openImageViewerFromFav(this)">`;
     } else if (fav.type === 'merged' && Array.isArray(fav.items)) {
       contentHtml = `<div class="jx-fav-merged"><div class="jx-fav-merged-title">聊天记录</div>${fav.items.slice(0, 8).map(it => `<div class="jx-fav-merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}${fav.items.length > 8 ? `<div class="jx-fav-merged-line">…共 ${fav.items.length} 条</div>` : ''}</div>`;
     } else if (fav.type === 'transfer') {
@@ -6279,6 +6430,17 @@ function renderFavoritesList() {
     </div>`;
   }).join('');
   container.innerHTML = html;
+  container.querySelectorAll('img[data-img-id]').forEach(async (img) => {
+    const id = img.getAttribute('data-img-id');
+    if (id) {
+      const src = await getImgSrc(id);
+      if (src) img.src = src;
+    }
+  });
+}
+function openImageViewerFromFav(imgEl) {
+  const src = imgEl.src;
+  if (src) openImageViewer(src);
 }
 
 let menuMsgId = null;
@@ -6399,7 +6561,7 @@ function doForward(targetChatId) {
   const charName = chat.customRemark || chat.name || 'TA';
   const items = msgs.map(m => ({
     role: m.role, name: m.role === 'me' ? myName : charName,
-    content: m.content || '', image: m.image || '', type: m.type || 'text'
+    content: m.content || '', image: m.image || '', imageId: m.imageId || '', type: m.type || 'text'
   }));
   target.messages.push({ id: genId(), role: 'me', type: 'merged', content: '[聊天记录]', items: items });
   saveJianxunChats();
@@ -6430,12 +6592,13 @@ async function translateText(text, cfg) {
   return '';
 }
 
+// ================= System Prompt 精简版 =================
 function buildWorldBookPrompt(chat) {
   const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
   const relevant = worldBookEntries.filter(e => e.enabled && (e.binding === 'global' || bound.includes(e.id)));
   if (!relevant.length) return '';
   relevant.sort((a, b) => (a.order || 100) - (b.order || 100));
-  return '\n【世界观 / 背景设定】\n' + relevant.map(e => e.content).join('\n\n') + '\n';
+  return '\n【世界观】\n' + relevant.map(e => e.content).join('\n') + '\n';
 }
 function buildStickerPrompt(chat) {
   const boundPackIds = Array.isArray(chat.boundStickerPacks) ? chat.boundStickerPacks : [];
@@ -6445,8 +6608,9 @@ function buildStickerPrompt(chat) {
   const all = [];
   packs.forEach(p => { (p.stickers || []).forEach(s => all.push(s)); });
   if (all.length === 0) return '';
-  let sp = '\n【可用表情包】要发表情时单独一行输出 [[STICKER:名称]]，系统自动换成图片：\n';
-  all.forEach((s, i) => { sp += `${i + 1}.${s.name || '未命名'}${s.meaning ? '(' + s.meaning + ')' : ''}\n`; });
+  let sp = '\n【表情包】可用：';
+  all.forEach((s, i) => { sp += `${s.name || '未命名'}${s.meaning ? '(' + s.meaning + ')' : ''} `; });
+  sp += '\n用 [[STICKER:名称]] 发送。\n';
   return sp;
 }
 function buildHtmlPrompt(chat) {
@@ -6454,37 +6618,30 @@ function buildHtmlPrompt(chat) {
   if (enabledIds.length === 0) return '';
   const list = loadCustomHtmls().filter(h => enabledIds.includes(h.id));
   if (list.length === 0) return '';
-  let sp = '\n【可用 HTML 组件】你可以根据对话情境、人设、以及当下氛围，自主决定是否展示某个 HTML 组件来丰富聊天表达：\n';
-  list.forEach((h, i) => { sp += `${i + 1}.${h.name}\n`; });
-  sp += '要展示时，请在回复中单独占一行输出 [[HTML:组件名称]]，系统会自动将其渲染为可视化的 HTML 卡片。\n';
-  sp += '使用规则：只在语境合适时自然触发（例如用户请求、话题契合、情绪/场景需要、或角色人设契合时），不要滥用、不要每次回复都展示。\n';
-  sp += '例如用户问"你能画个小卡片吗"、聊到某个主题正好有匹配的组件、或角色想用可视化方式表达时，都可以使用。\n';
+  let sp = '\n【HTML组件】可用：';
+  list.forEach((h, i) => { sp += `${h.name} `; });
+  sp += '\n用 [[HTML:名称]] 展示，仅在合适时使用。\n';
   return sp;
 }
 function buildMomentsPrompt() {
   loadMomentsPosts();
   if (momentsPosts.length === 0) return '';
   const name = localStorage.getItem('moments_name') || '用户';
-  const recent = momentsPosts.slice(0, 5);
-  let sp = '\n【朋友圈动态】\n';
+  const recent = momentsPosts.slice(0, 3);
+  let sp = '\n【朋友圈】\n';
   recent.forEach((p, i) => {
     const who = p.author || name;
-    const text = (p.content || '').replace(/\s+/g, ' ').slice(0, 60);
-    sp += `${i + 1}.${who}：${text}${p.images && p.images.length ? '[' + p.images.length + '图]' : ''}\n`;
-    const likes = Array.isArray(p.likes) ? p.likes : (p.liked ? [name] : []);
-    if (likes.length) sp += `  赞：${likes.join('、')}\n`;
-    if (p.comments && p.comments.length) p.comments.forEach(c => { sp += `  评${c.user}：${c.text}\n`; });
+    const text = (p.content || '').replace(/\s+/g, ' ').slice(0, 40);
+    sp += `${i + 1}.${who}：${text}\n`;
   });
-  sp += '互动：[[LIKE_MOMENT:编号]] / [[COMMENT_MOMENT:编号|内容]]（克制，不必每条都点）\n';
+  sp += '赞 [[LIKE_MOMENT:编号]] / 评 [[COMMENT_MOMENT:编号|内容]]\n';
   return sp;
 }
 function buildMemoryPrompt(chat) {
   const memories = Array.isArray(chat.memories) ? chat.memories : [];
   if (memories.length === 0) return '';
-  let sp = '\n【长期记忆】（你在之前对话中记住的关键信息，应自然地运用，无需刻意提及记忆本身）\n';
-  memories.forEach((m, i) => {
-    sp += `〔记忆${i + 1} · ${new Date(m.time).toLocaleDateString('zh-CN')}〕\n${m.content}\n`;
-  });
+  let sp = '\n【记忆】\n';
+  memories.slice(-3).forEach((m) => { sp += `- ${m.content}\n`; });
   return sp;
 }
 function buildCharSystemPrompt(chat) {
@@ -6496,7 +6653,7 @@ function buildCharSystemPrompt(chat) {
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const charName = chat.customRemark || chat.name || '未知';
 
-  let sp = `你是「${charName}」，在仿微信App"简讯"中和用户聊天。始终以角色身份说话，绝不暴露AI身份，回复简短自然（1~3句）。\n\n`;
+  let sp = `你是「${charName}」，在仿微信App"简讯"中和用户聊天。以角色身份说话，不暴露AI，回复简短自然（1~3句）。\n\n`;
 
   sp += `【角色】${charName}\n`;
   if (persona) {
@@ -6509,128 +6666,96 @@ function buildCharSystemPrompt(chat) {
   sp += `\n【用户】${userName}`;
   if (userWxId) sp += `（微信号：${userWxId}）`;
   sp += '\n';
-  if (activeMask && activeMask.details) {
-    sp += `用户当前使用的身份描述：${activeMask.details}\n`;
-  }
-  if (userAvatar) sp += `用户头像会以图片形式附在每条用户消息末尾，你能看清内容，可自然提及。\n`;
+  if (activeMask && activeMask.details) sp += `用户身份：${activeMask.details}\n`;
+  if (userAvatar) sp += `用户头像会附在用户消息末尾。\n`;
 
   const wb = buildWorldBookPrompt(chat);
   if (wb) sp += wb;
-
   const mem = buildMemoryPrompt(chat);
   if (mem) sp += mem;
-
   const stp = buildStickerPrompt(chat);
   if (stp) sp += stp;
-
   const htp = buildHtmlPrompt(chat);
   if (htp) sp += htp;
 
   const refs = getCharImageRefs(chat);
-  sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）\n';
+  sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=照片\n';
   if (refs.length === 0) sp += '（暂无）\n';
   else {
-    refs.forEach((img, i) => {
-      const tag = img.isAvatar ? '★头像' : '照片';
-      const desc = img.desc || (img.isAvatar ? '用户头像' : '用户照片');
-      const time = img.time ? new Date(img.time).toLocaleString('zh-CN') : '';
-      let note = '';
-      if (i === 0 && img.isAvatar) note = '(不是照片)';
-      else if (i === 1 && !img.isAvatar) note = '(最新照片，用户说"那张"优先指它)';
-      sp += `${i + 1}.${tag}·${desc}${time ? '(' + time + ')' : ''}${note}\n`;
+    refs.slice(0, 5).forEach((img, i) => {
+      const tag = img.isAvatar ? '头像' : '照片';
+      sp += `${i + 1}.${tag}\n`;
     });
   }
 
-  sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
-  sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
-  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处（背景、角落、衣物细节、神情局部等）正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
-  sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
-  sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
-  sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
-  sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
-  sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
-  sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
-  sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
-  sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
-  sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
-  sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡（用户明确要求退还/解绑时）\n';
-  sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
-  sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
-  sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
-  sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。\n';
-
-  sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
+  sp += '\n【动作标记】嵌在正文中：\n';
+  sp += '[[SET_AVATAR:编号]] 设头像\n';
+  sp += '[[CROP_AVATAR:编号|区域|占比]] 裁剪头像(tl/tr/bl/br/center/random)\n';
+  sp += '[[SEND_CONTACT:名字]] 发名片\n';
+  sp += '[[HTML:组件名称]] 展示HTML组件\n';
+  sp += '[[POST_MOMENT:文字|编号]] 发朋友圈\n';
+  sp += '[[LIKE_MOMENT:编号]] 赞\n';
+  sp += '[[COMMENT_MOMENT:编号|内容]] 评论\n';
+  sp += '[[TRANSFER:金额|备注]] 转账\n';
+  sp += '[[SEND_CARD:额度|备注]] 送亲属卡\n';
+  sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡\n';
+  sp += '[[REMOVE_CARD:given]] 退还用户送的亲属卡\n';
+  sp += '[[ACCEPT_TRANSFER]] 收转账\n';
+  sp += '[[REFUND_TRANSFER]] 退转账\n';
+  sp += '[[SPLIT]] 分条发送\n';
 
   const globalPrompt = loadGlobalPrompt().trim();
-  if (globalPrompt) {
-    sp += '\n【用户附加指示 · 优先级高，请务必遵守】\n' + globalPrompt + '\n';
-  }
+  if (globalPrompt) sp += '\n【附加指示】\n' + globalPrompt + '\n';
 
   const bills = loadBills();
   if (bills.length > 0) {
-    sp += '\n【近期钱包】\n';
-    bills.slice(0, 4).forEach(b => {
-      const dir = b.direction === 'in' ? '收到' : '支出';
-      const t = b.type === 'card' ? '亲属卡' : (b.type === 'recharge' ? '充值' : (b.type === 'withdraw' ? '提现' : '转账'));
-      sp += `${b.peerName} ${dir}¥${(b.amount || 0).toFixed(2)}(${t}${b.note ? ',' + b.note : ''})\n`;
+    sp += '\n【钱包】\n';
+    bills.slice(0, 3).forEach(b => {
+      const dir = b.direction === 'in' ? '收' : '支';
+      sp += `${b.peerName} ${dir}¥${(b.amount || 0).toFixed(2)}\n`;
     });
   }
 
   const allCards = getRecv().concat(getGiven());
   const related = allCards.filter(c => (c.fromCharId && c.fromCharId === chat.id) || (c.toCharId && c.toCharId === chat.id));
   if (related.length > 0) {
-    sp += '\n【与你相关的亲属卡】\n';
+    sp += '\n【亲属卡】\n';
     related.forEach(c => {
       const rem = Math.max(0, (c.limit || 0) - (c.used || 0));
-      if (c.fromCharId) sp += `- 你送用户亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
-      else sp += `- 用户送你亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
+      sp += `- ${c.fromCharId ? '你送用户' : '用户送你'} 额度¥${(c.limit || 0).toFixed(2)} 余¥${rem.toFixed(2)}\n`;
     });
   }
 
   const mp = buildMomentsPrompt();
   if (mp) sp += mp;
 
-  const log = loadAwarenessLog();
-  if (log.length > 0) {
-    sp += '\n【用户近期操作】（你都知道，可自然提及，不必每次提）\n';
-    log.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
-  }
-
-  sp += '\n现在以角色身份自然回复用户。';
+  sp += '\n现在以角色身份回复。';
   return sp;
 }
 
 function buildChatHistory(chat) {
-  const recent = chat.messages.filter(m => m.content !== '__typing__').slice(-12);
-  const imgIdxSet = new Set();
-  let cnt = 0;
-  for (let i = recent.length - 1; i >= 0; i--) {
-    if (recent[i].type === 'image' && recent[i].image && cnt < 2) { imgIdxSet.add(i); cnt++; }
-  }
+  const recent = chat.messages.filter(m => m.content !== '__typing__').slice(-10);
   const result = [];
-  recent.forEach((m, i) => {
+  recent.forEach((m) => {
     const role = m.role === 'me' ? 'user' : 'assistant';
     let content;
-    if (m.type === 'image' && m.image) {
-      if (imgIdxSet.has(i)) {
-        content = [{ type: 'text', text: '[用户发来一张图片]' }, { type: 'image_url', image_url: { url: m.image } }];
-      } else content = '[图片]';
+    if (m.type === 'image' && (m.image || m.imageId)) {
+      content = '[图片]';
     } else if (m.type === 'sticker') {
-      content = '[表情包]';
+      content = '[表情]';
     } else if (m.type === 'transfer') {
-      content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
+      content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.status === 'accepted' ? ' 已收' : (m.status === 'refunded' ? ' 已退' : ' 待确认')}]`;
     } else if (m.type === 'familyCard') {
-      content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
+      content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}]`;
     } else if (m.type === 'card' && m.card) {
       content = `[名片 ${m.card.name || ''}]`;
     } else if (m.type === 'html') {
-      content = `[已发送 HTML 组件：${m.htmlName || ''}]`;
+      content = `[HTML组件 ${m.htmlName || ''}]`;
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
-      content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
+      content = '【转发】' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('; ');
     } else {
       content = m.content || '';
-      if (m.quote) content = `【引用 ${m.quote.name} 的消息：${m.quote.text}】\n` + content;
+      if (m.quote) content = `[引用 ${m.quote.name}：${m.quote.text}] ` + content;
     }
     const last = result[result.length - 1];
     if (last && last.role === role && typeof last.content === 'string' && typeof content === 'string') last.content += '\n' + content;
@@ -6698,14 +6823,11 @@ async function summarizeChatMemory(chat, isManual) {
     else if (m.type === 'card') text = `[名片 ${(m.card && m.card.name) || ''}]`;
     else if (m.type === 'html') text = `[HTML组件 ${m.htmlName || ''}]`;
     else if (m.type === 'merged') text = '[聊天记录]';
-    else text = String(m.content || '').slice(0, 200);
+    else text = String(m.content || '').slice(0, 100);
     convo += `${who}：${text}\n`;
   });
 
-  const sysPrompt = `你是「${charName}」的记忆整理助手。下面是你和「${myName}」最近的一段对话记录。` +
-    `请提取出这段对话中值得长期记住的关键信息（包括但不限于：用户的喜好、习惯、个人信息、共同经历、重要事件、约定、情绪状态、关系进展等）。` +
-    `用简洁的第三人称陈述句总结成 3~8 条要点，每条一行，以「-」开头。` +
-    `只输出要点列表本身，不要任何前言后语、不要加粗或 markdown 代码块。`;
+  const sysPrompt = `你是「${charName}」的记忆整理助手。提取关键信息（喜好、个人信息、共同经历、约定等），总结成3~8条要点，每条一行以-开头。只输出要点。`;
 
   try {
     const url = normalizeChatEndpoint(cfg.endpoint);
@@ -6721,7 +6843,7 @@ async function summarizeChatMemory(chat, isManual) {
           { role: 'user', content: convo }
         ],
         temperature: 0.3,
-        max_tokens: 800
+        max_tokens: 600
       }),
       signal: controller.signal
     });
@@ -6811,7 +6933,10 @@ function executeCharAction(chat, action) {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
     const refs = getCharImageRefs(chat);
     const img = refs[idx];
-    if (img && img.data) chat.avatar = img.data;
+    if (img) {
+      if (img.data) { chat.avatar = img.data; chat.avatarId = img.imageId || ''; }
+      else if (img.imageId) { chat.avatarId = img.imageId; getImgSrc(img.imageId).then(src => { if (src) chat.avatar = src; }); }
+    }
     return;
   }
   if (action.type === 'CROP_AVATAR') {
@@ -6824,23 +6949,28 @@ function executeCharAction(chat, action) {
     if (ratio > 1) ratio = 1;
     const refs = getCharImageRefs(chat);
     const img = refs[idx];
-    if (img && img.data) {
-      cropImageRegion(img.data, region, ratio).then((base64) => {
-        if (base64) {
-          chat.avatar = base64;
-          saveJianxunChats();
-          if (currentChatId === chat.id) {
-            renderChatMessages(true);
-            renderJianxunChatList();
-            const infoImg = document.getElementById('jxInfoAvatarImg');
-            if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) {
-              infoImg.src = base64;
+    if (img && (img.data || img.imageId)) {
+      const doCrop = async () => {
+        let base64 = img.data;
+        if (!base64 && img.imageId) base64 = await getImgSrc(img.imageId);
+        if (!base64) return;
+        cropImageRegion(base64, region, ratio).then(async (result) => {
+          if (result) {
+            const newId = genImgId();
+            await saveImageToDB(newId, result);
+            chat.avatar = result;
+            chat.avatarId = newId;
+            saveJianxunChats();
+            if (currentChatId === chat.id) {
+              renderChatMessages(true);
+              renderJianxunChatList();
+              const infoImg = document.getElementById('jxInfoAvatarImg');
+              if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) infoImg.src = result;
             }
-            const titleEl = document.getElementById('jxChatTitle');
-            if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
           }
-        }
-      });
+        });
+      };
+      doCrop();
     }
     return;
   }
@@ -6850,15 +6980,9 @@ function executeCharAction(chat, action) {
     loadPersonaList();
     let card = null;
     const p = personaList.find(x => x.name === want);
-    if (p) {
-      card = { name: p.name, avatar: p.avatar || '', isUser: false };
-    } else {
-      card = { name: want, avatar: '', isUser: false };
-    }
-    chat.messages.push({
-      id: genId(), role: 'char', type: 'card', card: card,
-      content: '[名片] ' + card.name
-    });
+    if (p) card = { name: p.name, avatar: p.avatar || '', avatarId: p.avatarId || '', isUser: false };
+    else card = { name: want, avatar: '', avatarId: '', isUser: false };
+    chat.messages.push({ id: genId(), role: 'char', type: 'card', card: card, content: '[名片] ' + card.name });
     return;
   }
   if (action.type === 'HTML') {
@@ -6890,7 +7014,7 @@ function executeCharAction(chat, action) {
     if (!target) target = all[0];
     if (target) {
       chat._pendingStickers = chat._pendingStickers || [];
-      chat._pendingStickers.push({ url: target.url, name: target.name });
+      chat._pendingStickers.push({ url: target.url, imageId: target.imageId, name: target.name });
     }
     return;
   }
@@ -6903,7 +7027,7 @@ function executeCharAction(chat, action) {
     const billId = genId();
     addBill({ id: billId, time: Date.now(), type: 'transfer', direction: 'in', amount: amount, peerName: charName, peerAvatar: chat.avatar || '', note: note, chatId: chat.id });
     chat.messages.push({ id: genId(), role: 'char', type: 'transfer', amount: amount, note: note, content: '[转账]', status: 'pending', billId: billId, opened: false });
-    pushAwareness(`${charName} 向你转账 ¥${amount.toFixed(2)}${note ? '（' + note + '）' : ''}`);
+    pushAwareness(`${charName} 向你转账 ¥${amount.toFixed(2)}`);
     return;
   }
   if (action.type === 'SEND_CARD') {
@@ -6917,7 +7041,7 @@ function executeCharAction(chat, action) {
     rc.unshift({ id: cardId, fromCharId: chat.id, fromName: charName, limit: limit, used: 0, createdAt: Date.now() });
     saveRecv(rc);
     chat.messages.push({ id: genId(), role: 'char', type: 'familyCard', limit: limit, note: note, content: '[亲属卡]', status: 'pending', cardId: cardId });
-    pushAwareness(`${charName} 送给你一张亲属卡，额度 ¥${limit.toFixed(2)}`);
+    pushAwareness(`${charName} 送亲属卡 ¥${limit.toFixed(2)}`);
     return;
   }
   if (action.type === 'REMOVE_CARD') {
@@ -6926,7 +7050,6 @@ function executeCharAction(chat, action) {
     const isReceived = /received|收|退还|收回/.test(raw) && !/given|退还我/.test(raw);
     const isGiven = /given|退还|退回/.test(raw) && !/received|收/.test(raw);
     const handleReceived = isReceived || (!isGiven);
-
     if (handleReceived) {
       const rc = getRecv();
       const idx = rc.findIndex(c => c.fromCharId === chat.id);
@@ -6944,8 +7067,7 @@ function executeCharAction(chat, action) {
             }
           }
         }
-        pushAwareness(`${charName} 收回了他送给你的亲属卡`);
-        if (currentChatId === chat.id) setTimeout(() => renderChatMessages(true), 0);
+        pushAwareness(`${charName} 收回亲属卡`);
       }
     } else {
       const gv = getGiven();
@@ -6964,8 +7086,7 @@ function executeCharAction(chat, action) {
             }
           }
         }
-        pushAwareness(`${charName} 退还了你送给他的亲属卡`);
-        if (currentChatId === chat.id) setTimeout(() => renderChatMessages(true), 0);
+        pushAwareness(`${charName} 退还亲属卡`);
       }
     }
     return;
@@ -6977,7 +7098,7 @@ function executeCharAction(chat, action) {
         m.status = 'accepted';
         m.opened = true;
         const charName = chat.customRemark || chat.name || 'TA';
-        pushAwareness(`${charName} 收下了你转来的 ¥${(m.amount || 0).toFixed(2)}`);
+        pushAwareness(`${charName} 收下转账 ¥${(m.amount || 0).toFixed(2)}`);
         break;
       }
     }
@@ -6994,7 +7115,7 @@ function executeCharAction(chat, action) {
           saveBills(bills);
         }
         const charName = chat.customRemark || chat.name || 'TA';
-        pushAwareness(`${charName} 退回了你转来的 ¥${(m.amount || 0).toFixed(2)}`);
+        pushAwareness(`${charName} 退回转账 ¥${(m.amount || 0).toFixed(2)}`);
         chat.messages.push({ id: genId(), role: 'char', type: 'transfer', amount: m.amount, note: '退回', content: '[转账退回]', status: 'refunded', opened: true });
         break;
       }
@@ -7012,7 +7133,7 @@ function executeCharAction(chat, action) {
         if (!n) return;
         const idx = parseInt(n, 10) - 1;
         const img = refs[idx];
-        if (img && img.data) imgs.push(img.data);
+        if (img && (img.data || img.imageId)) imgs.push(img.data || img.imageId);
       });
     }
     if (!text && imgs.length === 0) return;
@@ -7020,7 +7141,7 @@ function executeCharAction(chat, action) {
     momentsPosts.unshift({
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
       mentions: [], customVisibles: [], likes: [], comments: [],
-      author: chat.customRemark || chat.name || 'TA', authorAvatar: chat.avatar || ''
+      author: chat.customRemark || chat.name || 'TA', authorAvatar: chat.avatar || '', authorAvatarId: chat.avatarId || ''
     });
     saveMomentsPosts();
     renderMomentsPosts();
@@ -7069,7 +7190,7 @@ async function generateCharReply(chat) {
         let contentArr;
         if (Array.isArray(history[i].content)) contentArr = history[i].content.slice();
         else contentArr = [{ type: 'text', text: String(history[i].content || '') }];
-        contentArr.push({ type: 'text', text: '（这是我现在的头像）' });
+        contentArr.push({ type: 'text', text: '（头像）' });
         contentArr.push({ type: 'image_url', image_url: { url: userAvatar } });
         history[i].content = contentArr;
         break;
@@ -7107,7 +7228,7 @@ async function triggerCharReply(chat) {
       else chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply });
     }
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
-      chat._pendingStickers.forEach(st => { chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]' }); });
+      chat._pendingStickers.forEach(st => { chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, imageId: st.imageId || '', stickerName: st.name || '', content: '[表情]' }); });
     }
     chat._pendingStickers = [];
     if (Array.isArray(chat._pendingHtmls) && chat._pendingHtmls.length > 0) {
@@ -7119,7 +7240,7 @@ async function triggerCharReply(chat) {
   } catch (e) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
-    chat.messages.push({ id: genId(), role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）\n提示：如果当前 API 模型不支持图片识别，将无法看到图片内容并进行朋友圈发布。' });
+    chat.messages.push({ id: genId(), role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）' });
     chat._pendingStickers = [];
     chat._pendingHtmls = [];
   } finally {
@@ -7152,7 +7273,9 @@ function closeChatScreen() {
 function openChatInfo() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  document.getElementById('jxInfoAvatarImg').src = chat.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
+  const avatarSrc = chat.avatar || '';
+  document.getElementById('jxInfoAvatarImg').src = avatarSrc || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
+  if (chat.avatarId) getImgSrc(chat.avatarId).then(src => { if (src) document.getElementById('jxInfoAvatarImg').src = src; });
   document.getElementById('jxInfoName').innerText = chat.customRemark || chat.name || '用户';
   document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
   document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
@@ -7205,7 +7328,7 @@ function changeMemoryInterval() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   const cur = chat.memoryInterval || 20;
-  const val = prompt('请输入触发自动总结的消息条数（5~100）：\n（聊天记录累计达到此数量后自动调用 API 总结成记忆）', cur);
+  const val = prompt('请输入触发自动总结的消息条数（5~100）：', cur);
   if (val === null) return;
   const num = parseInt(val, 10);
   if (isNaN(num) || num < 5 || num > 100) { alert('请输入 5 到 100 之间的数字'); return; }
@@ -7340,11 +7463,14 @@ function changeChatAvatar() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
         chat.avatar = base64;
+        chat.avatarId = id;
         document.getElementById('jxInfoAvatarImg').src = base64;
         saveJianxunChats();
         renderJianxunChatList();
@@ -7360,15 +7486,18 @@ function changeMyChatAvatar() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
         chat.myAvatar = base64;
+        chat.myAvatarId = id;
         saveJianxunChats();
         renderChatMessages();
         if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-        chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换的本聊天专属头像' });
+        chat.imagePool.push({ id: genId(), data: base64, imageId: id, time: Date.now(), isAvatar: true, desc: '用户更换的本聊天专属头像' });
         saveJianxunChats();
       }
     });
@@ -7420,14 +7549,20 @@ function showPersonaSelector() {
       list.innerHTML = '<div style="padding:20px;text-align:center;color:#999;font-size:13px;">通讯录为空<br>请先去「人设」App 添加角色</div>';
     } else {
       list.innerHTML = personaList.map((p, i) => {
-        const avatar = p.avatar
-          ? `<img src="${p.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
-          : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        let avatarHtml = '';
+        if (p.avatarId) avatarHtml = `<img src="" data-avatar-id="${p.avatarId}" class="lazy-sel-avatar">`;
+        else if (p.avatar) avatarHtml = `<img src="${p.avatar}">`;
+        else avatarHtml = `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
         return `<div class="jx-modal-item" onclick="addPersonaToChat(${i})">
-          ${avatar}
+          ${avatarHtml}
           <span>${escapeHtml(p.name || '未命名')}</span>
         </div>`;
       }).join('');
+      list.querySelectorAll('.lazy-sel-avatar').forEach(async (img) => {
+        const id = img.getAttribute('data-avatar-id');
+        const src = await getImgSrc(id);
+        if (src) img.src = src;
+      });
     }
     modal.classList.add('show');
   } catch (e) {
@@ -7440,12 +7575,13 @@ function addPersonaToChat(index) {
   const exists = jianxunChats.find(c => c.name === persona.name);
   if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
   const imagePool = [];
+  const userAvatarId = localStorage.getItem('moments_avatar_id');
   const userAvatar = localStorage.getItem('moments_avatar');
-  if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
+  if (userAvatarId || userAvatar) imagePool.push({ id: genId(), data: userAvatar || '', imageId: userAvatarId || '', time: Date.now(), isAvatar: true, desc: '用户当前的头像' });
   jianxunChats.push({
-    id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
+    id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '', avatarId: persona.avatarId || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
-    boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
+    boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', myAvatarId: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
   });
   saveJianxunChats();
@@ -7455,37 +7591,55 @@ function addPersonaToChat(index) {
 
 // ============ 朋友圈 ============
 function loadMomentsData() {
+  const bgId = localStorage.getItem('moments_bg_id');
   const bg = localStorage.getItem('moments_bg');
   const hdr = document.getElementById('jxMomentsHeader');
-  if (bg) {
+  if (bgId) {
+    getImgSrc(bgId).then(src => {
+      if (src) {
+        hdr.style.backgroundImage = `url(${src})`;
+        hdr.style.backgroundSize = 'cover';
+        hdr.style.backgroundPosition = 'center';
+        hdr.style.backgroundRepeat = 'no-repeat';
+      }
+    });
+  } else if (bg) {
     hdr.style.backgroundImage = `url(${bg})`;
     hdr.style.backgroundSize = 'cover';
     hdr.style.backgroundPosition = 'center';
     hdr.style.backgroundRepeat = 'no-repeat';
+  } else {
+    hdr.style.backgroundImage = 'none';
   }
-  else hdr.style.backgroundImage = 'none';
   const name = localStorage.getItem('moments_name');
   if (name) document.getElementById('momentsName').innerText = name;
   const sig = localStorage.getItem('moments_sig');
   if (sig) document.getElementById('momentsSignature').innerText = sig;
   const joinDate = localStorage.getItem('moments_join_date');
   if (joinDate) document.getElementById('momentsJoinDate').innerText = joinDate;
+  const avatarId = localStorage.getItem('moments_avatar_id');
   const avatar = localStorage.getItem('moments_avatar');
-  if (avatar) document.getElementById('momentsAvatarImg').src = avatar;
+  if (avatarId) {
+    getImgSrc(avatarId).then(src => { if (src) document.getElementById('momentsAvatarImg').src = src; });
+  } else if (avatar) {
+    document.getElementById('momentsAvatarImg').src = avatar;
+  }
 }
 (function initMomentsBg() {
   const input = document.getElementById('momentsBgInput');
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 800, 0.6).then((base64) => {
+    compressImageFile(file, 800, 0.6).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       const hdr = document.getElementById('jxMomentsHeader');
       hdr.style.backgroundImage = `url(${base64})`;
       hdr.style.backgroundSize = 'cover';
       hdr.style.backgroundPosition = 'center';
       hdr.style.backgroundRepeat = 'no-repeat';
-      try { localStorage.setItem('moments_bg', base64); } catch(err){ alert('图片过大'); }
+      try { localStorage.setItem('moments_bg_id', id); localStorage.removeItem('moments_bg'); } catch(err){ alert('图片过大'); }
       input.value = '';
     });
   });
@@ -7495,24 +7649,28 @@ function loadMomentsData() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.7).then((base64) => {
+    compressImageFile(file, 180, 0.7).then(async (base64) => {
       if (!base64) return;
+      const id = genImgId();
+      await saveImageToDB(id, base64);
       document.getElementById('momentsAvatarImg').src = base64;
-      try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); }
-      renderMomentsPosts();
-      const meEl = document.getElementById('jxMeAvatarImg');
-      if (meEl) meEl.src = base64;
-      if (jianxunChats.length === 0) loadJianxunChats();
-      jianxunChats.forEach(chat => {
-        if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-        chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
-        const avatars = chat.imagePool.filter(img => img.isAvatar);
-        let photos = chat.imagePool.filter(img => !img.isAvatar);
-        if (photos.length > 6) photos = photos.slice(-6);
-        chat.imagePool = avatars.concat(photos);
-      });
-      saveJianxunChats();
-      pushAwareness('用户更换了新的头像');
+      try {
+        localStorage.setItem('moments_avatar_id', id);
+        localStorage.removeItem('moments_avatar');
+        const m = document.getElementById('momentsAvatarImg');
+        if (m) m.src = base64;
+        if (jianxunChats.length === 0) loadJianxunChats();
+        jianxunChats.forEach(chat => {
+          if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+          chat.imagePool.push({ id: genId(), data: base64, imageId: id, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
+          const avatars = chat.imagePool.filter(img => img.isAvatar);
+          let photos = chat.imagePool.filter(img => !img.isAvatar);
+          if (photos.length > 6) photos = photos.slice(-6);
+          chat.imagePool = avatars.concat(photos);
+        });
+        saveJianxunChats();
+        pushAwareness('用户更换了新的头像');
+      } catch(err){ alert('图片过大'); }
       input.value = '';
     });
   });
@@ -7551,22 +7709,39 @@ function saveMomentsPosts() {
   try { localStorage.setItem('moments_posts', JSON.stringify(momentsPosts)); }
   catch(e) { alert('存储空间可能已满，图片过大'); }
 }
-function renderMomentsPosts() {
+async function renderMomentsPosts() {
   loadMomentsPosts();
   const container = document.getElementById('jx-moments-posts');
   if (!container) return;
   document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
   const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+  const myAvatarId = localStorage.getItem('moments_avatar_id');
   const myAvatar = localStorage.getItem('moments_avatar') || '';
+  const myAvatarSrc = myAvatarId ? await getImgSrc(myAvatarId) : myAvatar;
   if (momentsPosts.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">暂无动态</div>'; return; }
-  container.innerHTML = momentsPosts.map(post => {
+  const rows = [];
+  for (const post of momentsPosts) {
     const isChar = !!post.author;
     const authorName = post.author || currentName;
-    const authorAvatar = isChar ? (post.authorAvatar || '') : myAvatar;
+    let authorAvatar = '';
+    if (isChar) {
+      if (post.authorAvatarId) authorAvatar = await getImgSrc(post.authorAvatarId);
+      else authorAvatar = post.authorAvatar || '';
+    } else {
+      authorAvatar = myAvatarSrc || '';
+    }
     const likesArr = Array.isArray(post.likes) ? post.likes : (post.liked ? [currentName] : []);
     const likedClass = likesArr.includes(currentName) ? ' liked' : '';
     let imagesHtml = '';
-    if (post.images && post.images.length > 0) imagesHtml = `<div class="jx-post-images">${post.images.map(img => { const safeSrc = String(img).replace(/'/g, '%27'); return `<img src="${safeSrc}" onclick="openImageViewer('${safeSrc}')">`; }).join('')}</div>`;
+    if (post.images && post.images.length > 0) {
+      const imgTags = [];
+      for (const img of post.images) {
+        let src = img;
+        if (typeof img === 'string' && img.startsWith('img_')) src = await getImgSrc(img);
+        imgTags.push(`<img src="${src}" onclick="openImageViewer('${src}')">`);
+      }
+      imagesHtml = `<div class="jx-post-images">${imgTags.join('')}</div>`;
+    }
     let mentionsHtml = '';
     if (post.mentions && post.mentions.length > 0) mentionsHtml = `<div style="font-size:12px; color:#576b95; margin-top:4px;">@ ${post.mentions.map(escapeHtml).join('、')}</div>`;
     let likesHtml = '';
@@ -7587,7 +7762,7 @@ function renderMomentsPosts() {
       visibilityText = '公开';
     }
     const deleteBtnIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-    return `<div class="jx-post">
+    rows.push(`<div class="jx-post">
       <div class="jx-post-header">
         <div class="jx-post-avatar">${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : ''}</div>
         <div class="jx-post-user">${escapeHtml(authorName)}</div>
@@ -7603,8 +7778,9 @@ function renderMomentsPosts() {
         </div>
       </div>
       ${commentsHtml}
-    </div>`;
-  }).join('');
+    </div>`);
+  }
+  container.innerHTML = rows.join('');
 }
 
 function toggleLike(postId) {
@@ -7615,7 +7791,7 @@ function toggleLike(postId) {
   if (!Array.isArray(post.likes)) { post.likes = post.liked ? [myName] : []; delete post.liked; }
   const i = post.likes.indexOf(myName);
   if (i >= 0) post.likes.splice(i, 1);
-  else { post.likes.push(myName); pushAwareness('用户点赞了' + (post.author ? ('「' + post.author + '」') : '') + '的一条朋友圈动态：' + (post.content || '[图片]').slice(0, 30)); }
+  else { post.likes.push(myName); pushAwareness('用户点赞了' + (post.author ? ('「' + post.author + '」') : '') + '的动态：' + (post.content || '[图片]').slice(0, 30)); }
   saveMomentsPosts();
   renderMomentsPosts();
 }
@@ -7661,8 +7837,10 @@ async function handlePublishImageSelect(e) {
   for (const file of fileArray) {
     const base64 = await compressImageFile(file, 640, 0.55);
     if (!base64) continue;
+    const id = genImgId();
+    await saveImageToDB(id, base64);
     const idx = tempPostImages.length;
-    tempPostImages.push(base64);
+    tempPostImages.push(id);
     const addBtn = container.querySelector('.publish-add-image');
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'publish-image-item';
@@ -7702,13 +7880,13 @@ function publishPost() {
   saveMomentsPosts();
   renderMomentsPosts();
   closePublishScreen();
-  pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
+  pushAwareness('用户发布朋友圈："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（' + tempPostImages.length + '图）' : ''));
   if (mentions.length > 0) {
     setTimeout(() => {
       const post = momentsPosts.find(p => p.id === newPost.id);
       if (post) { post.comments.push({ user: mentions[0], text: '收到！我会看的~' }); saveMomentsPosts(); renderMomentsPosts(); }
     }, 1500);
-    alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态。`);
+    alert(`发布成功！已提醒 ${mentions.join('、')} 查看。`);
   } else alert('发布成功！');
 }
 function deletePost(postId) {
@@ -7718,7 +7896,7 @@ function deletePost(postId) {
   momentsPosts = momentsPosts.filter(p => p.id !== postId);
   saveMomentsPosts();
   renderMomentsPosts();
-  pushAwareness('用户删除了一条朋友圈动态' + (target && target.content ? '："' + target.content.slice(0, 30) + '"' : ''));
+  pushAwareness('用户删除朋友圈' + (target && target.content ? '："' + target.content.slice(0, 30) + '"' : ''));
 }
 let currentCommentPostId = null;
 function openCommentModal(postId) {
@@ -7739,7 +7917,7 @@ function sendComment() {
     saveMomentsPosts();
     renderMomentsPosts();
     closeCommentModal();
-    pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
+    pushAwareness('用户评论' + (post.author ? ('「' + post.author + '」') : '') + '："' + text.slice(0, 40) + '"');
     if (post.author) {
       const chat = jianxunChats.find(c => (c.customRemark || c.name) === post.author);
       if (chat) setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
@@ -7754,11 +7932,7 @@ async function replyToMomentsComment(chat, postId, userComment) {
   if (!post) return;
   const charName = chat.customRemark || chat.name || 'TA';
   const userName = localStorage.getItem('moments_name') || '用户';
-  const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
-    `你之前发过一条朋友圈：「${post.content || '[图片]'}」。\n` +
-    `现在「${userName}」在这条动态下评论了你：「${userComment}」。\n` +
-    `请用 1~2 句简短、口语化的话回复这条评论，符合你的性格。\n` +
-    `只输出评论内容本身，不要加引号、不要解释、不要带"回复："这样的前缀。`;
+  const sys = `你是「${charName}」。你发过朋友圈：「${post.content || '[图片]'}」。用户「${userName}」评论：「${userComment}」。用1~2句简短口语回复。只输出回复内容。`;
   try {
     const url = normalizeChatEndpoint(cfg.endpoint);
     const res = await fetch(url, {
@@ -7781,7 +7955,7 @@ async function replyToMomentsComment(chat, postId, userComment) {
     p2.comments.push({ user: charName, text: text });
     saveMomentsPosts();
     renderMomentsPosts();
-  } catch (e) { console.warn('回复朋友圈评论失败', e); }
+  } catch (e) { console.warn('回复评论失败', e); }
 }
 </script>
 
