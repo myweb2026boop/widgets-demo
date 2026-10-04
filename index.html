@@ -309,6 +309,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-me-bg-fav{background:#fa9d3b}
 .jx-me-bg-emoji{background:#ffc107}
 .jx-me-bg-settings{background:#576b95}
+.jx-me-bg-mask{background:#8e44ad}
 #jxChatScreen{display:none;flex-direction:column;background:#ededed;height:100%;width:100%;position:absolute;top:0;left:0;z-index:1000}
 #jxChatScreen.active{display:flex}
 .jx-chat-top-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:#ededed;border-bottom:1px solid #dcdcdc;flex-shrink:0}
@@ -501,7 +502,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .progress-bar-fill::after{background:#ddd}
 .phone-case.dark-mode .play-pause-btn{background:#eee}
 .phone-case.dark-mode .play-pause-btn svg{fill:#111}
-.phone-case.dark-mode #personaScreen,.phone-case.dark-mode #beautifyScreen,.phone-case.dark-mode #worldBookScreen,.phone-case.dark-mode #settingsScreen,.phone-case.dark-mode #playScreen{background:#121212}
+.phone-case.dark-mode #personaScreen,.phone-case.dark-mode #beautifyScreen,.phone-case.dark-mode #worldBookScreen,.phone-case.dark-mode #settingsScreen,.phone-case.dark-mode #playScreen,.phone-case.dark-mode #jxMaskScreen,.phone-case.dark-mode #jxMaskEditScreen{background:#121212}
 .phone-case.dark-mode .persona-header,.phone-case.dark-mode .beautify-header,.phone-case.dark-mode .worldbook-header{background:#1c1c1e;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .persona-header h3,.phone-case.dark-mode .beautify-header h3,.phone-case.dark-mode .worldbook-header h3{color:#eee}
 .phone-case.dark-mode .persona-card,.phone-case.dark-mode .section-card,.phone-case.dark-mode .persona-edit-view,.phone-case.dark-mode .wb-stats-bar,.phone-case.dark-mode .wb-entry-card{background:#1c1c1e;box-shadow:none}
@@ -583,8 +584,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-info-item .label{color:#ddd}
 .phone-case.dark-mode .jx-info-header-name{color:#eee}
 .phone-case.dark-mode .jx-info-header-block{border-bottom-color:#2c2c2e}
-.phone-case.dark-mode #worldBookSelectScreen,.phone-case.dark-mode #htmlSelectScreen{background:#121212}
-.phone-case.dark-mode #worldBookSelectList,.phone-case.dark-mode #htmlSelectList{background:#1c1c1e!important}
+.phone-case.dark-mode #worldBookSelectScreen,.phone-case.dark-mode #htmlSelectScreen,.phone-case.dark-mode #jxMaskScreen,.phone-case.dark-mode #jxMaskEditScreen{background:#121212}
+.phone-case.dark-mode #worldBookSelectList,.phone-case.dark-mode #htmlSelectList,.phone-case.dark-mode #jxMaskList{background:#1c1c1e!important}
 .phone-case.dark-mode #wbSelectFooter,.phone-case.dark-mode #htmlSelectFooter{background:#1c1c1e!important;border-top-color:#2c2c2e!important}
 .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item,.phone-case.dark-mode #htmlSelectScreen .jx-modal-item{border-bottom-color:#2c2c2e!important}
 .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span,.phone-case.dark-mode #htmlSelectScreen .jx-modal-item span{color:#eee}
@@ -915,6 +916,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .html-item-preview{background:#2c2c2e;color:#999}
 .phone-case.dark-mode .html-item-del{background:#3a2a2c;color:#ff6b7a}
 .phone-case.dark-mode .html-item-preview-btn{background:#2c2c2e;color:#82a7e0}
+/* 身份管理样式 */
+.mask-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #8e44ad}
+.mask-avatar{width:50px;height:50px;border-radius:50%;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.mask-avatar img{width:100%;height:100%;object-fit:cover}
+.mask-avatar svg{width:24px;height:24px;fill:#ccc}
+.mask-info{flex:1;overflow:hidden}
+.mask-info h4{font-size:15px;color:#333;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mask-info p{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mask-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:#f3e5f5;color:#8e24aa;white-space:nowrap}
+.phone-case.dark-mode .mask-card{background:#1c1c1e;box-shadow:none}
+.phone-case.dark-mode .mask-info h4{color:#eee}
+.phone-case.dark-mode .mask-info p{color:#999}
+.phone-case.dark-mode .mask-badge{background:#3a2a4a;color:#b39ddb}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1235,13 +1249,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       <div class="persona-body">
         <div class="section-card highlight-card" style="margin-bottom:14px;">
           <h4 style="color:#4b7bec;"><svg class="icon-svg" viewBox="0 0 24 24" fill="#4b7bec"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.5h8v1H8zm0-3h8v1H8z"/></svg> HTML 组件库</h4>
-          <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:12px;">上传 HTML 文件到组件库后，可以在「简讯 → 聊天详情」中勾选启用。角色会根据上下文和人设，自主触发合适的 HTML 组件来丰富聊天表现。</p>
-          <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="document.getElementById('htmlFileInput').click()">上传 HTML 文件</button>
-          <input type="file" id="htmlFileInput" accept=".html,.htm,text/html" style="display:none;" multiple>
+          <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:12px;">上传 HTML 或 DOCX 文件到组件库后，可以在「简讯 → 聊天详情」中勾选启用。角色会根据上下文和人设，自主触发合适的组件来丰富聊天表现。</p>
+          <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="document.getElementById('htmlFileInput').click()">上传 HTML / DOCX 文件</button>
+          <input type="file" id="htmlFileInput" accept=".html,.htm,.docx,text/html,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;" multiple>
         </div>
-        <div style="font-size:13px; color:#666; margin:4px 0 10px; font-weight:500;">已上传的 HTML 组件 <span id="htmlCount" style="color:#999; font-weight:400;">(0)</span></div>
+        <div style="font-size:13px; color:#666; margin:4px 0 10px; font-weight:500;">已上传的组件 <span id="htmlCount" style="color:#999; font-weight:400;">(0)</span></div>
         <div id="htmlListContainer"></div>
-        <div class="empty-state" id="htmlEmptyState">暂无 HTML 组件，点击上方按钮上传</div>
+        <div class="empty-state" id="htmlEmptyState">暂无组件，点击上方按钮上传</div>
       </div>
     </div>
 
@@ -1406,6 +1420,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <div class="jx-me-menu-item" onclick="openPromptScreen()">
             <div class="jx-me-menu-icon" style="background:#8e44ad;"><svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg></div>
             <span class="jx-me-menu-text">提示词</span>
+            <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
+          <div class="jx-me-menu-item" onclick="openMaskScreen()">
+            <div class="jx-me-menu-icon jx-me-bg-mask"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+            <span class="jx-me-menu-text">身份</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
           <div class="jx-me-menu-item" onclick="openFavoritesScreen()">
@@ -1699,6 +1718,53 @@ https://xxx.com/a.png
           <button class="btn btn-success" style="flex:1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #07c160; color: #fff;" onclick="saveGlobalPrompt()">保存</button>
         </div>
         <p style="font-size: 11px; color: #bbb; margin-top: 12px; line-height: 1.6;">提示：提示词只影响对话，不会覆盖角色原本的详细人设。若想表达"主动做一些动作"的倾向，可以写"当你觉得合适时可以自行决定XXX"这样的语句。</p>
+      </div>
+    </div>
+
+    <div id="jxMaskScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1002;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeMaskScreen()">‹</span>
+        <span class="title">身份管理</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll" style="padding: 16px;">
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。你可以为每个面具设置头像、名字和描述，并绑定给特定的角色。角色在对话中会读取对应面具的设定。</p>
+        <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
+        <div id="jxMaskList"></div>
+        <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
+      </div>
+    </div>
+
+    <div id="jxMaskEditScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1003;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeMaskEdit()">‹</span>
+        <span class="title" id="maskEditTitle">编辑身份</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll" style="padding: 16px;">
+        <div class="form-group" style="text-align: center;">
+          <label>头像</label>
+          <div class="avatar-edit-box" onclick="document.getElementById('maskAvatarInput').click()">
+            <img id="maskAvatarImg" src="" alt="" style="display: none;">
+            <svg id="maskAvatarSvg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <input type="file" id="maskAvatarInput" accept="image/*" style="display: none;">
+          </div>
+        </div>
+        <div class="form-group"><label>身份名字</label><input type="text" id="maskName" placeholder="输入身份名字"></div>
+        <div class="form-group"><label>微信号/备注</label><input type="text" id="maskWxId" placeholder="输入微信号或备注"></div>
+        <div class="form-group"><label>身份描述（人设）</label><textarea id="maskDetails" placeholder="输入这个身份的背景、性格、说话风格等..."></textarea></div>
+        <div class="form-group">
+          <label>绑定角色（可选，多选）</label>
+          <div id="maskBindCharList" style="background:#fff; border-radius:8px; padding:10px; border:1px solid #ddd; max-height:150px; overflow-y:auto;">
+            <!-- 动态渲染角色复选框 -->
+          </div>
+          <p style="font-size:11px; color:#999; margin-top:4px;">如果不绑定任何角色，此身份默认在所有聊天中可用（除非该角色绑定其他身份）。</p>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-cancel" onclick="closeMaskEdit()">取消</button>
+          <button class="btn btn-delete" id="maskDeleteBtn" onclick="deleteMask()">删除</button>
+          <button class="btn btn-save" onclick="saveMask()">保存</button>
+        </div>
       </div>
     </div>
 
@@ -2121,6 +2187,7 @@ const FONT_RECORD_KEY = 'global_font';
 const FONT_SIZE_SCALE_KEY = 'user_font_size_scale';
 const JX_GLOBAL_PROMPT_KEY = 'jx_global_prompt';
 const CUSTOM_HTML_KEY = 'custom_htmls';
+const MASK_KEY = 'jx_masks';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -2808,7 +2875,6 @@ function deleteCustomHtml(id) {
   let list = loadCustomHtmls();
   list = list.filter(h => h.id !== id);
   saveCustomHtmls(list);
-  // 清理所有聊天中的引用
   try {
     if (jianxunChats && jianxunChats.length > 0) {
       let changed = false;
@@ -2854,12 +2920,20 @@ function previewCustomHtml(id) {
     const list = loadCustomHtmls();
     let added = 0, failed = 0;
     for (const file of files) {
-      if (!/\.(html?|htm)$/i.test(file.name)) { failed++; continue; }
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!/\.(html?|htm|docx)$/i.test(file.name)) { failed++; continue; }
       try {
-        const text = await file.text();
+        let text = '';
+        let baseName = file.name.replace(/\.(html?|htm|docx)$/i, '').trim() || '未命名组件';
+        if (ext === 'docx') {
+          if (typeof mammoth === 'undefined') { failed++; continue; }
+          const arrayBuffer = await file.arrayBuffer();
+          const result = await mammothConvertHtmlSafe(arrayBuffer);
+          text = result.value;
+        } else {
+          text = await file.text();
+        }
         if (!text || !text.trim()) { failed++; continue; }
-        let baseName = file.name.replace(/\.(html?|htm)$/i, '').trim() || '未命名组件';
-        // 名称去重
         let finalName = baseName;
         let suffix = 1;
         while (list.some(h => h.name === finalName)) {
@@ -2871,13 +2945,13 @@ function previewCustomHtml(id) {
       } catch (err) { failed++; }
     }
     if (!saveCustomHtmls(list)) {
-      alert('保存失败：存储空间可能已满。\n建议删除一些不用的 HTML 组件，或使用更小的文件。');
+      alert('保存失败：存储空间可能已满。\n建议删除一些不用的组件，或使用更小的文件。');
       renderHtmlList();
       return;
     }
     renderHtmlList();
-    let msg = `成功上传 ${added} 个 HTML 组件`;
-    if (failed > 0) msg += `\n${failed} 个文件被跳过（非 html 或读取失败）`;
+    let msg = `成功上传 ${added} 个组件`;
+    if (failed > 0) msg += `\n${failed} 个文件被跳过（非 html/docx 或读取失败）`;
     alert(msg);
   });
 })();
@@ -3772,7 +3846,7 @@ const isBackupKey = (key) => (
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
-  key === BILLS_KEY || key === CARDS_KEY ||
+  key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY ||
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
   key === JX_GLOBAL_PROMPT_KEY ||
@@ -4790,6 +4864,172 @@ function saveGlobalPrompt() {
   else alert('保存失败，存储空间可能不足');
 }
 
+// ================= 身份管理（面具） =================
+let jxMasks = [];
+let editingMaskId = null;
+let tempMaskAvatarBase64 = '';
+
+function loadMasks() {
+  try {
+    const raw = localStorage.getItem(MASK_KEY);
+    const v = raw ? JSON.parse(raw) : [];
+    jxMasks = Array.isArray(v) ? v : [];
+  } catch (e) { jxMasks = []; }
+  jxMasks.forEach(m => {
+    if (!m.id) m.id = genId();
+    if (!Array.isArray(m.boundCharIds)) m.boundCharIds = [];
+  });
+}
+loadMasks();
+
+function saveMasks() {
+  try { localStorage.setItem(MASK_KEY, JSON.stringify(jxMasks)); } catch (e) { alert('存储空间不足，保存身份失败'); }
+}
+
+function openMaskScreen() {
+  loadMasks();
+  renderMaskList();
+  document.getElementById('jxMaskScreen').style.display = 'flex';
+}
+function closeMaskScreen() {
+  document.getElementById('jxMaskScreen').style.display = 'none';
+}
+
+function renderMaskList() {
+  const list = document.getElementById('jxMaskList');
+  const empty = document.getElementById('jxMaskEmptyState');
+  if (!list || !empty) return;
+  if (jxMasks.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = jxMasks.map(m => {
+    const avatarHtml = m.avatar ? `<img src="${m.avatar}">` : `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+    const bindCount = Array.isArray(m.boundCharIds) ? m.boundCharIds.length : 0;
+    const bindText = bindCount > 0 ? `已绑定 ${bindCount} 个角色` : '未绑定角色（全局可用）';
+    return `<div class="mask-card" onclick="openMaskEdit('${m.id}')">
+      <div class="mask-avatar">${avatarHtml}</div>
+      <div class="mask-info">
+        <h4>${escapeHtml(m.name || '未命名身份')}</h4>
+        <p>${escapeHtml(m.wxId || '无微信号')} · ${escapeHtml(bindText)}</p>
+      </div>
+      <span class="mask-badge">身份</span>
+    </div>`;
+  }).join('');
+}
+
+function openMaskEdit(id) {
+  loadMasks();
+  loadPersonaList();
+  const screen = document.getElementById('jxMaskEditScreen');
+  const title = document.getElementById('maskEditTitle');
+  const bindList = document.getElementById('maskBindCharList');
+  if (!screen) return;
+  editingMaskId = id;
+  if (id === null) {
+    title.textContent = '创建身份';
+    document.getElementById('maskName').value = '';
+    document.getElementById('maskWxId').value = '';
+    document.getElementById('maskDetails').value = '';
+    tempMaskAvatarBase64 = '';
+    document.getElementById('maskAvatarImg').style.display = 'none';
+    document.getElementById('maskAvatarSvg').style.display = 'block';
+    document.getElementById('maskDeleteBtn').style.display = 'none';
+  } else {
+    const m = jxMasks.find(x => x.id === id);
+    if (!m) return;
+    title.textContent = '编辑身份';
+    document.getElementById('maskName').value = m.name || '';
+    document.getElementById('maskWxId').value = m.wxId || '';
+    document.getElementById('maskDetails').value = m.details || '';
+    if (m.avatar) {
+      tempMaskAvatarBase64 = m.avatar;
+      document.getElementById('maskAvatarImg').src = m.avatar;
+      document.getElementById('maskAvatarImg').style.display = 'block';
+      document.getElementById('maskAvatarSvg').style.display = 'none';
+    } else {
+      tempMaskAvatarBase64 = '';
+      document.getElementById('maskAvatarImg').style.display = 'none';
+      document.getElementById('maskAvatarSvg').style.display = 'block';
+    }
+    document.getElementById('maskDeleteBtn').style.display = 'block';
+  }
+  // 渲染角色绑定复选框
+  if (personaList.length === 0) {
+    bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:4px;">暂无人设可绑定</div>';
+  } else {
+    bindList.innerHTML = personaList.map(p => {
+      const checked = id !== null && jxMasks.find(x => x.id === id)?.boundCharIds?.includes(p.name) ? 'checked' : '';
+      return `<label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#333; padding:4px 0; cursor:pointer;">
+        <input type="checkbox" value="${escapeHtml(p.name)}" ${checked} style="accent-color:#8e44ad;">
+        ${escapeHtml(p.name || '未命名')}
+      </label>`;
+    }).join('');
+  }
+  screen.style.display = 'flex';
+}
+function closeMaskEdit() {
+  document.getElementById('jxMaskEditScreen').style.display = 'none';
+}
+function saveMask() {
+  const name = document.getElementById('maskName').value.trim();
+  if (!name) { alert('请输入身份名字'); return; }
+  const wxId = document.getElementById('maskWxId').value.trim();
+  const details = document.getElementById('maskDetails').value;
+  const checkboxes = document.querySelectorAll('#maskBindCharList input[type="checkbox"]:checked');
+  const boundCharIds = Array.from(checkboxes).map(cb => cb.value);
+  const data = { avatar: tempMaskAvatarBase64, name, wxId, details, boundCharIds };
+  if (editingMaskId === null) {
+    jxMasks.push({ id: genId(), ...data });
+  } else {
+    const idx = jxMasks.findIndex(x => x.id === editingMaskId);
+    if (idx >= 0) jxMasks[idx] = { ...jxMasks[idx], ...data };
+  }
+  saveMasks();
+  closeMaskEdit();
+  renderMaskList();
+  alert('身份已保存');
+}
+function deleteMask() {
+  if (editingMaskId === null) return;
+  if (!confirm('确定要删除这个身份吗？')) return;
+  jxMasks = jxMasks.filter(x => x.id !== editingMaskId);
+  saveMasks();
+  closeMaskEdit();
+  renderMaskList();
+}
+(function initMaskAvatarInput() {
+  const input = document.getElementById('maskAvatarInput');
+  if (!input) return;
+  input.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    compressImageFile(file, 180, 0.7).then((base64) => {
+      if (!base64) return;
+      tempMaskAvatarBase64 = base64;
+      document.getElementById('maskAvatarImg').src = base64;
+      document.getElementById('maskAvatarImg').style.display = 'block';
+      document.getElementById('maskAvatarSvg').style.display = 'none';
+    });
+    this.value = '';
+  });
+})();
+
+// 获取当前聊天使用的身份
+function getActiveMaskForChat(chat) {
+  if (!chat) return null;
+  loadMasks();
+  // 优先查找绑定了该角色的身份
+  const charName = chat.customRemark || chat.name;
+  const bound = jxMasks.filter(m => Array.isArray(m.boundCharIds) && m.boundCharIds.includes(charName));
+  if (bound.length > 0) return bound[0];
+  // 否则查找未绑定任何角色的全局身份
+  const globalMasks = jxMasks.filter(m => !Array.isArray(m.boundCharIds) || m.boundCharIds.length === 0);
+  if (globalMasks.length > 0) return globalMasks[0];
+  return null;
+}
+
 // ================= 简讯 App =================
 let jianxunChats = [];
 let currentChatId = null;
@@ -5116,7 +5356,6 @@ function loadJianxunChats() {
       delete chat.boundStickers;
     }
     if (chat.boundStickers !== undefined) delete chat.boundStickers;
-    // HTML 功能
     if (!Array.isArray(chat.enabledHtmls)) chat.enabledHtmls = [];
     chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
   });
@@ -5236,7 +5475,10 @@ function renderChatMessages(keepScrollPos) {
     container.innerHTML = `<div class="jx-chat-empty">开始和 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 聊天吧</div>`;
     return;
   }
-  const myAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
+  const activeMask = getActiveMaskForChat(chat);
+  const defaultMyAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
+  const myAvatar = activeMask ? (activeMask.avatar || defaultMyAvatar) : defaultMyAvatar;
+  const myName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '我') : (localStorage.getItem('moments_name') || '我');
   container.innerHTML = chat.messages.map((msg, idx) => {
     if (!msg.id) msg.id = genId();
     const isMe = msg.role === 'me';
@@ -6236,9 +6478,10 @@ function buildMemoryPrompt(chat) {
 function buildCharSystemPrompt(chat) {
   loadPersonaList();
   const persona = personaList.find(p => p.name === chat.name);
-  const userName = localStorage.getItem('moments_name') || '用户';
-  const userWxId = localStorage.getItem('jx_wechat_id') || '';
-  const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
+  const activeMask = getActiveMaskForChat(chat);
+  const userName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '用户') : (localStorage.getItem('moments_name') || '用户');
+  const userWxId = activeMask ? (activeMask.wxId || '') : (localStorage.getItem('jx_wechat_id') || '');
+  const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const charName = chat.customRemark || chat.name || '未知';
 
   let sp = `你是「${charName}」，在仿微信App"简讯"中和用户聊天。始终以角色身份说话，绝不暴露AI身份，回复简短自然（1~3句）。\n\n`;
@@ -6254,6 +6497,9 @@ function buildCharSystemPrompt(chat) {
   sp += `\n【用户】${userName}`;
   if (userWxId) sp += `（微信号：${userWxId}）`;
   sp += '\n';
+  if (activeMask && activeMask.details) {
+    sp += `用户当前使用的身份描述：${activeMask.details}\n`;
+  }
   if (userAvatar) sp += `用户头像会以图片形式附在每条用户消息末尾，你能看清内容，可自然提及。\n`;
 
   const wb = buildWorldBookPrompt(chat);
@@ -6288,6 +6534,7 @@ function buildCharSystemPrompt(chat) {
   sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处（背景、角落、衣物细节、神情局部等）正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
   sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
   sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
+  sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
   sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
   sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
@@ -6303,7 +6550,6 @@ function buildCharSystemPrompt(chat) {
 
   sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
 
-  // 用户自定义的全局提示词（优先级高）
   const globalPrompt = loadGlobalPrompt().trim();
   if (globalPrompt) {
     sp += '\n【用户附加指示 · 优先级高，请务必遵守】\n' + globalPrompt + '\n';
@@ -6500,7 +6746,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -6584,6 +6830,23 @@ function executeCharAction(chat, action) {
         }
       });
     }
+    return;
+  }
+  if (action.type === 'SEND_CONTACT') {
+    const want = String(action.payload).trim();
+    if (!want) return;
+    loadPersonaList();
+    let card = null;
+    const p = personaList.find(x => x.name === want);
+    if (p) {
+      card = { name: p.name, avatar: p.avatar || '', isUser: false };
+    } else {
+      card = { name: want, avatar: '', isUser: false };
+    }
+    chat.messages.push({
+      id: genId(), role: 'char', type: 'card', card: card,
+      content: '[名片] ' + card.name
+    });
     return;
   }
   if (action.type === 'HTML') {
@@ -6786,7 +7049,8 @@ async function generateCharReply(chat) {
   if (!useAI) throw new Error('尚未配置 API');
   const systemPrompt = buildCharSystemPrompt(chat);
   const history = buildChatHistory(chat);
-  const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
+  const activeMask = getActiveMaskForChat(chat);
+  const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   if (userAvatar && history.length > 0) {
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].role === 'user') {
@@ -7027,7 +7291,7 @@ function openHtmlSelectScreen() {
   const list = document.getElementById('htmlSelectList');
   if (!list) return;
   if (htmls.length === 0) {
-    list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px; line-height:1.8;">暂无 HTML 组件<br>请先去「多功能」App 中上传 HTML 文件</div>';
+    list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px; line-height:1.8;">暂无 HTML 组件<br>请先去「多功能」App 中上传 HTML 或 DOCX 文件</div>';
   } else {
     list.innerHTML = htmls.map(h => {
       const isSelected = Array.isArray(chat.enabledHtmls) && chat.enabledHtmls.includes(h.id);
