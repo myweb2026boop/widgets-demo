@@ -501,7 +501,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .progress-bar-fill::after{background:#ddd}
 .phone-case.dark-mode .play-pause-btn{background:#eee}
 .phone-case.dark-mode .play-pause-btn svg{fill:#111}
-.phone-case.dark-mode #personaScreen,.phone-case.dark-mode #beautifyScreen,.phone-case.dark-mode #worldBookScreen,.phone-case.dark-mode #settingsScreen{background:#121212}
+.phone-case.dark-mode #personaScreen,.phone-case.dark-mode #beautifyScreen,.phone-case.dark-mode #worldBookScreen,.phone-case.dark-mode #settingsScreen,.phone-case.dark-mode #playScreen{background:#121212}
 .phone-case.dark-mode .persona-header,.phone-case.dark-mode .beautify-header,.phone-case.dark-mode .worldbook-header{background:#1c1c1e;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .persona-header h3,.phone-case.dark-mode .beautify-header h3,.phone-case.dark-mode .worldbook-header h3{color:#eee}
 .phone-case.dark-mode .persona-card,.phone-case.dark-mode .section-card,.phone-case.dark-mode .persona-edit-view,.phone-case.dark-mode .wb-stats-bar,.phone-case.dark-mode .wb-entry-card{background:#1c1c1e;box-shadow:none}
@@ -583,11 +583,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-info-item .label{color:#ddd}
 .phone-case.dark-mode .jx-info-header-name{color:#eee}
 .phone-case.dark-mode .jx-info-header-block{border-bottom-color:#2c2c2e}
-.phone-case.dark-mode #worldBookSelectScreen{background:#121212}
-.phone-case.dark-mode #worldBookSelectList{background:#1c1c1e!important}
-.phone-case.dark-mode #wbSelectFooter{background:#1c1c1e!important;border-top-color:#2c2c2e!important}
-.phone-case.dark-mode #worldBookSelectScreen .jx-modal-item{border-bottom-color:#2c2c2e!important}
-.phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span{color:#eee}
+.phone-case.dark-mode #worldBookSelectScreen,.phone-case.dark-mode #htmlSelectScreen{background:#121212}
+.phone-case.dark-mode #worldBookSelectList,.phone-case.dark-mode #htmlSelectList{background:#1c1c1e!important}
+.phone-case.dark-mode #wbSelectFooter,.phone-case.dark-mode #htmlSelectFooter{background:#1c1c1e!important;border-top-color:#2c2c2e!important}
+.phone-case.dark-mode #worldBookSelectScreen .jx-modal-item,.phone-case.dark-mode #htmlSelectScreen .jx-modal-item{border-bottom-color:#2c2c2e!important}
+.phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span,.phone-case.dark-mode #htmlSelectScreen .jx-modal-item span{color:#eee}
 .phone-case.dark-mode .jx-modal-content,.phone-case.dark-mode .jx-comment-modal-content{background:#1c1c1e}
 .phone-case.dark-mode .jx-modal-content h3{color:#eee}
 .phone-case.dark-mode .jx-modal-item{border-bottom-color:#2c2c2e}
@@ -664,6 +664,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-msg-bubble.transfer::after,.jx-msg-bubble.transfer::before,.jx-msg-bubble.card::after,.jx-msg-bubble.card::before{display:none!important}
 .jx-msg-bubble.card-msg{padding:0!important;background:transparent!important;max-width:75%!important}
 .jx-msg-bubble.card-msg::after,.jx-msg-bubble.card-msg::before{display:none!important}
+.jx-msg-bubble.html-msg{padding:0!important;background:transparent!important;max-width:82%!important}
+.jx-msg-bubble.html-msg::after,.jx-msg-bubble.html-msg::before{display:none!important}
+.jx-html-frame{width:100%;height:320px;border:1px solid #e0e0e0;border-radius:10px;background:#fff;display:block;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.jx-html-caption{font-size:11px;color:#888;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.phone-case.dark-mode .jx-html-frame{border-color:#3a3a3c;background:#1c1c1e}
+.phone-case.dark-mode .jx-html-caption{color:#aaa}
 .jx-contact-card{background:#fff;border-radius:8px;padding:0;display:flex;flex-direction:column;min-width:210px;max-width:240px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;overflow:hidden;transition:transform .15s}
 .jx-contact-card:active{transform:scale(.98)}
 .jx-contact-card-top{display:flex;align-items:center;gap:10px;padding:12px 14px}
@@ -896,6 +902,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .font-scale-preset-btn{background:#2c2c2e;border-color:#3a3a3c;color:#ddd}
 .phone-case.dark-mode .font-scale-preset-btn:active{background:#3a3a3c}
 .phone-case.dark-mode .font-scale-preset-btn.active{background:linear-gradient(135deg,#a78bfa,#8b5cf6);color:#fff;border-color:transparent}
+/* 多功能 App HTML 卡片样式 */
+.html-item-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #8b5cf6}
+.html-item-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.html-item-name{font-size:14px;font-weight:600;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.html-item-preview{font-size:11px;color:#999;font-family:'SF Mono',Menlo,Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#f7f8fa;padding:6px 8px;border-radius:6px}
+.html-item-actions{display:flex;gap:6px;flex-shrink:0}
+.html-item-del{font-size:11px;padding:4px 10px;border:none;border-radius:6px;background:#ffeaea;color:#ff4757;cursor:pointer}
+.html-item-preview-btn{font-size:11px;padding:4px 10px;border:none;border-radius:6px;background:#eef2ff;color:#4b7bec;cursor:pointer}
+.phone-case.dark-mode .html-item-card{background:#1c1c1e;box-shadow:none}
+.phone-case.dark-mode .html-item-name{color:#eee}
+.phone-case.dark-mode .html-item-preview{background:#2c2c2e;color:#999}
+.phone-case.dark-mode .html-item-del{background:#3a2a2c;color:#ff6b7a}
+.phone-case.dark-mode .html-item-preview-btn{background:#2c2c2e;color:#82a7e0}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -995,7 +1014,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
 
           <div class="widget-item">
-            <div class="icon-box bg-skyblue" id="app-icon-play"></div>
+            <div class="icon-box bg-skyblue" id="app-icon-play" onclick="openPlayApp()">
+              <svg viewBox="0 0 24 24" fill="#1565c0"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L19 8l-7 3.82L5 8l7-3.82zM5 9.82l6 3.28v6.08l-6-3.28V9.82zm8 9.36v-6.08l6-3.28v6.08l-6 3.28z"/></svg>
+            </div>
             <span class="widget-label" id="label-play">多功能</span>
           </div>
 
@@ -1203,6 +1224,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <button class="btn btn-primary" id="loadPresetBtn">替换预设</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div id="playScreen" class="screen">
+      <div class="persona-header">
+        <button class="back-btn" onclick="closeScreen('playScreen')">← 返回</button>
+        <h3>多功能</h3>
+      </div>
+      <div class="persona-body">
+        <div class="section-card highlight-card" style="margin-bottom:14px;">
+          <h4 style="color:#4b7bec;"><svg class="icon-svg" viewBox="0 0 24 24" fill="#4b7bec"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.5h8v1H8zm0-3h8v1H8z"/></svg> HTML 组件库</h4>
+          <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:12px;">上传 HTML 文件到组件库后，可以在「简讯 → 聊天详情」中勾选启用。角色会根据上下文和人设，自主触发合适的 HTML 组件来丰富聊天表现。</p>
+          <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="document.getElementById('htmlFileInput').click()">上传 HTML 文件</button>
+          <input type="file" id="htmlFileInput" accept=".html,.htm,text/html" style="display:none;" multiple>
+        </div>
+        <div style="font-size:13px; color:#666; margin:4px 0 10px; font-weight:500;">已上传的 HTML 组件 <span id="htmlCount" style="color:#999; font-weight:400;">(0)</span></div>
+        <div id="htmlListContainer"></div>
+        <div class="empty-state" id="htmlEmptyState">暂无 HTML 组件，点击上方按钮上传</div>
       </div>
     </div>
 
@@ -1900,6 +1939,10 @@ https://xxx.com/a.png
             <span class="label">绑定局部世界书</span>
             <div class="value"><span id="jxWorldBookText">未绑定</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
+          <div class="jx-info-item" onclick="openHtmlSelectScreen()">
+            <span class="label">启用 HTML 功能</span>
+            <div class="value"><span id="jxHtmlText">未启用</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
         </div>
         <div class="jx-info-block">
           <div class="jx-info-item">
@@ -1962,6 +2005,21 @@ https://xxx.com/a.png
       </div>
       <div id="wbSelectFooter" style="padding: 16px; background: #fff; border-top: 1px solid #eee; position: absolute; bottom: 0; left: 0; right: 0;">
         <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px;" onclick="confirmWorldBookBinding()">确定绑定</button>
+      </div>
+    </div>
+
+    <div id="htmlSelectScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1002;">
+      <div class="persona-header">
+        <button class="back-btn" onclick="closeHtmlSelectScreen()">← 返回</button>
+        <h3>启用 HTML 功能</h3>
+        <span style="width: 48px;"></span>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px;">
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">勾选后，角色会根据上下文和人设，在聊天过程中自主触发这些 HTML 组件。未勾选的组件不会被触发。</p>
+        <div id="htmlSelectList" style="background: #fff; border-radius: 12px; padding: 0 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);"></div>
+      </div>
+      <div id="htmlSelectFooter" style="padding: 16px; background: #fff; border-top: 1px solid #eee; position: absolute; bottom: 0; left: 0; right: 0;">
+        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 8px;" onclick="confirmHtmlBinding()">确定</button>
       </div>
     </div>
 
@@ -2062,6 +2120,7 @@ const FONT_STORE_NAME = 'fonts';
 const FONT_RECORD_KEY = 'global_font';
 const FONT_SIZE_SCALE_KEY = 'user_font_size_scale';
 const JX_GLOBAL_PROMPT_KEY = 'jx_global_prompt';
+const CUSTOM_HTML_KEY = 'custom_htmls';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -2694,6 +2753,7 @@ function openMusicApp() { openScreen('musicScreen'); }
 function openPlayerScreen() { openScreen('playerScreen'); }
 function openPersonaApp() { loadPersonaList(); openScreen('personaScreen'); renderPersonaList(); }
 function openWorldBookApp() { loadWorldBook(); loadPersonaList(); openScreen('worldBookScreen'); renderWorldBookList(); }
+function openPlayApp() { openScreen('playScreen'); renderHtmlList(); }
 function openSettingsApp() {
   openScreen('settingsScreen');
   applyApiConfigToForm(loadApiConfig() || {});
@@ -2703,6 +2763,124 @@ function openSettingsApp() {
   const box = document.getElementById('modelListBox');
   if (box) { box.classList.remove('show'); box.innerHTML = ''; }
 }
+
+// ================= 多功能 App：HTML 组件库 =================
+function loadCustomHtmls() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_HTML_KEY);
+    const v = raw ? JSON.parse(raw) : [];
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function saveCustomHtmls(list) {
+  try { localStorage.setItem(CUSTOM_HTML_KEY, JSON.stringify(list)); return true; }
+  catch (e) { return false; }
+}
+function renderHtmlList() {
+  const list = loadCustomHtmls();
+  const container = document.getElementById('htmlListContainer');
+  const empty = document.getElementById('htmlEmptyState');
+  const count = document.getElementById('htmlCount');
+  if (!container || !empty) return;
+  if (count) count.textContent = '(' + list.length + ')';
+  if (list.length === 0) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  container.innerHTML = list.map(h => {
+    const preview = String(h.code || '').replace(/\s+/g, ' ').slice(0, 150);
+    return `<div class="html-item-card">
+      <div class="html-item-header">
+        <span class="html-item-name">${escapeHtml(h.name || '未命名')}</span>
+        <div class="html-item-actions">
+          <button class="html-item-preview-btn" onclick="previewCustomHtml('${h.id}')">预览</button>
+          <button class="html-item-del" onclick="deleteCustomHtml('${h.id}')">删除</button>
+        </div>
+      </div>
+      <div class="html-item-preview">${escapeHtml(preview)}${preview.length >= 150 ? '…' : ''}</div>
+    </div>`;
+  }).join('');
+}
+function deleteCustomHtml(id) {
+  if (!confirm('确定删除这个 HTML 组件吗？\n如果某些聊天已启用它，将自动取消。')) return;
+  let list = loadCustomHtmls();
+  list = list.filter(h => h.id !== id);
+  saveCustomHtmls(list);
+  // 清理所有聊天中的引用
+  try {
+    if (jianxunChats && jianxunChats.length > 0) {
+      let changed = false;
+      jianxunChats.forEach(c => {
+        if (Array.isArray(c.enabledHtmls) && c.enabledHtmls.includes(id)) {
+          c.enabledHtmls = c.enabledHtmls.filter(x => x !== id);
+          changed = true;
+        }
+      });
+      if (changed) saveJianxunChats();
+    }
+  } catch (e) {}
+  renderHtmlList();
+}
+function previewCustomHtml(id) {
+  const item = loadCustomHtmls().find(h => h.id === id);
+  if (!item) return;
+  let overlay = document.getElementById('htmlPreviewOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'htmlPreviewOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;flex-direction:column;padding:16px;gap:12px;';
+    overlay.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;color:#fff;">
+        <span id="htmlPreviewTitle" style="font-size:15px;font-weight:600;"></span>
+        <button id="htmlPreviewClose" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;">关闭</button>
+      </div>
+      <iframe id="htmlPreviewFrame" style="flex:1;width:100%;border-radius:12px;background:#fff;border:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#htmlPreviewClose').onclick = () => { overlay.style.display = 'none'; };
+  }
+  document.getElementById('htmlPreviewTitle').textContent = item.name || 'HTML 预览';
+  document.getElementById('htmlPreviewFrame').srcdoc = item.code || '';
+  overlay.style.display = 'flex';
+}
+(function initHtmlFileInput() {
+  const input = document.getElementById('htmlFileInput');
+  if (!input) return;
+  input.addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files || []);
+    this.value = '';
+    if (files.length === 0) return;
+    const list = loadCustomHtmls();
+    let added = 0, failed = 0;
+    for (const file of files) {
+      if (!/\.(html?|htm)$/i.test(file.name)) { failed++; continue; }
+      try {
+        const text = await file.text();
+        if (!text || !text.trim()) { failed++; continue; }
+        let baseName = file.name.replace(/\.(html?|htm)$/i, '').trim() || '未命名组件';
+        // 名称去重
+        let finalName = baseName;
+        let suffix = 1;
+        while (list.some(h => h.name === finalName)) {
+          suffix++;
+          finalName = baseName + '(' + suffix + ')';
+        }
+        list.push({ id: genId(), name: finalName, code: text, createdAt: Date.now() });
+        added++;
+      } catch (err) { failed++; }
+    }
+    if (!saveCustomHtmls(list)) {
+      alert('保存失败：存储空间可能已满。\n建议删除一些不用的 HTML 组件，或使用更小的文件。');
+      renderHtmlList();
+      return;
+    }
+    renderHtmlList();
+    let msg = `成功上传 ${added} 个 HTML 组件`;
+    if (failed > 0) msg += `\n${failed} 个文件被跳过（非 html 或读取失败）`;
+    alert(msg);
+  });
+})();
 
 const APP_ICON_KEY_PREFIX = 'app_icon_';
 const APP_NAME_KEY_PREFIX = 'app_name_';
@@ -3598,6 +3776,7 @@ const isBackupKey = (key) => (
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
   key === JX_GLOBAL_PROMPT_KEY ||
+  key === CUSTOM_HTML_KEY ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
@@ -4937,6 +5116,8 @@ function loadJianxunChats() {
       delete chat.boundStickers;
     }
     if (chat.boundStickers !== undefined) delete chat.boundStickers;
+    // HTML 功能
+    if (!Array.isArray(chat.enabledHtmls)) chat.enabledHtmls = [];
     chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
   });
 }
@@ -4963,6 +5144,7 @@ function renderJianxunChatList() {
       else if (lastMsgObj.type === 'transfer') lastMsg = '[转账]';
       else if (lastMsgObj.type === 'familyCard') lastMsg = '[亲属卡]';
       else if (lastMsgObj.type === 'card') lastMsg = '[名片] ' + ((lastMsgObj.card && lastMsgObj.card.name) || '');
+      else if (lastMsgObj.type === 'html') lastMsg = '[HTML] ' + (lastMsgObj.htmlName || '');
       else lastMsg = lastMsgObj.content || '[图片]';
     }
     return `<div class="jx-chat-item" onclick="openChat('${chat.id}')">
@@ -5024,6 +5206,7 @@ function startQuote(msgId) {
   else if (msg.type === 'transfer') text = '[转账]';
   else if (msg.type === 'familyCard') text = '[亲属卡]';
   else if (msg.type === 'card') text = '[名片] ' + ((msg.card && msg.card.name) || '');
+  else if (msg.type === 'html') text = '[HTML] ' + (msg.htmlName || '');
   else text = msg.content || '';
   currentQuote = { msgId: msg.id, name: senderName, text: text };
   renderQuotePreview();
@@ -5122,6 +5305,11 @@ function renderChatMessages(keepScrollPos) {
         </div>
         <div class="jx-contact-card-footer">简讯名片</div>
       </div>`;
+    } else if (msg.type === 'html') {
+      bubbleCls += ' html-msg';
+      const safeName = escapeHtml(msg.htmlName || 'HTML 组件');
+      const safeId = escapeHtml(msg.htmlId || '');
+      inner = `<div class="jx-html-caption">📄 ${safeName}</div><iframe class="jx-html-frame" data-html-id="${safeId}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>`;
     } else if (msg.type === 'sticker' && msg.image) {
       bubbleCls += ' media';
       const safeSrc = String(msg.image).replace(/'/g, '%27');
@@ -5175,6 +5363,23 @@ function renderChatMessages(keepScrollPos) {
         handleContactCardClick(msg.card);
       }
     });
+  });
+
+  // 渲染 HTML 组件 iframe
+  const htmlList = loadCustomHtmls();
+  container.querySelectorAll('.jx-html-frame').forEach(frame => {
+    const hid = frame.getAttribute('data-html-id');
+    if (!hid) {
+      frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">HTML 组件 ID 缺失</div>';
+      return;
+    }
+    const item = htmlList.find(h => h.id === hid);
+    if (item) {
+      try { frame.srcdoc = item.code || ''; }
+      catch (e) { frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">HTML 渲染失败</div>'; }
+    } else {
+      frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">该 HTML 组件已被删除</div>';
+    }
   });
 
   attachMsgLongPress(container);
@@ -5265,7 +5470,7 @@ function handleContactCardClick(card) {
   const newChat = {
     id: genId(), name: card.name, avatar: card.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1,
-    customRemark: '', boundWorldBook: [], boundStickerPacks: [],
+    customRemark: '', boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [],
     chatBg: '', myAvatar: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
   };
@@ -5727,7 +5932,8 @@ function addFavoriteFromMsg(chat, msg) {
     quote: msg.quote ? cloneSerializable(msg.quote) : null,
     card: msg.card ? cloneSerializable(msg.card) : null,
     source: charName, senderRole: msg.role, senderName: senderName, time: Date.now(),
-    amount: msg.amount || 0, limit: msg.limit || 0, note: msg.note || ''
+    amount: msg.amount || 0, limit: msg.limit || 0, note: msg.note || '',
+    htmlId: msg.htmlId || '', htmlName: msg.htmlName || ''
   };
   const favorites = loadFavorites();
   favorites.unshift(fav);
@@ -5802,6 +6008,8 @@ function renderFavoritesList() {
       contentHtml = `<div class="jx-fav-text">[亲属卡 ¥${(fav.limit || 0).toFixed(2)}${fav.note ? '，备注：' + escapeHtml(fav.note) : ''}]</div>`;
     } else if (fav.type === 'card' && fav.card) {
       contentHtml = `<div class="jx-fav-text">[名片：${escapeHtml(fav.card.name || '')}]</div>`;
+    } else if (fav.type === 'html') {
+      contentHtml = `<div class="jx-fav-text">[HTML 组件：${escapeHtml(fav.htmlName || '')}]</div>`;
     } else {
       const text = escapeHtml(fav.content || '').replace(/\n/g, '<br>');
       contentHtml = `<div class="jx-fav-text">${text || '（空消息）'}</div>`;
@@ -5843,7 +6051,7 @@ function menuEdit() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card') { alert('图片、表情、聊天记录、转账、亲属卡、名片不能编辑'); return; }
+  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html') { alert('图片、表情、聊天记录、转账、亲属卡、名片、HTML 不能编辑'); return; }
   editingMsgId = id;
   document.getElementById('editMsgTextarea').value = msg.content || '';
   document.getElementById('jxEditMsgModal').classList.add('show');
@@ -5866,7 +6074,7 @@ async function menuTranslate() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card') { alert('这条消息没有可翻译的文字内容'); return; }
+  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html') { alert('这条消息没有可翻译的文字内容'); return; }
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置，才能翻译'); return; }
   const original = msg.content;
@@ -5987,6 +6195,18 @@ function buildStickerPrompt(chat) {
   all.forEach((s, i) => { sp += `${i + 1}.${s.name || '未命名'}${s.meaning ? '(' + s.meaning + ')' : ''}\n`; });
   return sp;
 }
+function buildHtmlPrompt(chat) {
+  const enabledIds = Array.isArray(chat.enabledHtmls) ? chat.enabledHtmls : [];
+  if (enabledIds.length === 0) return '';
+  const list = loadCustomHtmls().filter(h => enabledIds.includes(h.id));
+  if (list.length === 0) return '';
+  let sp = '\n【可用 HTML 组件】你可以根据对话情境、人设、以及当下氛围，自主决定是否展示某个 HTML 组件来丰富聊天表达：\n';
+  list.forEach((h, i) => { sp += `${i + 1}.${h.name}\n`; });
+  sp += '要展示时，请在回复中单独占一行输出 [[HTML:组件名称]]，系统会自动将其渲染为可视化的 HTML 卡片。\n';
+  sp += '使用规则：只在语境合适时自然触发（例如用户请求、话题契合、情绪/场景需要、或角色人设契合时），不要滥用、不要每次回复都展示。\n';
+  sp += '例如用户问"你能画个小卡片吗"、聊到某个主题正好有匹配的组件、或角色想用可视化方式表达时，都可以使用。\n';
+  return sp;
+}
 function buildMomentsPrompt() {
   loadMomentsPosts();
   if (momentsPosts.length === 0) return '';
@@ -6045,6 +6265,9 @@ function buildCharSystemPrompt(chat) {
   const stp = buildStickerPrompt(chat);
   if (stp) sp += stp;
 
+  const htp = buildHtmlPrompt(chat);
+  if (htp) sp += htp;
+
   const refs = getCharImageRefs(chat);
   sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）\n';
   if (refs.length === 0) sp += '（暂无）\n';
@@ -6065,6 +6288,7 @@ function buildCharSystemPrompt(chat) {
   sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处（背景、角落、衣物细节、神情局部等）正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
   sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
   sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
+  sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
   sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
   sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
@@ -6142,6 +6366,8 @@ function buildChatHistory(chat) {
       content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
     } else if (m.type === 'card' && m.card) {
       content = `[名片 ${m.card.name || ''}]`;
+    } else if (m.type === 'html') {
+      content = `[已发送 HTML 组件：${m.htmlName || ''}]`;
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
       content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
     } else {
@@ -6212,6 +6438,7 @@ async function summarizeChatMemory(chat, isManual) {
     else if (m.type === 'transfer') text = `[转账 ¥${(m.amount || 0).toFixed(2)}]`;
     else if (m.type === 'familyCard') text = `[亲属卡 ¥${(m.limit || 0).toFixed(2)}]`;
     else if (m.type === 'card') text = `[名片 ${(m.card && m.card.name) || ''}]`;
+    else if (m.type === 'html') text = `[HTML组件 ${m.htmlName || ''}]`;
     else if (m.type === 'merged') text = '[聊天记录]';
     else text = String(m.content || '').slice(0, 200);
     convo += `${who}：${text}\n`;
@@ -6273,7 +6500,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -6357,6 +6584,20 @@ function executeCharAction(chat, action) {
         }
       });
     }
+    return;
+  }
+  if (action.type === 'HTML') {
+    const want = String(action.payload).trim();
+    if (!want) return;
+    const enabledIds = Array.isArray(chat.enabledHtmls) ? chat.enabledHtmls : [];
+    if (enabledIds.length === 0) return;
+    const all = loadCustomHtmls().filter(h => enabledIds.includes(h.id));
+    if (all.length === 0) return;
+    let target = all.find(h => (h.name || '') === want);
+    if (!target) target = all.find(h => (h.name || '').includes(want) || want.includes(h.name || ''));
+    if (!target) return;
+    chat._pendingHtmls = chat._pendingHtmls || [];
+    chat._pendingHtmls.push({ id: target.id, name: target.name });
     return;
   }
   if (action.type === 'STICKER') {
@@ -6575,6 +6816,7 @@ async function triggerCharReply(chat) {
   if (chat._replying) { alert('角色正在回复中，请稍候...'); return; }
   chat._replying = true;
   chat._pendingStickers = [];
+  chat._pendingHtmls = [];
   const typingId = genId();
   chat.messages.push({ id: typingId, role: 'char', type: 'text', content: '__typing__' });
   if (currentChatId === chat.id) renderChatMessages();
@@ -6592,11 +6834,18 @@ async function triggerCharReply(chat) {
       chat._pendingStickers.forEach(st => { chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]' }); });
     }
     chat._pendingStickers = [];
+    if (Array.isArray(chat._pendingHtmls) && chat._pendingHtmls.length > 0) {
+      chat._pendingHtmls.forEach(h => {
+        chat.messages.push({ id: genId(), role: 'char', type: 'html', htmlId: h.id, htmlName: h.name, content: '[HTML] ' + h.name });
+      });
+    }
+    chat._pendingHtmls = [];
   } catch (e) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
     chat.messages.push({ id: genId(), role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）\n提示：如果当前 API 模型不支持图片识别，将无法看到图片内容并进行朋友圈发布。' });
     chat._pendingStickers = [];
+    chat._pendingHtmls = [];
   } finally {
     chat._replying = false;
     saveJianxunChats();
@@ -6634,6 +6883,8 @@ function openChatInfo() {
   document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
   const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
   document.getElementById('jxWorldBookText').innerText = boundCount > 0 ? `已绑定 ${boundCount} 本` : '未绑定';
+  const htmlCount = Array.isArray(chat.enabledHtmls) ? chat.enabledHtmls.length : 0;
+  document.getElementById('jxHtmlText').innerText = htmlCount > 0 ? `已启用 ${htmlCount} 个` : '未启用';
   document.getElementById('jxMaxReplyText').innerText = (chat.maxReply || 1) + '句';
   const memSwitch = document.getElementById('jxMemoryEnabledSwitch');
   if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
@@ -6768,6 +7019,45 @@ function confirmWorldBookBinding() {
   document.getElementById('jxWorldBookText').innerText = selectedIds.length > 0 ? `已绑定 ${selectedIds.length} 本` : '未绑定';
   closeWorldBookSelectScreen();
 }
+// ============ HTML 功能选择 ============
+function openHtmlSelectScreen() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const htmls = loadCustomHtmls();
+  const list = document.getElementById('htmlSelectList');
+  if (!list) return;
+  if (htmls.length === 0) {
+    list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px; line-height:1.8;">暂无 HTML 组件<br>请先去「多功能」App 中上传 HTML 文件</div>';
+  } else {
+    list.innerHTML = htmls.map(h => {
+      const isSelected = Array.isArray(chat.enabledHtmls) && chat.enabledHtmls.includes(h.id);
+      return `<div class="jx-modal-item" onclick="toggleHtmlSelection(this)" data-id="${h.id}" style="justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 14px 0;">
+        <div style="display:flex; align-items:center; overflow:hidden; flex:1;">
+          <span style="font-size:14px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">${escapeHtml(h.name || '未命名')}</span>
+        </div>
+        <div class="wb-checkbox ${isSelected ? 'checked' : ''}"></div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('htmlSelectScreen').classList.add('active');
+}
+function toggleHtmlSelection(el) { const checkbox = el.querySelector('.wb-checkbox'); if (checkbox) checkbox.classList.toggle('checked'); }
+function closeHtmlSelectScreen() { document.getElementById('htmlSelectScreen').classList.remove('active'); }
+function confirmHtmlBinding() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const selectedIds = [];
+  document.querySelectorAll('#htmlSelectList .jx-modal-item').forEach(el => {
+    const checkbox = el.querySelector('.wb-checkbox');
+    if (checkbox && checkbox.classList.contains('checked')) selectedIds.push(el.getAttribute('data-id'));
+  });
+  chat.enabledHtmls = selectedIds;
+  saveJianxunChats();
+  document.getElementById('jxHtmlText').innerText = selectedIds.length > 0 ? `已启用 ${selectedIds.length} 个` : '未启用';
+  closeHtmlSelectScreen();
+  alert(selectedIds.length > 0 ? `已启用 ${selectedIds.length} 个 HTML 组件` : '已停用所有 HTML 组件');
+}
+
 function changeChatAvatar() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -6879,7 +7169,7 @@ function addPersonaToChat(index) {
   jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
-    boundWorldBook: [], boundStickerPacks: [], chatBg: '', myAvatar: '', imagePool: imagePool,
+    boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
   });
   saveJianxunChats();
