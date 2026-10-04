@@ -678,7 +678,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-contact-card-name{color:#eee}
 .phone-case.dark-mode .jx-contact-card-sub{color:#aaa}
 .phone-case.dark-mode .jx-contact-card-footer{background:#1c1c1e;border-top-color:#3a3a3c;color:#888}
-/* 记忆卡片 */
 .jx-memory-card{background:#f7f8fa;border-radius:10px;padding:10px 12px;margin-bottom:8px}
 .jx-memory-card-header{font-size:11px;color:#999;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .jx-memory-card-content{font-size:13px;color:#333;line-height:1.55;white-space:pre-wrap;word-break:break-word}
@@ -1365,6 +1364,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <span class="jx-me-menu-text">钱包</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
+          <div class="jx-me-menu-item" onclick="openPromptScreen()">
+            <div class="jx-me-menu-icon" style="background:#8e44ad;"><svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg></div>
+            <span class="jx-me-menu-text">提示词</span>
+            <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
           <div class="jx-me-menu-item" onclick="openFavoritesScreen()">
             <div class="jx-me-menu-icon jx-me-bg-fav"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
             <span class="jx-me-menu-text">收藏</span>
@@ -1633,6 +1637,29 @@ https://xxx.com/a.png
           <div id="stickerPackList"></div>
           <div id="stickerEmpty" style="text-align:center; padding:30px 0; color:#ccc; font-size:13px;">暂无表情合集</div>
         </div>
+      </div>
+    </div>
+
+    <div id="jxPromptScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1004;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closePromptScreen()">‹</span>
+        <span class="title">提示词</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll" style="padding: 16px;">
+        <div class="jx-info-block" style="padding: 16px; border-radius: 12px; margin-bottom: 14px;">
+          <h4 style="font-size: 15px; margin-bottom: 10px; color: #333;">全局提示词</h4>
+          <p style="font-size: 12px; color: #888; line-height: 1.6; margin-bottom: 10px;">这里的提示词会注入到所有角色的对话上下文中，影响他们的人设、语气、行为模式。你可以写：角色行为准则、回复风格、特殊规则、性格偏好等。留空表示不添加额外提示。</p>
+          <textarea id="jxGlobalPromptInput" placeholder="例如：
+- 你可以根据聊天内容自然使用隐藏动作
+- 说话口语化，少用书面语
+- 当你觉得合适时可以主动换个头像" style="width:100%; min-height: 260px; border: 1px solid #ddd; border-radius: 10px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; font-family: inherit; box-sizing: border-box; background: #fff;"></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-cancel" style="flex:1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #f0f0f0; color: #333;" onclick="closePromptScreen()">取消</button>
+          <button class="btn btn-success" style="flex:1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background: #07c160; color: #fff;" onclick="saveGlobalPrompt()">保存</button>
+        </div>
+        <p style="font-size: 11px; color: #bbb; margin-top: 12px; line-height: 1.6;">提示：提示词只影响对话，不会覆盖角色原本的详细人设。若想表达"主动做一些动作"的倾向，可以写"当你觉得合适时可以自行决定XXX"这样的语句。</p>
       </div>
     </div>
 
@@ -2028,18 +2055,18 @@ https://xxx.com/a.png
 </div>
 
 <script>
-// ================= 核心：使用 IndexedDB 存储大字体，突破 localStorage 5MB 限制 =================
+// ================= 核心：IndexedDB 存储字体 =================
 const USER_CSS_KEY = 'user_custom_css';
 const FONT_DB_NAME = 'TuTooth_FontDB';
 const FONT_STORE_NAME = 'fonts';
 const FONT_RECORD_KEY = 'global_font';
 const FONT_SIZE_SCALE_KEY = 'user_font_size_scale';
+const JX_GLOBAL_PROMPT_KEY = 'jx_global_prompt';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
 let _appliedFontFace = null;
 let _appliedFontUrl = null;
-
 let _fontSizeRulesCache = null;
 let _fontSizeStyleEl = null;
 
@@ -2052,21 +2079,17 @@ function applyUserCustomCss() {
 }
 applyUserCustomCss();
 
-// ========== IndexedDB 操作封装 ==========
 function openFontDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(FONT_DB_NAME, 1);
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
-      if (!db.objectStoreNames.contains(FONT_STORE_NAME)) {
-        db.createObjectStore(FONT_STORE_NAME);
-      }
+      if (!db.objectStoreNames.contains(FONT_STORE_NAME)) db.createObjectStore(FONT_STORE_NAME);
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
-
 async function saveFontToDB(arrayBuffer, origSize) {
   const db = await openFontDB();
   return new Promise((resolve, reject) => {
@@ -2077,7 +2100,6 @@ async function saveFontToDB(arrayBuffer, origSize) {
     tx.onerror = () => reject(tx.error);
   });
 }
-
 async function getFontFromDB() {
   const db = await openFontDB();
   return new Promise((resolve, reject) => {
@@ -2088,7 +2110,6 @@ async function getFontFromDB() {
     req.onerror = () => reject(req.error);
   });
 }
-
 async function deleteFontFromDB() {
   const db = await openFontDB();
   return new Promise((resolve, reject) => {
@@ -2099,8 +2120,6 @@ async function deleteFontFromDB() {
     tx.onerror = () => reject(tx.error);
   });
 }
-
-// ========== 二进制 ↔ base64（用于导出备份，不用于存储） ==========
 function ab2b64(buffer) {
   const bytes = new Uint8Array(buffer);
   let binary = '';
@@ -2118,20 +2137,12 @@ function b642ab(b64) {
   for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
   return bytes.buffer;
 }
-
-// ========== 字体应用 ==========
 async function applyGlobalFont() {
   try {
     const fontData = await getFontFromDB();
     if (!fontData || !fontData.data) return;
-    if (_appliedFontFace) {
-      try { document.fonts.delete(_appliedFontFace); } catch (e) {}
-      _appliedFontFace = null;
-    }
-    if (_appliedFontUrl) {
-      try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {}
-      _appliedFontUrl = null;
-    }
+    if (_appliedFontFace) { try { document.fonts.delete(_appliedFontFace); } catch (e) {} _appliedFontFace = null; }
+    if (_appliedFontUrl) { try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {} _appliedFontUrl = null; }
     const blob = new Blob([fontData.data], { type: 'font/ttf' });
     const url = URL.createObjectURL(blob);
     _appliedFontUrl = url;
@@ -2142,18 +2153,13 @@ async function applyGlobalFont() {
     const family = `'UserCustomGlobalFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
     document.documentElement.style.fontFamily = family;
     document.body.style.fontFamily = family;
-  } catch (e) {
-    console.warn('字体加载失败', e);
-  }
+  } catch (e) { console.warn('字体加载失败', e); }
 }
-
-// ========== 全局字体大小缩放 ==========
 function getGlobalFontSizeScale() {
   const saved = localStorage.getItem(FONT_SIZE_SCALE_KEY);
   const val = parseFloat(saved);
   return (isNaN(val) || val < 50 || val > 200) ? 100 : val;
 }
-
 function buildFontSizeRulesCache() {
   _fontSizeRulesCache = [];
   try {
@@ -2184,7 +2190,6 @@ function buildFontSizeRulesCache() {
     }
   } catch (e) { console.warn('构建字体大小规则缓存失败', e); }
 }
-
 function applyGlobalFontSize(percent) {
   const scale = percent / 100;
   if (!_fontSizeStyleEl) {
@@ -2205,7 +2210,6 @@ function applyGlobalFontSize(percent) {
   }
   _fontSizeStyleEl.textContent = out.join('\n');
 }
-
 function setGlobalFontSize(percent) {
   percent = Math.round(percent);
   if (percent < 50) percent = 50;
@@ -2222,7 +2226,6 @@ function setGlobalFontSize(percent) {
     else btn.classList.remove('active');
   });
 }
-
 function initGlobalFontSizeControl() {
   const slider = document.getElementById('globalFontSizeSlider');
   const current = getGlobalFontSizeScale();
@@ -2243,7 +2246,6 @@ function initGlobalFontSizeControl() {
   buildFontSizeRulesCache();
   applyGlobalFontSize(current);
 }
-
 function switchEditorTab(tab) {
   document.querySelectorAll('.css-editor-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.css-editor-panel').forEach(p => p.classList.remove('active'));
@@ -2251,14 +2253,12 @@ function switchEditorTab(tab) {
   if (target) target.classList.add('active');
   if (tab === 'font') updateFontUI();
 }
-
 function formatBytes(n) {
   if (!n && n !== 0) return '-';
   if (n < 1024) return n + ' B';
   if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
   return (n / 1024 / 1024).toFixed(2) + ' MB';
 }
-
 async function updateFontUI() {
   const fontData = await getFontFromDB();
   const nameEl = document.getElementById('fontCurrentName');
@@ -2269,8 +2269,8 @@ async function updateFontUI() {
   if (fontData && fontData.data) {
     nameEl.textContent = '自定义字体（已应用）';
     descEl.textContent = '当前使用你上传的 TTF 字体';
-    if (sizeInfo) { sizeInfo.style.display = 'flex'; }
-    if (compInfo) { compInfo.style.display = 'flex'; }
+    if (sizeInfo) sizeInfo.style.display = 'flex';
+    if (compInfo) compInfo.style.display = 'flex';
     const origEl = document.getElementById('fontOrigSize');
     if (origEl) origEl.textContent = formatBytes(fontData.origSize);
     const storedEl = document.getElementById('fontCompSize');
@@ -2282,25 +2282,17 @@ async function updateFontUI() {
     if (compInfo) compInfo.style.display = 'none';
   }
 }
-
 function resetGlobalFont() {
   if (!confirm('确定恢复系统默认字体吗？')) return;
   deleteFontFromDB().then(() => {
-    if (_appliedFontFace) {
-      try { document.fonts.delete(_appliedFontFace); } catch (e) {}
-      _appliedFontFace = null;
-    }
-    if (_appliedFontUrl) {
-      try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {}
-      _appliedFontUrl = null;
-    }
+    if (_appliedFontFace) { try { document.fonts.delete(_appliedFontFace); } catch (e) {} _appliedFontFace = null; }
+    if (_appliedFontUrl) { try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {} _appliedFontUrl = null; }
     document.documentElement.style.fontFamily = '';
     document.body.style.fontFamily = '';
     updateFontUI();
     alert('已恢复默认字体');
   }).catch(e => alert('操作失败：' + (e.message || '未知错误')));
 }
-
 (async function initFontUpload() {
   const input = document.getElementById('fontUploadInput');
   if (!input) return;
@@ -2308,10 +2300,7 @@ function resetGlobalFont() {
     const file = e.target.files[0];
     this.value = '';
     if (!file) return;
-    if (!/\.ttf$/i.test(file.name)) {
-      alert('请上传 .ttf 格式的字体文件');
-      return;
-    }
+    if (!/\.ttf$/i.test(file.name)) { alert('请上传 .ttf 格式的字体文件'); return; }
     try {
       const arrayBuffer = await file.arrayBuffer();
       const origSize = arrayBuffer.byteLength;
@@ -2319,9 +2308,7 @@ function resetGlobalFont() {
       await applyGlobalFont();
       await updateFontUI();
       alert('字体已应用！\n\n原始大小：' + formatBytes(origSize) + '\n已使用 IndexedDB 原生存储，无任何容量限制。');
-    } catch (err) {
-      alert('字体处理失败：' + (err.message || '未知错误'));
-    }
+    } catch (err) { alert('字体处理失败：' + (err.message || '未知错误')); }
   });
   await applyGlobalFont();
   updateFontUI();
@@ -2352,7 +2339,6 @@ function markCssEditorDirty() {
   _cssEditorDraft = document.getElementById('cssEditorTextarea').value;
   setCssStatus('未保存的修改', 'dirty');
 }
-
 function openCssEditor() {
   const saved = localStorage.getItem(USER_CSS_KEY) || '';
   const ta = document.getElementById('cssEditorTextarea');
@@ -2386,9 +2372,7 @@ function openCssEditor() {
   updateFontUI();
   document.getElementById('jxCssEditorScreen').classList.add('active');
 }
-function closeCssEditor() {
-  document.getElementById('jxCssEditorScreen').classList.remove('active');
-}
+function closeCssEditor() { document.getElementById('jxCssEditorScreen').classList.remove('active'); }
 function applyCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
   if (!ta) return;
@@ -2397,9 +2381,7 @@ function applyCssEditor() {
   if (styleEl) styleEl.textContent = ta.value;
   _cssEditorDirty = true;
   setCssStatus('已应用预览（未保存）', 'dirty');
-  setTimeout(() => {
-    document.getElementById('jxCssEditorScreen').classList.remove('active');
-  }, 200);
+  setTimeout(() => { document.getElementById('jxCssEditorScreen').classList.remove('active'); }, 200);
 }
 function saveCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
@@ -2412,9 +2394,7 @@ function saveCssEditor() {
     _cssEditorDraft = null;
     setCssStatus('已保存 · 刷新后依然生效', 'saved');
     alert('已保存');
-  } catch (e) {
-    alert('保存失败：' + (e && e.message ? e.message : '存储空间可能已满'));
-  }
+  } catch (e) { alert('保存失败：' + (e && e.message ? e.message : '存储空间可能已满')); }
 }
 function resetCssEditor() {
   if (!confirm('确定清空自定义 CSS 吗？将恢复到页面默认样式。')) return;
@@ -2658,7 +2638,6 @@ function loadThemeTemplate() {
 `, '梦幻紫主题');
 }
 
-// 初始化字体大小控制
 initGlobalFontSizeControl();
 
 // ================= DOCX 预处理 =================
@@ -2818,11 +2797,6 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
 })();
 
 // ========== 极致压缩图片 ==========
-// 聊天图片: 600px, 质量 0.55，单张约 30~60KB
-// 头像: 180px, 质量 0.7，单张约 8~15KB
-// 贴纸: 180px, 质量 0.6
-// 朋友圈: 640px, 质量 0.55
-// 背景: 800px, 质量 0.6
 function compressImageFile(file, maxDim, quality) {
   maxDim = maxDim || 600;
   quality = quality || 0.55;
@@ -2843,7 +2817,6 @@ function compressImageFile(file, maxDim, quality) {
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        // 白色底填充，避免 PNG 透明区域变成黑色
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
@@ -3624,6 +3597,7 @@ const isBackupKey = (key) => (
   key === BILLS_KEY || key === CARDS_KEY ||
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
+  key === JX_GLOBAL_PROMPT_KEY ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
@@ -4614,6 +4588,29 @@ function openMergedView(msgId) {
 }
 function closeMergedView() { document.getElementById('jxMergedViewScreen').style.display = 'none'; }
 
+// ================= 全局提示词 =================
+function loadGlobalPrompt() {
+  try { return localStorage.getItem(JX_GLOBAL_PROMPT_KEY) || ''; } catch (e) { return ''; }
+}
+function saveGlobalPromptToStorage(text) {
+  try { localStorage.setItem(JX_GLOBAL_PROMPT_KEY, String(text || '')); return true; } catch (e) { return false; }
+}
+function openPromptScreen() {
+  const ta = document.getElementById('jxGlobalPromptInput');
+  if (ta) ta.value = loadGlobalPrompt();
+  document.getElementById('jxPromptScreen').style.display = 'flex';
+}
+function closePromptScreen() {
+  document.getElementById('jxPromptScreen').style.display = 'none';
+}
+function saveGlobalPrompt() {
+  const ta = document.getElementById('jxGlobalPromptInput');
+  if (!ta) return;
+  const ok = saveGlobalPromptToStorage(ta.value);
+  if (ok) { alert('提示词已保存'); closePromptScreen(); }
+  else alert('保存失败，存储空间可能不足');
+}
+
 // ================= 简讯 App =================
 let jianxunChats = [];
 let currentChatId = null;
@@ -4654,14 +4651,12 @@ function saveJianxunChats() {
         const before = chat.imagePool.length;
         const avatars = chat.imagePool.filter(img => img.isAvatar);
         let photos = chat.imagePool.filter(img => !img.isAvatar);
-        // 极致压缩：图片池上限从 3 张改为 2 张
         if (photos.length > 2) photos = photos.slice(-2);
         chat.imagePool = avatars.concat(photos);
         if (chat.imagePool.length < before) cleaned = true;
       }
       if (Array.isArray(chat.messages)) {
         const imgMsgs = chat.messages.filter(m => m.type === 'image' || m.type === 'sticker');
-        // 极致压缩：图片消息上限从 5 改为 3
         if (imgMsgs.length > 3) {
           const toRemove = imgMsgs.slice(0, imgMsgs.length - 3);
           toRemove.forEach(m => { delete m.image; m.type = 'text'; m.content = '[图片已自动清理以节省空间]'; });
@@ -4919,7 +4914,6 @@ function loadJianxunChats() {
     if (chat.chatBg === undefined) chat.chatBg = '';
     if (chat.myAvatar === undefined) chat.myAvatar = '';
     if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-    // 记忆相关字段
     if (chat.memoryEnabled === undefined) chat.memoryEnabled = true;
     if (typeof chat.memoryInterval !== 'number' || isNaN(chat.memoryInterval)) chat.memoryInterval = 20;
     if (!Array.isArray(chat.memories)) chat.memories = [];
@@ -5184,7 +5178,7 @@ function renderChatMessages(keepScrollPos) {
   });
 
   attachMsgLongPress(container);
-  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollPos; }, 10);
+  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
 }
 
@@ -5244,10 +5238,7 @@ function sendContactCard(type, idxOrName) {
 
 function handleContactCardClick(card) {
   if (!card || !card.name) return;
-  if (card.isUser) {
-    alert('这是你自己的名片');
-    return;
-  }
+  if (card.isUser) { alert('这是你自己的名片'); return; }
   const exists = jianxunChats.find(c => (c.name === card.name) || (c.customRemark === card.name));
   if (exists) {
     if (confirm(`「${card.name}」已在你的聊天列表中，是否打开聊天？`)) {
@@ -5264,14 +5255,7 @@ function handleContactCardClick(card) {
   loadPersonaList();
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
-    personaList.push({
-      avatar: card.avatar || '',
-      name: card.name,
-      nickname: '',
-      gender: '',
-      age: '',
-      details: ''
-    });
+    personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '' });
     try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
   }
 
@@ -5406,14 +5390,12 @@ function voiceSend() {
     if (!file) return;
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
-    // 极致压缩：聊天图片 600px / 0.55 质量
     compressImageFile(file, 600, 0.55).then((base64) => {
       if (!base64) { alert('图片处理失败'); return; }
       chat.messages.push({ id: genId(), role: 'me', type: 'image', image: base64, content: '[图片]' });
       chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), desc: '用户发来的图片' });
       const avatars = chat.imagePool.filter(img => img.isAvatar);
       let photos = chat.imagePool.filter(img => !img.isAvatar);
-      // 极致压缩：图片池保留上限从 12 改为 6
       if (photos.length > 6) photos = photos.slice(-6);
       chat.imagePool = avatars.concat(photos);
       saveJianxunChats();
@@ -5523,7 +5505,6 @@ function uploadImagesToPack(packId) {
     if (!pack) return;
     if (!pack.stickers) pack.stickers = [];
     for (const file of Array.from(files)) {
-      // 极致压缩：贴纸 180px / 0.6 质量
       const base64 = await compressImageFile(file, 180, 0.6);
       if (base64) pack.stickers.push({ id: genId(), name: file.name.replace(/\.[^/.]+$/, ""), url: base64, meaning: '' });
     }
@@ -6081,7 +6062,9 @@ function buildCharSystemPrompt(chat) {
 
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
   sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
-  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一部分（边角料）作为你的头像。区域可选 tl(左上) tr(右上) bl(左下) br(右下) center(中心) random(随机)；占比0.2~1默认0.5。例：[[CROP_AVATAR:1|br|0.4]] 截取用户头像右下角40%\n';
+  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处（背景、角落、衣物细节、神情局部等）正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
+  sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
+  sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
   sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
   sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
@@ -6092,9 +6075,15 @@ function buildCharSystemPrompt(chat) {
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR 只在用户希望你从他的头像/照片里取一块做头像时使用\n';
+  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。\n';
 
   sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
+
+  // 用户自定义的全局提示词（优先级高）
+  const globalPrompt = loadGlobalPrompt().trim();
+  if (globalPrompt) {
+    sp += '\n【用户附加指示 · 优先级高，请务必遵守】\n' + globalPrompt + '\n';
+  }
 
   const bills = loadBills();
   if (bills.length > 0) {
@@ -6293,7 +6282,6 @@ function parseAndExecuteActions(chat, rawText) {
   return clean;
 }
 
-// 从 base64 图片中裁剪指定区域
 function cropImageRegion(base64Src, region, ratio) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -6618,7 +6606,6 @@ async function triggerCharReply(chat) {
       const titleEl = document.getElementById('jxChatTitle');
       if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
     }
-    // 自动总结检查
     if (chat.memoryEnabled !== false && (chat.memoryInterval || 20) > 0) {
       const sinceLast = chat.messages.length - (chat.lastSummarizedCount || 0);
       if (sinceLast >= (chat.memoryInterval || 20)) {
@@ -6648,7 +6635,6 @@ function openChatInfo() {
   const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
   document.getElementById('jxWorldBookText').innerText = boundCount > 0 ? `已绑定 ${boundCount} 本` : '未绑定';
   document.getElementById('jxMaxReplyText').innerText = (chat.maxReply || 1) + '句';
-  // 记忆 UI
   const memSwitch = document.getElementById('jxMemoryEnabledSwitch');
   if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
   const memIntEl = document.getElementById('jxMemoryIntervalText');
@@ -6658,7 +6644,6 @@ function openChatInfo() {
 }
 function closeChatInfo() { document.getElementById('jxChatInfoScreen').classList.remove('active'); }
 
-// ============ 记忆列表渲染 ============
 function renderMemoryList() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -7108,7 +7093,6 @@ async function handlePublishImageSelect(e) {
   const fileArray = Array.from(files);
   const container = document.getElementById('publishImagesContainer');
   for (const file of fileArray) {
-    // 极致压缩：朋友圈图片 640px / 0.55 质量
     const base64 = await compressImageFile(file, 640, 0.55);
     if (!base64) continue;
     const idx = tempPostImages.length;
