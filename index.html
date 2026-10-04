@@ -678,6 +678,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-contact-card-name{color:#eee}
 .phone-case.dark-mode .jx-contact-card-sub{color:#aaa}
 .phone-case.dark-mode .jx-contact-card-footer{background:#1c1c1e;border-top-color:#3a3a3c;color:#888}
+/* 记忆卡片 */
+.jx-memory-card{background:#f7f8fa;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.jx-memory-card-header{font-size:11px;color:#999;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.jx-memory-card-content{font-size:13px;color:#333;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.jx-memory-card-del{color:#ff4757;cursor:pointer;padding:3px 8px;border-radius:6px;flex-shrink:0;font-weight:500}
+.jx-memory-card-del:active{background:#ffeaea}
+.jx-memory-empty{text-align:center;padding:22px 0;color:#bbb;font-size:13px}
+.phone-case.dark-mode .jx-memory-card{background:#2c2c2e}
+.phone-case.dark-mode .jx-memory-card-content{color:#ddd}
+.phone-case.dark-mode .jx-memory-card-header{color:#888}
+.phone-case.dark-mode .jx-memory-card-del:active{background:rgba(255,71,87,.15)}
 .jx-transfer-card{background:#fa9d3b;border-radius:6px;padding:16px 18px;color:#fff;display:flex;flex-direction:column;gap:10px;min-width:180px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .jx-transfer-card .t-amount{font-size:22px;font-weight:500;letter-spacing:.5px}
 .jx-transfer-card .t-note{font-size:12px;opacity:.92}
@@ -1864,6 +1875,26 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
+          <div class="jx-info-item">
+            <span class="label">自动总结记忆</span>
+            <div class="jx-switch" id="jxMemoryEnabledSwitch" onclick="toggleSetting('memoryEnabled')"></div>
+          </div>
+          <div class="jx-info-item" onclick="changeMemoryInterval()">
+            <span class="label">每多少条对话自动总结</span>
+            <div class="value"><span id="jxMemoryIntervalText">20条</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+          <div class="jx-info-item" onclick="manualSummarize()">
+            <span class="label">立即总结当前对话</span>
+            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+        </div>
+        <div class="jx-info-block">
+          <div style="padding: 14px 16px 6px 16px; font-size: 14px; color: #666; font-weight: 500;">
+            已生成的记忆 <span id="jxMemoryCount" style="color:#999; font-weight: 400;">(0)</span>
+          </div>
+          <div id="jxMemoryList" style="padding: 4px 16px 16px 16px;"></div>
+        </div>
+        <div class="jx-info-block">
           <div class="jx-info-item" onclick="changeMyChatAvatar()">
             <span class="label">换我的头像（仅本聊天）</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
@@ -2786,9 +2817,15 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   }
 })();
 
+// ========== 极致压缩图片 ==========
+// 聊天图片: 600px, 质量 0.55，单张约 30~60KB
+// 头像: 180px, 质量 0.7，单张约 8~15KB
+// 贴纸: 180px, 质量 0.6
+// 朋友圈: 640px, 质量 0.55
+// 背景: 800px, 质量 0.6
 function compressImageFile(file, maxDim, quality) {
-  maxDim = maxDim || 800;
-  quality = quality || 0.7;
+  maxDim = maxDim || 600;
+  quality = quality || 0.55;
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -2806,6 +2843,9 @@ function compressImageFile(file, maxDim, quality) {
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
+        // 白色底填充，避免 PNG 透明区域变成黑色
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
         try { resolve(canvas.toDataURL('image/jpeg', quality)); }
         catch (err) { resolve(e.target.result); }
@@ -2845,7 +2885,7 @@ function compressImageFile(file, maxDim, quality) {
   }
   musicBgInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.85).then((base64) => {
+    compressImageFile(file, 800, 0.6).then((base64) => {
       if (!base64) return;
       musicBgArea.style.backgroundImage = `url(${base64})`;
       musicBgArea.style.backgroundSize = 'cover';
@@ -2856,7 +2896,7 @@ function compressImageFile(file, maxDim, quality) {
   });
   musicAvatarInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 180, 0.7).then((base64) => {
       if (!base64) return;
       musicAvatar.src = base64; musicAvatar.style.display = 'block'; musicAvatarSvg.style.display = 'none';
       try { localStorage.setItem(MUSIC_KEY_PREFIX + 'avatar', base64); } catch(err){ alert('图片过大'); }
@@ -2865,7 +2905,7 @@ function compressImageFile(file, maxDim, quality) {
   });
   vinylCoverInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 600, 0.8).then((base64) => {
+    compressImageFile(file, 300, 0.65).then((base64) => {
       if (!base64) return;
       vinylCoverImg.src = base64; vinylCoverImg.style.display = 'block'; vinylCoverSvg.style.display = 'none';
       barCoverImg.src = base64; barCoverImg.style.display = 'block'; barCoverSvg.style.display = 'none';
@@ -3130,7 +3170,7 @@ function deletePersona() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 180, 0.7).then((base64) => {
       if (!base64) return;
       tempAvatarBase64 = base64;
       document.getElementById('personaAvatarImg').src = tempAvatarBase64;
@@ -3418,7 +3458,7 @@ function extractEntriesFromJson(data, defaultEntry) {
   changeBtn.addEventListener('click', () => input.click());
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.85).then((base64) => {
+    compressImageFile(file, 800, 0.6).then((base64) => {
       if (!base64) return;
       document.getElementById('mainScreen').style.backgroundImage = `url(${base64})`;
       document.getElementById('mainScreen').style.backgroundSize = 'cover';
@@ -3548,7 +3588,7 @@ function triggerAppIconUpload(appId, previewElement) {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 256, 0.8).then((base64) => {
+    compressImageFile(file, 128, 0.7).then((base64) => {
       if (!base64) return;
       try { localStorage.setItem(APP_ICON_KEY_PREFIX + appId, base64); }
       catch (err) { alert("图片过大，存储失败"); return; }
@@ -4614,15 +4654,17 @@ function saveJianxunChats() {
         const before = chat.imagePool.length;
         const avatars = chat.imagePool.filter(img => img.isAvatar);
         let photos = chat.imagePool.filter(img => !img.isAvatar);
-        if (photos.length > 3) photos = photos.slice(-3);
+        // 极致压缩：图片池上限从 3 张改为 2 张
+        if (photos.length > 2) photos = photos.slice(-2);
         chat.imagePool = avatars.concat(photos);
         if (chat.imagePool.length < before) cleaned = true;
       }
       if (Array.isArray(chat.messages)) {
         const imgMsgs = chat.messages.filter(m => m.type === 'image' || m.type === 'sticker');
-        if (imgMsgs.length > 5) {
-          const toRemove = imgMsgs.slice(0, imgMsgs.length - 5);
-          toRemove.forEach(m => { delete m.image; m.type = 'text'; m.content = '[图片已被自动清理以节省空间]'; });
+        // 极致压缩：图片消息上限从 5 改为 3
+        if (imgMsgs.length > 3) {
+          const toRemove = imgMsgs.slice(0, imgMsgs.length - 3);
+          toRemove.forEach(m => { delete m.image; m.type = 'text'; m.content = '[图片已自动清理以节省空间]'; });
           cleaned = true;
         }
       }
@@ -4754,7 +4796,7 @@ function loadJxMeProfile() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 180, 0.7).then((base64) => {
       if (!base64) return;
       const el = document.getElementById('jxMeAvatarImg');
       if (el) el.src = base64;
@@ -4768,7 +4810,7 @@ function loadJxMeProfile() {
           chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
           const avatars = chat.imagePool.filter(img => img.isAvatar);
           let photos = chat.imagePool.filter(img => !img.isAvatar);
-          if (photos.length > 12) photos = photos.slice(-12);
+          if (photos.length > 6) photos = photos.slice(-6);
           chat.imagePool = avatars.concat(photos);
         });
         saveJianxunChats();
@@ -4877,7 +4919,13 @@ function loadJianxunChats() {
     if (chat.chatBg === undefined) chat.chatBg = '';
     if (chat.myAvatar === undefined) chat.myAvatar = '';
     if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+    // 记忆相关字段
+    if (chat.memoryEnabled === undefined) chat.memoryEnabled = true;
+    if (typeof chat.memoryInterval !== 'number' || isNaN(chat.memoryInterval)) chat.memoryInterval = 20;
+    if (!Array.isArray(chat.memories)) chat.memories = [];
+    if (typeof chat.lastSummarizedCount !== 'number') chat.lastSummarizedCount = 0;
     delete chat._replying;
+    delete chat._summarizing;
     if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
     else if (typeof chat.boundWorldBook === 'string') {
       const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
@@ -5136,7 +5184,7 @@ function renderChatMessages(keepScrollPos) {
   });
 
   attachMsgLongPress(container);
-  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
+  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollPos; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
 }
 
@@ -5234,7 +5282,8 @@ function handleContactCardClick(card) {
     id: genId(), name: card.name, avatar: card.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1,
     customRemark: '', boundWorldBook: [], boundStickerPacks: [],
-    chatBg: '', myAvatar: '', imagePool: imagePool
+    chatBg: '', myAvatar: '', imagePool: imagePool,
+    memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
   };
   jianxunChats.push(newChat);
   saveJianxunChats();
@@ -5357,13 +5406,15 @@ function voiceSend() {
     if (!file) return;
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
-    compressImageFile(file, 800, 0.7).then((base64) => {
+    // 极致压缩：聊天图片 600px / 0.55 质量
+    compressImageFile(file, 600, 0.55).then((base64) => {
       if (!base64) { alert('图片处理失败'); return; }
       chat.messages.push({ id: genId(), role: 'me', type: 'image', image: base64, content: '[图片]' });
       chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), desc: '用户发来的图片' });
       const avatars = chat.imagePool.filter(img => img.isAvatar);
       let photos = chat.imagePool.filter(img => !img.isAvatar);
-      if (photos.length > 12) photos = photos.slice(-12);
+      // 极致压缩：图片池保留上限从 12 改为 6
+      if (photos.length > 6) photos = photos.slice(-6);
       chat.imagePool = avatars.concat(photos);
       saveJianxunChats();
       renderChatMessages();
@@ -5472,7 +5523,8 @@ function uploadImagesToPack(packId) {
     if (!pack) return;
     if (!pack.stickers) pack.stickers = [];
     for (const file of Array.from(files)) {
-      const base64 = await compressImageFile(file, 300, 0.7);
+      // 极致压缩：贴纸 180px / 0.6 质量
+      const base64 = await compressImageFile(file, 180, 0.6);
       if (base64) pack.stickers.push({ id: genId(), name: file.name.replace(/\.[^/.]+$/, ""), url: base64, meaning: '' });
     }
     saveStickerPacks(packs);
@@ -5971,6 +6023,15 @@ function buildMomentsPrompt() {
   sp += '互动：[[LIKE_MOMENT:编号]] / [[COMMENT_MOMENT:编号|内容]]（克制，不必每条都点）\n';
   return sp;
 }
+function buildMemoryPrompt(chat) {
+  const memories = Array.isArray(chat.memories) ? chat.memories : [];
+  if (memories.length === 0) return '';
+  let sp = '\n【长期记忆】（你在之前对话中记住的关键信息，应自然地运用，无需刻意提及记忆本身）\n';
+  memories.forEach((m, i) => {
+    sp += `〔记忆${i + 1} · ${new Date(m.time).toLocaleDateString('zh-CN')}〕\n${m.content}\n`;
+  });
+  return sp;
+}
 function buildCharSystemPrompt(chat) {
   loadPersonaList();
   const persona = personaList.find(p => p.name === chat.name);
@@ -5996,6 +6057,9 @@ function buildCharSystemPrompt(chat) {
 
   const wb = buildWorldBookPrompt(chat);
   if (wb) sp += wb;
+
+  const mem = buildMemoryPrompt(chat);
+  if (mem) sp += mem;
 
   const stp = buildStickerPrompt(chat);
   if (stp) sp += stp;
@@ -6129,6 +6193,96 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   } catch (err) { clearTimeout(timeoutId); throw err; }
 }
 
+// ============ 记忆总结 ============
+async function summarizeChatMemory(chat, isManual) {
+  if (!chat) return;
+  if (chat._summarizing) {
+    if (isManual) alert('正在总结中，请稍候…');
+    return;
+  }
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) {
+    if (isManual) alert('请先在「设置 → API 配置」中完成配置');
+    return;
+  }
+  const startIdx = Math.max(0, chat.lastSummarizedCount || 0);
+  const sliceMsgs = chat.messages.slice(startIdx).filter(m => m.content !== '__typing__');
+  if (sliceMsgs.length < 2) {
+    if (isManual) alert('消息太少，无需总结');
+    return;
+  }
+  chat._summarizing = true;
+  const charName = chat.customRemark || chat.name || 'TA';
+  const myName = localStorage.getItem('moments_name') || '用户';
+  let convo = '';
+  sliceMsgs.forEach(m => {
+    const who = m.role === 'me' ? myName : charName;
+    let text = '';
+    if (m.type === 'image') text = '[图片]';
+    else if (m.type === 'sticker') text = '[表情]';
+    else if (m.type === 'transfer') text = `[转账 ¥${(m.amount || 0).toFixed(2)}]`;
+    else if (m.type === 'familyCard') text = `[亲属卡 ¥${(m.limit || 0).toFixed(2)}]`;
+    else if (m.type === 'card') text = `[名片 ${(m.card && m.card.name) || ''}]`;
+    else if (m.type === 'merged') text = '[聊天记录]';
+    else text = String(m.content || '').slice(0, 200);
+    convo += `${who}：${text}\n`;
+  });
+
+  const sysPrompt = `你是「${charName}」的记忆整理助手。下面是你和「${myName}」最近的一段对话记录。` +
+    `请提取出这段对话中值得长期记住的关键信息（包括但不限于：用户的喜好、习惯、个人信息、共同经历、重要事件、约定、情绪状态、关系进展等）。` +
+    `用简洁的第三人称陈述句总结成 3~8 条要点，每条一行，以「-」开头。` +
+    `只输出要点列表本身，不要任何前言后语、不要加粗或 markdown 代码块。`;
+
+  try {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const controller = new AbortController();
+    const tId = setTimeout(() => controller.abort(), 60000);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role: 'system', content: sysPrompt },
+          { role: 'user', content: convo }
+        ],
+        temperature: 0.3,
+        max_tokens: 800
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(tId);
+    if (!res.ok) {
+      let errText = ''; try { errText = await res.text(); } catch (e) {}
+      throw new Error('HTTP ' + res.status + ' ' + (errText || '').slice(0, 120));
+    }
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    let summary = '';
+    if (typeof c === 'string') summary = c;
+    else if (Array.isArray(c)) summary = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    summary = String(summary || '').trim();
+    if (!summary) throw new Error('总结为空');
+    if (!Array.isArray(chat.memories)) chat.memories = [];
+    chat.memories.push({
+      id: genId(),
+      time: Date.now(),
+      content: summary,
+      rangeStart: startIdx,
+      rangeEnd: chat.messages.length
+    });
+    chat.lastSummarizedCount = chat.messages.length;
+    saveJianxunChats();
+    if (currentChatId === chat.id) renderMemoryList();
+    if (isManual) alert('总结完成！');
+  } catch (e) {
+    console.warn('自动总结失败', e);
+    if (isManual) alert('总结失败：' + (e.message || '未知错误'));
+  } finally {
+    chat._summarizing = false;
+  }
+}
+
 function parseAndExecuteActions(chat, rawText) {
   const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
@@ -6168,8 +6322,10 @@ function cropImageRegion(base64Src, region, ratio) {
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, side, side);
         ctx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
-        resolve(canvas.toDataURL('image/jpeg', 0.9));
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
       } catch (e) { resolve(null); }
     };
     img.onerror = () => resolve(null);
@@ -6203,7 +6359,6 @@ function executeCharAction(chat, action) {
           if (currentChatId === chat.id) {
             renderChatMessages(true);
             renderJianxunChatList();
-            // 如果信息页打开，同步更新
             const infoImg = document.getElementById('jxInfoAvatarImg');
             if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) {
               infoImg.src = base64;
@@ -6463,6 +6618,13 @@ async function triggerCharReply(chat) {
       const titleEl = document.getElementById('jxChatTitle');
       if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
     }
+    // 自动总结检查
+    if (chat.memoryEnabled !== false && (chat.memoryInterval || 20) > 0) {
+      const sinceLast = chat.messages.length - (chat.lastSummarizedCount || 0);
+      if (sinceLast >= (chat.memoryInterval || 20)) {
+        setTimeout(() => { summarizeChatMemory(chat).catch(e => console.warn(e)); }, 1000);
+      }
+    }
   }
 }
 function closeChatScreen() {
@@ -6486,15 +6648,78 @@ function openChatInfo() {
   const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
   document.getElementById('jxWorldBookText').innerText = boundCount > 0 ? `已绑定 ${boundCount} 本` : '未绑定';
   document.getElementById('jxMaxReplyText').innerText = (chat.maxReply || 1) + '句';
+  // 记忆 UI
+  const memSwitch = document.getElementById('jxMemoryEnabledSwitch');
+  if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
+  const memIntEl = document.getElementById('jxMemoryIntervalText');
+  if (memIntEl) memIntEl.textContent = (chat.memoryInterval || 20) + '条';
+  renderMemoryList();
   document.getElementById('jxChatInfoScreen').classList.add('active');
 }
 function closeChatInfo() { document.getElementById('jxChatInfoScreen').classList.remove('active'); }
+
+// ============ 记忆列表渲染 ============
+function renderMemoryList() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const list = document.getElementById('jxMemoryList');
+  const countEl = document.getElementById('jxMemoryCount');
+  if (!list) return;
+  const memories = Array.isArray(chat.memories) ? chat.memories : [];
+  if (countEl) countEl.textContent = '(' + memories.length + ')';
+  if (memories.length === 0) {
+    list.innerHTML = '<div class="jx-memory-empty">暂无记忆，聊到设定条数后会自动生成</div>';
+    return;
+  }
+  list.innerHTML = memories.map((m, i) => `
+    <div class="jx-memory-card">
+      <div class="jx-memory-card-header">
+        <span>记忆 ${i + 1} · ${formatFavTime(m.time)}</span>
+        <span class="jx-memory-card-del" onclick="deleteMemory('${m.id}')">删除</span>
+      </div>
+      <div class="jx-memory-card-content">${escapeHtml(m.content || '')}</div>
+    </div>
+  `).join('');
+}
+function deleteMemory(memoryId) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (!confirm('确定删除这条记忆吗？删除后角色将不再记得这条信息。')) return;
+  chat.memories = (chat.memories || []).filter(m => m.id !== memoryId);
+  saveJianxunChats();
+  renderMemoryList();
+}
+function changeMemoryInterval() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const cur = chat.memoryInterval || 20;
+  const val = prompt('请输入触发自动总结的消息条数（5~100）：\n（聊天记录累计达到此数量后自动调用 API 总结成记忆）', cur);
+  if (val === null) return;
+  const num = parseInt(val, 10);
+  if (isNaN(num) || num < 5 || num > 100) { alert('请输入 5 到 100 之间的数字'); return; }
+  chat.memoryInterval = num;
+  const memIntEl = document.getElementById('jxMemoryIntervalText');
+  if (memIntEl) memIntEl.textContent = num + '条';
+  saveJianxunChats();
+}
+function manualSummarize() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置'); return; }
+  summarizeChatMemory(chat, true);
+}
+
 function toggleSetting(key) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   chat[key] = !chat[key];
   if (key === 'allowActive') document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
   else if (key === 'pinned') document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
+  else if (key === 'memoryEnabled') {
+    const el = document.getElementById('jxMemoryEnabledSwitch');
+    if (el) el.className = 'jx-switch' + (chat.memoryEnabled ? ' on' : '');
+  }
   saveJianxunChats();
   renderJianxunChatList();
 }
@@ -6564,7 +6789,7 @@ function changeChatAvatar() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 180, 0.7).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -6584,7 +6809,7 @@ function changeMyChatAvatar() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 180, 0.7).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -6605,7 +6830,7 @@ function changeChatBg() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1000, 0.8).then((base64) => {
+    compressImageFile(file, 720, 0.6).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -6624,7 +6849,7 @@ function changeChatBg() {
 function clearChatHistory() {
   if (!confirm('确定要清空聊天记录吗？')) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (chat) { chat.messages = []; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
+  if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
 function deleteChat() {
   if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
@@ -6669,7 +6894,8 @@ function addPersonaToChat(index) {
   jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
-    boundWorldBook: [], boundStickerPacks: [], chatBg: '', myAvatar: '', imagePool: imagePool
+    boundWorldBook: [], boundStickerPacks: [], chatBg: '', myAvatar: '', imagePool: imagePool,
+    memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
   });
   saveJianxunChats();
   renderJianxunChatList();
@@ -6701,7 +6927,7 @@ function loadMomentsData() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.85).then((base64) => {
+    compressImageFile(file, 800, 0.6).then((base64) => {
       if (!base64) return;
       const hdr = document.getElementById('jxMomentsHeader');
       hdr.style.backgroundImage = `url(${base64})`;
@@ -6718,7 +6944,7 @@ function loadMomentsData() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 400, 0.8).then((base64) => {
+    compressImageFile(file, 180, 0.7).then((base64) => {
       if (!base64) return;
       document.getElementById('momentsAvatarImg').src = base64;
       try { localStorage.setItem('moments_avatar', base64); } catch(err){ alert('图片过大'); }
@@ -6731,7 +6957,7 @@ function loadMomentsData() {
         chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
         const avatars = chat.imagePool.filter(img => img.isAvatar);
         let photos = chat.imagePool.filter(img => !img.isAvatar);
-        if (photos.length > 12) photos = photos.slice(-12);
+        if (photos.length > 6) photos = photos.slice(-6);
         chat.imagePool = avatars.concat(photos);
       });
       saveJianxunChats();
@@ -6882,7 +7108,8 @@ async function handlePublishImageSelect(e) {
   const fileArray = Array.from(files);
   const container = document.getElementById('publishImagesContainer');
   for (const file of fileArray) {
-    const base64 = await compressImageFile(file, 800, 0.7);
+    // 极致压缩：朋友圈图片 640px / 0.55 质量
+    const base64 = await compressImageFile(file, 640, 0.55);
     if (!base64) continue;
     const idx = tempPostImages.length;
     tempPostImages.push(base64);
