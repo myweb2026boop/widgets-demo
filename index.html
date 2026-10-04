@@ -837,6 +837,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .font-hint{font-size:12px;color:#888;line-height:1.6;padding:0 4px;margin-top:8px}
 .font-size-info{display:flex;justify-content:space-between;padding:8px 0;font-size:12px;color:#666;border-top:1px solid #f0f0f2;margin-top:10px}
 .font-size-info span:last-child{color:#16a34a;font-weight:600}
+/* 全局字体大小调节 专属样式（不会随全局缩放而改变自身） */
+#globalFontSizeStyleControl, #globalFontSizeStyleControl * { font-size: revert !important; }
+.font-scale-slider{width:100%;accent-color:#667eea;height:24px;cursor:pointer}
+.font-scale-preset-row{display:flex;gap:6px;margin-top:10px}
+.font-scale-preset-btn{flex:1;padding:8px 0;border-radius:8px;background:#f5f5f7;border:1px solid #ebebef;color:#444;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.font-scale-preset-btn:active{background:#e8eaee;transform:scale(.96)}
+.font-scale-preset-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
 .phone-case.dark-mode #jxCssEditorScreen{background:#121212}
 .phone-case.dark-mode .css-editor-top-bar{background:#1c1c1e;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .css-editor-title{color:#eee}
@@ -861,6 +868,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .font-action-btn.outline:active{background:#3a3a3c}
 .phone-case.dark-mode .font-hint{color:#888}
 .phone-case.dark-mode .font-size-info{border-top-color:#2c2c2e;color:#aaa}
+.phone-case.dark-mode .font-scale-preset-btn{background:#2c2c2e;border-color:#3a3a3c;color:#ddd}
+.phone-case.dark-mode .font-scale-preset-btn:active{background:#3a3a3c}
+.phone-case.dark-mode .font-scale-preset-btn.active{background:linear-gradient(135deg,#a78bfa,#8b5cf6);color:#fff;border-color:transparent}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1423,6 +1433,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             </div>
           </div>
 
+          <div class="font-card" id="globalFontSizeStyleControl">
+            <div class="font-preview-label">全局字体大小调节</div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+              <span style="font-size:11px; color:#888; flex-shrink:0;">A</span>
+              <input type="range" id="globalFontSizeSlider" class="font-scale-slider" min="50" max="200" step="5" value="100">
+              <span style="font-size:20px; color:#888; flex-shrink:0;">A</span>
+            </div>
+            <div class="font-size-info" style="display:flex;">
+              <span>当前缩放比例</span>
+              <span id="globalFontSizeValue">100%</span>
+            </div>
+            <div class="font-scale-preset-row">
+              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(75)" data-scale="75">小</button>
+              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(90)" data-scale="90">较小</button>
+              <button class="font-scale-preset-btn active" onclick="setGlobalFontSize(100)" data-scale="100">标准</button>
+              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(115)" data-scale="115">较大</button>
+              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(130)" data-scale="130">大</button>
+              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(150)" data-scale="150">特大</button>
+            </div>
+          </div>
+
           <div class="font-card">
             <div class="font-preview-label">字体预览效果</div>
             <div class="font-preview-box" id="fontPreviewBox">
@@ -1434,7 +1465,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <p class="font-hint">
             · 支持所有 .ttf 格式的字体（不再受 localStorage 5MB 限制，已迁移至 IndexedDB）<br>
             · 字体文件以二进制形式原生存储，无需转码，无损耗，大字体完美支持<br>
-            · 若字体超大（如 20MB 以上），首次加载可能需要几秒钟时间
+            · 若字体超大（如 20MB 以上），首次加载可能需要几秒钟时间<br>
+            · 全局字体大小调节可即时生效，所有界面文字随之缩放
           </p>
         </div>
       </div>
@@ -1941,11 +1973,16 @@ const USER_CSS_KEY = 'user_custom_css';
 const FONT_DB_NAME = 'TuTooth_FontDB';
 const FONT_STORE_NAME = 'fonts';
 const FONT_RECORD_KEY = 'global_font';
+const FONT_SIZE_SCALE_KEY = 'user_font_size_scale';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
 let _appliedFontFace = null;
 let _appliedFontUrl = null;
+
+// 全局字体缩放：缓存所有 font-size 规则，动态重写
+let _fontSizeRulesCache = null;
+let _fontSizeStyleEl = null;
 
 function applyUserCustomCss() {
   try {
@@ -2051,6 +2088,109 @@ async function applyGlobalFont() {
   }
 }
 
+// ========== 全局字体大小缩放 ==========
+function getGlobalFontSizeScale() {
+  const saved = localStorage.getItem(FONT_SIZE_SCALE_KEY);
+  const val = parseFloat(saved);
+  return (isNaN(val) || val < 50 || val > 200) ? 100 : val;
+}
+
+function buildFontSizeRulesCache() {
+  // 缓存所有 font-size 的 px 值和选择器
+  _fontSizeRulesCache = [];
+  try {
+    const sheets = document.styleSheets;
+    for (let i = 0; i < sheets.length; i++) {
+      const sheet = sheets[i];
+      // 跳过自身的样式元素和用户自定义 CSS
+      const ownerNode = sheet.ownerNode;
+      if (ownerNode && (ownerNode.id === 'globalFontSizeStyle' || ownerNode.id === 'userCustomStyle')) continue;
+      let cssRules;
+      try { cssRules = sheet.cssRules || sheet.rules; } catch (e) { continue; }
+      if (!cssRules) continue;
+      for (let j = 0; j < cssRules.length; j++) {
+        const rule = cssRules[j];
+        if (!rule || !rule.style) continue;
+        const fsVal = rule.style.fontSize;
+        if (!fsVal) continue;
+        const m = String(fsVal).match(/^(-?\d*\.?\d+)px$/i);
+        if (!m) continue;
+        const px = parseFloat(m[1]);
+        if (isNaN(px) || px <= 0) continue;
+        const sel = rule.selectorText;
+        if (!sel) continue;
+        // 排除控制面板本身
+        if (sel.indexOf('globalFontSizeStyleControl') >= 0) continue;
+        if (sel.indexOf('font-scale-slider') >= 0) continue;
+        if (sel.indexOf('font-scale-preset') >= 0) continue;
+        _fontSizeRulesCache.push({ sel: sel, px: px });
+      }
+    }
+  } catch (e) { console.warn('构建字体大小规则缓存失败', e); }
+}
+
+function applyGlobalFontSize(percent) {
+  const scale = percent / 100;
+  if (!_fontSizeStyleEl) {
+    _fontSizeStyleEl = document.getElementById('globalFontSizeStyle');
+    if (!_fontSizeStyleEl) {
+      _fontSizeStyleEl = document.createElement('style');
+      _fontSizeStyleEl.id = 'globalFontSizeStyle';
+      document.head.appendChild(_fontSizeStyleEl);
+    }
+  }
+  if (!_fontSizeRulesCache) buildFontSizeRulesCache();
+  const out = [];
+  for (let i = 0; i < _fontSizeRulesCache.length; i++) {
+    const r = _fontSizeRulesCache[i];
+    const scaled = r.px * scale;
+    const rounded = Math.round(scaled * 100) / 100;
+    out.push(r.sel + '{font-size:' + rounded + 'px !important;}');
+  }
+  _fontSizeStyleEl.textContent = out.join('\n');
+}
+
+function setGlobalFontSize(percent) {
+  percent = Math.round(percent);
+  if (percent < 50) percent = 50;
+  if (percent > 200) percent = 200;
+  try { localStorage.setItem(FONT_SIZE_SCALE_KEY, String(percent)); } catch(e) {}
+  applyGlobalFontSize(percent);
+  const slider = document.getElementById('globalFontSizeSlider');
+  if (slider) slider.value = percent;
+  const valEl = document.getElementById('globalFontSizeValue');
+  if (valEl) valEl.textContent = percent + '%';
+  // 高亮匹配的预设按钮
+  document.querySelectorAll('.font-scale-preset-btn').forEach(btn => {
+    const s = parseInt(btn.getAttribute('data-scale'), 10);
+    if (s === percent) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+function initGlobalFontSizeControl() {
+  const slider = document.getElementById('globalFontSizeSlider');
+  const current = getGlobalFontSizeScale();
+  if (slider) {
+    slider.value = current;
+    slider.addEventListener('input', function(e) {
+      const v = parseInt(e.target.value, 10);
+      setGlobalFontSize(v);
+    });
+  }
+  const valEl = document.getElementById('globalFontSizeValue');
+  if (valEl) valEl.textContent = current + '%';
+  document.querySelectorAll('.font-scale-preset-btn').forEach(btn => {
+    const s = parseInt(btn.getAttribute('data-scale'), 10);
+    if (s === current) btn.classList.add('active');
+  });
+  // 首次应用
+  applyGlobalFontSize(current);
+  // 缓存需在 DOM 就绪后重建，确保捕获所有内联样式
+  buildFontSizeRulesCache();
+  applyGlobalFontSize(current);
+}
+
 function switchEditorTab(tab) {
   document.querySelectorAll('.css-editor-tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   document.querySelectorAll('.css-editor-panel').forEach(p => p.classList.remove('active'));
@@ -2122,10 +2262,7 @@ function resetGlobalFont() {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const origSize = arrayBuffer.byteLength;
-      
-      // 存入 IndexedDB，完全无视 localStorage 限制
       await saveFontToDB(arrayBuffer, origSize);
-      
       await applyGlobalFont();
       await updateFontUI();
       alert('字体已应用！\n\n原始大小：' + formatBytes(origSize) + '\n已使用 IndexedDB 原生存储，无任何容量限制。');
@@ -2133,7 +2270,6 @@ function resetGlobalFont() {
       alert('字体处理失败：' + (err.message || '未知错误'));
     }
   });
-  // 页面加载时尝试恢复之前保存的字体
   await applyGlobalFont();
   updateFontUI();
 })();
@@ -2468,6 +2604,9 @@ function loadThemeTemplate() {
 .jx-chat-avatar { border-radius: 50% !important; }
 `, '梦幻紫主题');
 }
+
+// 初始化字体大小控制（DOM 已就绪，本脚本位于 body 尾部）
+initGlobalFontSizeControl();
 
 // ================= DOCX 预处理 =================
 async function sanitizeDocxForMammoth(arrayBuffer) {
@@ -3422,6 +3561,7 @@ const isBackupKey = (key) => (
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
   key === BILLS_KEY || key === CARDS_KEY ||
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
+  key === FONT_SIZE_SCALE_KEY ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
@@ -3470,7 +3610,6 @@ const isBackupKey = (key) => (
       const key = localStorage.key(i);
       if (isBackupKey(key)) data[key] = localStorage.getItem(key);
     }
-    // 同时导出 IndexedDB 中的字体
     getFontFromDB().then(fontData => {
       if (fontData && fontData.data) {
         data['__font_b64__'] = ab2b64(fontData.data);
@@ -3778,7 +3917,6 @@ function updateApiPresetList() {
       const key = localStorage.key(i);
       data[key] = localStorage.getItem(key);
     }
-    // 提取 IndexedDB 中的字体并转为 Base64 放入导出数据
     getFontFromDB().then(fontData => {
       if (fontData && fontData.data) {
         data['__font_b64__'] = ab2b64(fontData.data);
