@@ -662,6 +662,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-chat-tool-icon svg{width:28px;height:28px}
 .jx-msg-bubble.transfer,.jx-msg-bubble.card{padding:0!important;background:transparent!important;max-width:75%!important}
 .jx-msg-bubble.transfer::after,.jx-msg-bubble.transfer::before,.jx-msg-bubble.card::after,.jx-msg-bubble.card::before{display:none!important}
+/* 名片消息样式 */
+.jx-msg-bubble.card-msg{padding:0!important;background:transparent!important;max-width:75%!important}
+.jx-msg-bubble.card-msg::after,.jx-msg-bubble.card-msg::before{display:none!important}
+.jx-contact-card{background:#fff;border-radius:8px;padding:0;display:flex;flex-direction:column;min-width:210px;max-width:240px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;overflow:hidden;transition:transform .15s}
+.jx-contact-card:active{transform:scale(.98)}
+.jx-contact-card-top{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.jx-contact-card-avatar{width:42px;height:42px;border-radius:6px;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.jx-contact-card-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.jx-contact-card-avatar svg{width:22px;height:22px;fill:#ccc}
+.jx-contact-card-info{flex:1;min-width:0}
+.jx-contact-card-name{font-size:15px;font-weight:500;color:#333;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jx-contact-card-sub{font-size:11px;color:#999}
+.jx-contact-card-footer{padding:6px 14px;border-top:1px solid #f0f0f0;font-size:11px;color:#bbb;background:#fafafa}
+.phone-case.dark-mode .jx-contact-card{background:#2c2c2e;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.phone-case.dark-mode .jx-contact-card-name{color:#eee}
+.phone-case.dark-mode .jx-contact-card-sub{color:#aaa}
+.phone-case.dark-mode .jx-contact-card-footer{background:#1c1c1e;border-top-color:#3a3a3c;color:#888}
 .jx-transfer-card{background:#fa9d3b;border-radius:6px;padding:16px 18px;color:#fff;display:flex;flex-direction:column;gap:10px;min-width:180px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .jx-transfer-card .t-amount{font-size:22px;font-weight:500;letter-spacing:.5px}
 .jx-transfer-card .t-note{font-size:12px;opacity:.92}
@@ -837,7 +854,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .font-hint{font-size:12px;color:#888;line-height:1.6;padding:0 4px;margin-top:8px}
 .font-size-info{display:flex;justify-content:space-between;padding:8px 0;font-size:12px;color:#666;border-top:1px solid #f0f0f2;margin-top:10px}
 .font-size-info span:last-child{color:#16a34a;font-weight:600}
-/* 全局字体大小调节 专属样式（不会随全局缩放而改变自身） */
 #globalFontSizeStyleControl, #globalFontSizeStyleControl * { font-size: revert !important; }
 .font-scale-slider{width:100%;accent-color:#667eea;height:24px;cursor:pointer}
 .font-scale-preset-row{display:flex;gap:6px;margin-top:10px}
@@ -1663,6 +1679,12 @@ https://xxx.com/a.png
           </div>
           <span>亲属卡</span>
         </div>
+        <div class="jx-chat-tool-item" onclick="toolContactCard()">
+          <div class="jx-chat-tool-icon" style="background:#e8f5e9; border-color:#e8f5e9;">
+            <svg viewBox="0 0 24 24" fill="#4caf50"><path d="M22 3H2C.9 3 0 3.9 0 5v14c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 6c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H2v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1zm8-6h-8v-1h8v1zm0-3h-8V8h8v1z"/></svg>
+          </div>
+          <span>名片</span>
+        </div>
       </div>
 
       <div class="jx-multi-bar" id="jxMultiBar">
@@ -1671,6 +1693,14 @@ https://xxx.com/a.png
         <span class="danger" onclick="deleteSelected()">删除</span>
         <span class="primary" onclick="favoriteSelected()">收藏</span>
         <span class="primary" onclick="forwardSelected()">转发</span>
+      </div>
+
+      <div class="jx-modal" id="contactCardSelectorModal">
+        <div class="jx-modal-content">
+          <h3>选择要发送的名片</h3>
+          <div class="jx-modal-list" id="contactCardSelectorList"></div>
+          <button class="jx-modal-btn" onclick="closeContactCardSelector()">取消</button>
+        </div>
       </div>
 
       <div class="jx-transfer-modal" id="jxTransferModal">
@@ -1968,7 +1998,7 @@ https://xxx.com/a.png
 </div>
 
 <script>
-// ================= 核心修复：使用 IndexedDB 存储大字体，突破 localStorage 5MB 限制 =================
+// ================= 核心：使用 IndexedDB 存储大字体，突破 localStorage 5MB 限制 =================
 const USER_CSS_KEY = 'user_custom_css';
 const FONT_DB_NAME = 'TuTooth_FontDB';
 const FONT_STORE_NAME = 'fonts';
@@ -1980,7 +2010,6 @@ let _cssEditorDraft = null;
 let _appliedFontFace = null;
 let _appliedFontUrl = null;
 
-// 全局字体缩放：缓存所有 font-size 规则，动态重写
 let _fontSizeRulesCache = null;
 let _fontSizeStyleEl = null;
 
@@ -2096,13 +2125,11 @@ function getGlobalFontSizeScale() {
 }
 
 function buildFontSizeRulesCache() {
-  // 缓存所有 font-size 的 px 值和选择器
   _fontSizeRulesCache = [];
   try {
     const sheets = document.styleSheets;
     for (let i = 0; i < sheets.length; i++) {
       const sheet = sheets[i];
-      // 跳过自身的样式元素和用户自定义 CSS
       const ownerNode = sheet.ownerNode;
       if (ownerNode && (ownerNode.id === 'globalFontSizeStyle' || ownerNode.id === 'userCustomStyle')) continue;
       let cssRules;
@@ -2119,7 +2146,6 @@ function buildFontSizeRulesCache() {
         if (isNaN(px) || px <= 0) continue;
         const sel = rule.selectorText;
         if (!sel) continue;
-        // 排除控制面板本身
         if (sel.indexOf('globalFontSizeStyleControl') >= 0) continue;
         if (sel.indexOf('font-scale-slider') >= 0) continue;
         if (sel.indexOf('font-scale-preset') >= 0) continue;
@@ -2160,7 +2186,6 @@ function setGlobalFontSize(percent) {
   if (slider) slider.value = percent;
   const valEl = document.getElementById('globalFontSizeValue');
   if (valEl) valEl.textContent = percent + '%';
-  // 高亮匹配的预设按钮
   document.querySelectorAll('.font-scale-preset-btn').forEach(btn => {
     const s = parseInt(btn.getAttribute('data-scale'), 10);
     if (s === percent) btn.classList.add('active');
@@ -2184,9 +2209,7 @@ function initGlobalFontSizeControl() {
     const s = parseInt(btn.getAttribute('data-scale'), 10);
     if (s === current) btn.classList.add('active');
   });
-  // 首次应用
   applyGlobalFontSize(current);
-  // 缓存需在 DOM 就绪后重建，确保捕获所有内联样式
   buildFontSizeRulesCache();
   applyGlobalFontSize(current);
 }
@@ -2605,7 +2628,7 @@ function loadThemeTemplate() {
 `, '梦幻紫主题');
 }
 
-// 初始化字体大小控制（DOM 已就绪，本脚本位于 body 尾部）
+// 初始化字体大小控制
 initGlobalFontSizeControl();
 
 // ================= DOCX 预处理 =================
@@ -4898,6 +4921,7 @@ function renderJianxunChatList() {
       else if (lastMsgObj.type === 'merged') lastMsg = '[聊天记录]';
       else if (lastMsgObj.type === 'transfer') lastMsg = '[转账]';
       else if (lastMsgObj.type === 'familyCard') lastMsg = '[亲属卡]';
+      else if (lastMsgObj.type === 'card') lastMsg = '[名片] ' + ((lastMsgObj.card && lastMsgObj.card.name) || '');
       else lastMsg = lastMsgObj.content || '[图片]';
     }
     return `<div class="jx-chat-item" onclick="openChat('${chat.id}')">
@@ -4958,6 +4982,7 @@ function startQuote(msgId) {
   else if (msg.type === 'merged') text = '[聊天记录]';
   else if (msg.type === 'transfer') text = '[转账]';
   else if (msg.type === 'familyCard') text = '[亲属卡]';
+  else if (msg.type === 'card') text = '[名片] ' + ((msg.card && msg.card.name) || '');
   else text = msg.content || '';
   currentQuote = { msgId: msg.id, name: senderName, text: text };
   renderQuotePreview();
@@ -5039,6 +5064,23 @@ function renderChatMessages(keepScrollPos) {
         </div>
         <div class="wx-family-card-footer">亲属卡</div>
       </div>`;
+    } else if (msg.type === 'card' && msg.card) {
+      bubbleCls += ' card-msg';
+      const c = msg.card;
+      const safeAvatar = c.avatar ? String(c.avatar).replace(/'/g, '%27') : '';
+      const avatarHtml = safeAvatar
+        ? `<img src="${safeAvatar}" alt="">`
+        : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+      inner = `<div class="jx-contact-card" data-card-idx="${idx}" style="cursor:pointer;">
+        <div class="jx-contact-card-top">
+          <div class="jx-contact-card-avatar">${avatarHtml}</div>
+          <div class="jx-contact-card-info">
+            <div class="jx-contact-card-name">${escapeHtml(c.name || '未知')}</div>
+            <div class="jx-contact-card-sub">个人名片</div>
+          </div>
+        </div>
+        <div class="jx-contact-card-footer">简讯名片</div>
+      </div>`;
     } else if (msg.type === 'sticker' && msg.image) {
       bubbleCls += ' media';
       const safeSrc = String(msg.image).replace(/'/g, '%27');
@@ -5083,9 +5125,133 @@ function renderChatMessages(keepScrollPos) {
     });
   });
 
+  // 名片点击处理：添加好友
+  container.querySelectorAll('.jx-contact-card').forEach(cardEl => {
+    cardEl.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const idx = parseInt(this.getAttribute('data-card-idx'), 10);
+      const msg = chat.messages[idx];
+      if (msg && msg.type === 'card' && msg.card) {
+        handleContactCardClick(msg.card);
+      }
+    });
+  });
+
   attachMsgLongPress(container);
   if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
+}
+
+// ============ 名片功能 ============
+function toolContactCard() {
+  hideChatTools();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  loadPersonaList();
+  const list = document.getElementById('contactCardSelectorList');
+  if (!list) return;
+  const myName = localStorage.getItem('moments_name') || '我';
+  const myAvatar = localStorage.getItem('moments_avatar') || '';
+  let html = '';
+  // 我的名片
+  html += `<div class="jx-modal-item" onclick="sendContactCard('user','')">
+    ${myAvatar ? `<img src="${myAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+    <span>${escapeHtml(myName)}（我的名片）</span>
+  </div>`;
+  // 联系人名片
+  personaList.forEach((p, i) => {
+    const pName = p.name || '未命名';
+    const pAvatar = p.avatar || '';
+    html += `<div class="jx-modal-item" onclick="sendContactCard('char',${i})">
+      ${pAvatar ? `<img src="${pAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+      <span>${escapeHtml(pName)}</span>
+    </div>`;
+  });
+  list.innerHTML = html;
+  document.getElementById('contactCardSelectorModal').classList.add('show');
+}
+function closeContactCardSelector() {
+  const modal = document.getElementById('contactCardSelectorModal');
+  if (modal) modal.classList.remove('show');
+}
+function sendContactCard(type, idxOrName) {
+  closeContactCardSelector();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const myName = localStorage.getItem('moments_name') || '我';
+  const myAvatar = localStorage.getItem('moments_avatar') || '';
+  let card = null;
+  if (type === 'user') {
+    card = { name: myName, avatar: myAvatar, isUser: true };
+  } else {
+    const i = parseInt(idxOrName, 10);
+    const p = personaList[i];
+    if (!p) return;
+    card = { name: p.name || '未命名', avatar: p.avatar || '', isUser: false };
+  }
+  chat.messages.push({
+    id: genId(), role: 'me', type: 'card', card: card,
+    content: '[名片] ' + card.name
+  });
+  saveJianxunChats();
+  renderChatMessages();
+  renderJianxunChatList();
+}
+
+// 点击名片：添加好友
+function handleContactCardClick(card) {
+  if (!card || !card.name) return;
+  // 自己的名片
+  if (card.isUser) {
+    alert('这是你自己的名片');
+    return;
+  }
+  // 已在聊天列表
+  const exists = jianxunChats.find(c => (c.name === card.name) || (c.customRemark === card.name));
+  if (exists) {
+    if (confirm(`「${card.name}」已在你的聊天列表中，是否打开聊天？`)) {
+      // 先关闭聊天界面
+      document.getElementById('jxChatScreen').classList.remove('active');
+      document.getElementById('jxStickerPanel').classList.remove('show');
+      const tools = document.getElementById('jxChatTools');
+      if (tools) tools.classList.remove('show');
+      // 稍后打开目标聊天
+      setTimeout(() => { openChat(exists.id); }, 120);
+    }
+    return;
+  }
+  if (!confirm(`添加「${card.name}」为好友？`)) return;
+
+  // 加入通讯录（personaList）
+  loadPersonaList();
+  const personaExists = personaList.find(p => p.name === card.name);
+  if (!personaExists) {
+    personaList.push({
+      avatar: card.avatar || '',
+      name: card.name,
+      nickname: '',
+      gender: '',
+      age: '',
+      details: ''
+    });
+    try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
+  }
+
+  // 创建聊天
+  const imagePool = [];
+  const userAvatar = localStorage.getItem('moments_avatar');
+  if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
+  const newChat = {
+    id: genId(), name: card.name, avatar: card.avatar || '',
+    messages: [], pinned: false, allowActive: false, maxReply: 1,
+    customRemark: '', boundWorldBook: [], boundStickerPacks: [],
+    chatBg: '', myAvatar: '', imagePool: imagePool
+  };
+  jianxunChats.push(newChat);
+  saveJianxunChats();
+  renderJianxunChatList();
+  renderJianxunContacts();
+  alert(`已添加「${card.name}」为好友`);
 }
 
 let suppressRowClick = false;
@@ -5537,6 +5703,7 @@ function addFavoriteFromMsg(chat, msg) {
     image: msg.image || '', stickerName: msg.stickerName || '',
     items: Array.isArray(msg.items) ? cloneSerializable(msg.items) : null,
     quote: msg.quote ? cloneSerializable(msg.quote) : null,
+    card: msg.card ? cloneSerializable(msg.card) : null,
     source: charName, senderRole: msg.role, senderName: senderName, time: Date.now(),
     amount: msg.amount || 0, limit: msg.limit || 0, note: msg.note || ''
   };
@@ -5611,6 +5778,8 @@ function renderFavoritesList() {
       contentHtml = `<div class="jx-fav-text">[转账 ¥${(fav.amount || 0).toFixed(2)}${fav.note ? '，备注：' + escapeHtml(fav.note) : ''}]</div>`;
     } else if (fav.type === 'familyCard') {
       contentHtml = `<div class="jx-fav-text">[亲属卡 ¥${(fav.limit || 0).toFixed(2)}${fav.note ? '，备注：' + escapeHtml(fav.note) : ''}]</div>`;
+    } else if (fav.type === 'card' && fav.card) {
+      contentHtml = `<div class="jx-fav-text">[名片：${escapeHtml(fav.card.name || '')}]</div>`;
     } else {
       const text = escapeHtml(fav.content || '').replace(/\n/g, '<br>');
       contentHtml = `<div class="jx-fav-text">${text || '（空消息）'}</div>`;
@@ -5652,7 +5821,7 @@ function menuEdit() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard') { alert('图片、表情、聊天记录、转账、亲属卡不能编辑'); return; }
+  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card') { alert('图片、表情、聊天记录、转账、亲属卡、名片不能编辑'); return; }
   editingMsgId = id;
   document.getElementById('editMsgTextarea').value = msg.content || '';
   document.getElementById('jxEditMsgModal').classList.add('show');
@@ -5675,7 +5844,7 @@ async function menuTranslate() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard') { alert('这条消息没有可翻译的文字内容'); return; }
+  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card') { alert('这条消息没有可翻译的文字内容'); return; }
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置，才能翻译'); return; }
   const original = msg.content;
@@ -5928,6 +6097,8 @@ function buildChatHistory(chat) {
       content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
     } else if (m.type === 'familyCard') {
       content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
+    } else if (m.type === 'card' && m.card) {
+      content = `[名片 ${m.card.name || ''}]`;
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
       content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
     } else {
