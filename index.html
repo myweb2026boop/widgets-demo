@@ -929,6 +929,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .mask-info h4{color:#eee}
 .phone-case.dark-mode .mask-info p{color:#999}
 .phone-case.dark-mode .mask-badge{background:#3a2a4a;color:#b39ddb}
+/* 身份绑定角色列表样式 */
+.mask-bind-list{background:#fff;border-radius:8px;padding:4px 0;border:1px solid #ddd;max-height:150px;overflow-y:auto}
+.mask-bind-item{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;width:100%;box-sizing:border-box;border-bottom:1px solid #f0f0f0}
+.mask-bind-item:last-child{border-bottom:none}
+.mask-bind-item input[type="checkbox"]{flex-shrink:0;width:18px;height:18px;accent-color:#8e44ad;margin:0}
+.mask-bind-item .mask-bind-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.phone-case.dark-mode .mask-bind-list{background:#1c1c1e;border-color:#3a3a3c}
+.phone-case.dark-mode .mask-bind-item{color:#ddd;border-bottom-color:#2c2c2e}
+.phone-case.dark-mode .mask-bind-item input[type="checkbox"]{accent-color:#a78bfa}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1755,9 +1764,7 @@ https://xxx.com/a.png
         <div class="form-group"><label>身份描述（人设）</label><textarea id="maskDetails" placeholder="输入这个身份的背景、性格、说话风格等..."></textarea></div>
         <div class="form-group">
           <label>绑定角色（可选，多选）</label>
-          <div id="maskBindCharList" style="background:#fff; border-radius:8px; padding:10px; border:1px solid #ddd; max-height:150px; overflow-y:auto;">
-            <!-- 动态渲染角色复选框 -->
-          </div>
+          <div id="maskBindCharList" class="mask-bind-list"></div>
           <p style="font-size:11px; color:#999; margin-top:4px;">如果不绑定任何角色，此身份默认在所有聊天中可用（除非该角色绑定其他身份）。</p>
         </div>
         <div class="form-actions">
@@ -4956,15 +4963,16 @@ function openMaskEdit(id) {
     }
     document.getElementById('maskDeleteBtn').style.display = 'block';
   }
-  // 渲染角色绑定复选框
+  // 渲染角色绑定复选框（修复横向显示）
   if (personaList.length === 0) {
-    bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:4px;">暂无人设可绑定</div>';
+    bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:10px;text-align:center;">暂无人设可绑定</div>';
   } else {
+    const currentBound = id !== null ? (jxMasks.find(x => x.id === id)?.boundCharIds || []) : [];
     bindList.innerHTML = personaList.map(p => {
-      const checked = id !== null && jxMasks.find(x => x.id === id)?.boundCharIds?.includes(p.name) ? 'checked' : '';
-      return `<label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#333; padding:4px 0; cursor:pointer;">
-        <input type="checkbox" value="${escapeHtml(p.name)}" ${checked} style="accent-color:#8e44ad;">
-        ${escapeHtml(p.name || '未命名')}
+      const checked = currentBound.includes(p.name) ? 'checked' : '';
+      return `<label class="mask-bind-item">
+        <input type="checkbox" value="${escapeHtml(p.name)}" ${checked}>
+        <span class="mask-bind-name">${escapeHtml(p.name || '未命名')}</span>
       </label>`;
     }).join('');
   }
@@ -5020,11 +5028,9 @@ function deleteMask() {
 function getActiveMaskForChat(chat) {
   if (!chat) return null;
   loadMasks();
-  // 优先查找绑定了该角色的身份
   const charName = chat.customRemark || chat.name;
   const bound = jxMasks.filter(m => Array.isArray(m.boundCharIds) && m.boundCharIds.includes(charName));
   if (bound.length > 0) return bound[0];
-  // 否则查找未绑定任何角色的全局身份
   const globalMasks = jxMasks.filter(m => !Array.isArray(m.boundCharIds) || m.boundCharIds.length === 0);
   if (globalMasks.length > 0) return globalMasks[0];
   return null;
