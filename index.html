@@ -936,163 +936,122 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .mask-bind-item{color:#ddd;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .mask-bind-item input[type="checkbox"]{accent-color:#a78bfa}
 
-/* 新增：全局美化胶囊与预览样式 */
-.css-capsule {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
+/* 新增：草图布局样式 */
+.beautify-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+.beautify-layout textarea {
+  width: 100%;
+  height: 220px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 14px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  background: #fff;
+  color: #333;
+}
+.beautify-layout textarea:focus {
+  border-color: #4b7bec;
+  box-shadow: 0 0 0 3px rgba(75, 123, 236, 0.1);
+}
+.beautify-layout .btn-row {
+  display: flex;
+  gap: 12px;
+}
+.beautify-layout .btn-row .btn {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+.beautify-layout .btn-save {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+.beautify-layout .btn-save:active {
+  transform: scale(0.98);
+}
+.beautify-layout .btn-beautify {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
-  border-radius: 30px;
-  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+.beautify-layout .btn-beautify:active {
+  transform: scale(0.98);
+}
+.beautify-layout .btn-preview {
+  background: #f0f2f5;
+  color: #333;
+  border: 1px solid #e0e2e6;
+}
+.beautify-layout .btn-preview:active {
+  background: #e2e4e8;
+  transform: scale(0.98);
+}
+.font-section-box {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+}
+.font-section-box h4 {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.font-section-box .font-action-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
   font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  z-index: 20005;
-  transition: transform 0.2s, box-shadow 0.2s;
-  user-select: none;
+  font-family: inherit;
+  margin-bottom: 10px;
+  transition: all .15s;
 }
-.css-capsule:active {
-  transform: scale(0.95);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+.font-section-box .font-action-btn.primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
-.css-capsule svg {
-  width: 16px;
-  height: 16px;
-  fill: #fff;
-}
-#cssClassSelectorModal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 30000;
-  align-items: center;
-  justify-content: center;
-}
-#cssClassSelectorModal.show {
-  display: flex;
-}
-#cssClassSelectorModal .modal-content {
+.font-section-box .font-action-btn.primary:active { transform: scale(0.98); }
+.font-section-box .font-action-btn.outline {
   background: #fff;
-  width: 85%;
-  max-width: 340px;
-  border-radius: 16px;
-  padding: 20px;
-  max-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-#cssClassSelectorModal h3 {
-  font-size: 16px;
-  margin-bottom: 12px;
   color: #333;
+  border: 1px solid #e0e0e0;
 }
-.class-list-container {
-  flex: 1;
-  overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 8px;
-  margin-bottom: 12px;
-}
-.class-list-item {
-  padding: 8px 12px;
-  font-size: 13px;
-  font-family: monospace;
-  color: #333;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.class-list-item:hover {
-  background: #f0f6ff;
-  color: #4b7bec;
-}
-.modal-btn-close {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #f0f0f0;
-  color: #333;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-#cssPreviewModal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 30001;
-  align-items: center;
-  justify-content: center;
-}
-#cssPreviewModal.show {
-  display: flex;
-}
-#cssPreviewModal .preview-content {
-  background: #fff;
-  width: 90%;
-  max-width: 360px;
-  border-radius: 16px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  height: 70vh;
-}
-#cssPreviewModal .preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-#cssPreviewModal .preview-header h3 {
-  font-size: 16px;
-  color: #333;
-}
-#cssPreviewModal .preview-iframe {
-  flex: 1;
-  width: 100%;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background: #fff;
-}
-.phone-case.dark-mode .css-capsule {
-  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
-}
-.phone-case.dark-mode #cssClassSelectorModal .modal-content,
-.phone-case.dark-mode #cssPreviewModal .preview-content {
+.font-section-box .font-action-btn.outline:active { background: #f5f5f5; }
+.phone-case.dark-mode .beautify-layout textarea {
   background: #1c1c1e;
+  border-color: #3a3a3c;
   color: #eee;
 }
-.phone-case.dark-mode #cssClassSelectorModal h3,
-.phone-case.dark-mode #cssPreviewModal .preview-header h3 {
+.phone-case.dark-mode .font-section-box {
+  background: #1c1c1e;
+  border-color: #3a3a3c;
+}
+.phone-case.dark-mode .font-section-box h4 {
   color: #eee;
 }
-.phone-case.dark-mode .class-list-container {
-  border-color: #3a3a3c;
-}
-.phone-case.dark-mode .class-list-item {
-  color: #ddd;
-}
-.phone-case.dark-mode .class-list-item:hover {
-  background: #2c2c2e;
-  color: #a78bfa;
-}
-.phone-case.dark-mode .modal-btn-close {
+.phone-case.dark-mode .font-section-box .font-action-btn.outline {
   background: #2c2c2e;
   color: #ddd;
-}
-.phone-case.dark-mode #cssPreviewModal .preview-iframe {
   border-color: #3a3a3c;
+}
+.phone-case.dark-mode .font-section-box .font-action-btn.outline:active {
+  background: #3a3a3c;
 }
 </style>
 <style id="userCustomStyle"></style>
@@ -1470,6 +1429,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       </div>
       <div class="beautify-body">
         <div class="section-card highlight-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 全局美化设置</h4>
+          <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:12px;">点击下方按钮进入高级美化界面，可自定义CSS、预览效果、更换全局字体。</p>
+          <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="openCssEditor()">打开全局美化</button>
+        </div>
+        <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> API 配置（角色回复将使用此配置）</h4>
           <div class="form-group"><label>API 地址（Endpoint）</label><input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1"><p class="hint-text" style="margin-top:4px;">可填 base URL（如 https://xxx/v1），也可填完整端点（如 https://xxx/v1/chat/completions）。</p></div>
           <div class="form-group"><label>API Key</label><input type="password" id="apiKey" placeholder="sk-..."></div>
@@ -1618,70 +1582,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       </div>
     </div>
 
+    <!-- 全新草图布局的全局美化界面 -->
     <div id="jxCssEditorScreen">
       <div class="css-editor-top-bar">
         <button class="css-editor-back" onclick="closeCssEditor()">← 返回</button>
         <span class="css-editor-title">全局美化</span>
-        <button class="css-editor-save-top" onclick="saveCssEditor()">保存</button>
-      </div>
-
-      <div class="css-editor-tabs">
-        <button class="tab active" data-tab="css" onclick="switchEditorTab('css')">CSS 样式</button>
-        <button class="tab" data-tab="font" onclick="switchEditorTab('font')">全局字体</button>
+        <span style="width: 48px;"></span>
       </div>
 
       <div class="css-editor-panel active" id="panel-css">
-        <div class="css-editor-toolbar">
-          <button class="css-editor-chip bubble" onclick="loadBubbleTemplate()">气泡</button>
-          <button class="css-editor-chip avatar" onclick="loadAvatarTemplate()">头像</button>
-          <button class="css-editor-chip input" onclick="loadInputTemplate()">输入框</button>
-          <button class="css-editor-chip tabbar" onclick="loadTabbarTemplate()">底栏</button>
-          <button class="css-editor-chip button" onclick="loadButtonTemplate()">按钮</button>
-          <button class="css-editor-chip theme" onclick="loadThemeTemplate()">主题</button>
-          <button class="css-editor-chip danger" onclick="resetCssEditor()">重置</button>
-        </div>
-        <textarea id="cssEditorTextarea" spellcheck="false" placeholder="/* 在这里写你的自定义 CSS 样式 */
+        <!-- 按照草图布局：顶部大输入框 -->
+        <div class="beautify-layout">
+          <textarea id="cssEditorTextarea" spellcheck="false" placeholder="在这里输入 CSS 美化代码...
 
 /* 例如修改我的气泡颜色 */
 .jx-msg-row.me .jx-msg-bubble {
   background: #ffd6e7 !important;
 }
 
-/* 或点击上方模板按钮快速套用预设样式 */"></textarea>
-        <div class="css-editor-status-bar">
-          <span class="css-editor-status-dot" id="cssEditorStatusDot"></span>
-          <span id="cssEditorStatus">就绪</span>
-          <span class="cursor" id="cssEditorCursorInfo">Ln 1, Col 1</span>
-        </div>
-        <div class="css-editor-actions">
-          <button class="css-editor-btn preview" onclick="applyCssEditor()">
-            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-            预览
-          </button>
-          <button class="css-editor-btn save" onclick="saveCssEditor()">
-            <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
-            保存
-          </button>
-        </div>
-        <div class="css-capsule" id="cssCapsuleBtn" onclick="toggleCapsuleMenu()">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          美化助手
-        </div>
-      </div>
-
-      <div class="css-editor-panel" id="panel-font">
-        <div class="font-panel-body">
-          <div class="font-card">
-            <div class="font-current-row">
-              <div class="font-icon-box">Aa</div>
-              <div class="font-current-info">
-                <div class="font-current-name" id="fontCurrentName">系统默认字体</div>
-                <div class="font-current-desc" id="fontCurrentDesc">上传 .ttf 文件即可替换全局字体</div>
-              </div>
-            </div>
+/* 点击下方「美化」按钮可获取所有类名并自动插入 */"></textarea>
+          
+          <!-- 按照草图布局：中间两个按钮 -->
+          <div class="btn-row">
+            <button class="btn btn-beautify" onclick="toggleCapsuleMenu()">美化（获取类名）</button>
+            <button class="btn btn-preview" onclick="applyCssEditor()">预览</button>
+          </div>
+          
+          <!-- 按照草图布局：下方保存按钮 -->
+          <button class="btn btn-save" onclick="saveCssEditor()">保存</button>
+          
+          <!-- 按照草图布局：底部字体区域 -->
+          <div class="font-section-box">
+            <h4>更换全局字体</h4>
             <button class="font-action-btn primary" onclick="document.getElementById('fontUploadInput').click()">上传 TTF 字体文件</button>
             <button class="font-action-btn outline" onclick="resetGlobalFont()">恢复默认字体</button>
             <input type="file" id="fontUploadInput" accept=".ttf,font/ttf,application/x-font-ttf,application/font-sfnt,application/octet-stream" style="display:none;">
+            
             <div class="font-size-info" id="fontSizeInfo" style="display:none;">
               <span>原始大小</span><span id="fontOrigSize">-</span>
             </div>
@@ -1689,42 +1625,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
               <span>存储大小（IndexedDB）</span><span id="fontCompSize">-</span>
             </div>
           </div>
-
-          <div class="font-card" id="globalFontSizeStyleControl">
-            <div class="font-preview-label">全局字体大小调节</div>
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-              <span style="font-size:11px; color:#888; flex-shrink:0;">A</span>
-              <input type="range" id="globalFontSizeSlider" class="font-scale-slider" min="50" max="200" step="5" value="100">
-              <span style="font-size:20px; color:#888; flex-shrink:0;">A</span>
-            </div>
-            <div class="font-size-info" style="display:flex;">
-              <span>当前缩放比例</span>
-              <span id="globalFontSizeValue">100%</span>
-            </div>
-            <div class="font-scale-preset-row">
-              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(75)" data-scale="75">小</button>
-              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(90)" data-scale="90">较小</button>
-              <button class="font-scale-preset-btn active" onclick="setGlobalFontSize(100)" data-scale="100">标准</button>
-              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(115)" data-scale="115">较大</button>
-              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(130)" data-scale="130">大</button>
-              <button class="font-scale-preset-btn" onclick="setGlobalFontSize(150)" data-scale="150">特大</button>
-            </div>
-          </div>
-
-          <div class="font-card">
-            <div class="font-preview-label">字体预览效果</div>
-            <div class="font-preview-box" id="fontPreviewBox">
-              你好，这是一段预览文字<br>
-              Hello World 1234567890
-            </div>
-          </div>
-
-          <p class="font-hint">
-            · 支持所有 .ttf 格式的字体（不再受 localStorage 5MB 限制，已迁移至 IndexedDB）<br>
-            · 字体文件以二进制形式原生存储，无需转码，无损耗，大字体完美支持<br>
-            · 若字体超大（如 20MB 以上），首次加载可能需要几秒钟时间<br>
-            · 全局字体大小调节可即时生效，所有界面文字随之缩放
-          </p>
         </div>
       </div>
     </div>
@@ -3030,13 +2930,9 @@ function loadThemeTemplate() {
 
 initGlobalFontSizeControl();
 
-// ================= 新增：全局美化胶囊功能 =================
-let _isCapsuleMenuOpen = false;
+// ================= 新增：类名获取与预览功能 =================
 
 function toggleCapsuleMenu() {
-  if (_isCapsuleMenuOpen) return;
-  _isCapsuleMenuOpen = true;
-  
   const modal = document.getElementById('cssClassSelectorModal');
   const container = document.getElementById('classListContainer');
   if (!modal || !container) return;
@@ -3083,7 +2979,6 @@ function toggleCapsuleMenu() {
 
 function closeCssClassSelector() {
   document.getElementById('cssClassSelectorModal').classList.remove('show');
-  _isCapsuleMenuOpen = false;
 }
 
 function insertClassNameToEditor(className) {
