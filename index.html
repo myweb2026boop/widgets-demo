@@ -945,7 +945,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 }
 .beautify-layout textarea {
   width: 100%;
-  height: 220px;
+  height: 45vh;
+  min-height: 300px;
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 14px;
@@ -1052,6 +1053,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 }
 .phone-case.dark-mode .font-section-box .font-action-btn.outline:active {
   background: #3a3a3c;
+}
+
+/* 补齐预览与类名选择弹窗样式 */
+#cssClassSelectorModal {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000;
+}
+#cssClassSelectorModal.show { display: flex; }
+#cssClassSelectorModal .modal-content {
+  background: #fff; width: 90%; max-width: 400px; border-radius: 12px; padding: 20px; max-height: 80vh; display: flex; flex-direction: column;
+}
+#cssClassSelectorModal .class-list-container {
+  flex: 1; overflow-y: auto; background: #f7f8fa; border: 1px solid #eee; border-radius: 8px; padding: 8px; margin-top: 10px; max-height: 60vh;
+}
+#cssClassSelectorModal .class-list-item {
+  padding: 10px; font-size: 13px; border-bottom: 1px solid #eee; cursor: pointer;
+}
+#cssClassSelectorModal .class-list-item:last-child { border-bottom: none; }
+#cssClassSelectorModal .class-list-item:hover { background: #eef2ff; color: #4b7bec; }
+#cssClassSelectorModal .modal-btn-close {
+  margin-top: 15px; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; color: #333;
+}
+
+#cssPreviewModal {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000;
+}
+#cssPreviewModal.show { display: flex; }
+#cssPreviewModal .preview-content {
+  background: #fff; width: 90%; max-width: 400px; height: 80vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+}
+#cssPreviewModal .preview-header {
+  display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #eee; background: #fff;
+}
+#cssPreviewModal .preview-header h3 { font-size: 16px; margin: 0; }
+#cssPreviewModal .preview-iframe {
+  flex: 1; width: 100%; border: none;
+}
+.phone-case.dark-mode #cssClassSelectorModal .modal-content,
+.phone-case.dark-mode #cssPreviewModal .preview-content,
+.phone-case.dark-mode #cssPreviewModal .preview-header {
+  background: #1c1c1e; color: #eee;
+}
+.phone-case.dark-mode #cssClassSelectorModal .class-list-container {
+  background: #2c2c2e; border-color: #3a3a3c;
+}
+.phone-case.dark-mode #cssClassSelectorModal .class-list-item {
+  border-bottom-color: #3a3a3c; color: #ddd;
+}
+.phone-case.dark-mode #cssClassSelectorModal .class-list-item:hover {
+  background: #3a3a3c; color: #82a7e0;
+}
+.phone-case.dark-mode #cssClassSelectorModal .modal-btn-close {
+  background: #2c2c2e; color: #ddd;
 }
 </style>
 <style id="userCustomStyle"></style>
@@ -1593,6 +1648,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       <div class="css-editor-panel active" id="panel-css">
         <!-- 按照草图布局：顶部大输入框 -->
         <div class="beautify-layout">
+          <!-- 美化预设工具栏 -->
+          <div class="css-editor-toolbar" style="overflow-x: auto; display: flex; gap: 8px; padding: 8px 0; border: none; background: transparent;">
+             <button class="css-editor-chip bubble" onclick="loadBubbleTemplate()">气泡美化</button>
+             <button class="css-editor-chip avatar" onclick="loadAvatarTemplate()">头像美化</button>
+             <button class="css-editor-chip input" onclick="loadInputTemplate()">输入框美化</button>
+             <button class="css-editor-chip tabbar" onclick="loadTabbarTemplate()">底栏美化</button>
+             <button class="css-editor-chip button" onclick="loadButtonTemplate()">按钮美化</button>
+             <button class="css-editor-chip theme" onclick="loadThemeTemplate()">梦幻紫主题</button>
+          </div>
+
           <textarea id="cssEditorTextarea" spellcheck="false" placeholder="在这里输入 CSS 美化代码...
 
 /* 例如修改我的气泡颜色 */
@@ -1613,7 +1678,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           
           <!-- 按照草图布局：底部字体区域 -->
           <div class="font-section-box">
-            <h4>更换全局字体</h4>
+            <h4>字体设置</h4>
+            <div style="margin-bottom: 12px;">
+              <label style="font-size:13px; color:#666; display:block; margin-bottom:6px;">字体大小：<span id="globalFontSizeValue">100%</span></label>
+              <input type="range" id="globalFontSizeSlider" class="font-scale-slider" min="50" max="200" step="1" value="100">
+              <div class="font-scale-preset-row">
+                <button class="font-scale-preset-btn" data-scale="80" onclick="setGlobalFontSize(80)">小 (80%)</button>
+                <button class="font-scale-preset-btn active" data-scale="100" onclick="setGlobalFontSize(100)">标准 (100%)</button>
+                <button class="font-scale-preset-btn" data-scale="120" onclick="setGlobalFontSize(120)">大 (120%)</button>
+                <button class="font-scale-preset-btn" data-scale="150" onclick="setGlobalFontSize(150)">特大 (150%)</button>
+              </div>
+            </div>
             <button class="font-action-btn primary" onclick="document.getElementById('fontUploadInput').click()">上传 TTF 字体文件</button>
             <button class="font-action-btn outline" onclick="resetGlobalFont()">恢复默认字体</button>
             <input type="file" id="fontUploadInput" accept=".ttf,font/ttf,application/x-font-ttf,application/font-sfnt,application/octet-stream" style="display:none;">
@@ -2670,7 +2745,6 @@ function applyCssEditor() {
   _cssEditorDirty = true;
   setCssStatus('已应用预览（未保存）', 'dirty');
   
-  // 触发预览弹窗
   showCssPreview(ta.value);
 }
 function saveCssEditor() {
@@ -3001,7 +3075,6 @@ function showCssPreview(cssText) {
   const iframe = document.getElementById('cssPreviewIframe');
   if (!modal || !iframe) return;
   
-  // 构建预览 HTML
   const previewHtml = `
     <!DOCTYPE html>
     <html>
@@ -3031,7 +3104,6 @@ function showCssPreview(cssText) {
         .preview-nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #7a7e83; }
         .preview-nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 2px; }
         .preview-nav-item.active { color: #07c160; }
-        /* 注入用户 CSS */
         ${cssText}
       </style>
     </head>
@@ -3076,7 +3148,6 @@ function showCssPreview(cssText) {
     </html>
   `;
   
-  // 使用 srcdoc 注入
   iframe.srcdoc = previewHtml;
   modal.classList.add('show');
 }
@@ -4254,23 +4325,19 @@ async function importAllData(jsonStr) {
     const data = JSON.parse(jsonStr);
     if (!data.localStorage || !data.indexedDB) throw new Error('备份格式不正确');
     
-    // 清空 localStorage
     try { localStorage.clear(); } catch(e) {}
     
-    // 恢复 localStorage
     for (const key in data.localStorage) {
       if (Object.prototype.hasOwnProperty.call(data.localStorage, key)) {
         try { localStorage.setItem(key, data.localStorage[key]); } catch(e) {}
       }
     }
     
-    // 清空 IndexedDB
     const chatKeys = await idbGetAllKeys(STORE_CHATS);
     for (const k of chatKeys) await idbDelete(STORE_CHATS, k);
     const imgKeys = await idbGetAllKeys(STORE_IMAGES);
     for (const k of imgKeys) await idbDelete(STORE_IMAGES, k);
     
-    // 恢复 IndexedDB
     if (data.indexedDB.chats) await idbSet(STORE_CHATS, 'main', data.indexedDB.chats);
     if (data.indexedDB.moments) await idbSet(STORE_CHATS, 'moments', data.indexedDB.moments);
     if (data.indexedDB.images) {
@@ -4281,7 +4348,6 @@ async function importAllData(jsonStr) {
       }
     }
     
-    // 恢复字体
     if (data.font && data.font.b64) {
       const fontBuffer = b642ab(data.font.b64);
       await saveFontToDB(fontBuffer, data.font.size);
@@ -5242,7 +5308,6 @@ function openMaskEdit(id) {
     }
     document.getElementById('maskDeleteBtn').style.display = 'block';
   }
-  // 渲染角色绑定复选框
   if (personaList.length === 0) {
     bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:10px;text-align:center;">暂无人设可绑定</div>';
   } else {
@@ -5303,7 +5368,6 @@ function deleteMask() {
   });
 })();
 
-// 获取当前聊天使用的身份
 function getActiveMaskForChat(chat) {
   if (!chat) return null;
   loadMasks();
@@ -5870,7 +5934,6 @@ function renderChatMessages(keepScrollPos) {
     });
   });
 
-  // 渲染 HTML 组件 iframe
   const htmlList = loadCustomHtmls();
   container.querySelectorAll('.jx-html-frame').forEach(frame => {
     const hid = frame.getAttribute('data-html-id');
@@ -7346,10 +7409,8 @@ function parseReplyIntoBubbles(rawText) {
   let trimmed = String(rawText || '').trim();
   if (!trimmed) return [];
 
-  // 清除可能存在的 Markdown JSON 代码块标记 (如 ```json ... ```)
   trimmed = trimmed.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
 
-  // 1. 尝试解析为 JSON 数组或对象
   if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
     try {
       const parsed = JSON.parse(trimmed);
@@ -7370,7 +7431,6 @@ function parseReplyIntoBubbles(rawText) {
     } catch (e) { /* 解析失败，忽略 */ }
   }
 
-  // 2. 尝试提取 [char的消息：xxx]、[消息：xxx]、【消息：xxx】等格式
   if (segments.length === 0) {
     const msgRegex = /\[(?:char|角色|AI|我|你)?的消息[:：]\s*(.*?)\]/g;
     let match;
@@ -7383,19 +7443,14 @@ function parseReplyIntoBubbles(rawText) {
     }
   }
 
-  // 3. 尝试 [[SPLIT]] 标记
   if (segments.length === 0 && trimmed.includes('[[SPLIT]]')) {
     segments = trimmed.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(Boolean);
   }
 
-  // 4. 尝试按换行符 \n 拆分
   if (segments.length === 0 && trimmed.includes('\n')) {
     segments = trimmed.split('\n').map(s => s.trim()).filter(Boolean);
   }
 
-  // 5. 终极兜底策略：标点符号智能分割。
-  // 如果 AI 返回了一大段没有换行和分隔符的话，比如 "我想你了。你在干嘛呢？"
-  // 自动根据句号、问号、感叹号、省略号等进行切分，并保留标点。
   if (segments.length === 0 && trimmed.length > 15) {
     const punctuationRegex = /(?<=[。！？!?~…])\s*/;
     const splitArr = trimmed.split(punctuationRegex).map(s => s.trim()).filter(s => s.length > 0);
@@ -7404,12 +7459,10 @@ function parseReplyIntoBubbles(rawText) {
     }
   }
 
-  // 6. 如果以上都不符合，直接返回原文本作为单个气泡
   if (segments.length === 0) {
     segments = [trimmed];
   }
 
-  // 最后清理一下每个气泡，防止空白
   return segments.map(s => s.trim()).filter(s => s.length > 0);
 }
 
@@ -7448,7 +7501,6 @@ async function triggerCharReply(chat) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
     
-    // 提取真实的 API 错误信息
     let errorMsg = e.message || '未知错误';
     let realError = '';
     try {
@@ -7613,9 +7665,12 @@ function bindWorldBook() {
   loadWorldBook();
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  const localEntries = worldBookEntries.filter(e => e.binding === 'local');
+  const charName = chat.name;
+  const localEntries = worldBookEntries.filter(e => 
+    e.binding === 'local' && e.localTarget !== charName
+  );
   const list = document.getElementById('worldBookSelectList');
-  if (localEntries.length === 0) list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px;">暂无局部世界书<br>请先去世界书App中创建并设为"局部绑定"</div>';
+  if (localEntries.length === 0) list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px;">暂无未绑定的局部世界书<br>或者该局部世界书已绑定给当前角色</div>';
   else {
     list.innerHTML = localEntries.map(entry => {
       const isSelected = Array.isArray(chat.boundWorldBook) && chat.boundWorldBook.includes(entry.id);
