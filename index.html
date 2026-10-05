@@ -935,6 +935,165 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .mask-bind-list{background:#1c1c1e;border-color:#3a3a3c}
 .phone-case.dark-mode .mask-bind-item{color:#ddd;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .mask-bind-item input[type="checkbox"]{accent-color:#a78bfa}
+
+/* 新增：全局美化胶囊与预览样式 */
+.css-capsule {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 20005;
+  transition: transform 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+.css-capsule:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+.css-capsule svg {
+  width: 16px;
+  height: 16px;
+  fill: #fff;
+}
+#cssClassSelectorModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 30000;
+  align-items: center;
+  justify-content: center;
+}
+#cssClassSelectorModal.show {
+  display: flex;
+}
+#cssClassSelectorModal .modal-content {
+  background: #fff;
+  width: 85%;
+  max-width: 340px;
+  border-radius: 16px;
+  padding: 20px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#cssClassSelectorModal h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #333;
+}
+.class-list-container {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
+}
+.class-list-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: monospace;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.class-list-item:hover {
+  background: #f0f6ff;
+  color: #4b7bec;
+}
+.modal-btn-close {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #f0f0f0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+#cssPreviewModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 30001;
+  align-items: center;
+  justify-content: center;
+}
+#cssPreviewModal.show {
+  display: flex;
+}
+#cssPreviewModal .preview-content {
+  background: #fff;
+  width: 90%;
+  max-width: 360px;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  height: 70vh;
+}
+#cssPreviewModal .preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+#cssPreviewModal .preview-header h3 {
+  font-size: 16px;
+  color: #333;
+}
+#cssPreviewModal .preview-iframe {
+  flex: 1;
+  width: 100%;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+}
+.phone-case.dark-mode .css-capsule {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+}
+.phone-case.dark-mode #cssClassSelectorModal .modal-content,
+.phone-case.dark-mode #cssPreviewModal .preview-content {
+  background: #1c1c1e;
+  color: #eee;
+}
+.phone-case.dark-mode #cssClassSelectorModal h3,
+.phone-case.dark-mode #cssPreviewModal .preview-header h3 {
+  color: #eee;
+}
+.phone-case.dark-mode .class-list-container {
+  border-color: #3a3a3c;
+}
+.phone-case.dark-mode .class-list-item {
+  color: #ddd;
+}
+.phone-case.dark-mode .class-list-item:hover {
+  background: #2c2c2e;
+  color: #a78bfa;
+}
+.phone-case.dark-mode .modal-btn-close {
+  background: #2c2c2e;
+  color: #ddd;
+}
+.phone-case.dark-mode #cssPreviewModal .preview-iframe {
+  border-color: #3a3a3c;
+}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1462,7 +1621,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
     <div id="jxCssEditorScreen">
       <div class="css-editor-top-bar">
         <button class="css-editor-back" onclick="closeCssEditor()">← 返回</button>
-        <span class="css-editor-title">美化设置</span>
+        <span class="css-editor-title">全局美化</span>
         <button class="css-editor-save-top" onclick="saveCssEditor()">保存</button>
       </div>
 
@@ -1503,6 +1662,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
             保存
           </button>
+        </div>
+        <div class="css-capsule" id="cssCapsuleBtn" onclick="toggleCapsuleMenu()">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          美化助手
         </div>
       </div>
 
@@ -2179,6 +2342,27 @@ https://xxx.com/a.png
       </div>
     </div>
 
+    <!-- 新增：类名选择弹窗与预览弹窗 -->
+    <div id="cssClassSelectorModal">
+      <div class="modal-content">
+        <h3>选择要修改的类名</h3>
+        <div class="class-list-container" id="classListContainer">
+          <!-- 类名列表动态生成 -->
+        </div>
+        <button class="modal-btn-close" onclick="closeCssClassSelector()">关闭</button>
+      </div>
+    </div>
+
+    <div id="cssPreviewModal">
+      <div class="preview-content">
+        <div class="preview-header">
+          <h3>美化预览</h3>
+          <button style="background:none;border:none;font-size:16px;cursor:pointer;color:#888;" onclick="closeCssPreview()">✕</button>
+        </div>
+        <iframe class="preview-iframe" id="cssPreviewIframe"></iframe>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2585,7 +2769,9 @@ function applyCssEditor() {
   if (styleEl) styleEl.textContent = ta.value;
   _cssEditorDirty = true;
   setCssStatus('已应用预览（未保存）', 'dirty');
-  setTimeout(() => { document.getElementById('jxCssEditorScreen').classList.remove('active'); }, 200);
+  
+  // 触发预览弹窗
+  showCssPreview(ta.value);
 }
 function saveCssEditor() {
   const ta = document.getElementById('cssEditorTextarea');
@@ -2843,6 +3029,166 @@ function loadThemeTemplate() {
 }
 
 initGlobalFontSizeControl();
+
+// ================= 新增：全局美化胶囊功能 =================
+let _isCapsuleMenuOpen = false;
+
+function toggleCapsuleMenu() {
+  if (_isCapsuleMenuOpen) return;
+  _isCapsuleMenuOpen = true;
+  
+  const modal = document.getElementById('cssClassSelectorModal');
+  const container = document.getElementById('classListContainer');
+  if (!modal || !container) return;
+  
+  // 获取所有类名
+  const classSet = new Set();
+  try {
+    const sheets = document.styleSheets;
+    for (let i = 0; i < sheets.length; i++) {
+      const sheet = sheets[i];
+      let cssRules;
+      try { cssRules = sheet.cssRules || sheet.rules; } catch (e) { continue; }
+      if (!cssRules) continue;
+      for (let j = 0; j < cssRules.length; j++) {
+        const rule = cssRules[j];
+        if (!rule || !rule.selectorText) continue;
+        const selectors = rule.selectorText.split(',');
+        selectors.forEach(sel => {
+          const matches = sel.match(/\.([a-zA-Z0-9_-]+)/g);
+          if (matches) {
+            matches.forEach(m => {
+              const className = m.substring(1);
+              if (className && className.length > 1) classSet.add(className);
+            });
+          }
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('获取类名失败:', e);
+  }
+  
+  const classList = Array.from(classSet).sort();
+  if (classList.length === 0) {
+    container.innerHTML = '<div class="class-list-item" style="color:#999;cursor:default;text-align:center;">未找到可用的类名</div>';
+  } else {
+    container.innerHTML = classList.map(className => 
+      `<div class="class-list-item" onclick="insertClassNameToEditor('.${className}')">.${className}</div>`
+    ).join('');
+  }
+  
+  modal.classList.add('show');
+}
+
+function closeCssClassSelector() {
+  document.getElementById('cssClassSelectorModal').classList.remove('show');
+  _isCapsuleMenuOpen = false;
+}
+
+function insertClassNameToEditor(className) {
+  const ta = document.getElementById('cssEditorTextarea');
+  if (!ta) return;
+  
+  const prefix = ta.value && !ta.value.endsWith('\n') ? '\n\n' : '';
+  ta.value = ta.value + prefix + className + ' {\n  /* 在这里写样式 */\n}\n';
+  ta.scrollTop = ta.scrollHeight;
+  updateCursorInfo();
+  markCssEditorDirty();
+  setCssStatus(`已插入 ${className}`, 'dirty');
+  
+  closeCssClassSelector();
+}
+
+// 预览功能
+function showCssPreview(cssText) {
+  const modal = document.getElementById('cssPreviewModal');
+  const iframe = document.getElementById('cssPreviewIframe');
+  if (!modal || !iframe) return;
+  
+  // 构建预览 HTML
+  const previewHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; }
+        .preview-container { padding: 16px; }
+        .preview-bubble { 
+          max-width: 80%; padding: 10px 14px; border-radius: 4px; font-size: 15px; margin-bottom: 12px; 
+          word-wrap: break-word; position: relative;
+        }
+        .preview-me { background: #95ec69; color: #000; margin-left: auto; margin-right: 0; border-radius: 4px; }
+        .preview-other { background: #fff; color: #000; margin-right: auto; margin-left: 0; border-radius: 4px; }
+        .preview-avatar { width: 40px; height: 40px; border-radius: 4px; background: #ddd; display: inline-block; vertical-align: top; }
+        .preview-row { display: flex; margin-bottom: 15px; }
+        .preview-row.me { flex-direction: row-reverse; }
+        .preview-row.other { flex-direction: row; }
+        .preview-row .preview-avatar { margin-right: 10px; }
+        .preview-row.me .preview-avatar { margin-right: 0; margin-left: 10px; }
+        .preview-input { 
+          display: flex; align-items: center; padding: 8px 12px; background: #f7f7f7; border-top: 1px solid #dcdcdc; gap: 8px;
+        }
+        .preview-input textarea { flex: 1; border: none; border-radius: 4px; padding: 8px 12px; font-size: 15px; outline: none; resize: none; min-height: 36px; background: #fff; }
+        .preview-nav { display: flex; justify-content: space-around; padding: 8px 0; background: #f7f7f7; border-top: 1px solid #dcdcdc; }
+        .preview-nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #7a7e83; }
+        .preview-nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 2px; }
+        .preview-nav-item.active { color: #07c160; }
+        /* 注入用户 CSS */
+        ${cssText}
+      </style>
+    </head>
+    <body>
+      <div class="preview-container">
+        <div class="preview-row other">
+          <div class="preview-avatar"></div>
+          <div class="preview-bubble preview-other">你好！这是一条来自对方的消息。</div>
+        </div>
+        <div class="preview-row me">
+          <div class="preview-avatar"></div>
+          <div class="preview-bubble preview-me">你好！这是一条我的回复。</div>
+        </div>
+        <div class="preview-row other">
+          <div class="preview-avatar"></div>
+          <div class="preview-bubble preview-other">美化预览效果不错吧？</div>
+        </div>
+      </div>
+      <div class="preview-input">
+        <textarea placeholder="输入消息..."></textarea>
+        <button style="background:#07c160;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:14px;">发送</button>
+      </div>
+      <div class="preview-nav">
+        <div class="preview-nav-item active">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>主页</span>
+        </div>
+        <div class="preview-nav-item">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <span>朋友圈</span>
+        </div>
+        <div class="preview-nav-item">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>通讯录</span>
+        </div>
+        <div class="preview-nav-item">
+          <svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我</span>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // 使用 srcdoc 注入
+  iframe.srcdoc = previewHtml;
+  modal.classList.add('show');
+}
+
+function closeCssPreview() {
+  document.getElementById('cssPreviewModal').classList.remove('show');
+}
 
 // ================= DOCX 预处理 =================
 async function sanitizeDocxForMammoth(arrayBuffer) {
