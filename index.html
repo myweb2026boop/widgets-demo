@@ -3129,7 +3129,7 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   }
 })();
 
-// ========== 极致压缩图片（保留清晰度，移除存储限制提示） ==========
+// ========== 极致压缩图片 ==========
 function compressImageFile(file, maxDim, quality) {
   maxDim = maxDim || 1024;
   quality = quality || 0.8;
@@ -6509,7 +6509,7 @@ function buildCharSystemPrompt(chat) {
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const charName = chat.customRemark || chat.name || '未知';
 
-  let sp = `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC，所有对话、动作、心理都贴合角色性格、经历、说话习惯。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. 消息拆分（自然言语习惯）：把你的回复拆成多条独立的短消息。在自然停顿、呼吸节奏处进行切分。按自然停顿、思路落点和情绪变化拆分消息。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。必须使用 [[SPLIT]] 标记来拆分气泡！\n\n`;
+  let sp = `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC，所有对话、动作、心理都贴合角色性格、经历、说话习惯。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. 消息拆分（自然言语习惯）：把你的回复拆成多条独立的短消息。在自然停顿、呼吸节奏处进行切分。按自然停顿、思路落点和情绪变化拆分消息。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。必须使用 [[SPLIT]] 标记来拆分气泡！\n7. 如果你不想使用 [[SPLIT]] 标记，你也可以直接返回 JSON 数组格式，如 ["第一条消息", "第二条消息"]，或者使用 [char的消息：xxx] 的格式来包裹每一条消息。系统会自动解析并逐条发送。\n\n`;
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
   if (persona) {
@@ -7101,6 +7101,83 @@ async function generateCharReply(chat) {
   const clean = parseAndExecuteActions(chat, raw);
   return clean || raw;
 }
+
+// ================= 完全重写的气泡拆分逻辑 =================
+function parseReplyIntoBubbles(rawText) {
+  let segments = [];
+  let trimmed = String(rawText || '').trim();
+  if (!trimmed) return [];
+
+  // 清除可能存在的 Markdown JSON 代码块标记 (如 ```json ... ```)
+  trimmed = trimmed.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+
+  // 1. 尝试解析为 JSON 数组或对象
+  if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        segments = parsed.map(item => {
+          if (typeof item === 'string') return item.trim();
+          if (item && typeof item === 'object') return (item.content || item.text || item.msg || item.message || '').trim();
+          return String(item).trim();
+        }).filter(Boolean);
+      } else if (parsed && typeof parsed === 'object') {
+        // 处理 {"messages": ["a", "b"]} 或 {"1": "a", "2": "b"} 的情况
+        const possibleArray = parsed.messages || parsed.items || parsed.data || parsed.content;
+        if (Array.isArray(possibleArray)) {
+          segments = possibleArray.map(item => typeof item === 'string' ? item.trim() : (item.content || item.text || '').trim()).filter(Boolean);
+        } else {
+          segments = Object.values(parsed).map(item => typeof item === 'string' ? item.trim() : '').filter(Boolean);
+        }
+      }
+    } catch (e) { /* 解析失败，忽略 */ }
+  }
+
+  // 2. 尝试提取 [char的消息：xxx]、[消息：xxx]、【消息：xxx】等格式
+  if (segments.length === 0) {
+    const msgRegex = /\[(?:char|角色|AI|我|你)?的消息[:：]\s*(.*?)\]/g;
+    let match;
+    while ((match = msgRegex.exec(trimmed)) !== null) {
+      if (match[1] && match[1].trim()) segments.push(match[1].trim());
+    }
+    // 兼容中括号变体：比如 【char的消息：xxx】
+    const msgRegex2 = /【(?:char|角色|AI|我|你)?的消息[:：]\s*(.*?)】/g;
+    while ((match = msgRegex2.exec(trimmed)) !== null) {
+      if (match[1] && match[1].trim()) segments.push(match[1].trim());
+    }
+  }
+
+  // 3. 尝试 [[SPLIT]] 标记
+  if (segments.length === 0 && trimmed.includes('[[SPLIT]]')) {
+    segments = trimmed.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(Boolean);
+  }
+
+  // 4. 尝试按换行符 \n 拆分
+  if (segments.length === 0 && trimmed.includes('\n')) {
+    segments = trimmed.split('\n').map(s => s.trim()).filter(Boolean);
+  }
+
+  // 5. 终极兜底策略：标点符号智能分割。
+  // 如果 AI 返回了一大段没有换行和分隔符的话，比如 "我想你了。你在干嘛呢？"
+  // 自动根据句号、问号、感叹号、省略号等进行切分，并保留标点。
+  if (segments.length === 0 && trimmed.length > 15) {
+    // 正则匹配句子结尾，正向后视断言 (?<=...) 保留标点
+    const punctuationRegex = /(?<=[。！？!?~…])\s*/;
+    const splitArr = trimmed.split(punctuationRegex).map(s => s.trim()).filter(s => s.length > 0);
+    if (splitArr.length > 1) {
+      segments = splitArr;
+    }
+  }
+
+  // 6. 如果以上都不符合，直接返回原文本作为单个气泡
+  if (segments.length === 0) {
+    segments = [trimmed];
+  }
+
+  // 最后清理一下每个气泡，防止空白
+  return segments.map(s => s.trim()).filter(s => s.length > 0);
+}
+
 async function triggerCharReply(chat) {
   if (chat._replying) { alert('角色正在回复中，请稍候...'); return; }
   chat._replying = true;
@@ -7115,13 +7192,13 @@ async function triggerCharReply(chat) {
     if (idx >= 0) chat.messages.splice(idx, 1);
     const rawReply = String(reply == null ? '' : reply).trim();
     if (rawReply) {
-      let segments = rawReply.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(s => s.length > 0);
-      // 如果没有按SPLIT分，但也可能包含换行，我们按换行再切一次以确保气泡碎片化
-      if (segments.length === 1 && segments[0].includes('\n')) {
-        segments = segments[0].split('\n').map(s => s.trim()).filter(s => s.length > 0);
+      // 使用全新的气泡拆分逻辑
+      const segments = parseReplyIntoBubbles(rawReply);
+      if (segments.length > 0) {
+        segments.forEach(seg => { chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg }); });
+      } else {
+        chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply });
       }
-      if (segments.length > 0) segments.forEach(seg => { chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg }); });
-      else chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply });
     }
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
       chat._pendingStickers.forEach(st => { chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]' }); });
