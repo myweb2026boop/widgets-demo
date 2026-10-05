@@ -935,30 +935,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .mask-bind-list{background:#1c1c1e;border-color:#3a3a3c}
 .phone-case.dark-mode .mask-bind-item{color:#ddd;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .mask-bind-item input[type="checkbox"]{accent-color:#a78bfa}
-/* 加载屏幕 */
-#loadingScreen {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: #ffffff;
-    color: #333333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999999;
-    font-size: 16px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-.phone-case.dark-mode #loadingScreen {
-    background: #121212;
-    color: #aaaaaa;
-}
 </style>
 <style id="userCustomStyle"></style>
 </head>
 <body>
-
-<div id="loadingScreen">加载中...</div>
-
 <div class="phone-case" id="phoneCase">
   <div class="phone-content" id="phoneContent">
     <div id="mainScreen" class="screen active">
@@ -2130,7 +2110,7 @@ https://xxx.com/a.png
   </div>
 </div>
 <script>
-// ================= 核心：IndexedDB 存储 =================
+// ================= 核心：IndexedDB 存储图片、字体和预设 =================
 const USER_CSS_KEY = 'user_custom_css';
 const FONT_DB_NAME = 'TuTooth_FontDB';
 const FONT_STORE_NAME = 'fonts';
@@ -2139,9 +2119,10 @@ const FONT_SIZE_SCALE_KEY = 'user_font_size_scale';
 const JX_GLOBAL_PROMPT_KEY = 'jx_global_prompt';
 const CUSTOM_HTML_KEY = 'custom_htmls';
 const MASK_KEY = 'jx_masks';
-
-const DATA_DB_NAME = 'TuTooth_DataDB';
-const DATA_STORE_NAME = 'app_data';
+const IMG_DB_NAME = 'TuTooth_ImgDB';
+const IMG_STORE_NAME = 'images';
+const PRESET_DB_NAME = 'TuTooth_PresetDB';
+const PRESET_STORE_NAME = 'presets';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -2150,17 +2131,16 @@ let _appliedFontUrl = null;
 let _fontSizeRulesCache = null;
 let _fontSizeStyleEl = null;
 
-// 内存缓存，用于避免频繁异步读取
-let _personaListCache = [];
-let _worldBookEntriesCache = [];
-let _jianxunChatsCache = [];
-let _momentsPostsCache = [];
-let _stickerPacksCache = [];
-let _masksCache = [];
-let _appReadyResolve;
-const appReady = new Promise(resolve => { _appReadyResolve = resolve; });
+function applyUserCustomCss() {
+  try {
+    const saved = localStorage.getItem(USER_CSS_KEY) || '';
+    const styleEl = document.getElementById('userCustomStyle');
+    if (styleEl) styleEl.textContent = saved;
+  } catch (e) {}
+}
+applyUserCustomCss();
 
-// ---------- IndexedDB 通用封装 ----------
+// ---------- 通用 IndexedDB 封装 ----------
 function openDB(dbName, storeName) {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, 1);
@@ -2219,16 +2199,11 @@ async function idbGetAll(dbName, storeName) {
     req.onerror = () => reject(req.error);
   });
 }
-
-// ---------- 图片专用方法 ----------
-const IMG_DB_NAME = 'TuTooth_ImgDB';
-const IMG_STORE_NAME = 'images';
 async function saveImageToDB(key, base64) { return idbPut(IMG_DB_NAME, IMG_STORE_NAME, key, base64); }
 async function getImageFromDB(key) { return idbGet(IMG_DB_NAME, IMG_STORE_NAME, key); }
 async function deleteImageFromDB(key) { return idbDelete(IMG_DB_NAME, IMG_STORE_NAME, key); }
 async function getAllImagesFromDB() { return idbGetAll(IMG_DB_NAME, IMG_STORE_NAME); }
 
-// ---------- 字体存储 ----------
 async function saveFontToDB(arrayBuffer, origSize) { return idbPut(FONT_DB_NAME, FONT_STORE_NAME, FONT_RECORD_KEY, { data: arrayBuffer, origSize, time: Date.now() }); }
 async function getFontFromDB() { const r = await idbGet(FONT_DB_NAME, FONT_STORE_NAME, FONT_RECORD_KEY); return r ? r : null; }
 async function deleteFontFromDB() { return idbDelete(FONT_DB_NAME, FONT_STORE_NAME, FONT_RECORD_KEY); }
@@ -2251,7 +2226,6 @@ async function applyGlobalFont() {
     document.body.style.fontFamily = family;
   } catch (e) { console.warn('字体加载失败', e); }
 }
-
 function getGlobalFontSizeScale() {
   const saved = localStorage.getItem(FONT_SIZE_SCALE_KEY);
   const val = parseFloat(saved);
@@ -2735,233 +2709,7 @@ function loadThemeTemplate() {
 `, '梦幻紫主题');
 }
 
-// ================= 数据迁移与加载 =================
-async function migrateAndLoad() {
-    const bigKeys = ['jianxun_chats', 'moments_posts', 'persona_list', 'worldbook_entries', 'jx_sticker_packs', 'jx_masks'];
-    
-    // 1. 迁移 localStorage 数据到 IndexedDB
-    for (const k of bigKeys) {
-        const localData = localStorage.getItem(k);
-        if (localData) {
-            try {
-                const parsed = JSON.parse(localData);
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, k, parsed);
-                localStorage.removeItem(k); // 释放 localStorage 空间
-            } catch(e) {}
-        }
-    }
-
-    // 2. 从 IndexedDB 加载到内存中
-    await loadPersonaListFromDB();
-    await loadWorldBookFromDB();
-    await loadJianxunChatsFromDB();
-    await loadMomentsPostsFromDB();
-    await loadStickerPacksFromDB();
-    await loadMasksFromDB();
-
-    // 3. 隐藏加载屏幕
-    document.getElementById('loadingScreen').style.display = 'none';
-    _appReadyResolve();
-}
-
-async function loadPersonaListFromDB() {
-    let data = await idbGet(DATA_DB_NAME, DATA_STORE_NAME, 'persona_list');
-    if (!data) {
-        const raw = localStorage.getItem(PERSONA_KEY);
-        if (raw) {
-            try { data = JSON.parse(raw); } catch(e) {}
-            if (data) {
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'persona_list', data);
-                localStorage.removeItem(PERSONA_KEY);
-            }
-        }
-    }
-    _personaListCache = Array.isArray(data) ? data : [];
-}
-function loadPersonaList() { personaList = _personaListCache; }
-function savePersonaList() {
-    _personaListCache = personaList;
-    idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'persona_list', _personaListCache).then(() => {
-        try { localStorage.removeItem(PERSONA_KEY); } catch(e) {}
-    }).catch(e => console.warn(e));
-}
-
-async function loadWorldBookFromDB() {
-    let data = await idbGet(DATA_DB_NAME, DATA_STORE_NAME, 'worldbook_entries');
-    if (!data) {
-        const raw = localStorage.getItem(WORLDBOOK_KEY);
-        if (raw) {
-            try { data = JSON.parse(raw); } catch(e) {}
-            if (data) {
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'worldbook_entries', data);
-                localStorage.removeItem(WORLDBOOK_KEY);
-            }
-        }
-    }
-    worldBookEntries = Array.isArray(data) ? data : [];
-    worldBookEntries.forEach(e => {
-        if (!e.id) e.id = genId();
-        if (typeof e.enabled !== 'boolean') e.enabled = true;
-        if (typeof e.depth !== 'number' || isNaN(e.depth)) e.depth = 4;
-        if (typeof e.order !== 'number' || isNaN(e.order)) e.order = 100;
-        if (!e.position) e.position = 'after';
-        if (!e.binding) e.binding = 'global';
-        if (!e.localTarget) e.localTarget = '';
-    });
-}
-function loadWorldBook() { /* 数据已在启动时加载 */ }
-function saveWorldBook() {
-    idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'worldbook_entries', worldBookEntries).then(() => {
-        try { localStorage.removeItem(WORLDBOOK_KEY); } catch(e) {}
-    }).catch(e => console.warn(e));
-}
-
-async function loadJianxunChatsFromDB() {
-    let data = await idbGet(DATA_DB_NAME, DATA_STORE_NAME, 'jianxun_chats');
-    if (!data) {
-        const raw = localStorage.getItem('jianxun_chats');
-        if (raw) {
-            try { data = JSON.parse(raw); } catch(e) {}
-            if (data) {
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jianxun_chats', data);
-                localStorage.removeItem('jianxun_chats');
-            }
-        }
-    }
-    jianxunChats = Array.isArray(data) ? data : [];
-    jianxunChats.forEach(chat => {
-        if (!chat.id) chat.id = genId();
-        if (!chat.messages) chat.messages = [];
-        if (chat.pinned === undefined) chat.pinned = false;
-        if (chat.allowActive === undefined) chat.allowActive = false;
-        if (chat.maxReply === undefined) chat.maxReply = 1;
-        if (chat.customRemark === undefined) chat.customRemark = '';
-        if (chat.chatBg === undefined) chat.chatBg = '';
-        if (chat.myAvatar === undefined) chat.myAvatar = '';
-        if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
-        if (chat.memoryEnabled === undefined) chat.memoryEnabled = true;
-        if (typeof chat.memoryInterval !== 'number' || isNaN(chat.memoryInterval)) chat.memoryInterval = 20;
-        if (!Array.isArray(chat.memories)) chat.memories = [];
-        if (typeof chat.lastSummarizedCount !== 'number') chat.lastSummarizedCount = 0;
-        delete chat._replying;
-        delete chat._summarizing;
-        if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
-        else if (typeof chat.boundWorldBook === 'string') {
-            const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
-            chat.boundWorldBook = entry ? [entry.id] : [];
-        } else if (!Array.isArray(chat.boundWorldBook)) chat.boundWorldBook = [];
-        if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
-        if (Array.isArray(chat.boundStickers) && chat.boundStickers.length > 0) {
-            const packs = loadStickerPacks();
-            const stickerToPack = {};
-            packs.forEach(p => (p.stickers || []).forEach(s => { stickerToPack[s.id] = p.id; }));
-            chat.boundStickers.forEach(sid => {
-                const pid = stickerToPack[sid];
-                if (pid && !chat.boundStickerPacks.includes(pid)) chat.boundStickerPacks.push(pid);
-            });
-            delete chat.boundStickers;
-        }
-        if (chat.boundStickers !== undefined) delete chat.boundStickers;
-        if (!Array.isArray(chat.enabledHtmls)) chat.enabledHtmls = [];
-        chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
-    });
-}
-function loadJianxunChats() { /* 数据已在启动时加载 */ }
-function saveJianxunChats() {
-    idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jianxun_chats', jianxunChats).then(() => {
-        try { localStorage.removeItem('jianxun_chats'); } catch(e) {}
-    }).catch(e => console.warn(e));
-}
-
-async function loadMomentsPostsFromDB() {
-    let data = await idbGet(DATA_DB_NAME, DATA_STORE_NAME, 'moments_posts');
-    if (!data) {
-        const raw = localStorage.getItem('moments_posts');
-        if (raw) {
-            try { data = JSON.parse(raw); } catch(e) {}
-            if (data) {
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'moments_posts', data);
-                localStorage.removeItem('moments_posts');
-            }
-        }
-    }
-    momentsPosts = Array.isArray(data) ? data : [];
-}
-function loadMomentsPosts() { /* 数据已在启动时加载 */ }
-function saveMomentsPosts() {
-    idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'moments_posts', momentsPosts).then(() => {
-        try { localStorage.removeItem('moments_posts'); } catch(e) {}
-    }).catch(e => console.warn(e));
-}
-
-async function loadStickerPacksFromDB() {
-    let data = await idbGet(DATA_DB_NAME, DATA_STORE_NAME, 'jx_sticker_packs');
-    if (!data) {
-        const raw = localStorage.getItem(STICKER_PACKS_KEY);
-        if (raw) {
-            try { data = JSON.parse(raw); } catch(e) {}
-            if (data) {
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jx_sticker_packs', data);
-                localStorage.removeItem(STICKER_PACKS_KEY);
-            }
-        }
-    }
-    // 迁移旧版表情数据
-    if (!data) {
-        const oldRaw = localStorage.getItem(STICKER_KEY);
-        if (oldRaw) {
-            try {
-                const oldArr = JSON.parse(oldRaw);
-                if (Array.isArray(oldArr) && oldArr.length > 0) {
-                    data = [{ id: genId(), name: '我的表情包', stickers: oldArr.map(s => ({ id: s.id || genId(), name: s.name || '', url: s.url || '', meaning: s.meaning || '' })), createdAt: Date.now() }];
-                    await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jx_sticker_packs', data);
-                    localStorage.removeItem(STICKER_KEY);
-                }
-            } catch (e) {}
-        }
-    }
-    if (data) {
-        data.forEach(pack => {
-            if (!pack.id) pack.id = genId();
-            if (!pack.name) pack.name = '未命名合集';
-            if (!Array.isArray(pack.stickers)) pack.stickers = [];
-            pack.stickers.forEach(s => { if (!s.id) s.id = genId(); });
-        });
-    }
-    _stickerPacksCache = data || [];
-}
-function loadStickerPacks() { return _stickerPacksCache; }
-function saveStickerPacks(packs) {
-    _stickerPacksCache = packs;
-    idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jx_sticker_packs', _stickerPacksCache).then(() => {
-        try { localStorage.removeItem(STICKER_PACKS_KEY); } catch(e) {}
-    }).catch(e => console.warn(e));
-}
-
-async function loadMasksFromDB() {
-    let data = await idbGet(DATA_DB_NAME, DATA_STORE_NAME, 'jx_masks');
-    if (!data) {
-        const raw = localStorage.getItem(MASK_KEY);
-        if (raw) {
-            try { data = JSON.parse(raw); } catch(e) {}
-            if (data) {
-                await idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jx_masks', data);
-                localStorage.removeItem(MASK_KEY);
-            }
-        }
-    }
-    jxMasks = Array.isArray(data) ? data : [];
-    jxMasks.forEach(m => {
-        if (!m.id) m.id = genId();
-        if (!Array.isArray(m.boundCharIds)) m.boundCharIds = [];
-    });
-}
-function loadMasks() { /* 数据已在启动时加载 */ }
-function saveMasks() {
-    idbPut(DATA_DB_NAME, DATA_STORE_NAME, 'jx_masks', jxMasks).then(() => {
-        try { localStorage.removeItem(MASK_KEY); } catch(e) {}
-    }).catch(e => console.warn(e));
-}
+initGlobalFontSizeControl();
 
 // ================= DOCX 预处理 =================
 async function sanitizeDocxForMammoth(arrayBuffer) {
@@ -3420,6 +3168,12 @@ function playSong(index) {
 let personaList = [];
 let editingPersonaId = null;
 let tempAvatarBase64 = '';
+function loadPersonaList() {
+  const data = localStorage.getItem(PERSONA_KEY);
+  if (data) { try { personaList = JSON.parse(data); } catch(e) { personaList = []; } } else { personaList = []; }
+  if (!Array.isArray(personaList)) personaList = [];
+}
+loadPersonaList();
 
 function renderPersonaList() {
   const container = document.getElementById('personaList');
@@ -3508,14 +3262,14 @@ function savePersona() {
   const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details };
   if (editingPersonaId === null) personaList.push(personaData);
   else personaList[editingPersonaId] = personaData;
-  savePersonaList();
+  localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
   cancelPersonaEdit();
 }
 function deletePersona() {
   if (editingPersonaId === null) return;
   if (!confirm('确定要删除这个人设吗？')) return;
   personaList.splice(editingPersonaId, 1);
-  savePersonaList();
+  localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
   cancelPersonaEdit();
 }
 (function initPersonaFileInput() {
@@ -3596,7 +3350,26 @@ function deletePersona() {
 // ================= 世界书 =================
 let worldBookEntries = [];
 let editingEntryId = null;
-
+function loadWorldBook() {
+  try {
+    const raw = localStorage.getItem(WORLDBOOK_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    worldBookEntries = Array.isArray(parsed) ? parsed : [];
+  } catch (e) { worldBookEntries = []; }
+  worldBookEntries.forEach(e => {
+    if (!e.id) e.id = genId();
+    if (typeof e.enabled !== 'boolean') e.enabled = true;
+    if (typeof e.depth !== 'number' || isNaN(e.depth)) e.depth = 4;
+    if (typeof e.order !== 'number' || isNaN(e.order)) e.order = 100;
+    if (!e.position) e.position = 'after';
+    if (!e.binding) e.binding = 'global';
+    if (!e.localTarget) e.localTarget = '';
+  });
+}
+function saveWorldBook() {
+  try { localStorage.setItem(WORLDBOOK_KEY, JSON.stringify(worldBookEntries)); }
+  catch (e) { alert('保存失败，存储空间可能已满'); }
+}
 function renderWorldBookList() {
   const container = document.getElementById('worldBookList');
   const emptyState = document.getElementById('worldBookEmptyState');
@@ -3992,15 +3765,13 @@ async function triggerAppIconUpload(appId, previewElement) {
 }
 
 const presetSelect = document.getElementById('presetSelect');
-function updatePresetList() {
+async function updatePresetList() {
   if (!presetSelect) return;
   presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key.startsWith('preset_')) {
-      presetSelect.innerHTML += `<option value="${escapeHtml(key.replace('preset_', ''))}">${escapeHtml(key.replace('preset_', ''))}</option>`;
-    }
-  }
+  const data = await idbGetAll(PRESET_DB_NAME, PRESET_STORE_NAME);
+  data.keys.forEach(k => {
+    presetSelect.innerHTML += `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`;
+  });
 }
 updatePresetList();
 const isBackupKey = (key) => (
@@ -4022,7 +3793,7 @@ const isBackupKey = (key) => (
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
   const loadBtn = document.getElementById('loadPresetBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
+  if (saveBtn) saveBtn.addEventListener('click', async () => {
     const name = document.getElementById('presetNameInput').value.trim();
     if (!name) return alert('请输入预设名称');
     const presetData = {};
@@ -4031,15 +3802,15 @@ const isBackupKey = (key) => (
       if (isBackupKey(key)) presetData[key] = localStorage.getItem(key);
     }
     try {
-      localStorage.setItem('preset_' + name, JSON.stringify(presetData));
+      await idbPut(PRESET_DB_NAME, PRESET_STORE_NAME, name, JSON.stringify(presetData));
       alert('预设保存成功！');
       updatePresetList();
-    } catch (e) { alert('预设保存失败，可能存储空间不足'); }
+    } catch (e) { alert('预设保存失败：' + (e.message || '未知错误')); }
   });
-  if (loadBtn) loadBtn.addEventListener('click', () => {
+  if (loadBtn) loadBtn.addEventListener('click', async () => {
     const name = presetSelect.value;
     if (!name) return alert('请选择要替换的预设');
-    const dataStr = localStorage.getItem('preset_' + name);
+    const dataStr = await idbGet(PRESET_DB_NAME, PRESET_STORE_NAME, name);
     if (!dataStr) return alert('未找到该预设');
     try {
       const data = JSON.parse(dataStr);
@@ -4704,10 +4475,7 @@ function unbindRelativeCard(cardId, direction) {
         for (let i = chat.messages.length - 1; i >= 0; i--) {
           const m = chat.messages[i];
           if (m.type === 'familyCard' && m.status === 'accepted' && (!m.cardId || m.cardId === cardId)) {
-            m.status = 'released';
-            if (!m.cardId) m.cardId = cardId;
-            matched = true;
-            break;
+            m.status = 'released'; if (!m.cardId) m.cardId = cardId; matched = true; break;
           }
         }
         if (matched) saveJianxunChats();
@@ -4729,10 +4497,7 @@ function unbindRelativeCard(cardId, direction) {
         for (let i = chat.messages.length - 1; i >= 0; i--) {
           const m = chat.messages[i];
           if (m.type === 'familyCard' && m.status === 'accepted' && (!m.cardId || m.cardId === cardId)) {
-            m.status = 'released';
-            if (!m.cardId) m.cardId = cardId;
-            matched = true;
-            break;
+            m.status = 'released'; if (!m.cardId) m.cardId = cardId; matched = true; break;
           }
         }
         if (matched) saveJianxunChats();
@@ -5032,6 +4797,23 @@ let jxMasks = [];
 let editingMaskId = null;
 let tempMaskAvatarBase64 = '';
 
+function loadMasks() {
+  try {
+    const raw = localStorage.getItem(MASK_KEY);
+    const v = raw ? JSON.parse(raw) : [];
+    jxMasks = Array.isArray(v) ? v : [];
+  } catch (e) { jxMasks = []; }
+  jxMasks.forEach(m => {
+    if (!m.id) m.id = genId();
+    if (!Array.isArray(m.boundCharIds)) m.boundCharIds = [];
+  });
+}
+loadMasks();
+
+function saveMasks() {
+  try { localStorage.setItem(MASK_KEY, JSON.stringify(jxMasks)); } catch (e) { alert('存储空间不足，保存身份失败'); }
+}
+
 function openMaskScreen() {
   loadMasks();
   renderMaskList();
@@ -5202,6 +4984,11 @@ function pushAwareness(text) {
   } catch (e) {}
 }
 
+function saveJianxunChats() {
+  try { localStorage.setItem('jianxun_chats', JSON.stringify(jianxunChats)); }
+  catch (e) { console.warn('存储失败，尝试清理'); }
+}
+
 function cleanupChatImages() {
   if (!confirm('确定清理所有聊天中的图片以释放空间吗？图片消息将变为文字提示。')) return;
   let cleanedCount = 0;
@@ -5237,19 +5024,51 @@ function cleanupChatImages() {
 let _stickerPacksMigrated = false;
 let expandedStickerPackIds = new Set();
 
+function loadStickerPacks() {
+  try {
+    let packs = [];
+    const packsRaw = localStorage.getItem(STICKER_PACKS_KEY);
+    if (packsRaw) { try { const p = JSON.parse(packsRaw); if (Array.isArray(p)) packs = p; } catch (e) {} }
+    if (!_stickerPacksMigrated) {
+      _stickerPacksMigrated = true;
+      const oldRaw = localStorage.getItem(STICKER_KEY);
+      if (oldRaw && packs.length === 0) {
+        try {
+          const oldArr = JSON.parse(oldRaw);
+          if (Array.isArray(oldArr) && oldArr.length > 0) {
+            packs = [{ id: genId(), name: '我的表情包', stickers: oldArr.map(s => ({ id: s.id || genId(), name: s.name || '', url: s.url || '', meaning: s.meaning || '' })), createdAt: Date.now() }];
+            localStorage.setItem(STICKER_PACKS_KEY, JSON.stringify(packs));
+            localStorage.removeItem(STICKER_KEY);
+          }
+        } catch (e) {}
+      }
+    }
+    packs.forEach(pack => {
+      if (!pack.id) pack.id = genId();
+      if (!pack.name) pack.name = '未命名合集';
+      if (!Array.isArray(pack.stickers)) pack.stickers = [];
+      pack.stickers.forEach(s => { if (!s.id) s.id = genId(); });
+    });
+    return packs;
+  } catch (e) { return []; }
+}
+function saveStickerPacks(packs) { try { localStorage.setItem(STICKER_PACKS_KEY, JSON.stringify(packs)); } catch (e) { alert('存储空间不足，表情合集保存失败'); } }
 function loadStickers() {
   const packs = loadStickerPacks();
   const out = [];
   packs.forEach(pack => { (pack.stickers || []).forEach(s => { out.push({ ...s, packId: pack.id, packName: pack.name }); }); });
   return out;
 }
-async function openJianxunApp() {
-  await appReady;
+function openJianxunApp() {
+  loadPersonaList();
+  loadWorldBook();
+  loadJianxunChats();
   openScreen('jianxunScreen');
   switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item'));
   renderJianxunChatList();
   loadMomentsData();
   renderJianxunContacts();
+  loadMomentsPosts();
   renderMomentsPosts();
   loadJxMeProfile();
 }
@@ -5262,8 +5081,8 @@ function switchJianxunTab(tabId, navElement) {
   else {
     const navs = document.querySelectorAll('#jianxunScreen .jx-nav-item');
     if (tabId === 'jx-chats' && navs[0]) navs[0].classList.add('active');
-    if (tabId === 'jx-moments' && navs[1]) { navs[1].classList.add('active'); renderMomentsPosts(); }
-    if (tabId === 'jx-contacts' && navs[2]) { navs[2].classList.add('active'); renderJianxunContacts(); }
+    if (tabId === 'jx-moments' && navs[1]) { navs[1].classList.add('active'); loadMomentsPosts(); renderMomentsPosts(); }
+    if (tabId === 'jx-contacts' && navs[2]) { navs[2].classList.add('active'); loadPersonaList(); renderJianxunContacts(); }
     if (tabId === 'jx-me' && navs[3]) { navs[3].classList.add('active'); loadJxMeProfile(); }
   }
 }
@@ -5294,6 +5113,7 @@ function loadJxMeProfile() {
       localStorage.setItem('moments_avatar', base64);
       const m = document.getElementById('momentsAvatarImg');
       if (m) m.src = base64;
+      if (jianxunChats.length === 0) loadJianxunChats();
       jianxunChats.forEach(chat => {
         if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
         chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
@@ -5391,6 +5211,50 @@ function renderJianxunContacts() {
   }).join('');
 }
 
+function loadJianxunChats() {
+  loadWorldBook();
+  const data = localStorage.getItem('jianxun_chats');
+  if (data) { try { jianxunChats = JSON.parse(data); } catch(e) { jianxunChats = []; } }
+  else { jianxunChats = []; }
+  if (!Array.isArray(jianxunChats)) jianxunChats = [];
+  jianxunChats.forEach(chat => {
+    if (!chat.id) chat.id = genId();
+    if (!chat.messages) chat.messages = [];
+    if (chat.pinned === undefined) chat.pinned = false;
+    if (chat.allowActive === undefined) chat.allowActive = false;
+    if (chat.maxReply === undefined) chat.maxReply = 1;
+    if (chat.customRemark === undefined) chat.customRemark = '';
+    if (chat.chatBg === undefined) chat.chatBg = '';
+    if (chat.myAvatar === undefined) chat.myAvatar = '';
+    if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
+    if (chat.memoryEnabled === undefined) chat.memoryEnabled = true;
+    if (typeof chat.memoryInterval !== 'number' || isNaN(chat.memoryInterval)) chat.memoryInterval = 20;
+    if (!Array.isArray(chat.memories)) chat.memories = [];
+    if (typeof chat.lastSummarizedCount !== 'number') chat.lastSummarizedCount = 0;
+    delete chat._replying;
+    delete chat._summarizing;
+    if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
+    else if (typeof chat.boundWorldBook === 'string') {
+      const entry = worldBookEntries.find(e => e.name === chat.boundWorldBook);
+      chat.boundWorldBook = entry ? [entry.id] : [];
+    } else if (!Array.isArray(chat.boundWorldBook)) chat.boundWorldBook = [];
+    if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
+    if (Array.isArray(chat.boundStickers) && chat.boundStickers.length > 0) {
+      const packs = loadStickerPacks();
+      const stickerToPack = {};
+      packs.forEach(p => (p.stickers || []).forEach(s => { stickerToPack[s.id] = p.id; }));
+      chat.boundStickers.forEach(sid => {
+        const pid = stickerToPack[sid];
+        if (pid && !chat.boundStickerPacks.includes(pid)) chat.boundStickerPacks.push(pid);
+      });
+      delete chat.boundStickers;
+    }
+    if (chat.boundStickers !== undefined) delete chat.boundStickers;
+    if (!Array.isArray(chat.enabledHtmls)) chat.enabledHtmls = [];
+    chat.messages.forEach(m => { if (!m.id) m.id = genId(); });
+  });
+}
+
 function renderJianxunChatList() {
   const list = document.getElementById('jxChatList');
   if (!list) return;
@@ -5426,8 +5290,7 @@ function renderJianxunChatList() {
   }).join('');
 }
 
-async function openChat(id) {
-  await appReady;
+function openChat(id) {
   currentChatId = id;
   const chat = jianxunChats.find(c => c.id === id);
   if (!chat) return;
@@ -5732,7 +5595,7 @@ function handleContactCardClick(card) {
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
     personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '' });
-    savePersonaList();
+    try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
   }
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
@@ -6477,6 +6340,7 @@ function buildHtmlPrompt(chat) {
   return sp;
 }
 function buildMomentsPrompt() {
+  loadMomentsPosts();
   if (momentsPosts.length === 0) return '';
   const name = localStorage.getItem('moments_name') || '用户';
   const recent = momentsPosts.slice(0, 5);
@@ -6503,30 +6367,54 @@ function buildMemoryPrompt(chat) {
 }
 function buildCharSystemPrompt(chat) {
   loadPersonaList();
-  const persona = personaList.find(p => p.name === chat.name);
   const activeMask = getActiveMaskForChat(chat);
   const userName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '用户') : (localStorage.getItem('moments_name') || '用户');
   const userWxId = activeMask ? (activeMask.wxId || '') : (localStorage.getItem('jx_wechat_id') || '');
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const charName = chat.customRemark || chat.name || '未知';
 
-  let sp = `你是「${charName}」，在仿微信App"简讯"中和用户聊天。始终以角色身份说话，绝不暴露AI身份，回复简短自然（1~3句）。\n\n`;
-  sp += `【角色】${charName}\n`;
+  // 1. 优先寻找人设，支持模糊匹配（防止用户改名或备注）
+  let persona = personaList.find(p => p.name === chat.name);
+  if (!persona) persona = personaList.find(p => p.name === chat.customRemark);
+  if (!persona) persona = personaList.find(p => charName.includes(p.name) || p.name.includes(charName));
+
+  let sp = `你现在正在扮演「${charName}」这个角色，在微信上和用户聊天。\n`;
+  sp += `你必须完全沉浸在角色中，不要表现出你是AI。\n\n`;
+
+  // 2. 人设优先注入
+  sp += `【核心角色设定】\n`;
+  sp += `名字：${charName}\n`;
   if (persona) {
-    if (persona.nickname) sp += `网名：${persona.nickname}\n`;
+    if (persona.nickname) sp += `网名/别称：${persona.nickname}\n`;
     if (persona.gender) sp += `性别：${persona.gender}\n`;
     if (persona.age) sp += `年龄：${persona.age}\n`;
-    if (persona.details) sp += `详细：${persona.details}\n`;
+    if (persona.details) sp += `详细人设：\n${persona.details}\n`;
+  } else {
+    sp += `（注意：用户没有为你配置详细的人设，请根据对话内容自行维持一致的角色形象）\n`;
   }
-  sp += `\n【用户】${userName}`;
-  if (userWxId) sp += `（微信号：${userWxId}）`;
-  sp += '\n';
-  if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
+
+  // 3. 世界书注入
+  const wb = buildWorldBookPrompt(chat);
+  if (wb) sp += `\n${wb}\n`;
+
+  // 4. 用户与身份信息
+  sp += `\n【当前对话用户信息】\n`;
+  sp += `用户昵称：${userName}\n`;
+  if (userWxId) sp += `用户微信号：${userWxId}\n`;
+  if (activeMask && activeMask.details) sp += `用户当前使用的身份（面具）：${activeMask.details}\n`;
   if (userAvatar) sp += `用户头像会以图片形式附在每条用户消息末尾，你能看清内容，可自然提及。\n`;
-  const wb = buildWorldBookPrompt(chat); if (wb) sp += wb;
-  const mem = buildMemoryPrompt(chat); if (mem) sp += mem;
-  const stp = buildStickerPrompt(chat); if (stp) sp += stp;
-  const htp = buildHtmlPrompt(chat); if (htp) sp += htp;
+
+  // 5. 记忆与上下文
+  const mem = buildMemoryPrompt(chat);
+  if (mem) sp += mem;
+
+  // 6. 可用工具（表情包、HTML、动作标记）
+  const stp = buildStickerPrompt(chat);
+  if (stp) sp += stp;
+
+  const htp = buildHtmlPrompt(chat);
+  if (htp) sp += htp;
+
   const refs = getCharImageRefs(chat);
   sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）\n';
   if (refs.length === 0) sp += '（暂无）\n';
@@ -6541,9 +6429,11 @@ function buildCharSystemPrompt(chat) {
       sp += `${i + 1}.${tag}·${desc}${time ? '(' + time + ')' : ''}${note}\n`;
     });
   }
-  sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
+
+  // 7. 工具调用指令（放在靠后位置，避免喧宾夺主）
+  sp += '\n【可用系统功能】（格式为 [[命令:参数]]，系统会自动执行并替换，不要向用户解释这些指令）\n';
   sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
-  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处（背景、角落、衣物细节、神情局部等）正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
+  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素时，可以自己挑选并执行。\n';
   sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
   sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
   sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
@@ -6558,19 +6448,22 @@ function buildCharSystemPrompt(chat) {
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。\n';
-  sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
+
+  // 8. 用户自定义提示词
   const globalPrompt = loadGlobalPrompt().trim();
   if (globalPrompt) sp += '\n【用户附加指示 · 优先级高，请务必遵守】\n' + globalPrompt + '\n';
+
+  // 9. 近期状态
   const bills = loadBills();
   if (bills.length > 0) {
-    sp += '\n【近期钱包】\n';
+    sp += '\n【近期钱包动态】\n';
     bills.slice(0, 4).forEach(b => {
       const dir = b.direction === 'in' ? '收到' : '支出';
       const t = b.type === 'card' ? '亲属卡' : (b.type === 'recharge' ? '充值' : (b.type === 'withdraw' ? '提现' : '转账'));
       sp += `${b.peerName} ${dir}¥${(b.amount || 0).toFixed(2)}(${t}${b.note ? ',' + b.note : ''})\n`;
     });
   }
+
   const allCards = getRecv().concat(getGiven());
   const related = allCards.filter(c => (c.fromCharId && c.fromCharId === chat.id) || (c.toCharId && c.toCharId === chat.id));
   if (related.length > 0) {
@@ -6581,13 +6474,26 @@ function buildCharSystemPrompt(chat) {
       else sp += `- 用户送你亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
     });
   }
-  const mp = buildMomentsPrompt(); if (mp) sp += mp;
+
+  const mp = buildMomentsPrompt();
+  if (mp) sp += mp;
+
   const log = loadAwarenessLog();
   if (log.length > 0) {
     sp += '\n【用户近期操作】（你都知道，可自然提及，不必每次提）\n';
     log.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
   }
-  sp += '\n现在以角色身份自然回复用户。';
+
+  // 10. 核心活人感指令（最重要）
+  sp += '\n【回复要求（极其重要）】\n';
+  sp += '1. 保持角色的一致性，说话要符合角色的性格、身份和背景。\n';
+  sp += '2. 要有“活人感”。你是一个有血有肉的真人，你有自己的情绪、习惯和说话方式。不要总是给出完美的、像AI一样的回答。你可以偶尔使用emoji，可以使用口语、语气词（如：啊、呀、嘛、哈哈），可以根据语境表达开心、生气、傲娇、无语等情绪。\n';
+  sp += '3. 不要使用 markdown 格式（如 **加粗**、*斜体*），因为这是在微信聊天，不支持这些格式。\n';
+  sp += '4. 根据对话的语境自然地回复，长话短说，但也不要刻意拘泥于字数。\n';
+  sp += '5. 记住聊天历史，结合上下文进行连贯的对话。\n';
+  sp += '6. 只有当语境极其契合时，才使用上述系统功能，不要为了用而用。\n';
+
+  sp += '\n现在，请以角色身份，像真人一样自然回复用户。';
   return sp;
 }
 
@@ -6960,6 +6866,7 @@ function executeCharAction(chat, action) {
       });
     }
     if (!text && imgs.length === 0) return;
+    loadMomentsPosts();
     momentsPosts.unshift({
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
       mentions: [], customVisibles: [], likes: [], comments: [],
@@ -6971,6 +6878,7 @@ function executeCharAction(chat, action) {
   }
   if (action.type === 'LIKE_MOMENT') {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
+    loadMomentsPosts();
     const post = momentsPosts[idx];
     if (!post) return;
     const charName = chat.customRemark || chat.name || 'TA';
@@ -6985,6 +6893,7 @@ function executeCharAction(chat, action) {
     const idx = parseInt((parts[0] || '').trim(), 10) - 1;
     const text = (parts.slice(1).join('|') || '').trim();
     if (!text) return;
+    loadMomentsPosts();
     const post = momentsPosts[idx];
     if (!post) return;
     if (!post.comments) post.comments = [];
@@ -7080,7 +6989,7 @@ async function triggerCharReply(chat) {
     }
   }
 }
-async function closeChatScreen() {
+function closeChatScreen() {
   document.getElementById('jxStickerPanel').classList.remove('show');
   const tools = document.getElementById('jxChatTools');
   if (tools) tools.classList.remove('show');
@@ -7088,7 +6997,7 @@ async function closeChatScreen() {
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
-  await loadJianxunChats();
+  loadJianxunChats();
 }
 function openChatInfo() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -7334,12 +7243,12 @@ function changeChatBg() {
   };
   input.click();
 }
-async function clearChatHistory() {
+function clearChatHistory() {
   if (!confirm('确定要清空聊天记录吗？')) return;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
-async function deleteChat() {
+function deleteChat() {
   if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
   jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
   saveJianxunChats();
@@ -7347,8 +7256,7 @@ async function deleteChat() {
   closeChatScreen();
   renderJianxunChatList();
 }
-async function showPersonaSelector() {
-  await appReady;
+function showPersonaSelector() {
   try {
     loadPersonaList();
     const modal = document.getElementById('personaSelectorModal');
@@ -7434,6 +7342,7 @@ async function loadMomentsData() {
     renderMomentsPosts();
     const meEl = document.getElementById('jxMeAvatarImg');
     if (meEl) meEl.src = base64;
+    if (jianxunChats.length === 0) loadJianxunChats();
     jianxunChats.forEach(chat => {
       if (!Array.isArray(chat.imagePool)) chat.imagePool = [];
       chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), isAvatar: true, desc: '用户更换后的新头像' });
@@ -7471,7 +7380,18 @@ initEditableTexts();
 
 let momentsPosts = [];
 let tempPostImages = [];
+function loadMomentsPosts() {
+  const data = localStorage.getItem('moments_posts');
+  if (data) { try { momentsPosts = JSON.parse(data); } catch(e) { momentsPosts = []; } }
+  else momentsPosts = [];
+  if (!Array.isArray(momentsPosts)) momentsPosts = [];
+}
+function saveMomentsPosts() {
+  try { localStorage.setItem('moments_posts', JSON.stringify(momentsPosts)); }
+  catch(e) { alert('存储空间可能已满，图片过大'); }
+}
 function renderMomentsPosts() {
+  loadMomentsPosts();
   const container = document.getElementById('jx-moments-posts');
   if (!container) return;
   document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
@@ -7527,6 +7447,7 @@ function renderMomentsPosts() {
 }
 
 function toggleLike(postId) {
+  loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
   const myName = localStorage.getItem('moments_name') || 'Koi Buono';
@@ -7613,6 +7534,7 @@ function publishPost() {
     id: genId(), content: content, images: [...tempPostImages], time: '刚刚',
     visibility: visibility, mentions: mentions, customVisibles: customVisibles, likes: [], comments: []
   };
+  loadMomentsPosts();
   momentsPosts.unshift(newPost);
   saveMomentsPosts();
   renderMomentsPosts();
@@ -7628,6 +7550,7 @@ function publishPost() {
 }
 function deletePost(postId) {
   if (!confirm('确定要删除这条动态吗？')) return;
+  loadMomentsPosts();
   const target = momentsPosts.find(p => p.id === postId);
   momentsPosts = momentsPosts.filter(p => p.id !== postId);
   saveMomentsPosts();
@@ -7645,6 +7568,7 @@ function sendComment() {
   const text = document.getElementById('commentContent').value.trim();
   if (!text) return;
   const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+  loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === currentCommentPostId);
   if (post) {
     if (!post.comments) post.comments = [];
@@ -7662,6 +7586,7 @@ function sendComment() {
 async function replyToMomentsComment(chat, postId, userComment) {
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
+  loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
   const charName = chat.customRemark || chat.name || 'TA';
@@ -7686,6 +7611,7 @@ async function replyToMomentsComment(chat, postId, userComment) {
     else if (Array.isArray(c)) text = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
     text = (text || '').trim();
     if (!text) return;
+    loadMomentsPosts();
     const p2 = momentsPosts.find(x => x.id === postId);
     if (!p2) return;
     if (!p2.comments) p2.comments = [];
@@ -7694,18 +7620,6 @@ async function replyToMomentsComment(chat, postId, userComment) {
     renderMomentsPosts();
   } catch (e) { console.warn('回复朋友圈评论失败', e); }
 }
-
-// ================= 启动应用 =================
-(async function initApp() {
-  try {
-    await migrateAndLoad();
-  } catch (e) {
-    console.warn('数据加载失败', e);
-  } finally {
-    document.getElementById('loadingScreen').style.display = 'none';
-    _appReadyResolve();
-  }
-})();
 </script>
 </body>
 </html>
