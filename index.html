@@ -903,7 +903,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .font-scale-preset-btn{background:#2c2c2e;border-color:#3a3a3c;color:#ddd}
 .phone-case.dark-mode .font-scale-preset-btn:active{background:#3a3a3c}
 .phone-case.dark-mode .font-scale-preset-btn.active{background:linear-gradient(135deg,#a78bfa,#8b5cf6);color:#fff;border-color:transparent}
-/* 多功能 App HTML 卡片样式 */
 .html-item-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #8b5cf6}
 .html-item-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .html-item-name{font-size:14px;font-weight:600;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
@@ -916,7 +915,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .html-item-preview{background:#2c2c2e;color:#999}
 .phone-case.dark-mode .html-item-del{background:#3a2a2c;color:#ff6b7a}
 .phone-case.dark-mode .html-item-preview-btn{background:#2c2c2e;color:#82a7e0}
-/* 身份管理样式 */
 .mask-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #8e44ad}
 .mask-avatar{width:50px;height:50px;border-radius:50%;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .mask-avatar img{width:100%;height:100%;object-fit:cover}
@@ -929,7 +927,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .mask-info h4{color:#eee}
 .phone-case.dark-mode .mask-info p{color:#999}
 .phone-case.dark-mode .mask-badge{background:#3a2a4a;color:#b39ddb}
-/* 身份绑定角色列表样式 */
 .mask-bind-list{background:#fff;border-radius:8px;padding:4px 0;border:1px solid #ddd;max-height:150px;overflow-y:auto}
 .mask-bind-item{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;width:100%;box-sizing:border-box;border-bottom:1px solid #f0f0f0}
 .mask-bind-item:last-child{border-bottom:none}
@@ -5004,7 +5001,7 @@ function openMaskEdit(id) {
     }
     document.getElementById('maskDeleteBtn').style.display = 'block';
   }
-  // 渲染角色绑定复选框（修复横向显示）
+  // 渲染角色绑定复选框
   if (personaList.length === 0) {
     bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:10px;text-align:center;">暂无人设可绑定</div>';
   } else {
@@ -7102,7 +7099,7 @@ async function generateCharReply(chat) {
   return clean || raw;
 }
 
-// ================= 完全重写的气泡拆分逻辑 =================
+// ================= 气泡拆分解析 =================
 function parseReplyIntoBubbles(rawText) {
   let segments = [];
   let trimmed = String(rawText || '').trim();
@@ -7122,7 +7119,6 @@ function parseReplyIntoBubbles(rawText) {
           return String(item).trim();
         }).filter(Boolean);
       } else if (parsed && typeof parsed === 'object') {
-        // 处理 {"messages": ["a", "b"]} 或 {"1": "a", "2": "b"} 的情况
         const possibleArray = parsed.messages || parsed.items || parsed.data || parsed.content;
         if (Array.isArray(possibleArray)) {
           segments = possibleArray.map(item => typeof item === 'string' ? item.trim() : (item.content || item.text || '').trim()).filter(Boolean);
@@ -7140,7 +7136,6 @@ function parseReplyIntoBubbles(rawText) {
     while ((match = msgRegex.exec(trimmed)) !== null) {
       if (match[1] && match[1].trim()) segments.push(match[1].trim());
     }
-    // 兼容中括号变体：比如 【char的消息：xxx】
     const msgRegex2 = /【(?:char|角色|AI|我|你)?的消息[:：]\s*(.*?)】/g;
     while ((match = msgRegex2.exec(trimmed)) !== null) {
       if (match[1] && match[1].trim()) segments.push(match[1].trim());
@@ -7161,7 +7156,6 @@ function parseReplyIntoBubbles(rawText) {
   // 如果 AI 返回了一大段没有换行和分隔符的话，比如 "我想你了。你在干嘛呢？"
   // 自动根据句号、问号、感叹号、省略号等进行切分，并保留标点。
   if (segments.length === 0 && trimmed.length > 15) {
-    // 正则匹配句子结尾，正向后视断言 (?<=...) 保留标点
     const punctuationRegex = /(?<=[。！？!?~…])\s*/;
     const splitArr = trimmed.split(punctuationRegex).map(s => s.trim()).filter(s => s.length > 0);
     if (splitArr.length > 1) {
@@ -7192,7 +7186,6 @@ async function triggerCharReply(chat) {
     if (idx >= 0) chat.messages.splice(idx, 1);
     const rawReply = String(reply == null ? '' : reply).trim();
     if (rawReply) {
-      // 使用全新的气泡拆分逻辑
       const segments = parseReplyIntoBubbles(rawReply);
       if (segments.length > 0) {
         segments.forEach(seg => { chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg }); });
@@ -7213,7 +7206,30 @@ async function triggerCharReply(chat) {
   } catch (e) {
     const idx = chat.messages.findIndex(m => m.id === typingId);
     if (idx >= 0) chat.messages.splice(idx, 1);
-    chat.messages.push({ id: genId(), role: 'char', type: 'text', content: '（消息发送失败：' + (e.message || '未知错误') + '）\n提示：如果当前 API 模型不支持图片识别，将无法看到图片内容并进行朋友圈发布。' });
+    
+    // 提取真实的 API 错误信息
+    let errorMsg = e.message || '未知错误';
+    let realError = '';
+    try {
+      const parsed = JSON.parse(errorMsg.substring(errorMsg.indexOf('{')));
+      if (parsed && parsed.error && parsed.error.message) {
+        realError = parsed.error.message;
+      } else if (parsed && parsed.message) {
+        realError = parsed.message;
+      }
+    } catch (err) {}
+    
+    let displayError = '（消息发送失败：' + (realError || errorMsg) + '）';
+    const lastMsg = chat.messages[chat.messages.length - 1];
+    const hasImage = lastMsg && lastMsg.type === 'image';
+    
+    if (realError.includes('image') || realError.includes('vision') || hasImage) {
+        displayError += '\n提示：如果当前 API 模型不支持图片识别，将无法看到图片内容。请尝试更换支持视觉的模型（如 gpt-4o）。';
+    } else if (realError.includes('balance') || realError.includes('余额')) {
+        displayError += '\n提示：你的 API 账户余额不足，请前往服务商平台充值，或更换其他 API 渠道。';
+    }
+
+    chat.messages.push({ id: genId(), role: 'char', type: 'text', content: displayError });
     chat._pendingStickers = [];
     chat._pendingHtmls = [];
   } finally {
@@ -7389,7 +7405,6 @@ function confirmWorldBookBinding() {
   document.getElementById('jxWorldBookText').innerText = selectedIds.length > 0 ? `已绑定 ${selectedIds.length} 本` : '未绑定';
   closeWorldBookSelectScreen();
 }
-// ============ HTML 功能选择 ============
 function openHtmlSelectScreen() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
