@@ -915,7 +915,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .html-item-preview{background:#2c2c2e;color:#999}
 .phone-case.dark-mode .html-item-del{background:#3a2a2c;color:#ff6b7a}
 .phone-case.dark-mode .html-item-preview-btn{background:#2c2c2e;color:#82a7e0}
-.mask-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #8e44ad;cursor:pointer}
+.mask-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);border-left:4px solid #8e44ad}
 .mask-avatar{width:50px;height:50px;border-radius:50%;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .mask-avatar img{width:100%;height:100%;object-fit:cover}
 .mask-avatar svg{width:24px;height:24px;fill:#ccc}
@@ -923,12 +923,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .mask-info h4{font-size:15px;color:#333;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mask-info p{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mask-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:#f3e5f5;color:#8e24aa;white-space:nowrap}
-.mask-badge.active-mask{background:#07c160;color:#fff}
 .phone-case.dark-mode .mask-card{background:#1c1c1e;box-shadow:none}
 .phone-case.dark-mode .mask-info h4{color:#eee}
 .phone-case.dark-mode .mask-info p{color:#999}
 .phone-case.dark-mode .mask-badge{background:#3a2a4a;color:#b39ddb}
-.phone-case.dark-mode .mask-badge.active-mask{background:#07c160;color:#fff}
 .mask-bind-list{background:#fff;border-radius:8px;padding:4px 0;border:1px solid #ddd;max-height:150px;overflow-y:auto}
 .mask-bind-item{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;width:100%;box-sizing:border-box;border-bottom:1px solid #f0f0f0}
 .mask-bind-item:last-child{border-bottom:none}
@@ -938,7 +936,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .mask-bind-item{color:#ddd;border-bottom-color:#2c2c2e}
 .phone-case.dark-mode .mask-bind-item input[type="checkbox"]{accent-color:#a78bfa}
 
-/* 新增：草图布局样式 */
 .beautify-layout {
   display: flex;
   flex-direction: column;
@@ -1057,7 +1054,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
   background: #3a3a3c;
 }
 
-/* 补齐预览与类名选择弹窗样式 */
 #cssClassSelectorModal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000;
@@ -1586,8 +1582,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       </div>
 
       <div id="jx-me" class="jx-tab-content">
-        <div class="jx-me-profile" onclick="switchMaskAccount()">
-          <div class="jx-me-avatar" onclick="event.stopPropagation();document.getElementById('jxMeAvatarInput').click()">
+        <div class="jx-me-profile">
+          <div class="jx-me-avatar" onclick="document.getElementById('jxMeAvatarInput').click()">
             <img id="jxMeAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E" alt="头像">
           </div>
           <div class="jx-me-info">
@@ -1598,6 +1594,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <input type="file" id="jxMeAvatarInput" accept="image/*" style="display: none;">
         </div>
         <div class="jx-me-menu">
+          <div class="jx-me-menu-item" onclick="openSwitchMaskScreen()">
+            <div class="jx-me-menu-icon" style="background:#e91e63;"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+            <span class="jx-me-menu-text">切换身份</span>
+            <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+          </div>
           <div class="jx-me-menu-item" onclick="openWalletScreen()">
             <div class="jx-me-menu-icon jx-me-bg-wallet"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
             <span class="jx-me-menu-text">钱包</span>
@@ -1610,7 +1611,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
           <div class="jx-me-menu-item" onclick="openMaskScreen()">
             <div class="jx-me-menu-icon jx-me-bg-mask"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
-            <span class="jx-me-menu-text">身份</span>
+            <span class="jx-me-menu-text">身份管理</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
           <div class="jx-me-menu-item" onclick="openFavoritesScreen()">
@@ -1639,6 +1640,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       </div>
     </div>
 
+    <!-- 全新草图布局的全局美化界面 -->
     <div id="jxCssEditorScreen">
       <div class="css-editor-top-bar">
         <button class="css-editor-back" onclick="closeCssEditor()">← 返回</button>
@@ -1647,13 +1649,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       </div>
 
       <div class="css-editor-panel active" id="panel-css">
+        <!-- 按照草图布局：顶部大输入框 -->
         <div class="beautify-layout">
-          <div class="css-editor-toolbar" style="flex-wrap: wrap; overflow-x: visible; display: flex; gap: 8px; padding: 8px 0; border: none; background: transparent;">
-             <button class="css-editor-chip bubble" onclick="loadBubbleTemplate()">气泡美化</button>
-             <button class="css-editor-chip avatar" onclick="loadAvatarTemplate()">头像美化</button>
-             <button class="css-editor-chip input" onclick="loadInputTemplate()">输入框美化</button>
-             <button class="css-editor-chip tabbar" onclick="loadTabbarTemplate()">底栏美化</button>
-             <button class="css-editor-chip button" onclick="loadButtonTemplate()">按钮美化</button>
+          <!-- 美化预设工具栏 -->
+          <div class="css-editor-toolbar" style="overflow-x: auto; display: flex; gap: 8px; padding: 8px 0; border: none; background: transparent;">
+             <button class="css-editor-chip bubble" onclick="insertClassNames('bubble')">气泡类名</button>
+             <button class="css-editor-chip avatar" onclick="insertClassNames('avatar')">头像类名</button>
+             <button class="css-editor-chip input" onclick="insertClassNames('input')">输入框类名</button>
+             <button class="css-editor-chip button" onclick="insertClassNames('button')">按钮类名</button>
+             <button class="css-editor-chip tabbar" onclick="insertClassNames('tabbar')">顶栏/底栏类名</button>
+             <button class="css-editor-chip theme" onclick="insertClassNames('all')">全部常用类名</button>
           </div>
 
           <textarea id="cssEditorTextarea" spellcheck="false" placeholder="在这里输入 CSS 美化代码...
@@ -1663,15 +1668,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
   background: #ffd6e7 !important;
 }
 
-/* 点击下方「美化」按钮可获取所有类名并自动插入 */"></textarea>
+/* 点击上方按钮可快速插入常用类名 */"></textarea>
           
+          <!-- 按照草图布局：中间两个按钮 -->
           <div class="btn-row">
-            <button class="btn btn-beautify" onclick="toggleCapsuleMenu()">美化（获取类名）</button>
-            <button class="btn btn-preview" onclick="applyCssEditor()">预览</button>
+            <button class="btn btn-beautify" onclick="applyCssEditor()">预览</button>
+            <button class="btn btn-preview" onclick="saveCssEditor()">保存</button>
           </div>
           
-          <button class="btn btn-save" onclick="saveCssEditor()">保存</button>
-          
+          <!-- 按照草图布局：底部字体区域 -->
           <div class="font-section-box">
             <h4>字体设置</h4>
             <div style="margin-bottom: 12px;">
@@ -1867,7 +1872,7 @@ https://xxx.com/a.png
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll" style="padding: 16px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份相当于一个独立账号，拥有独立的朋友圈和聊天列表。点击下方身份卡片可切换当前账号。</p>
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。</p>
         <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
         <div id="jxMaskList"></div>
         <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
@@ -1902,6 +1907,19 @@ https://xxx.com/a.png
           <button class="btn btn-delete" id="maskDeleteBtn" onclick="deleteMask()">删除</button>
           <button class="btn btn-save" onclick="saveMask()">保存</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 新增：切换身份界面 -->
+    <div id="jxSwitchMaskScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1010;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeSwitchMaskScreen()">‹</span>
+        <span class="title">切换身份</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll" style="padding: 16px;">
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">选择切换到的身份账号，每个账号有独立的聊天列表和朋友圈。</p>
+        <div id="jxSwitchMaskList"></div>
       </div>
     </div>
 
@@ -2314,9 +2332,8 @@ https://xxx.com/a.png
 
     <div id="cssClassSelectorModal">
       <div class="modal-content">
-        <h3>选择要修改的类名</h3>
-        <div class="class-list-container" id="classListContainer">
-        </div>
+        <h3>常用类名</h3>
+        <div class="class-list-container" id="classListContainer"></div>
         <button class="modal-btn-close" onclick="closeCssClassSelector()">关闭</button>
       </div>
     </div>
@@ -2418,6 +2435,7 @@ const FONT_SIZE_SCALE_KEY = 'user_font_size_scale';
 const JX_GLOBAL_PROMPT_KEY = 'jx_global_prompt';
 const CUSTOM_HTML_KEY = 'custom_htmls';
 const MASK_KEY = 'jx_masks';
+const CURRENT_MASK_ID_KEY = 'current_mask_id';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -2775,186 +2793,33 @@ function appendTemplateToEditor(template, label) {
   markCssEditorDirty();
   setCssStatus(`已插入「${label}」模板`, 'dirty');
 }
-function loadBubbleTemplate() {
-  appendTemplateToEditor(`/* ═══ 聊天气泡美化 ═══ */
-.jx-msg-row.me .jx-msg-bubble {
-  background: linear-gradient(135deg, #a8ed7d 0%, #7dd956 100%) !important;
-  color: #0f2416 !important;
-  border-radius: 16px 16px 4px 16px !important;
-  box-shadow: 0 3px 12px rgba(125, 217, 86, 0.28);
-  padding: 11px 15px !important;
-  font-size: 15px !important;
-  line-height: 1.55 !important;
-}
-.jx-msg-row.other .jx-msg-bubble {
-  background: #ffffff !important;
-  color: #1a1a1a !important;
-  border-radius: 16px 16px 16px 4px !important;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-  padding: 11px 15px !important;
-  font-size: 15px !important;
-  line-height: 1.55 !important;
-}
-.jx-msg-row.me .jx-msg-bubble::after { border-left-color: #95e26c !important; }
-.jx-msg-row.other .jx-msg-bubble::before { border-right-color: #ffffff !important; }
-`, '气泡美化');
-}
-function loadAvatarTemplate() {
-  appendTemplateToEditor(`/* ═══ 头像美化 ═══
-   把下面的图片 URL 换成你自己的图片链接（支持 http/https / data:image）
-   因为 <img> 无法用纯 CSS 直接换 src，这里用「隐藏原图 + 背景图」方案 */
 
-/* 聊天气泡·我的头像 */
-.jx-msg-row.me .jx-msg-avatar img { display: none !important; }
-.jx-msg-row.me .jx-msg-avatar {
-  background-image: url('https://i.pravatar.cc/120?img=12') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  border-radius: 50% !important;
-}
-/* 聊天气泡·对方头像 */
-.jx-msg-row.other .jx-msg-avatar img { display: none !important; }
-.jx-msg-row.other .jx-msg-avatar {
-  background-image: url('https://i.pravatar.cc/120?img=32') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  border-radius: 50% !important;
-}
-/* 聊天列表头像 */
-.jx-chat-avatar img { display: none !important; }
-.jx-chat-avatar {
-  background-image: url('https://i.pravatar.cc/120?img=45') !important;
-  background-size: cover !important;
-  background-position: center !important;
-}
-/* 「我」页面的头像 */
-.jx-me-avatar img { display: none !important; }
-.jx-me-avatar {
-  background-image: url('https://i.pravatar.cc/120?img=24') !important;
-  background-size: cover !important;
-  background-position: center !important;
-}
-/* 朋友圈的头像 */
-.jx-moments-avatar img { display: none !important; }
-.jx-moments-avatar {
-  background-image: url('https://i.pravatar.cc/120?img=60') !important;
-  background-size: cover !important;
-  background-position: center !important;
-}
-/* 通讯录头像 */
-.jx-contact-avatar img { display: none !important; }
-.jx-contact-avatar {
-  background-image: url('https://i.pravatar.cc/120?img=15') !important;
-  background-size: cover !important;
-  background-position: center !important;
-}
-`, '头像美化');
-}
-function loadInputTemplate() {
-  appendTemplateToEditor(`/* ═══ 输入框美化 ═══ */
-.jx-chat-input-bar textarea {
-  background: #ffffff !important;
-  border: 1.5px solid #e0e0e6 !important;
-  border-radius: 20px !important;
-  padding: 10px 16px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-}
-.jx-chat-input-bar textarea:focus {
-  border-color: #07c160 !important;
-  box-shadow: 0 0 0 3px rgba(7, 193, 96, 0.12);
-}
-.jx-chat-input-bar {
-  background: linear-gradient(180deg, #f7f7f9 0%, #eef0f4 100%) !important;
-  border-top: 1px solid #e0e0e6 !important;
-}
-.jx-chat-input-bar .send-btn {
-  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%) !important;
-  border-radius: 20px !important;
-  box-shadow: 0 3px 10px rgba(34, 197, 94, 0.32);
-  font-weight: 600 !important;
-  padding: 8px 18px !important;
-}
-.jx-chat-input-bar .icon { fill: #667eea !important; }
-.jx-chat-input-bar textarea::placeholder { color: #b8b8be !important; }
-`, '输入框美化');
-}
-function loadTabbarTemplate() {
-  appendTemplateToEditor(`/* ═══ 底部导航栏美化 ═══ */
-.jx-bottom-nav {
-  background: rgba(255, 255, 255, 0.94) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.04);
-  height: 64px !important;
-}
-.jx-nav-item {
-  color: #8a8a90 !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease;
-}
-.jx-nav-item.active {
-  color: #07c160 !important;
-  transform: translateY(-1px);
-}
-.jx-nav-item.active svg {
-  transform: scale(1.08);
-  transition: transform 0.2s ease;
-  filter: drop-shadow(0 2px 6px rgba(7, 193, 96, 0.3));
-}
-.jx-nav-item span {
-  font-size: 10px !important;
-  letter-spacing: 0.3px;
-}
-.jx-header {
-  background: rgba(255, 255, 255, 0.94) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.02);
-}
-`, '底栏美化');
-}
-function loadButtonTemplate() {
-  appendTemplateToEditor(`/* ═══ 按钮美化 ═══ */
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.3px;
-}
-.btn-primary:active { transform: scale(0.97); }
-.btn-success {
-  background: linear-gradient(135deg, #4ade80, #22c55e) !important;
-  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-}
-.btn-danger, .btn-delete {
-  background: linear-gradient(135deg, #f87171, #ef4444) !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-}
-.jx-modal-content, .jx-comment-modal-content, .jx-transfer-modal-inner {
-  border-radius: 20px !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-}
-.jx-tm-submit {
-  background: linear-gradient(135deg, #4ade80, #22c55e) !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
-}
-.jx-tm-submit:active { transform: scale(0.98); }
-.jx-nav-item.active { color: #07c160 !important; }
-`, '按钮美化');
+// 插入常用类名
+function insertClassNames(type) {
+  const ta = document.getElementById('cssEditorTextarea');
+  if (!ta) return;
+  let text = '';
+  const bubbleClasses = `.jx-msg-row.me .jx-msg-bubble\n.jx-msg-row.other .jx-msg-bubble\n.jx-msg-bubble.transfer\n.jx-msg-bubble.card\n.jx-msg-bubble.media\n.jx-msg-bubble.html-msg\n.jx-msg-quote\n`;
+  const avatarClasses = `.jx-msg-avatar\n.jx-chat-avatar\n.jx-me-avatar\n.jx-moments-avatar\n.jx-contact-avatar\n.jx-info-header-avatar\n`;
+  const inputClasses = `.jx-chat-input-bar\n.jx-chat-input-bar textarea\n.jx-chat-input-bar .send-btn\n.jx-chat-input-bar .icon\n.jx-quote-preview\n.jx-chat-tools\n`;
+  const buttonClasses = `.btn-primary\n.btn-success\n.btn-danger\n.btn-outline\n.btn-cancel\n.btn-save\n.jx-tm-submit\n.jx-modal-btn\n.jx-editor-btn\n`;
+  const tabbarClasses = `.jx-chat-top-bar\n.jx-chat-top-bar .back-btn\n.jx-chat-top-bar .title\n.jx-header\n.jx-bottom-nav\n.jx-nav-item\n.jx-nav-item.active\n.jx-info-top-bar\n`;
+  
+  if (type === 'bubble') text = `/* 气泡类名 */\n${bubbleClasses}`;
+  else if (type === 'avatar') text = `/* 头像类名 */\n${avatarClasses}`;
+  else if (type === 'input') text = `/* 输入框类名 */\n${inputClasses}`;
+  else if (type === 'button') text = `/* 按钮类名 */\n${buttonClasses}`;
+  else if (type === 'tabbar') text = `/* 顶栏/底栏类名 */\n${tabbarClasses}`;
+  else if (type === 'all') text = `/* 气泡类名 */\n${bubbleClasses}\n/* 头像类名 */\n${avatarClasses}\n/* 输入框类名 */\n${inputClasses}\n/* 按钮类名 */\n${buttonClasses}\n/* 顶栏/底栏类名 */\n${tabbarClasses}`;
+  
+  const prefix = ta.value && !ta.value.endsWith('\n') ? '\n\n' : '';
+  ta.value = ta.value + prefix + text;
+  ta.scrollTop = ta.scrollHeight;
+  updateCursorInfo();
+  markCssEditorDirty();
+  setCssStatus(`已插入${type === 'all' ? '全部' : ''}类名`, 'dirty');
 }
 
-initGlobalFontSizeControl();
-
-// ================= 类名获取与预览功能 =================
 function toggleCapsuleMenu() {
   const modal = document.getElementById('cssClassSelectorModal');
   const container = document.getElementById('classListContainer');
@@ -3385,7 +3250,6 @@ document.querySelectorAll('.uploadable-icon').forEach(iconBox => {
   }
 })();
 
-// ========== 极致压缩图片 ==========
 function compressImageFile(file, maxDim, quality) {
   maxDim = maxDim || 1024;
   quality = quality || 0.8;
@@ -4183,13 +4047,12 @@ const isBackupKey = (key) => (
   key === 'jianxun_chats' || key === 'jianxun_settings' ||
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
-  key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY ||
+  key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY || key === CURRENT_MASK_ID_KEY ||
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
   key === JX_GLOBAL_PROMPT_KEY ||
   key === CUSTOM_HTML_KEY ||
-  key === 'wx-family-received' || key === 'wx-family-given' ||
-  key === 'current_mask_id'
+  key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
@@ -5168,7 +5031,6 @@ function saveGlobalPrompt() {
 let jxMasks = [];
 let editingMaskId = null;
 let tempMaskAvatarBase64 = '';
-let currentMaskId = localStorage.getItem('current_mask_id') || 'default';
 
 function loadMasks() {
   try {
@@ -5187,38 +5049,19 @@ function saveMasks() {
   try { localStorage.setItem(MASK_KEY, JSON.stringify(jxMasks)); } catch (e) {}
 }
 
-function switchMaskAccount() {
-  loadMasks();
-  if (jxMasks.length === 0) {
-    alert('暂无身份，请先在「我 → 身份」中创建。');
-    return;
+function getCurrentMaskId() {
+  let id = localStorage.getItem(CURRENT_MASK_ID_KEY);
+  if (!id || !jxMasks.find(m => m.id === id)) {
+    if (jxMasks.length > 0) {
+      id = jxMasks[0].id;
+      localStorage.setItem(CURRENT_MASK_ID_KEY, id);
+    } else {
+      id = '';
+    }
   }
-  const modal = document.getElementById('personaSelectorModal');
-  const list = document.getElementById('personaSelectorList');
-  if (!modal || !list) return;
-  list.innerHTML = jxMasks.map(m => {
-    const isActive = m.id === currentMaskId;
-    const avatar = m.avatar
-      ? `<img src="${m.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
-      : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-    return `<div class="jx-modal-item" onclick="selectMaskAccount('${m.id}')" style="background:${isActive ? '#eef2ff' : 'transparent'};">
-      ${avatar}
-      <span style="flex:1;">${escapeHtml(m.name || '未命名')} ${isActive ? '<span style="color:#07c160;font-size:12px;">(当前)</span>' : ''}</span>
-    </div>`;
-  }).join('');
-  modal.classList.add('show');
+  return id;
 }
-function selectMaskAccount(maskId) {
-  currentMaskId = maskId;
-  localStorage.setItem('current_mask_id', maskId);
-  document.getElementById('personaSelectorModal').classList.remove('show');
-  loadJxMeProfile();
-  loadJianxunChats().then(() => {
-    renderJianxunChatList();
-    loadMomentsPosts().then(() => renderMomentsPosts());
-    renderJianxunContacts();
-  });
-}
+
 function openMaskScreen() {
   loadMasks();
   renderMaskList();
@@ -5227,6 +5070,7 @@ function openMaskScreen() {
 function closeMaskScreen() {
   document.getElementById('jxMaskScreen').style.display = 'none';
 }
+
 function renderMaskList() {
   const list = document.getElementById('jxMaskList');
   const empty = document.getElementById('jxMaskEmptyState');
@@ -5237,21 +5081,58 @@ function renderMaskList() {
     return;
   }
   empty.style.display = 'none';
+  const currentMaskId = getCurrentMaskId();
   list.innerHTML = jxMasks.map(m => {
     const avatarHtml = m.avatar ? `<img src="${m.avatar}">` : `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
     const bindCount = Array.isArray(m.boundCharIds) ? m.boundCharIds.length : 0;
     const bindText = bindCount > 0 ? `已绑定 ${bindCount} 个角色` : '未绑定角色（全局可用）';
-    const isActive = m.id === currentMaskId;
-    return `<div class="mask-card" onclick="selectMaskAccount('${m.id}')">
+    const isCurrent = m.id === currentMaskId ? ' (当前)' : '';
+    return `<div class="mask-card" onclick="openMaskEdit('${m.id}')">
       <div class="mask-avatar">${avatarHtml}</div>
       <div class="mask-info">
-        <h4>${escapeHtml(m.name || '未命名身份')} ${isActive ? '<span class="mask-badge active-mask">当前</span>' : ''}</h4>
+        <h4>${escapeHtml(m.name || '未命名身份')}${isCurrent}</h4>
         <p>${escapeHtml(m.wxId || '无微信号')} · ${escapeHtml(bindText)}</p>
       </div>
-      <span class="mask-badge">切换</span>
+      <span class="mask-badge">身份</span>
     </div>`;
   }).join('');
 }
+
+function openSwitchMaskScreen() {
+  loadMasks();
+  const list = document.getElementById('jxSwitchMaskList');
+  if (!list) return;
+  const currentMaskId = getCurrentMaskId();
+  if (jxMasks.length === 0) {
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">暂无身份，请先去身份管理创建</div>';
+  } else {
+    list.innerHTML = jxMasks.map(m => {
+      const isCurrent = m.id === currentMaskId;
+      const avatarHtml = m.avatar ? `<img src="${m.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="40" height="40"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+      return `<div class="jx-modal-item" onclick="switchMask('${m.id}')" style="justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f0f0;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          ${avatarHtml}
+          <span style="font-size:15px; color:#333;">${escapeHtml(m.name || '未命名')}</span>
+        </div>
+        <div class="wb-checkbox ${isCurrent ? 'checked' : ''}"></div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('jxSwitchMaskScreen').style.display = 'flex';
+}
+function closeSwitchMaskScreen() {
+  document.getElementById('jxSwitchMaskScreen').style.display = 'none';
+}
+async function switchMask(maskId) {
+  localStorage.setItem(CURRENT_MASK_ID_KEY, maskId);
+  closeSwitchMaskScreen();
+  await loadJianxunChats();
+  await loadMomentsPosts();
+  renderJianxunChatList();
+  renderMomentsPosts();
+  alert('已切换身份');
+}
+
 function openMaskEdit(id) {
   loadMasks();
   loadPersonaList();
@@ -5316,40 +5197,28 @@ function saveMask() {
   if (editingMaskId === null) {
     const newId = genId();
     jxMasks.push({ id: newId, ...data });
-    currentMaskId = newId;
-    localStorage.setItem('current_mask_id', newId);
-    alert('身份创建成功！已自动切换到该账号。');
+    if (!localStorage.getItem(CURRENT_MASK_ID_KEY)) {
+      localStorage.setItem(CURRENT_MASK_ID_KEY, newId);
+    }
   } else {
     const idx = jxMasks.findIndex(x => x.id === editingMaskId);
     if (idx >= 0) jxMasks[idx] = { ...jxMasks[idx], ...data };
-    alert('身份已保存。');
   }
   saveMasks();
   closeMaskEdit();
   renderMaskList();
-  loadJxMeProfile();
-  loadJianxunChats().then(() => {
-    renderJianxunChatList();
-    loadMomentsPosts().then(() => renderMomentsPosts());
-    renderJianxunContacts();
-  });
+  alert('身份已保存');
 }
 function deleteMask() {
   if (editingMaskId === null) return;
-  if (!confirm('确定要删除这个身份吗？删除后该账号的聊天和朋友圈将无法恢复。')) return;
+  if (!confirm('确定要删除这个身份吗？')) return;
   jxMasks = jxMasks.filter(x => x.id !== editingMaskId);
-  if (currentMaskId === editingMaskId) {
-    currentMaskId = 'default';
-    localStorage.setItem('current_mask_id', 'default');
-  }
   saveMasks();
+  if (localStorage.getItem(CURRENT_MASK_ID_KEY) === editingMaskId) {
+    localStorage.removeItem(CURRENT_MASK_ID_KEY);
+  }
   closeMaskEdit();
   renderMaskList();
-  loadJxMeProfile();
-  loadJianxunChats().then(() => {
-    renderJianxunChatList();
-    loadMomentsPosts().then(() => renderMomentsPosts());
-  });
 }
 (function initMaskAvatarInput() {
   const input = document.getElementById('maskAvatarInput');
@@ -5373,12 +5242,13 @@ function getActiveMaskForChat(chat) {
   const charName = chat.customRemark || chat.name;
   const bound = jxMasks.filter(m => Array.isArray(m.boundCharIds) && m.boundCharIds.includes(charName));
   if (bound.length > 0) return bound[0];
-  const globalMasks = jxMasks.filter(m => !Array.isArray(m.boundCharIds) || m.boundCharIds.length === 0);
-  if (globalMasks.length > 0) return globalMasks[0];
+  const currentMaskId = getCurrentMaskId();
+  const currentMask = jxMasks.find(m => m.id === currentMaskId);
+  if (currentMask) return currentMask;
   return null;
 }
 
-// ================= 简讯 App =================
+// ================= 简讯 App（多身份隔离） =================
 let jianxunChats = [];
 let currentChatId = null;
 
@@ -5410,19 +5280,23 @@ function pushAwareness(text) {
 
 async function loadJianxunChats() {
   loadWorldBook();
-  let data = await idbGet(STORE_CHATS, 'main');
-  if (!data) {
+  loadMasks();
+  const currentMaskId = getCurrentMaskId();
+  let allChats = await idbGet(STORE_CHATS, 'main');
+  if (!allChats) {
     const localData = localStorage.getItem('jianxun_chats');
     if (localData) {
-      try { data = JSON.parse(localData); } catch(e) { data = []; }
+      try { allChats = JSON.parse(localData); } catch(e) { allChats = []; }
     } else {
-      data = [];
+      allChats = [];
     }
   }
-  jianxunChats = Array.isArray(data) ? data : [];
+  jianxunChats = (Array.isArray(allChats) ? allChats : []).filter(c => {
+    if (!c.maskId) return true;
+    return c.maskId === currentMaskId;
+  });
   jianxunChats.forEach(chat => {
     if (!chat.id) chat.id = genId();
-    if (!chat.maskId) chat.maskId = 'default';
     if (!chat.messages) chat.messages = [];
     if (chat.pinned === undefined) chat.pinned = false;
     if (chat.allowActive === undefined) chat.allowActive = false;
@@ -5435,6 +5309,7 @@ async function loadJianxunChats() {
     if (typeof chat.memoryInterval !== 'number' || isNaN(chat.memoryInterval)) chat.memoryInterval = 20;
     if (!Array.isArray(chat.memories)) chat.memories = [];
     if (typeof chat.lastSummarizedCount !== 'number') chat.lastSummarizedCount = 0;
+    if (!chat.maskId) chat.maskId = currentMaskId;
     delete chat._replying;
     delete chat._summarizing;
     if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
@@ -5461,7 +5336,15 @@ async function loadJianxunChats() {
 
 async function saveJianxunChats() {
   try {
-    await idbSet(STORE_CHATS, 'main', jianxunChats);
+    const currentMaskId = getCurrentMaskId();
+    let allChats = await idbGet(STORE_CHATS, 'main') || [];
+    if (!Array.isArray(allChats)) allChats = [];
+    // 移除当前身份的所有旧数据
+    allChats = allChats.filter(c => c.maskId !== currentMaskId && c.maskId);
+    // 合并新数据
+    jianxunChats.forEach(c => { if (!c.maskId) c.maskId = currentMaskId; });
+    allChats = allChats.concat(jianxunChats);
+    await idbSet(STORE_CHATS, 'main', allChats);
   } catch (e) {}
 }
 
@@ -5538,6 +5421,7 @@ function loadStickers() {
 async function openJianxunApp() {
   loadPersonaList();
   loadWorldBook();
+  loadMasks();
   await loadJianxunChats();
   openScreen('jianxunScreen');
   switchJianxunTab('jx-chats', document.querySelector('#jianxunScreen .jx-nav-item'));
@@ -5563,9 +5447,16 @@ function switchJianxunTab(tabId, navElement) {
   }
 }
 function loadJxMeProfile() {
-  const savedAvatar = localStorage.getItem('moments_avatar');
-  const savedName = localStorage.getItem('moments_name') || 'Koi Buono';
-  const savedWxId = localStorage.getItem('jx_wechat_id') || 'Koi_Buono';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  let savedAvatar = localStorage.getItem('moments_avatar');
+  let savedName = localStorage.getItem('moments_name') || 'Koi Buono';
+  let savedWxId = localStorage.getItem('jx_wechat_id') || 'Koi_Buono';
+  if (mask) {
+    if (mask.avatar) savedAvatar = mask.avatar;
+    if (mask.name) savedName = mask.name;
+    if (mask.wxId) savedWxId = mask.wxId;
+  }
   const el1 = document.getElementById('jxMeAvatarImg');
   if (el1) {
     if (savedAvatar) el1.src = savedAvatar;
@@ -5586,6 +5477,12 @@ function loadJxMeProfile() {
       const el = document.getElementById('jxMeAvatarImg');
       if (el) el.src = base64;
       try {
+        const currentMaskId = getCurrentMaskId();
+        const mask = jxMasks.find(m => m.id === currentMaskId);
+        if (mask) {
+          mask.avatar = base64;
+          saveMasks();
+        }
         localStorage.setItem('moments_avatar', base64);
         const m = document.getElementById('momentsAvatarImg');
         if (m) m.src = base64;
@@ -5612,10 +5509,13 @@ function loadJxMeProfile() {
   const nameEl = document.getElementById('jxMeNameText');
   if (nameEl) nameEl.addEventListener('click', function(e) {
     e.stopPropagation();
-    const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+    const currentMaskId = getCurrentMaskId();
+    const mask = jxMasks.find(m => m.id === currentMaskId);
+    const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
     const newName = prompt('请输入新的网名：', currentName);
     if (newName !== null && newName.trim() !== '') {
       const finalName = newName.trim();
+      if (mask) { mask.name = finalName; saveMasks(); }
       localStorage.setItem('moments_name', finalName);
       this.innerText = finalName;
       const el = document.getElementById('momentsName');
@@ -5628,10 +5528,13 @@ function loadJxMeProfile() {
   const wxEl = document.getElementById('jxMeWxIdText');
   if (wxEl) wxEl.addEventListener('click', function(e) {
     e.stopPropagation();
-    const currentWxId = localStorage.getItem('jx_wechat_id') || 'Koi_Buono';
+    const currentMaskId = getCurrentMaskId();
+    const mask = jxMasks.find(m => m.id === currentMaskId);
+    const currentWxId = mask ? mask.wxId : (localStorage.getItem('jx_wechat_id') || 'Koi_Buono');
     const newWxId = prompt('请输入新的微信号：', currentWxId);
     if (newWxId !== null && newWxId.trim() !== '') {
       const finalWxId = newWxId.trim();
+      if (mask) { mask.wxId = finalWxId; saveMasks(); }
       localStorage.setItem('jx_wechat_id', finalWxId);
       this.innerText = '微信号：' + finalWxId;
     }
@@ -5656,7 +5559,9 @@ function renderJianxunContacts() {
   loadPersonaList();
   const list = document.getElementById('jxContactList');
   if (!list) return;
-  const defaultName = localStorage.getItem('moments_name') || 'Koi Buono';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const defaultName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
   if (personaList.length === 0) {
     list.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#999; font-size:14px;">通讯录为空<br>请先去人设App中添加人设</div>';
     return;
@@ -5691,13 +5596,14 @@ function renderJianxunContacts() {
 function renderJianxunChatList() {
   const list = document.getElementById('jxChatList');
   if (!list) return;
-  const defaultName = localStorage.getItem('moments_name') || 'Koi Buono';
-  const filteredChats = jianxunChats.filter(c => (c.maskId || 'default') === currentMaskId);
-  if (filteredChats.length === 0) {
-    list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">该账号暂无聊天记录<br>点击右上角"+"添加人设</div>';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const defaultName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  if (jianxunChats.length === 0) {
+    list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">暂无聊天记录<br>点击右上角"+"添加人设</div>';
     return;
   }
-  const sortedChats = [...filteredChats].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  const sortedChats = [...jianxunChats].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
   list.innerHTML = sortedChats.map((chat) => {
     const avatarUrl = chat.avatar || '';
     const nameText = chat.customRemark || chat.name || defaultName;
@@ -5815,6 +5721,8 @@ function renderChatMessages(keepScrollPos) {
     let bubbleCls = 'jx-msg-bubble';
     if (msg.content === '__typing__') {
       inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
+    } else if (msg.type === 'system') {
+      return `<div style="text-align:center; font-size:12px; color:#999; margin: 10px 0;">${escapeHtml(msg.content)}</div>`;
     } else if (msg.type === 'merged' && Array.isArray(msg.items)) {
       inner = `<div class="merged-card" onclick="openMergedView('${msg.id}')" style="cursor:pointer;">
         <div class="merged-title">聊天记录</div>
@@ -6036,12 +5944,14 @@ function handleContactCardClick(card) {
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
+  const currentMaskId = getCurrentMaskId();
   const newChat = {
-    id: genId(), name: card.name, avatar: card.avatar || '', maskId: currentMaskId,
+    id: genId(), name: card.name, avatar: card.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1,
     customRemark: '', boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [],
     chatBg: '', myAvatar: '', imagePool: imagePool,
-    memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
+    memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
+    maskId: currentMaskId
   };
   jianxunChats.push(newChat);
   saveJianxunChats();
@@ -6620,7 +6530,7 @@ function menuEdit() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html') { alert('图片、表情、聊天记录、转账、亲属卡、名片、HTML 不能编辑'); return; }
+  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html' || msg.type === 'system') { alert('该类型消息不能编辑'); return; }
   editingMsgId = id;
   document.getElementById('editMsgTextarea').value = msg.content || '';
   document.getElementById('jxEditMsgModal').classList.add('show');
@@ -6643,7 +6553,7 @@ async function menuTranslate() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html') { alert('这条消息没有可翻译的文字内容'); return; }
+  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html' || msg.type === 'system') { alert('这条消息没有可翻译的文字内容'); return; }
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置，才能翻译'); return; }
   const original = msg.content;
@@ -6692,7 +6602,7 @@ function deleteSelected() {
 }
 function forwardSelected() {
   if (selectedMsgIds.size === 0) { alert('请先选择消息'); return; }
-  const targets = jianxunChats.filter(c => c.id !== currentChatId && (c.maskId || 'default') === currentMaskId);
+  const targets = jianxunChats.filter(c => c.id !== currentChatId);
   if (targets.length === 0) { alert('没有其他聊天可以转发'); return; }
   const list = document.getElementById('forwardTargetList');
   list.innerHTML = targets.map(c => `
@@ -6872,6 +6782,7 @@ function buildCharSystemPrompt(chat) {
   sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
+  sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用，且你必须在每次回复中自然使用这个标记！\n';
   sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。\n';
 
@@ -6943,6 +6854,8 @@ function buildChatHistory(chat) {
       content = `[已发送 HTML 组件：${m.htmlName || ''}]`;
     } else if (m.type === 'merged' && Array.isArray(m.items)) {
       content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
+    } else if (m.type === 'system') {
+      content = `[系统提示：${m.content}]`;
     } else {
       content = m.content || '';
       if (m.quote) content = `【引用 ${m.quote.name} 的消息：${m.quote.text}】\n` + content;
@@ -6981,7 +6894,6 @@ async function callChatAPI(messages, systemPrompt, cfg) {
   } catch (err) { clearTimeout(timeoutId); throw err; }
 }
 
-// ============ 记忆总结 ============
 async function summarizeChatMemory(chat, isManual) {
   if (!chat) return;
   if (chat._summarizing) {
@@ -7073,7 +6985,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -7122,6 +7034,20 @@ function cropImageRegion(base64Src, region, ratio) {
 }
 
 function executeCharAction(chat, action) {
+  if (action.type === 'SET_REMARK') {
+    const newRemark = String(action.payload).trim();
+    if (newRemark) {
+      chat.customRemark = newRemark;
+      chat.messages.push({ id: genId(), role: 'char', type: 'system', content: `对方将你的备注修改为「${newRemark}」` });
+      saveJianxunChats();
+      if (currentChatId === chat.id) {
+        document.getElementById('jxChatTitle').innerText = newRemark;
+        renderChatMessages();
+      }
+      renderJianxunChatList();
+    }
+    return;
+  }
   if (action.type === 'SET_AVATAR') {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
     const refs = getCharImageRefs(chat);
@@ -7332,10 +7258,12 @@ function executeCharAction(chat, action) {
     }
     if (!text && imgs.length === 0) return;
     loadMomentsPosts();
+    const currentMaskId = getCurrentMaskId();
     momentsPosts.unshift({
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
       mentions: [], customVisibles: [], likes: [], comments: [],
-      author: chat.customRemark || chat.name || 'TA', authorAvatar: chat.avatar || '', maskId: currentMaskId
+      author: chat.customRemark || chat.name || 'TA', authorAvatar: chat.avatar || '',
+      maskId: currentMaskId
     });
     saveMomentsPosts();
     renderMomentsPosts();
@@ -7404,7 +7332,6 @@ async function generateCharReply(chat) {
   return clean || raw;
 }
 
-// ================= 气泡拆分解析 =================
 function parseReplyIntoBubbles(rawText) {
   let segments = [];
   let trimmed = String(rawText || '').trim();
@@ -7843,23 +7770,25 @@ function showPersonaSelector() {
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
 function addPersonaToChat(index) {
   const persona = personaList[index]; if (!persona) return;
-  const exists = jianxunChats.find(c => c.name === persona.name && (c.maskId || 'default') === currentMaskId);
-  if (exists) { alert('该人设已经在当前账号的聊天列表中了'); closePersonaSelector(); return; }
+  const exists = jianxunChats.find(c => c.name === persona.name);
+  if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
+  const currentMaskId = getCurrentMaskId();
   jianxunChats.push({
-    id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '', maskId: currentMaskId,
+    id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
     boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
-    memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0
+    memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
+    maskId: currentMaskId
   });
   saveJianxunChats();
   renderJianxunChatList();
   closePersonaSelector();
 }
 
-// ============ 朋友圈 ============
+// ============ 朋友圈（多身份隔离） ============
 function loadMomentsData() {
   const bg = localStorage.getItem('moments_bg');
   const hdr = document.getElementById('jxMomentsHeader');
@@ -7948,34 +7877,44 @@ initEditableTexts();
 let momentsPosts = [];
 let tempPostImages = [];
 async function loadMomentsPosts() {
-  let data = await idbGet(STORE_CHATS, 'moments');
-  if (!data) {
+  loadMasks();
+  const currentMaskId = getCurrentMaskId();
+  let allPosts = await idbGet(STORE_CHATS, 'moments');
+  if (!allPosts) {
     const localData = localStorage.getItem('moments_posts');
     if (localData) {
-      try { data = JSON.parse(localData); } catch(e) { data = []; }
+      try { allPosts = JSON.parse(localData); } catch(e) { allPosts = []; }
     } else {
-      data = [];
+      allPosts = [];
     }
   }
-  momentsPosts = Array.isArray(data) ? data : [];
-  momentsPosts.forEach(post => {
-    if (!post.maskId) post.maskId = 'default';
+  momentsPosts = (Array.isArray(allPosts) ? allPosts : []).filter(p => {
+    if (!p.maskId) return true;
+    return p.maskId === currentMaskId;
   });
+  momentsPosts.forEach(p => { if (!p.id) p.id = genId(); });
 }
 async function saveMomentsPosts() {
   try {
-    await idbSet(STORE_CHATS, 'moments', momentsPosts);
+    const currentMaskId = getCurrentMaskId();
+    let allPosts = await idbGet(STORE_CHATS, 'moments') || [];
+    if (!Array.isArray(allPosts)) allPosts = [];
+    allPosts = allPosts.filter(p => p.maskId !== currentMaskId && p.maskId);
+    momentsPosts.forEach(p => { if (!p.maskId) p.maskId = currentMaskId; });
+    allPosts = allPosts.concat(momentsPosts);
+    await idbSet(STORE_CHATS, 'moments', allPosts);
   } catch(e) {}
 }
 function renderMomentsPosts() {
   const container = document.getElementById('jx-moments-posts');
   if (!container) return;
-  const filteredPosts = momentsPosts.filter(p => (p.maskId || 'default') === currentMaskId);
-  document.getElementById('momentsPostCount').innerText = `帖子数量 ${filteredPosts.length}`;
-  const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
-  const myAvatar = localStorage.getItem('moments_avatar') || '';
-  if (filteredPosts.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">该账号暂无动态</div>'; return; }
-  container.innerHTML = filteredPosts.map(post => {
+  document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  const myAvatar = mask ? (mask.avatar || '') : (localStorage.getItem('moments_avatar') || '');
+  if (momentsPosts.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">暂无动态</div>'; return; }
+  container.innerHTML = momentsPosts.map(post => {
     const isChar = !!post.author;
     const authorName = post.author || currentName;
     const authorAvatar = isChar ? (post.authorAvatar || '') : myAvatar;
@@ -8027,7 +7966,9 @@ async function toggleLike(postId) {
   await loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
-  const myName = localStorage.getItem('moments_name') || 'Koi Buono';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const myName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
   if (!Array.isArray(post.likes)) { post.likes = post.liked ? [myName] : []; delete post.liked; }
   const i = post.likes.indexOf(myName);
   if (i >= 0) post.likes.splice(i, 1);
@@ -8109,9 +8050,11 @@ async function publishPost() {
   const visibility = document.getElementById('publishVisibility').value;
   const mentions = Array.from(document.querySelectorAll('#publishMentionList .mention-item.selected')).map(el => el.innerText);
   const customVisibles = Array.from(document.querySelectorAll('#publishCustomList .mention-item.selected')).map(el => el.innerText);
+  const currentMaskId = getCurrentMaskId();
   const newPost = {
     id: genId(), content: content, images: [...tempPostImages], time: '刚刚',
-    visibility: visibility, mentions: mentions, customVisibles: customVisibles, likes: [], comments: [], maskId: currentMaskId
+    visibility: visibility, mentions: mentions, customVisibles: customVisibles, likes: [], comments: [],
+    maskId: currentMaskId
   };
   await loadMomentsPosts();
   momentsPosts.unshift(newPost);
@@ -8147,7 +8090,9 @@ function closeCommentModal() { document.getElementById('jxCommentModal').classLi
 async function sendComment() {
   const text = document.getElementById('commentContent').value.trim();
   if (!text) return;
-  const currentName = localStorage.getItem('moments_name') || 'Koi Buono';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
   await loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === currentCommentPostId);
   if (post) {
@@ -8158,7 +8103,7 @@ async function sendComment() {
     closeCommentModal();
     pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
     if (post.author) {
-      const chat = jianxunChats.find(c => (c.customRemark || c.name) === post.author && (c.maskId || 'default') === currentMaskId);
+      const chat = jianxunChats.find(c => (c.customRemark || c.name) === post.author);
       if (chat) setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
     }
   }
@@ -8170,7 +8115,9 @@ async function replyToMomentsComment(chat, postId, userComment) {
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
   const charName = chat.customRemark || chat.name || 'TA';
-  const userName = localStorage.getItem('moments_name') || '用户';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const userName = mask ? mask.name : (localStorage.getItem('moments_name') || '用户');
   const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
     `你之前发过一条朋友圈：「${post.content || '[图片]'}」。\n` +
     `现在「${userName}」在这条动态下评论了你：「${userComment}」。\n` +
