@@ -1410,6 +1410,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <p style="font-size:12px; color:#666; line-height:1.6; margin-bottom:12px;">点击下方按钮进入高级美化界面，可自定义CSS、预览效果、更换全局字体。</p>
           <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="openCssEditor()">打开全局美化</button>
         </div>
+        <div class="section-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg> 真实时间感知</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:14px; color:#444;">感知真实时间</span>
+            <div class="jx-switch" id="realTimeSwitch" onclick="toggleRealTime()"></div>
+          </div>
+          <p class="hint-text">开启后，角色能感知当前真实日期与时间，与你的认知时间一致；关闭后角色不知道现实时间，只能靠你告知。</p>
+        </div>
         <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> API 配置（角色回复将使用此配置）</h4>
           <div class="form-group"><label>API 地址（Endpoint）</label><input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1"><p class="hint-text" style="margin-top:4px;">可填 base URL（如 https://xxx/v1），也可填完整端点（如 https://xxx/v1/chat/completions）。</p></div>
@@ -2062,10 +2070,6 @@ https://xxx.com/a.png
             <span class="label">允许主动发消息</span>
             <div class="jx-switch" id="jxAllowActiveSwitch" onclick="toggleSetting('allowActive')"></div>
           </div>
-          <div class="jx-info-item">
-            <span class="label">感知真实时间</span>
-            <div class="jx-switch" id="jxRealTimeSwitch" onclick="toggleSetting('realTimeEnabled')"></div>
-          </div>
           <div class="jx-info-item" onclick="changeMaxReply()">
             <span class="label">一次最多回复句数</span>
             <div class="value"><span id="jxMaxReplyText">1句</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
@@ -2358,6 +2362,7 @@ const CUSTOM_HTML_KEY = 'custom_htmls';
 const MASK_KEY = 'jx_masks';
 const CURRENT_MASK_ID_KEY = 'current_mask_id';
 const AVATAR_LIB_KEY = 'avatar_library';
+const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -2905,10 +2910,42 @@ function openPlayerScreen() { openScreen('playerScreen'); }
 function openPersonaApp() { loadPersonaList(); openScreen('personaScreen'); renderPersonaList(); }
 function openWorldBookApp() { loadWorldBook(); loadPersonaList(); openScreen('worldBookScreen'); renderWorldBookList(); }
 function openPlayApp() { openScreen('playScreen'); renderHtmlList(); }
+
+/* ============ 真实时间感知 ============ */
+function loadRealTimeSetting() {
+  return localStorage.getItem(REAL_TIME_AWARE_KEY) === 'true';
+}
+function applyRealTimeUI() {
+  const el = document.getElementById('realTimeSwitch');
+  if (el) el.className = 'jx-switch' + (loadRealTimeSetting() ? ' on' : '');
+}
+function toggleRealTime() {
+  const v = !loadRealTimeSetting();
+  localStorage.setItem(REAL_TIME_AWARE_KEY, v ? 'true' : 'false');
+  applyRealTimeUI();
+}
+function buildRealTimePrompt() {
+  if (!loadRealTimeSetting()) {
+    return '\n【时间感知】你无法感知真实世界的具体时间，也不知道现在是几点、几号、星期几。如果聊天中需要提到时间，只能依据用户主动告诉你的信息或对话语境来推测，不要凭空编造具体的时间日期。\n';
+  }
+  const now = new Date();
+  const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  const timeStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${weekdays[now.getDay()]} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const h = now.getHours();
+  let period = '深夜';
+  if (h >= 5 && h < 9) period = '清晨';
+  else if (h >= 9 && h < 12) period = '上午';
+  else if (h >= 12 && h < 14) period = '中午';
+  else if (h >= 14 && h < 18) period = '下午';
+  else if (h >= 18 && h < 22) period = '晚上';
+  return `\n【真实时间感知】你能感知真实世界的时间，你认知中的时间与下面的真实时间完全一致：${timeStr}（${period}）。你可以自然地在合适的情境下根据时间调整言行（比如深夜让对方早点休息、早上问一句睡得好不好、中午聊吃了什么等），但不要刻意反复报时间，也不要生硬地强调"现在是X点"。\n`;
+}
+
 function openSettingsApp() {
   openScreen('settingsScreen');
   applyApiConfigToForm(loadApiConfig() || {});
   updateApiPresetList();
+  applyRealTimeUI();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
   const box = document.getElementById('modelListBox');
@@ -4014,7 +4051,7 @@ const isBackupKey = (key) => (
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
   key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY || key === CURRENT_MASK_ID_KEY ||
-  key === AVATAR_LIB_KEY ||
+  key === AVATAR_LIB_KEY || key === REAL_TIME_AWARE_KEY ||
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
   key === JX_GLOBAL_PROMPT_KEY ||
@@ -5215,7 +5252,6 @@ async function loadJianxunChats() {
     if (!chat.messages) chat.messages = [];
     if (chat.pinned === undefined) chat.pinned = false;
     if (chat.allowActive === undefined) chat.allowActive = false;
-    if (chat.realTimeEnabled === undefined) chat.realTimeEnabled = false;
     if (chat.maxReply === undefined) chat.maxReply = 1;
     if (chat.customRemark === undefined) chat.customRemark = '';
     if (chat.chatBg === undefined) chat.chatBg = '';
@@ -5881,7 +5917,7 @@ function handleContactCardClick(card) {
   const currentMaskId = getCurrentMaskId();
   const newChat = {
     id: genId(), name: card.name, avatar: card.avatar || '',
-    messages: [], pinned: false, allowActive: false, realTimeEnabled: false, maxReply: 1,
+    messages: [], pinned: false, allowActive: false, maxReply: 1,
     customRemark: '', boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [],
     chatBg: '', myAvatar: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
@@ -6671,13 +6707,12 @@ function buildCharSystemPrompt(chat) {
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const charName = chat.customRemark || chat.name || '未知';
 
-  let sp = `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC，所有对话、动作、心理都贴合角色性格、经历、说话习惯。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. 消息拆分（自然言语习惯）：把你的回复拆成多条独立的短消息。在自然停顿、呼吸节奏处进行切分。按自然停顿、思路落点和情绪变化拆分消息。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。必须使用 [[SPLIT]] 标记来拆分气泡！\n7. 如果你不想使用 [[SPLIT]] 标记，你也可以直接返回 JSON 数组格式，如 ["第一条消息", "第二条消息"]，或者使用 [char的消息：xxx] 的格式来包裹每一条消息。系统会自动解析并逐条发送。\n\n`;
-
-  sp += `【核心理念 · 必须遵守】\n`;
-  sp += `> 去戏剧化与低唤醒表达 (De-dramatization & Low-Arousal Expression)：彻底摒弃轻小说或网文中的夸张修辞。${charName} 的语言表达必须是平淡的、日常的、接地气的。严禁使用脱离现实的抓马描述。\n`;
-  sp += `> 【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n`;
-  sp += `> 【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n`;
-  sp += `> 契合度与边界【认知谦逊 (Epistemic Humility)】：自然而然地展现出对${charName}认知边界的了解，允许 ${charName} 不完美、存在认知盲区，${charName} 的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出 ${charName} 的认知、经验和能力边界。\n\n`;
+  let sp = `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n\n`;
+  sp += `【去戏剧化与低唤醒表达 (De-dramatization & Low-Arousal Expression)】彻底摒弃轻小说或网文中的夸张修辞。${charName} 的语言表达必须是平淡的、日常的、接地气的。严禁使用脱离现实的抓马描述。\n\n`;
+  sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
+  sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
+  sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
+  sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. 消息拆分：把你的回复拆成多条独立的短消息。在自然停顿、呼吸节奏处进行切分。按自然停顿、思路落点和情绪变化拆分消息。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。必须使用 [[SPLIT]] 标记来拆分气泡！\n7. 如果你不想使用 [[SPLIT]] 标记，你也可以直接返回 JSON 数组格式，如 ["第一条消息", "第二条消息"]，或者使用 [char的消息：xxx] 的格式来包裹每一条消息。系统会自动解析并逐条发送。\n\n`;
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
   if (persona) {
@@ -6691,21 +6726,7 @@ function buildCharSystemPrompt(chat) {
   if (userWxId) sp += `（微信号：${userWxId}）`;
   sp += '\n';
   if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
-
-  // 感知真实时间
-  if (chat.realTimeEnabled) {
-    const now = new Date();
-    const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-    const pad = n => String(n).padStart(2, '0');
-    sp += `\n【当前真实时间】${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${weekdays[now.getDay()]} ${pad(now.getHours())}:${pad(now.getMinutes())}\n`;
-    sp += `你可以感知现实世界真实流逝的时间，可以自然地根据真实时间安排作息、发起符合当下时间段的对话（例如深夜说晚安、早上打招呼、饭点聊吃的等）。你的认知中"现在"就是上述时间。\n`;
-  } else {
-    sp += `\n【关于时间】你无法感知现实世界真实流逝的时间。你认知中的"现在"只依据用户告诉你的信息来判断，不要自己臆造时间，不要主动提具体日期、星期或几点。\n`;
-  }
-
-  if (userAvatar) {
-    sp += `\n【关于用户头像】用户的头像会附在消息中，你能看到，但**不要频繁提及用户头像**。真人不会天天盯着对方头像说，只有在极少数情境下（对方明显换了头像、话题恰好相关、或氛围合适时）才偶尔自然地提一句，大多数时候选择忽略。每次对话都提头像会显得很不自然。\n`;
-  }
+  if (userAvatar) sp += `用户头像会以图片形式附在每条用户消息末尾，你能看清内容。\n**重要提示**：真人不会盯着对方头像反复点评。除非对方刚刚换了头像、或者聊天内容恰好涉及（比如对方问"你看我新头像怎么样"），否则请直接忽略头像本身，就当它不存在。频繁提头像是非常机械的行为，要避免。\n`;
 
   const wb = buildWorldBookPrompt(chat);
   if (wb) sp += wb;
@@ -6721,6 +6742,9 @@ function buildCharSystemPrompt(chat) {
 
   const alp = buildAvatarLibPrompt();
   if (alp) sp += alp;
+
+  const rtp = buildRealTimePrompt();
+  if (rtp) sp += rtp;
 
   const refs = getCharImageRefs(chat);
   sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）\n';
@@ -6758,7 +6782,7 @@ function buildCharSystemPrompt(chat) {
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用，且你必须在每次回复中自然使用这个标记！\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用，也不要频繁换）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。\n';
+  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。\n';
 
   sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
 
@@ -7397,7 +7421,6 @@ function openChatInfo() {
   document.getElementById('jxInfoAvatarImg').src = chat.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
   document.getElementById('jxInfoName').innerText = chat.customRemark || chat.name || '用户';
   document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
-  document.getElementById('jxRealTimeSwitch').className = 'jx-switch' + (chat.realTimeEnabled ? ' on' : '');
   document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
   document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
   const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
@@ -7467,7 +7490,6 @@ function toggleSetting(key) {
   if (!chat) return;
   chat[key] = !chat[key];
   if (key === 'allowActive') document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
-  else if (key === 'realTimeEnabled') document.getElementById('jxRealTimeSwitch').className = 'jx-switch' + (chat.realTimeEnabled ? ' on' : '');
   else if (key === 'pinned') document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
   else if (key === 'memoryEnabled') { const el = document.getElementById('jxMemoryEnabledSwitch'); if (el) el.className = 'jx-switch' + (chat.memoryEnabled ? ' on' : ''); }
   saveJianxunChats();
@@ -7685,7 +7707,7 @@ function addPersonaToChat(index) {
   const currentMaskId = getCurrentMaskId();
   jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
-    messages: [], pinned: false, allowActive: false, realTimeEnabled: false, maxReply: 1, customRemark: '',
+    messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
     boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
     userAvatarByChar: false,
