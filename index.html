@@ -1001,6 +1001,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .avatar-lib-item{background:#2c2c2e;border-color:#3a3a3c}
 .phone-case.dark-mode .avatar-lib-couple{background:#2c2c2e;border-color:#3a3a3c}
 .phone-case.dark-mode .avatar-lib-couple .avatar-lib-name{background:#3a3a3c;color:#ddd;border-top-color:#2c2c2e}
+/* 预设管理样式 */
+.preset-section-box { background: #f8f9fa; border-radius: 12px; padding: 16px; border: 1px solid #e9ecef; margin-top: 16px; }
+.preset-section-box h4 { font-size: 15px; color: #333; margin-bottom: 12px; font-weight: 600; }
+.preset-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; }
+.preset-item-row .preset-name { font-size: 14px; color: #333; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 10px; }
+.preset-item-row .preset-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.preset-item-row .preset-actions button { font-size: 12px; padding: 4px 10px; border: none; border-radius: 6px; cursor: pointer; }
+.preset-item-row .preset-actions .apply-btn { background: #eef2ff; color: #4b7bec; }
+.preset-item-row .preset-actions .delete-btn { background: #ffeaea; color: #ff4757; }
+.phone-case.dark-mode .preset-section-box { background: #1c1c1e; border-color: #3a3a3c; }
+.phone-case.dark-mode .preset-section-box h4 { color: #eee; }
+.phone-case.dark-mode .preset-item-row { background: #2c2c2e; border-color: #3a3a3c; }
+.phone-case.dark-mode .preset-item-row .preset-name { color: #ddd; }
+.phone-case.dark-mode .preset-item-row .preset-actions .apply-btn { background: #2c2c2e; color: #82a7e0; }
+.phone-case.dark-mode .preset-item-row .preset-actions .delete-btn { background: #3a2a2c; color: #ff6b7a; }
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1534,7 +1549,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
           <div class="jx-me-menu-item" onclick="openMaskScreen()">
             <div class="jx-me-menu-icon jx-me-bg-mask"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
-            <span class="jx-me-menu-text">身份管理</span>
+            <span class="jx-me-menu-text">切换身份</span>
             <svg class="jx-me-menu-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
           <div class="jx-me-menu-item" onclick="openFavoritesScreen()">
@@ -1617,6 +1632,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <div class="font-size-info" id="fontCompressedInfo" style="display:none;">
               <span>存储大小（IndexedDB）</span><span id="fontCompSize">-</span>
             </div>
+          </div>
+
+          <div class="preset-section-box">
+            <h4>美化预设</h4>
+            <div class="preset-input-row">
+              <input type="text" id="beautifyPresetNameInput" placeholder="输入预设名称">
+              <button class="btn btn-success" id="saveBeautifyPresetBtn" style="flex:0 0 auto; padding:10px 14px;">保存预设</button>
+            </div>
+            <div id="beautifyPresetList"></div>
+            <div class="empty-state" id="beautifyPresetEmpty" style="padding:20px 0; font-size:13px;">暂无美化预设，保存当前样式即可创建</div>
           </div>
         </div>
       </div>
@@ -2274,6 +2299,7 @@ const DB_NAME = 'TuToothDB';
 const DB_VERSION = 1;
 const STORE_CHATS = 'chats';
 const STORE_IMAGES = 'images';
+const STORE_PRESETS = 'beautify_presets';
 let dbPromise = null;
 
 function openDB() {
@@ -2284,6 +2310,7 @@ function openDB() {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE_CHATS)) db.createObjectStore(STORE_CHATS);
       if (!db.objectStoreNames.contains(STORE_IMAGES)) db.createObjectStore(STORE_IMAGES);
+      if (!db.objectStoreNames.contains(STORE_PRESETS)) db.createObjectStore(STORE_PRESETS, { keyPath: 'id' });
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -2337,6 +2364,19 @@ async function idbGetAllKeys(storeName) {
       const tx = db.transaction(storeName, 'readonly');
       const store = tx.objectStore(storeName);
       const req = store.getAllKeys();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  } catch (e) { return []; }
+}
+
+async function idbGetAll(storeName) {
+  try {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+      const req = store.getAll();
       req.onsuccess = () => resolve(req.result || []);
       req.onerror = () => reject(req.error);
     });
@@ -2662,6 +2702,7 @@ function openCssEditor() {
   updateCursorInfo();
   switchEditorTab('css');
   updateFontUI();
+  renderBeautifyPresets();
   document.getElementById('jxCssEditorScreen').classList.add('active');
 }
 function closeCssEditor() { document.getElementById('jxCssEditorScreen').classList.remove('active'); }
@@ -2847,6 +2888,138 @@ function showCssPreview(cssText) {
   modal.classList.add('show');
 }
 function closeCssPreview() { document.getElementById('cssPreviewModal').classList.remove('show'); }
+
+// ================= 美化预设管理 =================
+async function renderBeautifyPresets() {
+  const listEl = document.getElementById('beautifyPresetList');
+  const emptyEl = document.getElementById('beautifyPresetEmpty');
+  if (!listEl || !emptyEl) return;
+  const presets = await idbGetAll(STORE_PRESETS);
+  presets.sort((a, b) => b.createdAt - a.createdAt);
+  if (presets.length === 0) {
+    listEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = presets.map(p => `
+    <div class="preset-item-row">
+      <span class="preset-name">${escapeHtml(p.name)}</span>
+      <div class="preset-actions">
+        <button class="apply-btn" onclick="loadBeautifyPreset('${p.id}')">应用</button>
+        <button class="delete-btn" onclick="deleteBeautifyPreset('${p.id}')">删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function saveBeautifyPreset() {
+  const nameInput = document.getElementById('beautifyPresetNameInput');
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (!name) { alert('请输入预设名称'); return; }
+  const cssText = document.getElementById('cssEditorTextarea') ? document.getElementById('cssEditorTextarea').value : '';
+  const fontSizeScale = getGlobalFontSizeScale();
+  const fontData = await getFontFromDB();
+  let fontB64 = null, fontOrigSize = 0;
+  if (fontData && fontData.data) {
+    fontB64 = ab2b64(fontData.data);
+    fontOrigSize = fontData.origSize;
+  }
+  const preset = {
+    id: genId(),
+    name: name,
+    css: cssText,
+    fontSizeScale: fontSizeScale,
+    fontB64: fontB64,
+    fontOrigSize: fontOrigSize,
+    createdAt: Date.now()
+  };
+  try {
+    await idbSet(STORE_PRESETS, preset.id, preset);
+    if (nameInput) nameInput.value = '';
+    await renderBeautifyPresets();
+    alert('预设已保存');
+  } catch (e) {
+    alert('保存失败：' + (e.message || '未知错误'));
+  }
+}
+
+async function loadBeautifyPreset(id) {
+  try {
+    const preset = await idbGet(STORE_PRESETS, id);
+    if (!preset) { alert('预设不存在'); return; }
+    if (confirm(`确定应用预设「${preset.name}」吗？\n当前未保存的修改将会丢失。`)) {
+      const ta = document.getElementById('cssEditorTextarea');
+      if (ta) ta.value = preset.css || '';
+      try { localStorage.setItem(USER_CSS_KEY, preset.css || ''); } catch(e) {}
+      const styleEl = document.getElementById('userCustomStyle');
+      if (styleEl) styleEl.textContent = preset.css || '';
+      _cssEditorDirty = false;
+      _cssEditorDraft = null;
+      if (preset.fontSizeScale) {
+        setGlobalFontSize(preset.fontSizeScale);
+      }
+      if (preset.fontB64) {
+        const fontBuffer = b642ab(preset.fontB64);
+        await saveFontToDB(fontBuffer, preset.fontOrigSize || fontBuffer.byteLength);
+        await applyGlobalFont();
+      } else {
+        await deleteFontFromDB();
+        if (_appliedFontFace) { try { document.fonts.delete(_appliedFontFace); } catch (e) {} _appliedFontFace = null; }
+        if (_appliedFontUrl) { try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {} _appliedFontUrl = null; }
+        document.documentElement.style.fontFamily = '';
+        document.body.style.fontFamily = '';
+      }
+      await updateFontUI();
+      updateCursorInfo();
+      setCssStatus('已应用预设', 'saved');
+      alert('预设已应用');
+    }
+  } catch (e) {
+    alert('应用失败：' + (e.message || '未知错误'));
+  }
+}
+
+async function deleteBeautifyPreset(id) {
+  if (!confirm('确定删除这个预设吗？')) return;
+  try {
+    await idbDelete(STORE_PRESETS, id);
+    await renderBeautifyPresets();
+  } catch (e) {
+    alert('删除失败');
+  }
+}
+
+// ================= 主动消息逻辑 =================
+function checkProactiveMessages() {
+  if (document.hidden) return;
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
+  const now = Date.now();
+  const PROACTIVE_THRESHOLD = 5 * 60 * 1000; // 5分钟未活动
+  for (const chat of jianxunChats) {
+    if (chat.allowActive && !chat._replying && currentChatId !== chat.id) {
+      const lastMsg = chat.messages.filter(m => m.content !== '__typing__').pop();
+      const lastTime = lastMsg && lastMsg.time ? lastMsg.time : (chat.lastMessageTime || now);
+      if (now - lastTime > PROACTIVE_THRESHOLD && !chat._proactiveCooldown) {
+        chat._proactiveCooldown = true;
+        triggerCharReply(chat, true).finally(() => {
+          setTimeout(() => { chat._proactiveCooldown = false; }, 10 * 60 * 1000); // 10分钟冷却
+        });
+      }
+    }
+  }
+}
+
+// 页面可见时检查
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    checkProactiveMessages();
+  }
+});
+
+// 定时器每 15 秒检查一次
+setInterval(checkProactiveMessages, 15000);
 
 async function sanitizeDocxForMammoth(arrayBuffer) {
   if (typeof JSZip === 'undefined') return arrayBuffer;
@@ -4105,9 +4278,10 @@ async function exportAllData() {
     fontB64 = ab2b64(fontData.data);
     fontOrigSize = fontData.origSize;
   }
+  const presets = await idbGetAll(STORE_PRESETS);
   const backup = { 
     localStorage: localData, 
-    indexedDB: { chats: chatData, moments: momentData, images: imageData },
+    indexedDB: { chats: chatData, moments: momentData, images: imageData, presets: presets },
     font: { b64: fontB64, size: fontOrigSize }
   };
   const json = JSON.stringify(backup, null, 2);
@@ -4139,6 +4313,8 @@ async function importAllData(jsonStr) {
     for (const k of chatKeys) await idbDelete(STORE_CHATS, k);
     const imgKeys = await idbGetAllKeys(STORE_IMAGES);
     for (const k of imgKeys) await idbDelete(STORE_IMAGES, k);
+    const presetKeys = await idbGetAllKeys(STORE_PRESETS);
+    for (const k of presetKeys) await idbDelete(STORE_PRESETS, k);
     if (data.indexedDB.chats) await idbSet(STORE_CHATS, 'main', data.indexedDB.chats);
     if (data.indexedDB.moments) await idbSet(STORE_CHATS, 'moments', data.indexedDB.moments);
     if (data.indexedDB.images) {
@@ -4146,6 +4322,11 @@ async function importAllData(jsonStr) {
         if (Object.prototype.hasOwnProperty.call(data.indexedDB.images, k)) {
           await idbSet(STORE_IMAGES, k, data.indexedDB.images[k]);
         }
+      }
+    }
+    if (data.indexedDB.presets) {
+      for (const p of data.indexedDB.presets) {
+        await idbSet(STORE_PRESETS, p.id, p);
       }
     }
     if (data.font && data.font.b64) {
@@ -7417,30 +7598,6 @@ async function triggerCharReply(chat, isProactive = false) {
   }
 }
 
-// ============ 主动消息定时器 ============
-setInterval(async () => {
-  try {
-    if (document.hidden) return;
-    const cfg = loadApiConfig();
-    if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
-    const now = Date.now();
-    for (const chat of jianxunChats) {
-      if (chat.allowActive && !chat._replying) {
-        const lastMsg = chat.messages.filter(m => m.content !== '__typing__').pop();
-        const lastTime = lastMsg && lastMsg.time ? lastMsg.time : (chat.lastMessageTime || now);
-        const timeSinceLast = now - lastTime;
-        // 超过60秒不活动，触发主动消息
-        if (timeSinceLast > 60000) {
-          triggerCharReply(chat, true);
-          break; // 一次只触发一个，避免API过载
-        }
-      }
-    }
-  } catch (e) {
-    console.warn('主动消息检查失败', e);
-  }
-}, 15000);
-
 async function closeChatScreen() {
   document.getElementById('jxStickerPanel').classList.remove('show');
   const tools = document.getElementById('jxChatTools');
@@ -8115,6 +8272,13 @@ async function replyToMomentsComment(chat, postId, userComment) {
 }
 
 initGlobalFontSizeControl();
+
+// 绑定美化预设按钮
+document.addEventListener('DOMContentLoaded', () => {
+  const saveBtn = document.getElementById('saveBeautifyPresetBtn');
+  if (saveBtn) saveBtn.addEventListener('click', saveBeautifyPreset);
+  renderBeautifyPresets();
+});
 </script>
 
 </body>
