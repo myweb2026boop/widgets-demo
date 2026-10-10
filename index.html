@@ -1444,18 +1444,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <p class="hint-text">保存预设可快速在多个 API 配置之间切换。</p>
         </div>
         <div class="section-card highlight-card">
-          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg> 主动消息设置</h4>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:14px; color:#444;">开启全局主动消息</span>
-            <div class="jx-switch" id="globalActiveMsgSwitch" onclick="toggleGlobalActiveMsg()"></div>
-          </div>
-          <div class="form-group">
-            <label>未聊天多久后主动发消息（分钟）：</label>
-            <input type="number" id="globalActiveInterval" min="1" max="1440" value="60" onchange="saveGlobalActiveInterval(this.value)">
-            <p class="hint-text" style="margin-top:4px;">当角色开启“允许主动发消息”且超过该时间未聊天时，角色会根据人设和聊天上下文主动发送消息。</p>
-          </div>
-        </div>
-        <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 全部数据备份</h4>
           <div class="btn-row">
             <button class="btn btn-primary" id="exportAllDataBtn">导出全部数据</button>
@@ -1608,6 +1596,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
 
           <div class="font-section-box">
+            <h4>预设管理</h4>
+            <div class="preset-input-row">
+              <input type="text" id="beautifyPresetName" placeholder="输入预设名称（如：粉色主题）">
+              <button class="btn btn-success" onclick="saveBeautifyPreset()">保存预设</button>
+            </div>
+            <div class="preset-select-row">
+              <select id="beautifyPresetSelect"></select>
+              <button class="btn btn-primary" onclick="applyBeautifyPreset()">应用</button>
+              <button class="btn btn-danger" onclick="deleteBeautifyPreset()">删除</button>
+            </div>
+            <p class="font-hint" style="margin-top:6px;">保存预设会包含当前的 CSS、字体文件和字号大小，切换预设会自动同步全局样式。</p>
+          </div>
+
+          <div class="font-section-box">
             <h4>字体设置</h4>
             <div style="margin-bottom: 12px;">
               <label style="font-size:13px; color:#666; display:block; margin-bottom:6px;">字体大小：<span id="globalFontSizeValue">100%</span></label>
@@ -1628,20 +1630,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             </div>
             <div class="font-size-info" id="fontCompressedInfo" style="display:none;">
               <span>存储大小（IndexedDB）</span><span id="fontCompSize">-</span>
-            </div>
-          </div>
-
-          <div class="font-section-box" style="margin-top: 16px; border-color: #4b7bec;">
-            <h4 style="color: #4b7bec;">美化预设管理</h4>
-            <p style="font-size:12px; color:#888; margin-bottom:10px;">保存当前的 CSS、字体大小和字体文件为一个预设，方便一键切换。</p>
-            <div class="preset-input-row">
-              <input type="text" id="beautifyPresetNameInput" placeholder="输入预设名称" style="flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px; outline:none;">
-              <button class="btn btn-success" onclick="saveBeautifyPreset()" style="padding:8px 14px; font-size:13px;">保存预设</button>
-            </div>
-            <div class="preset-select-row" style="margin-top:8px;">
-              <select id="beautifyPresetSelect" style="flex:1; padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:13px; outline:none; background:#fff;"><option value="">-- 选择预设 --</option></select>
-              <button class="btn btn-primary" onclick="loadBeautifyPreset()" style="flex:0 0 auto; padding:8px 14px; font-size:13px;">应用</button>
-              <button class="btn btn-danger" onclick="deleteBeautifyPreset()" style="flex:0 0 auto; padding:8px 14px; font-size:13px;">删除</button>
             </div>
           </div>
         </div>
@@ -1816,7 +1804,7 @@ https://xxx.com/a.png
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll" style="padding: 16px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片直接切换身份，点击右侧编辑按钮修改。</p>
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
         <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
         <div id="jxMaskList"></div>
         <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
@@ -2380,6 +2368,7 @@ const MASK_KEY = 'jx_masks';
 const CURRENT_MASK_ID_KEY = 'current_mask_id';
 const AVATAR_LIB_KEY = 'avatar_library';
 const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
+const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -2727,6 +2716,102 @@ function resetCssEditor() {
   updateCursorInfo();
   setCssStatus('已恢复默认样式', 'saved');
 }
+
+function updateBeautifyPresetList() {
+  const sel = document.getElementById('beautifyPresetSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- 选择预设 --</option>';
+  try {
+    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    presets.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+function saveBeautifyPreset() {
+  const nameInput = document.getElementById('beautifyPresetName');
+  const name = nameInput.value.trim();
+  if (!name) { alert('请输入预设名称'); return; }
+  const css = document.getElementById('cssEditorTextarea').value;
+  const fontSize = getGlobalFontSizeScale();
+  getFontFromDB().then(fontData => {
+    let fontB64 = null, fontSizeBytes = 0;
+    if (fontData && fontData.data) {
+      fontB64 = ab2b64(fontData.data);
+      fontSizeBytes = fontData.origSize;
+    }
+    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    const newPreset = {
+      id: genId(),
+      name: name,
+      css: css,
+      fontSize: fontSize,
+      fontB64: fontB64,
+      fontOrigSize: fontSizeBytes,
+      time: Date.now()
+    };
+    presets.push(newPreset);
+    try {
+      localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+      alert('预设已保存：' + name);
+      nameInput.value = '';
+      updateBeautifyPresetList();
+      document.getElementById('beautifyPresetSelect').value = newPreset.id;
+    } catch(e) { alert('保存失败，存储空间可能不足'); }
+  });
+}
+
+async function applyBeautifyPreset() {
+  const sel = document.getElementById('beautifyPresetSelect');
+  const id = sel.value;
+  if (!id) { alert('请选择预设'); return; }
+  const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+  const preset = presets.find(p => p.id === id);
+  if (!preset) { alert('未找到该预设'); return; }
+
+  // 应用 CSS
+  document.getElementById('cssEditorTextarea').value = preset.css || '';
+  localStorage.setItem(USER_CSS_KEY, preset.css || '');
+  const styleEl = document.getElementById('userCustomStyle');
+  if (styleEl) styleEl.textContent = preset.css || '';
+
+  // 应用字体
+  if (preset.fontB64) {
+    const fontBuffer = b642ab(preset.fontB64);
+    await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
+  } else {
+    await deleteFontFromDB();
+  }
+  await applyGlobalFont();
+
+  // 应用字号
+  if (preset.fontSize) {
+    setGlobalFontSize(preset.fontSize);
+  } else {
+    setGlobalFontSize(100);
+  }
+
+  alert('预设已应用：' + preset.name);
+}
+
+function deleteBeautifyPreset() {
+  const sel = document.getElementById('beautifyPresetSelect');
+  const id = sel.value;
+  if (!id) { alert('请选择预设'); return; }
+  if (!confirm('确定删除该预设吗？')) return;
+  let presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+  presets = presets.filter(p => p.id !== id);
+  try {
+    localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+    updateBeautifyPresetList();
+    alert('预设已删除');
+  } catch(e) {}
+}
+
 function insertClassNames(type) {
   const ta = document.getElementById('cssEditorTextarea');
   if (!ta) return;
@@ -2875,105 +2960,6 @@ function showCssPreview(cssText) {
 }
 function closeCssPreview() { document.getElementById('cssPreviewModal').classList.remove('show'); }
 
-// ================= 美化预设管理 =================
-function updateBeautifyPresetList() {
-  const sel = document.getElementById('beautifyPresetSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">-- 选择预设 --</option>';
-  try {
-    const presets = JSON.parse(localStorage.getItem('beautify_presets') || '{}');
-    Object.keys(presets).forEach(name => {
-      const opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      sel.appendChild(opt);
-    });
-  } catch(e) {}
-}
-async function saveBeautifyPreset() {
-  const nameInput = document.getElementById('beautifyPresetNameInput');
-  if (!nameInput) return;
-  const name = nameInput.value.trim();
-  if (!name) { alert('请输入预设名称'); return; }
-  const css = localStorage.getItem(USER_CSS_KEY) || '';
-  const fontSize = getGlobalFontSizeScale();
-  let fontB64 = null, fontOrigSize = 0;
-  const fontData = await getFontFromDB();
-  if (fontData && fontData.data) {
-    fontB64 = ab2b64(fontData.data);
-    fontOrigSize = fontData.origSize;
-  }
-  try {
-    const presets = JSON.parse(localStorage.getItem('beautify_presets') || '{}');
-    presets[name] = { css, fontSize, fontB64, fontOrigSize };
-    localStorage.setItem('beautify_presets', JSON.stringify(presets));
-    nameInput.value = '';
-    updateBeautifyPresetList();
-    document.getElementById('beautifyPresetSelect').value = name;
-    alert('预设保存成功：' + name);
-  } catch (e) {
-    alert('保存失败，可能空间不足。' + (e.message || ''));
-  }
-}
-async function loadBeautifyPreset() {
-  const sel = document.getElementById('beautifyPresetSelect');
-  if (!sel) return;
-  const name = sel.value;
-  if (!name) { alert('请选择预设'); return; }
-  try {
-    const presets = JSON.parse(localStorage.getItem('beautify_presets') || '{}');
-    const preset = presets[name];
-    if (!preset) { alert('预设不存在'); return; }
-    
-    // 恢复 CSS
-    if (preset.css !== undefined) {
-      localStorage.setItem(USER_CSS_KEY, preset.css);
-      const styleEl = document.getElementById('userCustomStyle');
-      if (styleEl) styleEl.textContent = preset.css;
-      const ta = document.getElementById('cssEditorTextarea');
-      if (ta) ta.value = preset.css;
-    }
-    
-    // 恢复字体大小
-    if (preset.fontSize !== undefined) {
-      setGlobalFontSize(preset.fontSize);
-    }
-    
-    // 恢复字体文件
-    if (preset.fontB64) {
-      const fontBuffer = b642ab(preset.fontB64);
-      await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
-      await applyGlobalFont();
-    } else {
-      await deleteFontFromDB();
-      if (_appliedFontFace) { try { document.fonts.delete(_appliedFontFace); } catch (e) {} _appliedFontFace = null; }
-      if (_appliedFontUrl) { try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {} _appliedFontUrl = null; }
-      document.documentElement.style.fontFamily = '';
-      document.body.style.fontFamily = '';
-    }
-    
-    await updateFontUI();
-    updateCursorInfo();
-    alert('已应用预设：' + name);
-  } catch (e) {
-    alert('应用预设失败：' + (e.message || '未知错误'));
-  }
-}
-function deleteBeautifyPreset() {
-  const sel = document.getElementById('beautifyPresetSelect');
-  if (!sel) return;
-  const name = sel.value;
-  if (!name) { alert('请选择预设'); return; }
-  if (!confirm('确定删除预设「' + name + '」吗？')) return;
-  try {
-    const presets = JSON.parse(localStorage.getItem('beautify_presets') || '{}');
-    delete presets[name];
-    localStorage.setItem('beautify_presets', JSON.stringify(presets));
-    updateBeautifyPresetList();
-    alert('已删除预设：' + name);
-  } catch(e) {}
-}
-
 async function sanitizeDocxForMammoth(arrayBuffer) {
   if (typeof JSZip === 'undefined') return arrayBuffer;
   try {
@@ -3063,29 +3049,10 @@ function openSettingsApp() {
   applyApiConfigToForm(loadApiConfig() || {});
   updateApiPresetList();
   applyRealTimeUI();
-  updateGlobalActiveMsgUI();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
   const box = document.getElementById('modelListBox');
   if (box) { box.classList.remove('show'); box.innerHTML = ''; }
-}
-
-/* ============ 全局主动消息设置 ============ */
-function updateGlobalActiveMsgUI() {
-  const sw = document.getElementById('globalActiveMsgSwitch');
-  const intervalInput = document.getElementById('globalActiveInterval');
-  if (sw) sw.className = 'jx-switch' + (localStorage.getItem('global_active_msg') !== 'false' ? ' on' : '');
-  if (intervalInput) intervalInput.value = localStorage.getItem('global_active_interval') || '60';
-}
-function toggleGlobalActiveMsg() {
-  const cur = localStorage.getItem('global_active_msg') !== 'false';
-  localStorage.setItem('global_active_msg', cur ? 'false' : 'true');
-  updateGlobalActiveMsgUI();
-}
-function saveGlobalActiveInterval(val) {
-  const num = parseInt(val, 10);
-  if (isNaN(num) || num < 1) { alert('请输入大于0的数字'); return; }
-  localStorage.setItem('global_active_interval', String(num));
 }
 
 /* ============ 头像库 App ============ */
@@ -4191,8 +4158,8 @@ const isBackupKey = (key) => (
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
   key === JX_GLOBAL_PROMPT_KEY ||
-  key === CUSTOM_HTML_KEY || key === 'beautify_presets' ||
-  key === 'global_active_msg' || key === 'global_active_interval' ||
+  key === CUSTOM_HTML_KEY ||
+  key === BEAUTIFY_PRESETS_KEY ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 (function initPresetBtn() {
@@ -4731,7 +4698,6 @@ function confirmTransfer() {
   }
 
   chat.messages.push({ id: genId(), role: 'me', type: 'transfer', amount: amount, note: note, content: '[转账]', status: 'pending', billId: billId, payType: payByCard ? 'card' : 'balance', time: Date.now() });
-  chat.lastMessageTime = Date.now();
   saveJianxunChats();
   closeTransferModal();
   renderChatMessages();
@@ -4861,7 +4827,6 @@ function createRelativeCardForChat() {
   const cn = chat.customRemark || chat.name || '对方';
   const mi = chat.messages.length;
   chat.messages.push({ id: genId(), role: 'me', type: 'familyCard', limit: limit, note: note, status: 'pending', time: Date.now(), content: '[亲属卡]' });
-  chat.lastMessageTime = Date.now();
   saveJianxunChats();
   closeRelativeCardScreen();
   renderChatMessages();
@@ -6033,7 +5998,6 @@ function sendContactCard(type, idxOrName) {
     card = { name: p.name || '未命名', avatar: p.avatar || '', isUser: false };
   }
   chat.messages.push({ id: genId(), role: 'me', type: 'card', card: card, content: '[名片] ' + card.name, time: Date.now() });
-  chat.lastMessageTime = Date.now();
   saveJianxunChats();
   renderChatMessages();
   renderJianxunChatList();
@@ -6882,7 +6846,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   if (userAvatar) sp += `用户头像会以图片形式附在每条用户消息末尾，你能看清内容。\n**重要提示**：真人不会盯着对方头像反复点评。除非对方刚刚换了头像、或者聊天内容恰好涉及（比如对方问"你看我新头像怎么样"），否则请直接忽略头像本身，就当它不存在。频繁提头像是非常机械的行为，要避免。\n`;
 
   if (isProactive) {
-    sp += `\n【系统提示】用户已经有一段时间没有回复了。现在你想主动开启一个新话题、分享一些符合你人设的内容，或者发送一条日常消息。不要回复用户，只需发送一条新消息。请根据你们的关系、当前时间、聊天记录，发一条自然的问候或分享。\n`;
+    sp += `\n【系统提示】用户已经有一段时间没有回复了。现在你想主动开启一个新话题、分享一些符合你人设的内容，或者发送一条日常消息。不要回复用户，只需发送一条新消息。\n`;
   }
 
   const wb = buildWorldBookPrompt(chat);
@@ -7514,6 +7478,7 @@ async function triggerCharReply(chat, isProactive = false) {
   chat.messages.push({ id: typingId, role: 'char', type: 'text', content: '__typing__', time: Date.now() });
   if (currentChatId === chat.id) renderChatMessages();
   
+  let newMessages = [];
   try {
     const reply = await generateCharReply(chat, isProactive);
     const idx = chat.messages.findIndex(m => m.id === typingId);
@@ -7521,15 +7486,32 @@ async function triggerCharReply(chat, isProactive = false) {
     const rawReply = String(reply == null ? '' : reply).trim();
     if (rawReply) {
       const segments = parseReplyIntoBubbles(rawReply);
-      if (segments.length > 0) segments.forEach(seg => { chat.messages.push({ id: genId(), role: 'char', type: 'text', content: seg, time: Date.now() }); });
-      else chat.messages.push({ id: genId(), role: 'char', type: 'text', content: rawReply, time: Date.now() });
+      if (segments.length > 0) {
+        segments.forEach(seg => { 
+          const msg = { id: genId(), role: 'char', type: 'text', content: seg, time: Date.now() };
+          chat.messages.push(msg);
+          newMessages.push(msg);
+        });
+      } else {
+        const msg = { id: genId(), role: 'char', type: 'text', content: rawReply, time: Date.now() };
+        chat.messages.push(msg);
+        newMessages.push(msg);
+      }
     }
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
-      chat._pendingStickers.forEach(st => { chat.messages.push({ id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]', time: Date.now() }); });
+      chat._pendingStickers.forEach(st => { 
+        const msg = { id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]', time: Date.now() };
+        chat.messages.push(msg);
+        newMessages.push(msg);
+      });
     }
     chat._pendingStickers = [];
     if (Array.isArray(chat._pendingHtmls) && chat._pendingHtmls.length > 0) {
-      chat._pendingHtmls.forEach(h => { chat.messages.push({ id: genId(), role: 'char', type: 'html', htmlId: h.id, htmlName: h.name, content: '[HTML] ' + h.name, time: Date.now() }); });
+      chat._pendingHtmls.forEach(h => { 
+        const msg = { id: genId(), role: 'char', type: 'html', htmlId: h.id, htmlName: h.name, content: '[HTML] ' + h.name, time: Date.now() };
+        chat.messages.push(msg);
+        newMessages.push(msg);
+      });
     }
     chat._pendingHtmls = [];
   } catch (e) {
@@ -7547,7 +7529,9 @@ async function triggerCharReply(chat, isProactive = false) {
     const hasImage = lastMsg && lastMsg.type === 'image';
     if (realError.includes('image') || realError.includes('vision') || hasImage) displayError += '\n提示：如果当前 API 模型不支持图片识别，将无法看到图片内容。请尝试更换支持视觉的模型（如 gpt-4o）。';
     else if (realError.includes('balance') || realError.includes('余额')) displayError += '\n提示：你的 API 账户余额不足，请前往服务商平台充值，或更换其他 API 渠道。';
-    chat.messages.push({ id: genId(), role: 'char', type: 'text', content: displayError, time: Date.now() });
+    const msg = { id: genId(), role: 'char', type: 'text', content: displayError, time: Date.now() };
+    chat.messages.push(msg);
+    newMessages.push(msg);
     chat._pendingStickers = [];
     chat._pendingHtmls = [];
   } finally {
@@ -7563,32 +7547,85 @@ async function triggerCharReply(chat, isProactive = false) {
       const sinceLast = chat.messages.length - (chat.lastSummarizedCount || 0);
       if (sinceLast >= (chat.memoryInterval || 20)) setTimeout(() => { summarizeChatMemory(chat).catch(e => console.warn(e)); }, 1000);
     }
+
+    // ============ 系统消息弹窗通知 ============
+    // 只要当前不在此聊天窗口，或页面处于后台，就弹出系统通知
+    const isChatOpen = document.getElementById('jxChatScreen').classList.contains('active') && currentChatId === chat.id;
+    if (!isChatOpen && newMessages.length > 0) {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        const firstMsg = newMessages.find(m => m.type === 'text' || m.type === 'image' || m.type === 'sticker');
+        let bodyText = '发来一条新消息';
+        if (firstMsg) {
+          if (firstMsg.type === 'image') bodyText = '[图片]';
+          else if (firstMsg.type === 'sticker') bodyText = '[表情]';
+          else bodyText = firstMsg.content || '新消息';
+        }
+        const charName = chat.customRemark || chat.name || '简讯消息';
+        try {
+          const notification = new Notification(charName, {
+            body: bodyText.length > 50 ? bodyText.slice(0, 50) + '…' : bodyText,
+            icon: chat.avatar || undefined,
+            tag: 'tutooth_' + chat.id,
+            renotify: true
+          });
+          notification.onclick = function() {
+            window.focus();
+            this.close();
+            // 如果当前不在简讯App，先打开简讯
+            if (!document.getElementById('jianxunScreen').classList.contains('active')) {
+              openJianxunApp();
+            }
+            // 打开对应的聊天窗口
+            setTimeout(() => {
+              if (currentChatId !== chat.id) {
+                openChat(chat.id);
+              }
+            }, 300);
+          };
+        } catch (e) {
+          console.warn('通知发送失败:', e);
+        }
+      }
+    }
   }
 }
+
+// 请求通知权限
+function requestNotificationPermission() {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        console.log('通知权限已授予');
+      }
+    });
+  }
+}
+// 页面加载时请求一次权限
+setTimeout(requestNotificationPermission, 2000);
 
 // ============ 主动消息定时器 ============
 setInterval(async () => {
   try {
+    if (document.hidden) return;
     const cfg = loadApiConfig();
     if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
-    const globalActive = localStorage.getItem('global_active_msg') !== 'false';
-    if (!globalActive) return;
-    const interval = parseInt(localStorage.getItem('global_active_interval') || '60', 10);
     const now = Date.now();
     for (const chat of jianxunChats) {
       if (chat.allowActive && !chat._replying) {
         const lastMsg = chat.messages.filter(m => m.content !== '__typing__').pop();
         const lastTime = lastMsg && lastMsg.time ? lastMsg.time : (chat.lastMessageTime || now);
-        if (now - lastTime > interval * 60 * 1000) {
+        const timeSinceLast = now - lastTime;
+        // 超过60秒不活动，触发主动消息
+        if (timeSinceLast > 60000) {
           triggerCharReply(chat, true);
-          break;
+          break; // 一次只触发一个，避免API过载
         }
       }
     }
   } catch (e) {
     console.warn('主动消息检查失败', e);
   }
-}, 60000);
+}, 15000);
 
 async function closeChatScreen() {
   document.getElementById('jxStickerPanel').classList.remove('show');
@@ -8264,7 +8301,6 @@ async function replyToMomentsComment(chat, postId, userComment) {
 }
 
 initGlobalFontSizeControl();
-updateBeautifyPresetList();
 </script>
 
 </body>
