@@ -1444,12 +1444,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <p class="hint-text">保存预设可快速在多个 API 配置之间切换。</p>
         </div>
         <div class="section-card highlight-card">
-          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 通知与后台保活</h4>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:14px; color:#444;">允许通知后台保活</span>
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 消息弹窗与后台保活</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:14px; color:#444;">开启系统弹窗通知</span>
             <div class="jx-switch" id="notificationBgSwitch" onclick="toggleNotificationBg()"></div>
           </div>
-          <p class="hint-text">开启并授权后，当您切出App（浏览器后台），角色发来新消息时，手机会弹出系统通知（类似微信消息通知）。</p>
+          <button class="btn btn-outline-dark" style="width:100%; margin-top:6px;" onclick="testNotification()">点击测试弹窗</button>
+          <p class="hint-text">开启并授权后，当您切出App（浏览器后台），角色发来新消息时，手机会弹出系统通知（类似微信消息通知）。点击测试按钮可验证效果。</p>
         </div>
         <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 全部数据备份</h4>
@@ -3069,6 +3070,42 @@ function toggleNotificationBg() {
       }
     });
   }
+}
+function testNotification() {
+  if (typeof Notification === 'undefined') {
+    alert('当前环境不支持系统通知（如部分手机浏览器或微信内嵌浏览器）。\n请使用Chrome、Safari等原生浏览器打开。');
+    return;
+  }
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        doTestNotification();
+      } else {
+        alert('通知权限被拒绝，无法测试。请在浏览器设置中手动允许通知。');
+      }
+    });
+  } else {
+    doTestNotification();
+  }
+}
+function doTestNotification() {
+  alert('测试已启动！请立即将App切到后台（或退出到桌面），3秒后将收到一条系统弹窗通知。');
+  setTimeout(() => {
+    try {
+      const notification = new Notification('简讯测试消息', {
+        body: '如果你看到了这条消息，说明系统弹窗和后台保活已生效！',
+        tag: 'test_notification',
+        renotify: true,
+        icon: 'https://cdn.jsdelivr.net/npm/emoji-datasource-apple@15.0.1/img/apple/64/1f43e.png'
+      });
+      notification.onclick = function() {
+        window.focus();
+        this.close();
+      };
+    } catch (e) {
+      console.warn('测试通知发送失败:', e);
+    }
+  }, 3000);
 }
 
 function openSettingsApp() {
