@@ -1444,6 +1444,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <p class="hint-text">保存预设可快速在多个 API 配置之间切换。</p>
         </div>
         <div class="section-card highlight-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 通知与后台保活</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:14px; color:#444;">允许通知后台保活</span>
+            <div class="jx-switch" id="notificationBgSwitch" onclick="toggleNotificationBg()"></div>
+          </div>
+          <p class="hint-text">开启并授权后，当您切出App（浏览器后台），角色发来新消息时，手机会弹出系统通知（类似微信消息通知）。</p>
+        </div>
+        <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 全部数据备份</h4>
           <div class="btn-row">
             <button class="btn btn-primary" id="exportAllDataBtn">导出全部数据</button>
@@ -2363,6 +2371,7 @@ const MASK_KEY = 'jx_masks';
 const CURRENT_MASK_ID_KEY = 'current_mask_id';
 const AVATAR_LIB_KEY = 'avatar_library';
 const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
+const NOTIFICATION_BG_KEY = 'notification_bg_enabled';
 const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
 
 let _cssEditorDirty = false;
@@ -3039,11 +3048,35 @@ function buildRealTimePrompt() {
   return `\n【真实时间感知】你能感知真实世界的时间，你认知中的时间与下面的真实时间完全一致：${timeStr}（${period}）。你可以自然地在合适的情境下根据时间调整言行（比如深夜让对方早点休息、早上问一句睡得好不好、中午聊吃了什么等），但不要刻意反复报时间，也不要生硬地强调"现在是X点"。\n`;
 }
 
+/* ============ 通知后台保活 ============ */
+function loadNotificationBgSetting() {
+  return localStorage.getItem(NOTIFICATION_BG_KEY) === 'true';
+}
+function applyNotificationBgUI() {
+  const el = document.getElementById('notificationBgSwitch');
+  if (el) el.className = 'jx-switch' + (loadNotificationBgSetting() ? ' on' : '');
+}
+function toggleNotificationBg() {
+  const v = !loadNotificationBgSetting();
+  localStorage.setItem(NOTIFICATION_BG_KEY, v ? 'true' : 'false');
+  applyNotificationBgUI();
+  if (v && typeof Notification !== 'undefined') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        console.log('通知权限已授予');
+      } else {
+        alert('通知权限被拒绝，系统弹窗将无法显示。请在浏览器设置中手动允许通知。');
+      }
+    });
+  }
+}
+
 function openSettingsApp() {
   openScreen('settingsScreen');
   applyApiConfigToForm(loadApiConfig() || {});
   updateApiPresetList();
   applyRealTimeUI();
+  applyNotificationBgUI();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
   const box = document.getElementById('modelListBox');
@@ -4149,7 +4182,7 @@ const isBackupKey = (key) => (
   key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
   key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
   key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY || key === CURRENT_MASK_ID_KEY ||
-  key === AVATAR_LIB_KEY || key === REAL_TIME_AWARE_KEY ||
+  key === AVATAR_LIB_KEY || key === REAL_TIME_AWARE_KEY || key === NOTIFICATION_BG_KEY ||
   key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
   key === FONT_SIZE_SCALE_KEY ||
   key === JX_GLOBAL_PROMPT_KEY ||
@@ -6824,6 +6857,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
+  sp += `【视觉边界与认知解绑 (Visual Boundary & Cognitive Unbinding)】剥离视觉预设，聚焦文本本身：将用户的文字输入视为你唯一的互动源。头像仅是系统标识，绝不代表用户本人的外貌、形象或真实状态。你的所有回应必须完全基于用户发送的文字、对话上下文以及你所扮演角色的设定。严禁在聊天中反复提及用户的头像，严禁聊着聊着突然描绘或解析用户头像的细节，严禁将用户头像上的图片（如动漫人物、风景、动物等）当作用户本人的长相或形象进行任何形式的互动、调侃或代入描写。永远不要超出文字聊天的认知边界去构建用户的物理形象。\n\n`;
   sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. 消息拆分：把你的回复拆成多条独立的短消息。在自然停顿、呼吸节奏处进行切分。按自然停顿、思路落点和情绪变化拆分消息。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。必须使用 [[SPLIT]] 标记来拆分气泡！\n7. 如果你不想使用 [[SPLIT]] 标记，你也可以直接返回 JSON 数组格式，如 ["第一条消息", "第二条消息"]，或者使用 [char的消息：xxx] 的格式来包裹每一条消息。系统会自动解析并逐条发送。\n\n`;
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
@@ -7544,9 +7578,9 @@ async function triggerCharReply(chat, isProactive = false) {
     }
 
     // ============ 系统消息弹窗通知 ============
-    // 只要当前不在此聊天窗口，或页面处于后台，就弹出系统通知
+    // 只要开启通知后台保活，且当前不在此聊天窗口，或页面处于后台，就弹出系统通知
     const isChatOpen = document.getElementById('jxChatScreen').classList.contains('active') && currentChatId === chat.id;
-    if (!isChatOpen && newMessages.length > 0) {
+    if (!isChatOpen && newMessages.length > 0 && loadNotificationBgSetting()) {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         const firstMsg = newMessages.find(m => m.type === 'text' || m.type === 'image' || m.type === 'sticker');
         let bodyText = '发来一条新消息';
@@ -8101,14 +8135,30 @@ function renderMomentsPosts() {
       <div class="jx-post-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
         <span class="jx-post-visibility" style="display:flex; align-items:center; color:#ccc; font-size:11px;">${visibilityIcon} ${visibilityText}</span>
         <div class="jx-post-actions" style="display:flex; align-items:center; gap:16px;">
-          <svg viewBox="0 0 24 24" class="${likedClass}" onclick="toggleLike('${post.id}')"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-          <svg viewBox="0 0 24 24" onclick="openCommentModal('${post.id}')"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          <svg viewBox="0 0 24 24" class="${likedClass}" data-action="like" data-id="${post.id}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <svg viewBox="0 0 24 24" data-action="comment" data-id="${post.id}"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
           <span class="jx-post-delete-btn" onclick="deletePost('${post.id}')" style="display:flex; align-items:center; color:#ccc; font-size:12px; cursor:pointer;">${deleteBtnIcon} 删除</span>
         </div>
       </div>
       ${commentsHtml}
     </div>`;
   }).join('');
+
+  // 绑定朋友圈点赞和评论点击事件，解决点击无反应问题
+  container.querySelectorAll('.jx-post-actions svg[data-action="like"]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      if (id) toggleLike(id);
+    });
+  });
+  container.querySelectorAll('.jx-post-actions svg[data-action="comment"]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const id = this.getAttribute('data-id');
+      if (id) openCommentModal(id);
+    });
+  });
 }
 
 async function toggleLike(postId) {
