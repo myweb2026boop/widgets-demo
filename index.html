@@ -3916,8 +3916,11 @@ function renderMusicCard(msg, chat, idx) {
   const m = msg.musicData;
   const safeCover = m.cover ? String(m.cover).replace(/'/g, '%27') : '';
   const isMe = msg.role === 'me';
-  const statusText = msg.status === 'pending' ? (isMe ? '等待对方接受...' : '邀请你一起听') : '一起听';
-  const clickAttr = msg.role === 'char' ? ` data-music-idx="${idx}" style="cursor:pointer;"` : '';
+  let statusText = '一起听';
+  if (msg.status === 'pending') statusText = isMe ? '等待对方接受...' : '邀请你一起听';
+  else if (msg.status === 'accepted') statusText = '已加入';
+  const clickable = (msg.role === 'char' || (msg.role === 'me' && msg.status === 'accepted'));
+  const clickAttr = clickable ? ` data-music-idx="${idx}" style="cursor:pointer;"` : '';
   return `<div class="jx-music-card"${clickAttr}>
     <div class="jx-music-card-top">
       <div class="jx-music-card-cover">${safeCover ? `<img src="${safeCover}">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>`}</div>
@@ -3947,7 +3950,7 @@ function buildMusicPrompt(chat) {
 }
 
 function buildMusicSendActionPrompt() {
-  return '\n【发送歌曲】想要分享歌曲给用户时，请单独一行输出 [[SEND_MUSIC:歌名|歌手|封面URL|音频URL]]。封面和音频URL可以留空，系统会自动匹配本地音乐。例如：[[SEND_MUSIC:至少还有你|林忆莲||]]\n';
+  return '\n【发送歌曲】想要分享歌曲给用户时，请单独一行输出 [[SEND_MUSIC:歌名|歌手|封面URL|音频URL]]。封面和音频URL可以留空，系统会自动匹配本地音乐。例如：[[SEND_MUSIC:至少还有你|林忆莲||]]\n【接受一起听】当用户分享音乐给你，且你决定接受时，请输出 [[ACCEPT_LISTEN]] 标记，系统会自动更新卡片状态并显示系统消息。\n';
 }
 
 // 将音乐分享加入系统提示词
@@ -3960,7 +3963,7 @@ buildCharSystemPrompt = function(chat, isProactive = false) {
   return sp;
 };
 
-// 处理 AI 的 SEND_MUSIC 动作
+// 处理 AI 的 SEND_MUSIC 和 ACCEPT_LISTEN 动作
 const originalExecuteCharAction = executeCharAction;
 executeCharAction = async function(chat, action) {
   if (action.type === 'SEND_MUSIC') {
@@ -3991,13 +3994,28 @@ executeCharAction = async function(chat, action) {
     pushAwareness(`你分享了歌曲《${title}》`);
     return;
   }
+  if (action.type === 'ACCEPT_LISTEN') {
+    // 查找最近一条用户发送的、状态为 pending 的音乐消息
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type === 'music' && m.status === 'pending') {
+        m.status = 'accepted';
+        chat.messages.push({
+          id: genId(), role: 'char', type: 'system', content: '对方已加入一起听', time: Date.now()
+        });
+        pushAwareness('你加入了用户发起的音乐一起听');
+        break;
+      }
+    }
+    return;
+  }
   return await originalExecuteCharAction(chat, action);
 };
 
 // 处理 AI 的 SEND_MUSIC 动作（覆盖原始 parseAndExecuteActions 以支持异步）
 const originalParseAndExecuteActions = parseAndExecuteActions;
 parseAndExecuteActions = async function(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -4009,7 +4027,7 @@ parseAndExecuteActions = async function(chat, rawText) {
 };
 
 /* ============ 聊天消息渲染修改 ============ */
-// 修改 renderChatMessages 以支持音乐卡片
+// 修改 renderChatMessages 以支持音乐卡片和系统消息
 const originalRenderChatMessages = renderChatMessages;
 renderChatMessages = function(keepScrollPos) {
   if (!currentChatId) return;
@@ -4144,6 +4162,7 @@ renderChatMessages = function(keepScrollPos) {
     </div>`;
   }).join('');
   
+  // 绑定音乐卡片点击事件
   container.querySelectorAll('.jx-music-card[data-music-idx]').forEach(el => {
     el.addEventListener('click', function(e) {
       const idx = parseInt(this.getAttribute('data-music-idx'), 10);
@@ -4154,6 +4173,7 @@ renderChatMessages = function(keepScrollPos) {
     });
   });
 
+  // 绑定其他卡片事件
   container.querySelectorAll('.wx-family-card').forEach(cardEl => {
     cardEl.addEventListener('click', function(e) {
       const idx = parseInt(this.getAttribute('data-idx'), 10);
@@ -7657,6 +7677,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
   sp += '[[SEND_MUSIC:歌名|歌手|封面URL|音频URL]] 分享歌曲给用户（封面和音频URL可以留空，系统会自动匹配本地音乐）\n';
+  sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请（当用户分享音乐给你，且你打算接受时使用）\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用，且你必须在每次回复中自然使用这个标记！\n';
   sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。\n';
 
@@ -7819,7 +7840,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 async function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -8179,6 +8200,20 @@ async function executeCharAction(chat, action) {
       time: Date.now()
     });
     pushAwareness(`你分享了歌曲《${title}》`);
+    return;
+  }
+  if (action.type === 'ACCEPT_LISTEN') {
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type === 'music' && m.status === 'pending') {
+        m.status = 'accepted';
+        chat.messages.push({
+          id: genId(), role: 'char', type: 'system', content: '对方已加入一起听', time: Date.now()
+        });
+        pushAwareness('你加入了用户发起的音乐一起听');
+        break;
+      }
+    }
     return;
   }
 }
