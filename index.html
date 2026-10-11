@@ -1055,6 +1055,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .lt-bottom-actions{display:flex;justify-content:center;padding:10px 20px 30px}
 .lt-bottom-actions button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;cursor:pointer}
 .lt-bottom-actions button:active{background:rgba(255,255,255,.2)}
+/* 音乐列表项 */
+.music-list-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;}
+.music-list-item:last-child{border-bottom:none;}
+.music-list-item .music-item-name{font-size:14px;color:#333;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:none;border-radius:4px;padding:2px 4px;transition:background .15s;}
+.music-list-item .music-item-name[contenteditable="true"]{background:#f0f6ff;white-space:nowrap;overflow-x:auto;text-overflow:clip;cursor:text;}
+.music-list-item .music-item-artist{font-size:12px;color:#999;flex-shrink:0;}
+.phone-case.dark-mode .music-list-item{border-bottom-color:#2c2c2e;}
+.phone-case.dark-mode .music-list-item .music-item-name{color:#eee;}
+.phone-case.dark-mode .music-list-item .music-item-name[contenteditable="true"]{background:#2c2c2e;}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1236,7 +1245,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <button class="upload-btn" onclick="document.getElementById('mp3Input').click()">
             <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg> 上传 MP3
           </button>
-          <input type="file" id="mp3Input" accept=".mp3,audio/mpeg" style="display: none;">
+          <input type="file" id="mp3Input" accept=".mp3,audio/mpeg,audio/*" multiple style="display: none;">
         </div>
         <div class="music-list-empty" id="musicListEmpty">暂未上传音乐</div>
         <div id="musicListContainer" style="display:none;"></div>
@@ -2337,7 +2346,6 @@ https://xxx.com/a.png
       </div>
     </div>
 
-    <!-- 一起听歌界面 -->
     <div id="listenTogetherScreen">
       <div class="lt-header">
         <span class="back-btn" onclick="closeListenTogether()">‹</span>
@@ -2468,6 +2476,91 @@ const AVATAR_LIB_KEY = 'avatar_library';
 const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
 const NOTIFICATION_BG_KEY = 'notification_bg_enabled';
 const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
+
+/* ============ 音乐持久化存储（IndexedDB） ============ */
+const MUSIC_DB_NAME = 'TuTooth_MusicDB';
+const MUSIC_DB_VERSION = 1;
+const MUSIC_STORE_NAME = 'songs';
+let _musicDBPromise = null;
+
+function openMusicDB() {
+  if (_musicDBPromise) return _musicDBPromise;
+  _musicDBPromise = new Promise((resolve, reject) => {
+    let req;
+    try { req = indexedDB.open(MUSIC_DB_NAME, MUSIC_DB_VERSION); }
+    catch (e) { reject(e); return; }
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(MUSIC_STORE_NAME)) {
+        db.createObjectStore(MUSIC_STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return _musicDBPromise;
+}
+
+async function musicDBPut(song) {
+  try {
+    if (!song || !song.id) return false;
+    const db = await openMusicDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(MUSIC_STORE_NAME, 'readwrite');
+      tx.objectStore(MUSIC_STORE_NAME).put(song);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+      tx.onabort = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+
+async function musicDBGetAll() {
+  try {
+    const db = await openMusicDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(MUSIC_STORE_NAME, 'readonly');
+      const req = tx.objectStore(MUSIC_STORE_NAME).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch (e) { return []; }
+}
+
+async function musicDBDelete(id) {
+  try {
+    const db = await openMusicDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(MUSIC_STORE_NAME, 'readwrite');
+      tx.objectStore(MUSIC_STORE_NAME).delete(id);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+
+async function musicDBClear() {
+  try {
+    const db = await openMusicDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(MUSIC_STORE_NAME, 'readwrite');
+      tx.objectStore(MUSIC_STORE_NAME).clear();
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve) => {
+    try {
+      const reader = new FileReader();
+      reader.onload = (ev) => resolve((ev && ev.target && ev.target.result) || '');
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    } catch (e) { resolve(''); }
+  });
+}
 
 let _cssEditorDirty = false;
 let _cssEditorDraft = null;
@@ -3613,6 +3706,8 @@ function compressImageFile(file, maxDim, quality) {
 let audio = new Audio();
 let isPlaying = false;
 let playlist = [];
+let currentPlayingSongId = '';
+
 function togglePlay() {
   if (!audio.src) { alert('请先在"我的音乐"中上传MP3文件'); return; }
   if (isPlaying) {
@@ -3652,33 +3747,154 @@ function formatTime(seconds) {
   const s = Math.floor(seconds % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
+
+/* ============ 音乐列表渲染 & 单击播放 & 双击改名 ============ */
+function renderMusicList() {
+  const emptyEl = document.getElementById('musicListEmpty');
+  const container = document.getElementById('musicListContainer');
+  if (!emptyEl || !container) return;
+  if (!Array.isArray(playlist)) playlist = [];
+  if (playlist.length === 0) {
+    emptyEl.style.display = 'block';
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  container.style.display = 'block';
+  container.innerHTML = playlist.map((song, index) => `
+    <div class="music-list-item" data-index="${index}">
+      <span class="music-item-name" data-index="${index}">${escapeHtml(song.name || '未命名')}</span>
+      <span class="music-item-artist">${escapeHtml(song.artist || '本地音乐')}</span>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.music-list-item').forEach(item => {
+    let clickTimer = null;
+    item.addEventListener('click', (e) => {
+      if (e.target.isContentEditable) return;
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+        return;
+      }
+      clickTimer = setTimeout(() => {
+        clickTimer = null;
+        const idx = parseInt(item.getAttribute('data-index'), 10);
+        if (!isNaN(idx)) playSong(idx);
+      }, 230);
+    });
+    item.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+      startRenameSong(item);
+    });
+  });
+}
+
+function startRenameSong(item) {
+  const idx = parseInt(item.getAttribute('data-index'), 10);
+  if (isNaN(idx) || !playlist[idx]) return;
+  const nameEl = item.querySelector('.music-item-name');
+  if (!nameEl || nameEl.isContentEditable) return;
+  const song = playlist[idx];
+  const oldName = song.name || '';
+  nameEl.contentEditable = 'true';
+  try { nameEl.focus(); } catch (e) {}
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(nameEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  } catch (e) {}
+
+  let done = false;
+  const finish = async function (save) {
+    if (done) return;
+    done = true;
+    nameEl.contentEditable = 'false';
+    let newName = (nameEl.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!save || !newName) newName = oldName || '未命名';
+    if (newName === oldName) { nameEl.textContent = oldName; return; }
+    song.name = newName;
+    nameEl.textContent = newName;
+    await musicDBPut(song);
+    if (currentPlayingSongId && currentPlayingSongId === song.id) {
+      const t1 = document.getElementById('currentSongTitle');
+      if (t1) t1.innerText = newName;
+      const t2 = document.getElementById('playerSongTitle');
+      if (t2) t2.innerText = newName;
+    }
+  };
+  nameEl.addEventListener('blur', () => finish(true));
+  nameEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  });
+}
+
+/* ============ 从 IndexedDB 恢复播放列表（刷新/退出/重进均保留） ============ */
+async function loadPlaylistFromDB() {
+  let songs = [];
+  try { songs = await musicDBGetAll(); } catch (e) { songs = []; }
+  if (!Array.isArray(songs)) songs = [];
+  songs.sort((a, b) => (a.time || 0) - (b.time || 0));
+  const loaded = songs.map(s => ({
+    id: s.id || genId(),
+    name: s.name || '未命名',
+    artist: s.artist || '本地音乐',
+    url: s.url || '',
+    time: s.time || Date.now()
+  })).filter(s => s.url);
+  const loadedIds = new Set(loaded.map(s => s.id));
+  if (Array.isArray(playlist)) {
+    playlist.forEach(s => {
+      if (s && s.id && s.url && !loadedIds.has(s.id)) loaded.push(s);
+    });
+  }
+  playlist = loaded;
+  renderMusicList();
+}
+
+/* ============ MP3 上传（存入 IndexedDB，永久保存） ============ */
 (function initMp3Input() {
   const mp3Input = document.getElementById('mp3Input');
   if (!mp3Input) return;
-  mp3Input.addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const base64 = ev.target.result;
-      playlist.push({ name: file.name.replace('.mp3', ''), artist: '本地音乐', url: base64 });
-      document.getElementById('musicListEmpty').style.display = 'none';
-      const listContainer = document.getElementById('musicListContainer');
-      listContainer.style.display = 'block';
-      listContainer.innerHTML = playlist.map((song, index) => `
-        <div style="padding: 12px 0; border-bottom: 1px solid #f0f0f0; display:flex; justify-content:space-between; cursor:pointer;" onclick="playSong(${index})">
-          <span style="font-size:14px; color:#333;">${escapeHtml(song.name)}</span>
-          <span style="font-size:12px; color:#999;">${escapeHtml(song.artist)}</span>
-        </div>
-      `).join('');
-      if (playlist.length === 1) { playSong(0); }
-    };
-    reader.readAsDataURL(file);
+  mp3Input.addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files || []);
     this.value = '';
+    if (files.length === 0) return;
+    let added = 0;
+    for (const file of files) {
+      try {
+        const dataUrl = await readFileAsDataURL(file);
+        if (!dataUrl) continue;
+        const song = {
+          id: genId(),
+          name: file.name.replace(/\.[^/.]+$/, '') || '未命名',
+          artist: '本地音乐',
+          url: dataUrl,
+          time: Date.now()
+        };
+        playlist.push(song);
+        await musicDBPut(song);
+        added++;
+      } catch (err) { console.warn('读取MP3失败', err); }
+    }
+    renderMusicList();
+    if (added > 0 && playlist.length === added) {
+      playSong(0);
+    }
+    if (added > 0) alert(`已成功导入 ${added} 首歌曲\n已保存到本地数据库，刷新或退出后依然保留。`);
   });
 })();
+
 function playSong(index) {
   const song = playlist[index];
   if (!song) return;
+  currentPlayingSongId = song.id || '';
   audio.src = song.url;
   document.getElementById('currentSongTitle').innerText = song.name;
   document.getElementById('playerSongTitle').innerText = song.name;
@@ -3692,6 +3908,9 @@ function playSong(index) {
   }).catch(err => { console.log('播放失败:', err); });
 }
 
+/* 页面启动时恢复歌曲列表 */
+loadPlaylistFromDB();
+
 /* ============ 音乐分享与一起听 ============ */
 let listenTogetherChatId = null;
 let listenTogetherSong = null;
@@ -3702,10 +3921,9 @@ function playSilentAudio() {
   if (!loadNotificationBgSetting()) return;
   if (!globalSilentAudio) {
     globalSilentAudio = new Audio();
-    // 1秒静音音频（WAV格式）的base64编码，用于后台保活
     globalSilentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
     globalSilentAudio.loop = true;
-    globalSilentAudio.volume = 0.01; // 极低音量防止被浏览器优化掉
+    globalSilentAudio.volume = 0.01;
   }
   globalSilentAudio.play().catch(e => console.log('静音音频播放被拦截:', e));
 }
@@ -3823,7 +4041,6 @@ function startListenTogether(chatId, msgId) {
   document.getElementById('ltUserAvatar').innerHTML = myAvatar ? `<img src="${myAvatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
   document.getElementById('ltCharAvatar').innerHTML = chat.avatar ? `<img src="${chat.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
 
-  // 如果音乐已在播放，检查是否是同一首
   if (audio.src !== listenTogetherSong.url) {
     audio.src = listenTogetherSong.url;
   }
@@ -3850,7 +4067,6 @@ function startListenTogether(chatId, msgId) {
   audio.addEventListener('timeupdate', updateProgress);
   window._ltUpdateProgress = updateProgress;
 
-  // 开启后台保活
   if (loadNotificationBgSetting()) {
     playSilentAudio();
   }
@@ -3858,10 +4074,8 @@ function startListenTogether(chatId, msgId) {
   pushAwareness(`你和 ${chat.customRemark || chat.name || 'TA'} 开始一起听《${listenTogetherSong.title}》`);
 }
 
-// 顶部返回键：返回聊天界面，音乐不暂停
 function closeListenTogether() {
   document.getElementById('listenTogetherScreen').classList.remove('active');
-  // 不暂停音乐，不停止静音音频，保留 listenTogetherChatId 和 listenTogetherSong
 }
 
 function ltTogglePlay() {
@@ -3928,7 +4142,6 @@ function sendListenTogetherSystemMsg(action) {
   renderJianxunChatList();
 }
 
-// 底部退出键：退出一起听并返回聊天，音乐暂停
 function ltExitAndChat() {
   if (audio) {
     audio.pause();
@@ -3953,7 +4166,6 @@ function ltExitAndChat() {
   renderJianxunChatList();
 }
 
-/* ============ 音乐卡片渲染与播放 ============ */
 function renderMusicCard(msg, chat, idx) {
   const m = msg.musicData;
   const safeCover = m.cover ? String(m.cover).replace(/'/g, '%27') : '';
@@ -3978,7 +4190,6 @@ function renderMusicCard(msg, chat, idx) {
   </div>`;
 }
 
-/* ============ 音乐消息发送给 AI ============ */
 function buildMusicPrompt(chat) {
   const musicMsgs = chat.messages.filter(m => m.type === 'music');
   if (musicMsgs.length === 0) return '';
@@ -3995,329 +4206,6 @@ function buildMusicSendActionPrompt() {
   return '\n【发送歌曲】想要分享歌曲给用户时，请单独一行输出 [[SEND_MUSIC:歌名|歌手|封面URL|音频URL]]。封面和音频URL可以留空，系统会自动匹配本地音乐。例如：[[SEND_MUSIC:至少还有你|林忆莲||]]\n【接受一起听】当用户分享音乐给你，且你决定接受时，请输出 [[ACCEPT_LISTEN]] 标记，系统会自动更新卡片状态并显示系统消息。\n';
 }
 
-// 将音乐分享加入系统提示词
-const originalBuildCharSystemPrompt = buildCharSystemPrompt;
-buildCharSystemPrompt = function(chat, isProactive = false) {
-  let sp = originalBuildCharSystemPrompt(chat, isProactive);
-  const mp = buildMusicPrompt(chat);
-  if (mp) sp += mp;
-  sp += buildMusicSendActionPrompt();
-  return sp;
-};
-
-// 处理 AI 的 SEND_MUSIC 和 ACCEPT_LISTEN 动作
-const originalExecuteCharAction = executeCharAction;
-executeCharAction = async function(chat, action) {
-  if (action.type === 'SEND_MUSIC') {
-    const parts = String(action.payload).split('|');
-    const title = (parts[0] || '').trim();
-    const artist = (parts[1] || '').trim() || '未知歌手';
-    let cover = (parts[2] || '').trim();
-    let url = (parts[3] || '').trim();
-
-    // 如果 URL 为空，从本地播放列表找
-    if (!url && playlist.length > 0) {
-      let target = playlist.find(s => s.name === title);
-      if (!target) target = playlist[0];
-      url = target.url;
-      if (!title) title = target.name;
-    }
-    if (!title || !url) return;
-    if (!cover) cover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover') || '';
-
-    chat.messages.push({
-      id: genId(),
-      role: 'char',
-      type: 'music',
-      musicData: { title, artist, url, cover },
-      status: 'pending',
-      time: Date.now()
-    });
-    pushAwareness(`你分享了歌曲《${title}》`);
-    return;
-  }
-  if (action.type === 'ACCEPT_LISTEN') {
-    // 查找最近一条用户发送的、状态为 pending 的音乐消息
-    for (let i = chat.messages.length - 1; i >= 0; i--) {
-      const m = chat.messages[i];
-      if (m.role === 'me' && m.type === 'music' && m.status === 'pending') {
-        m.status = 'accepted';
-        chat.messages.push({
-          id: genId(), role: 'char', type: 'system', content: '对方已加入一起听', time: Date.now()
-        });
-        pushAwareness('你加入了用户发起的音乐一起听');
-        break;
-      }
-    }
-    return;
-  }
-  return await originalExecuteCharAction(chat, action);
-};
-
-// 处理 AI 的 SEND_MUSIC 动作（覆盖原始 parseAndExecuteActions 以支持异步）
-const originalParseAndExecuteActions = parseAndExecuteActions;
-parseAndExecuteActions = async function(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
-  const actions = [];
-  let m;
-  while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
-  const clean = rawText.replace(re, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
-  for (const a of actions) {
-    try { await executeCharAction(chat, a); } catch (e) { console.warn('动作执行失败', e); }
-  }
-  return clean;
-};
-
-/* ============ 聊天消息渲染修改 ============ */
-// 修改 renderChatMessages 以支持音乐卡片和系统消息
-const originalRenderChatMessages = renderChatMessages;
-renderChatMessages = function(keepScrollPos) {
-  if (!currentChatId) return;
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  const container = document.getElementById('jxChatMessages');
-  if (!container) return;
-  const prevScrollTop = keepScrollPos ? container.scrollTop : null;
-  if (chat.messages.length === 0) {
-    container.innerHTML = `<div class="jx-chat-empty">开始和 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 聊天吧</div>`;
-    return;
-  }
-  const activeMask = getActiveMaskForChat(chat);
-  const defaultMyAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
-  const myAvatar = activeMask ? (activeMask.avatar || defaultMyAvatar) : defaultMyAvatar;
-  const myName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '我') : (localStorage.getItem('moments_name') || '我');
-  
-  container.innerHTML = chat.messages.map((msg, idx) => {
-    if (!msg.id) msg.id = genId();
-    const isMe = msg.role === 'me';
-    const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
-    let inner = '';
-    let bubbleCls = 'jx-msg-bubble';
-    if (msg.content === '__typing__') {
-      inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
-    } else if (msg.type === 'system') {
-      return `<div style="text-align:center; font-size:12px; color:#999; margin: 10px 0;">${escapeHtml(msg.content)}</div>`;
-    } else if (msg.type === 'music') {
-      bubbleCls += ' card-msg';
-      inner = renderMusicCard(msg, chat, idx);
-    } else if (msg.type === 'merged' && Array.isArray(msg.items)) {
-      inner = `<div class="merged-card" onclick="openMergedView('${msg.id}')" style="cursor:pointer;">
-        <div class="merged-title">聊天记录</div>
-        ${msg.items.slice(0, 6).map(it => `<div class="merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}
-        ${msg.items.length > 6 ? `<div class="merged-line">…共 ${msg.items.length} 条</div>` : ''}
-      </div>`;
-    } else if (msg.type === 'transfer') {
-      bubbleCls += ' transfer';
-      const st = msg.status || (msg.opened ? 'accepted' : 'pending');
-      const isClosed = (st === 'accepted' || st === 'refunded');
-      let footerText = '待收款';
-      if (st === 'accepted') footerText = '已收款';
-      else if (st === 'refunded') footerText = '已退回';
-      else if (msg.role === 'me') footerText = '待对方确认';
-      const clickable = (msg.role === 'char' && st === 'pending');
-      const clickAttr = clickable ? ` data-transfer-id="${msg.id}" style="cursor:pointer;"` : '';
-      inner = `<div class="jx-transfer-card${isClosed ? ' opened' : ''}"${clickAttr}>
-        <div class="t-amount">¥${(msg.amount || 0).toFixed(2)}</div>
-        ${msg.note ? `<div class="t-note">${escapeHtml(msg.note)}</div>` : ''}
-        <div class="t-footer">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
-          ${footerText}
-        </div>
-      </div>`;
-    } else if (msg.type === 'coupleProposal') {
-      bubbleCls += ' card';
-      const st = msg.status || 'pending';
-      let statusText = '待你确认';
-      if (st === 'accepted') statusText = '已同意';
-      else if (st === 'rejected') statusText = '已拒绝';
-      const clickable = (msg.role === 'char' && st === 'pending');
-      const clickAttr = clickable ? ` data-couple-msg-id="${msg.id}" style="cursor:pointer;"` : '';
-      inner = `<div class="couple-proposal-card"${clickAttr}>
-        <div class="cp-title">换情头申请</div>
-        <div class="cp-preview">
-          <img src="${msg.boyData}" alt="">
-          <img src="${msg.girlData}" alt="">
-        </div>
-        <div class="cp-name">${escapeHtml(msg.coupleName || '')}</div>
-        <div class="cp-footer">${statusText}</div>
-      </div>`;
-    } else if (msg.type === 'familyCard') {
-      bubbleCls += ' card';
-      let sub = '';
-      if (msg.status === 'pending') sub = `额度${(msg.limit || 0).toFixed(2)}元，待领取`;
-      else if (msg.status === 'accepted') sub = `额度${(msg.limit || 0).toFixed(2)}元，已领取`;
-      else if (msg.status === 'released') sub = `额度${(msg.limit || 0).toFixed(2)}元，已解绑`;
-      else sub = `额度${(msg.limit || 0).toFixed(2)}元，已退还`;
-      inner = `<div class="wx-family-card" data-idx="${idx}" style="cursor:pointer;">
-        <div class="wx-family-card-content">
-          <div class="wx-family-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M12 16.5s-1.5-1.2-1.5-2.2c0-.7.6-1.3 1.3-1.3.5 0 .9.3 1.1.7.2-.4.6-.7 1.1-.7.7 0 1.3.6 1.3 1.3 0 1-1.4 2.2-1.4 2.2z" fill="#fff" stroke="none"/></svg>
-          </div>
-          <div class="wx-family-card-text">
-            <div class="wx-family-card-title">送你一张亲属卡</div>
-            <div class="wx-family-card-subtitle">${sub}</div>
-          </div>
-        </div>
-        <div class="wx-family-card-footer">亲属卡</div>
-      </div>`;
-    } else if (msg.type === 'card' && msg.card) {
-      bubbleCls += ' card-msg';
-      const c = msg.card;
-      const safeAvatar = c.avatar ? String(c.avatar).replace(/'/g, '%27') : '';
-      const avatarHtml = safeAvatar ? `<img src="${safeAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-      inner = `<div class="jx-contact-card" data-card-idx="${idx}" style="cursor:pointer;">
-        <div class="jx-contact-card-top">
-          <div class="jx-contact-card-avatar">${avatarHtml}</div>
-          <div class="jx-contact-card-info">
-            <div class="jx-contact-card-name">${escapeHtml(c.name || '未知')}</div>
-            <div class="jx-contact-card-sub">个人名片</div>
-          </div>
-        </div>
-        <div class="jx-contact-card-footer">简讯名片</div>
-      </div>`;
-    } else if (msg.type === 'html') {
-      bubbleCls += ' html-msg';
-      const safeName = escapeHtml(msg.htmlName || 'HTML 组件');
-      const safeId = escapeHtml(msg.htmlId || '');
-      inner = `<div class="jx-html-caption">📄 ${safeName}</div><iframe class="jx-html-frame" data-html-id="${safeId}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>`;
-    } else if (msg.type === 'sticker' && msg.image) {
-      bubbleCls += ' media';
-      const safeSrc = String(msg.image).replace(/'/g, '%27');
-      inner = `<img class="sticker-img" src="${safeSrc}" alt="表情" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
-    } else if (msg.type === 'image' && msg.image) {
-      bubbleCls += ' media';
-      const safeSrc = String(msg.image).replace(/'/g, '%27');
-      inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
-    } else {
-      inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
-    }
-    if (msg.quote) {
-      const qName = escapeHtml(msg.quote.name || '');
-      const qText = escapeHtml(msg.quote.text || '');
-      inner = `<div class="jx-msg-quote"><span class="qname">${qName}</span><span class="qtext">${qText}</span></div>` + inner;
-    }
-    const checkboxHtml = multiSelectMode ? `<div class="msg-checkbox ${selectedMsgIds.has(msg.id) ? 'checked' : ''}"></div>` : '';
-    return `<div class="jx-msg-row ${isMe ? 'me' : 'other'}" data-msg-id="${msg.id}">
-      ${checkboxHtml}
-      <div class="jx-msg-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
-      <div class="${bubbleCls}">${inner}</div>
-    </div>`;
-  }).join('');
-  
-  // 绑定音乐卡片点击事件
-  container.querySelectorAll('.jx-music-card[data-music-idx]').forEach(el => {
-    el.addEventListener('click', function(e) {
-      const idx = parseInt(this.getAttribute('data-music-idx'), 10);
-      const msg = chat.messages[idx];
-      if (msg && msg.type === 'music') {
-        startListenTogether(chat.id, msg.id);
-      }
-    });
-  });
-
-  // 绑定其他卡片事件
-  container.querySelectorAll('.wx-family-card').forEach(cardEl => {
-    cardEl.addEventListener('click', function(e) {
-      const idx = parseInt(this.getAttribute('data-idx'), 10);
-      const msg = chat.messages[idx];
-      if (msg && msg.role === 'char' && msg.type === 'familyCard' && msg.status === 'pending') {
-        pendingAcceptTarget = { charId: currentChatId, msgIndex: idx, type: 'familyCard' };
-        const charName = chat.customRemark || chat.name || '对方';
-        document.getElementById('wxAcceptText').textContent = '接受来自 ' + charName + ' 的亲属卡（每月额度 ¥' + (msg.limit || 0).toFixed(2) + '）吗？';
-        document.getElementById('wxAcceptMask').classList.add('show');
-      }
-    });
-  });
-
-  container.querySelectorAll('.jx-transfer-card[data-transfer-id]').forEach(el => {
-    el.addEventListener('click', function(e) {
-      const tid = this.getAttribute('data-transfer-id');
-      if (tid) openTransferActionModal(tid);
-    });
-  });
-
-  container.querySelectorAll('.couple-proposal-card[data-couple-msg-id]').forEach(el => {
-    el.addEventListener('click', function(e) {
-      const mid = this.getAttribute('data-couple-msg-id');
-      const idx = chat.messages.findIndex(m => m.id === mid);
-      if (idx < 0) return;
-      const msg = chat.messages[idx];
-      if (msg && msg.role === 'char' && msg.status === 'pending') {
-        pendingAcceptTarget = { charId: currentChatId, msgIndex: idx, type: 'coupleProposal' };
-        const charName = chat.customRemark || chat.name || '对方';
-        document.getElementById('wxAcceptText').textContent = `接受 ${charName} 的换情头申请吗？（双方会自动换上这组情头）`;
-        document.getElementById('wxAcceptMask').classList.add('show');
-      }
-    });
-  });
-
-  container.querySelectorAll('.jx-contact-card').forEach(cardEl => {
-    cardEl.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const idx = parseInt(this.getAttribute('data-card-idx'), 10);
-      const msg = chat.messages[idx];
-      if (msg && msg.type === 'card' && msg.card) {
-        handleContactCardClick(msg.card);
-      }
-    });
-  });
-
-  const htmlList = loadCustomHtmls();
-  container.querySelectorAll('.jx-html-frame').forEach(frame => {
-    const hid = frame.getAttribute('data-html-id');
-    if (!hid) { frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">HTML 组件 ID 缺失</div>'; return; }
-    const item = htmlList.find(h => h.id === hid);
-    if (item) {
-      try { frame.srcdoc = item.code || ''; }
-      catch (e) { frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">HTML 渲染失败</div>'; }
-    } else {
-      frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">该 HTML 组件已被删除</div>';
-    }
-  });
-
-  attachMsgLongPress(container);
-  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
-  else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
-};
-
-/* ============ 聊天历史构建修改 ============ */
-const originalBuildChatHistory = buildChatHistory;
-buildChatHistory = function(chat) {
-  const recent = chat.messages.filter(m => m.content !== '__typing__').slice(-12);
-  const imgIdxSet = new Set();
-  let cnt = 0;
-  for (let i = recent.length - 1; i >= 0; i--) {
-    if (recent[i].type === 'image' && recent[i].image && cnt < 2) { imgIdxSet.add(i); cnt++; }
-  }
-  const result = [];
-  recent.forEach((m, i) => {
-    const role = m.role === 'me' ? 'user' : 'assistant';
-    let content;
-    if (m.type === 'music') {
-      content = `[音乐] ${m.musicData.title} - ${m.musicData.artist}`;
-    } else if (m.type === 'image' && m.image) {
-      if (imgIdxSet.has(i)) content = [{ type: 'text', text: '[用户发来一张图片]' }, { type: 'image_url', image_url: { url: m.image } }];
-      else content = '[图片]';
-    } else if (m.type === 'sticker') content = m.stickerName ? `[用户发来表情包：${m.stickerName}]` : '[表情包]';
-    else if (m.type === 'transfer') content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
-    else if (m.type === 'familyCard') content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
-    else if (m.type === 'card' && m.card) content = `[名片 ${m.card.name || ''}]`;
-    else if (m.type === 'html') content = `[已发送 HTML 组件：${m.htmlName || ''}]`;
-    else if (m.type === 'coupleProposal') content = `[换情头申请：${m.coupleName || ''}，状态：${m.status}]`;
-    else if (m.type === 'merged' && Array.isArray(m.items)) content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
-    else if (m.type === 'system') content = `[系统提示：${m.content}]`;
-    else {
-      content = m.content || '';
-      if (m.quote) content = `【引用 ${m.quote.name} 的消息：${m.quote.text}】\n` + content;
-    }
-    const last = result[result.length - 1];
-    if (last && last.role === role && typeof last.content === 'string' && typeof content === 'string') last.content += '\n' + content;
-    else result.push({ role: role, content: content });
-  });
-  return result;
-};
-
-// 保留原有的其他函数，确保代码完整
 let personaList = [];
 let editingPersonaId = null;
 let tempAvatarBase64 = '';
@@ -5000,10 +4888,12 @@ async function exportAllData() {
     fontB64 = ab2b64(fontData.data);
     fontOrigSize = fontData.origSize;
   }
+  const musicSongs = await musicDBGetAll();
   const backup = { 
     localStorage: localData, 
     indexedDB: { chats: chatData, moments: momentData, images: imageData },
-    font: { b64: fontB64, size: fontOrigSize }
+    font: { b64: fontB64, size: fontOrigSize },
+    music: musicSongs
   };
   const json = JSON.stringify(backup, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
@@ -5048,6 +4938,12 @@ async function importAllData(jsonStr) {
       await saveFontToDB(fontBuffer, data.font.size);
     } else {
       await deleteFontFromDB();
+    }
+    if (Array.isArray(data.music)) {
+      await musicDBClear();
+      for (const s of data.music) {
+        if (s && s.id && s.url) await musicDBPut(s);
+      }
     }
     alert('导入成功！页面即将重新加载。');
     location.reload();
@@ -6750,7 +6646,7 @@ function renderChatMessages(keepScrollPos) {
   });
 
   attachMsgLongPress(container);
-  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
+  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollPos; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
 }
 
@@ -8451,7 +8347,6 @@ async function triggerCharReply(chat, isProactive = false) {
   }
 }
 
-// 请求通知权限
 function requestNotificationPermission() {
   if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
     Notification.requestPermission().then(permission => {
@@ -8463,7 +8358,6 @@ function requestNotificationPermission() {
 }
 setTimeout(requestNotificationPermission, 2000);
 
-// ============ 主动消息定时器 ============
 setInterval(async () => {
   try {
     if (document.hidden) return;
