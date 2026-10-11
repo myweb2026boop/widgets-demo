@@ -1011,6 +1011,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .sticker-item-rich .sticker-edit-input{background:#2c2c2e;color:#ddd;border-top-color:#3a3a3c}
 .phone-case.dark-mode .sticker-item-rich .sticker-edit-input.meaning{background:#242426;color:#aaa}
 .phone-case.dark-mode .sticker-item-rich .sticker-edit-input:focus{background:#3a3a3c}
+.jx-music-card{background:#fff;border-radius:10px;padding:0;display:flex;flex-direction:column;min-width:210px;max-width:240px;box-shadow:0 1px 4px rgba(0,0,0,.08);cursor:pointer;overflow:hidden;transition:transform .15s}
+.jx-music-card:active{transform:scale(.98)}
+.jx-music-card-top{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.jx-music-card-cover{width:42px;height:42px;border-radius:6px;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.jx-music-card-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.jx-music-card-info{flex:1;min-width:0}
+.jx-music-card-title{font-size:14px;font-weight:500;color:#333;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jx-music-card-artist{font-size:11px;color:#999}
+.jx-music-card-footer{padding:6px 14px;border-top:1px solid #f0f0f0;font-size:11px;color:#bbb;background:#fafafa;display:flex;justify-content:space-between;align-items:center}
+.jx-music-card-footer .action{color:#07c160;font-weight:500}
+.phone-case.dark-mode .jx-music-card{background:#2c2c2e;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.phone-case.dark-mode .jx-music-card-title{color:#eee}
+.phone-case.dark-mode .jx-music-card-artist{color:#aaa}
+.phone-case.dark-mode .jx-music-card-footer{background:#1c1c1e;border-top-color:#3a3a3c;color:#888}
+#listenTogetherScreen{display:none;flex-direction:column;background:#1a1a1c;color:#fff;height:100%;width:100%;position:absolute;top:0;left:0;z-index:30000}
+#listenTogetherScreen.active{display:flex}
+.lt-header{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.lt-header .back-btn{font-size:26px;color:#fff;cursor:pointer;width:28px;text-align:left}
+.lt-header .title{font-size:16px;font-weight:600}
+.lt-header .placeholder{width:28px}
+.lt-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:20px}
+.lt-cover{width:200px;height:200px;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;background:#2c2c2e}
+.lt-cover img{width:100%;height:100%;object-fit:cover}
+.lt-cover svg{width:60px;height:60px;fill:#555}
+.lt-song-info{text-align:center}
+.lt-song-info h2{font-size:20px;font-weight:600;margin-bottom:6px}
+.lt-song-info p{font-size:13px;color:#888}
+.lt-avatars{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:10px}
+.lt-avatar{width:48px;height:48px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.2);background:#2c2c2e;display:flex;align-items:center;justify-content:center}
+.lt-avatar img{width:100%;height:100%;object-fit:cover}
+.lt-avatar svg{width:24px;height:24px;fill:#666}
+.lt-avatar.active{border-color:#07c160}
+.lt-chat-hint{font-size:12px;color:#666;text-align:center;padding:0 20px;line-height:1.6}
+.lt-controls{display:flex;justify-content:center;align-items:center;gap:30px;padding:20px}
+.lt-controls svg{width:32px;height:32px;fill:#fff;cursor:pointer;transition:opacity .2s}
+.lt-controls svg:active{opacity:.6}
+.lt-controls .play-pause-btn{width:64px;height:64px;background:#fff;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer}
+.lt-controls .play-pause-btn svg{width:30px;height:30px;fill:#1a1a1c}
+.lt-progress-area{display:flex;align-items:center;gap:10px;padding:0 20px;font-size:12px;color:#888;width:100%;max-width:400px}
+.lt-progress-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative}
+.lt-progress-fill{height:100%;background:#fff;border-radius:2px;width:0%}
+.lt-bottom-actions{display:flex;justify-content:center;padding:10px 20px 30px}
+.lt-bottom-actions button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;cursor:pointer}
+.lt-bottom-actions button:active{background:rgba(255,255,255,.2)}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1218,8 +1262,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       <div class="player-top-bar">
         <svg viewBox="0 0 24 24" onclick="closeScreen('playerScreen', 'musicScreen')"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         <svg viewBox="0 0 24 24" onclick="closeScreen('playerScreen', 'musicScreen')"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+        <svg viewBox="0 0 24 24" onclick="shareMusicToChat()" style="cursor:pointer;"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
       </div>
       <div class="vinyl-container">
         <div class="vinyl-disc" id="vinylDisc">
@@ -2290,6 +2334,46 @@ https://xxx.com/a.png
           <button style="background:none;border:none;font-size:16px;cursor:pointer;color:#888;" onclick="closeCssPreview()">✕</button>
         </div>
         <iframe class="preview-iframe" id="cssPreviewIframe"></iframe>
+      </div>
+    </div>
+
+    <!-- 一起听歌界面 -->
+    <div id="listenTogetherScreen">
+      <div class="lt-header">
+        <span class="back-btn" onclick="closeListenTogether()">‹</span>
+        <span class="title">一起听歌</span>
+        <span class="placeholder"></span>
+      </div>
+      <div class="lt-body">
+        <div class="lt-cover" id="ltCover">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="lt-song-info">
+          <h2 id="ltSongTitle">未播放</h2>
+          <p id="ltSongArtist">-</p>
+        </div>
+        <div class="lt-avatars">
+          <div class="lt-avatar active" id="ltUserAvatar"></div>
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#07c160;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <div class="lt-avatar" id="ltCharAvatar"></div>
+        </div>
+        <div class="lt-chat-hint" id="ltChatHint">正在和 TA 一起听歌...</div>
+        <div class="lt-progress-area">
+          <span id="ltCurrentTime">00:00</span>
+          <div class="lt-progress-bar" id="ltProgressBar"><div class="lt-progress-fill" id="ltProgressFill"></div></div>
+          <span id="ltTotalTime">00:00</span>
+        </div>
+        <div class="lt-controls">
+          <svg viewBox="0 0 24 24" onclick="ltPrevSong()"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          <div class="play-pause-btn" id="ltPlayPauseBtn" onclick="ltTogglePlay()">
+            <svg viewBox="0 0 24 24" id="ltPlayIcon"><path d="M8 5v14l11-7z"/></svg>
+            <svg viewBox="0 0 24 24" id="ltPauseIcon" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </div>
+          <svg viewBox="0 0 24 24" onclick="ltNextSong()"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </div>
+      </div>
+      <div class="lt-bottom-actions">
+        <button onclick="ltExitAndChat()">退出一起听并返回聊天</button>
       </div>
     </div>
 
@@ -3608,6 +3692,570 @@ function playSong(index) {
   }).catch(err => { console.log('播放失败:', err); });
 }
 
+/* ============ 音乐分享与一起听 ============ */
+let listenTogetherChatId = null;
+let listenTogetherSong = null;
+let listenTogetherIsPlaying = false;
+
+function shareMusicToChat() {
+  if (!playlist || playlist.length === 0) {
+    alert('还没有上传任何歌曲，请先上传 MP3 文件');
+    return;
+  }
+  const currentIndex = playlist.findIndex(s => audio.src === s.url);
+  const song = currentIndex >= 0 ? playlist[currentIndex] : playlist[0];
+  if (!song) return;
+  
+  loadPersonaList();
+  if (jianxunChats.length === 0) {
+    alert('还没有聊天对象，请先去「简讯」添加角色');
+    return;
+  }
+
+  let modal = document.getElementById('musicShareModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'musicShareModal';
+    modal.className = 'jx-modal';
+    modal.style.display = 'none';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.innerHTML = `
+      <div class="jx-modal-content" style="max-width:340px;">
+        <h3>分享歌曲给...</h3>
+        <div class="jx-modal-list" id="musicShareList"></div>
+        <button class="jx-modal-btn" onclick="closeMusicShareModal()">取消</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  const list = document.getElementById('musicShareList');
+  list.innerHTML = jianxunChats.map(c => {
+    const avatar = c.avatar ? `<img src="${c.avatar}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="36" height="36"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+    return `<div class="jx-modal-item" onclick="confirmShareMusic('${c.id}')">${avatar}<span>${escapeHtml(c.customRemark || c.name || '未命名')}</span></div>`;
+  }).join('');
+  modal.style.display = 'flex';
+}
+
+function closeMusicShareModal() {
+  const modal = document.getElementById('musicShareModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmShareMusic(chatId) {
+  closeMusicShareModal();
+  const chat = jianxunChats.find(c => c.id === chatId);
+  if (!chat) return;
+  const currentIndex = playlist.findIndex(s => audio.src === s.url);
+  const song = currentIndex >= 0 ? playlist[currentIndex] : playlist[0];
+  if (!song) return;
+
+  const cover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover') || '';
+  const musicMsg = {
+    id: genId(),
+    role: 'me',
+    type: 'music',
+    musicData: {
+      title: song.name,
+      artist: song.artist,
+      url: song.url,
+      cover: cover
+    },
+    status: 'pending',
+    time: Date.now()
+  };
+  
+  chat.messages.push(musicMsg);
+  chat.lastMessageTime = Date.now();
+  saveJianxunChats();
+  
+  pushAwareness(`你给 ${chat.customRemark || chat.name || 'TA'} 分享了一首歌《${song.name}》`);
+  
+  alert(`已分享《${song.name}》给 ${chat.customRemark || chat.name || 'TA'}`);
+  renderJianxunChatList();
+  
+  if (currentChatId === chatId) {
+    renderChatMessages();
+  }
+}
+
+function startListenTogether(chatId, msgId) {
+  const chat = jianxunChats.find(c => c.id === chatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === msgId);
+  if (!msg || msg.type !== 'music') return;
+
+  listenTogetherChatId = chatId;
+  listenTogetherSong = msg.musicData;
+
+  const screen = document.getElementById('listenTogetherScreen');
+  screen.classList.add('active');
+
+  const coverEl = document.getElementById('ltCover');
+  if (listenTogetherSong.cover) {
+    coverEl.innerHTML = `<img src="${listenTogetherSong.cover}">`;
+  } else {
+    coverEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>`;
+  }
+  document.getElementById('ltSongTitle').innerText = listenTogetherSong.title;
+  document.getElementById('ltSongArtist').innerText = listenTogetherSong.artist;
+
+  const myAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
+  document.getElementById('ltUserAvatar').innerHTML = myAvatar ? `<img src="${myAvatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+  document.getElementById('ltCharAvatar').innerHTML = chat.avatar ? `<img src="${chat.avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+
+  audio.src = listenTogetherSong.url;
+  audio.play().then(() => {
+    listenTogetherIsPlaying = true;
+    document.getElementById('ltPlayIcon').style.display = 'none';
+    document.getElementById('ltPauseIcon').style.display = 'block';
+    document.getElementById('ltChatHint').innerText = `正在和 ${chat.customRemark || chat.name || 'TA'} 一起听歌...`;
+  }).catch(e => {
+    console.log('一起听播放失败', e);
+    document.getElementById('ltChatHint').innerText = '播放失败，请检查音频源';
+  });
+
+  const updateProgress = () => {
+    if (!audio.duration) return;
+    const percent = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('ltProgressFill').style.width = percent + '%';
+    document.getElementById('ltCurrentTime').innerText = formatTime(audio.currentTime);
+    document.getElementById('ltTotalTime').innerText = formatTime(audio.duration);
+  };
+  audio.addEventListener('timeupdate', updateProgress);
+  window._ltUpdateProgress = updateProgress;
+
+  pushAwareness(`你和 ${chat.customRemark || chat.name || 'TA'} 开始一起听《${listenTogetherSong.title}》`);
+}
+
+function closeListenTogether() {
+  document.getElementById('listenTogetherScreen').classList.remove('active');
+  if (window._ltUpdateProgress) {
+    audio.removeEventListener('timeupdate', window._ltUpdateProgress);
+    window._ltUpdateProgress = null;
+  }
+  listenTogetherChatId = null;
+  listenTogetherSong = null;
+  renderJianxunChatList();
+}
+
+function ltTogglePlay() {
+  if (!listenTogetherSong) return;
+  if (listenTogetherIsPlaying) {
+    audio.pause();
+    document.getElementById('ltPlayIcon').style.display = 'block';
+    document.getElementById('ltPauseIcon').style.display = 'none';
+    listenTogetherIsPlaying = false;
+    sendListenTogetherSystemMsg('暂停了音乐');
+  } else {
+    audio.play();
+    document.getElementById('ltPlayIcon').style.display = 'none';
+    document.getElementById('ltPauseIcon').style.display = 'block';
+    listenTogetherIsPlaying = true;
+    sendListenTogetherSystemMsg('继续播放音乐');
+  }
+}
+
+function ltNextSong() {
+  if (!playlist || playlist.length === 0) return;
+  const currentIndex = playlist.findIndex(s => s.url === listenTogetherSong.url);
+  const nextIndex = (currentIndex + 1) % playlist.length;
+  const nextSong = playlist[nextIndex];
+  if (nextSong) {
+    listenTogetherSong = { title: nextSong.name, artist: nextSong.artist, url: nextSong.url, cover: listenTogetherSong.cover };
+    audio.src = nextSong.url;
+    audio.play();
+    document.getElementById('ltSongTitle').innerText = nextSong.name;
+    document.getElementById('ltSongArtist').innerText = nextSong.artist;
+    sendListenTogetherSystemMsg(`切到了下一首《${nextSong.name}》`);
+  }
+}
+
+function ltPrevSong() {
+  if (!playlist || playlist.length === 0) return;
+  const currentIndex = playlist.findIndex(s => s.url === listenTogetherSong.url);
+  const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+  const prevSong = playlist[prevIndex];
+  if (prevSong) {
+    listenTogetherSong = { title: prevSong.name, artist: prevSong.artist, url: prevSong.url, cover: listenTogetherSong.cover };
+    audio.src = prevSong.url;
+    audio.play();
+    document.getElementById('ltSongTitle').innerText = prevSong.name;
+    document.getElementById('ltSongArtist').innerText = prevSong.artist;
+    sendListenTogetherSystemMsg(`切到了上一首《${prevSong.name}》`);
+  }
+}
+
+function sendListenTogetherSystemMsg(action) {
+  if (!listenTogetherChatId) return;
+  const chat = jianxunChats.find(c => c.id === listenTogetherChatId);
+  if (!chat) return;
+  const msg = {
+    id: genId(),
+    role: 'me',
+    type: 'system',
+    content: `[一起听] 你${action}：《${listenTogetherSong.title}》`,
+    time: Date.now()
+  };
+  chat.messages.push(msg);
+  saveJianxunChats();
+  if (currentChatId === listenTogetherChatId) renderChatMessages();
+  renderJianxunChatList();
+}
+
+function ltExitAndChat() {
+  const chatId = listenTogetherChatId;
+  closeListenTogether();
+  if (chatId) {
+    openChat(chatId);
+  }
+}
+
+/* ============ 音乐卡片渲染与播放 ============ */
+function renderMusicCard(msg, chat, idx) {
+  const m = msg.musicData;
+  const safeCover = m.cover ? String(m.cover).replace(/'/g, '%27') : '';
+  const isMe = msg.role === 'me';
+  const statusText = msg.status === 'pending' ? (isMe ? '等待对方接受...' : '邀请你一起听') : '一起听';
+  const clickAttr = msg.role === 'char' ? ` data-music-idx="${idx}" style="cursor:pointer;"` : '';
+  return `<div class="jx-music-card"${clickAttr}>
+    <div class="jx-music-card-top">
+      <div class="jx-music-card-cover">${safeCover ? `<img src="${safeCover}">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>`}</div>
+      <div class="jx-music-card-info">
+        <div class="jx-music-card-title">${escapeHtml(m.title)}</div>
+        <div class="jx-music-card-artist">${escapeHtml(m.artist)}</div>
+      </div>
+    </div>
+    <div class="jx-music-card-footer">
+      <span>${isMe ? '我分享的歌曲' : '音乐分享'}</span>
+      <span class="action">${statusText}</span>
+    </div>
+  </div>`;
+}
+
+/* ============ 音乐消息发送给 AI ============ */
+function buildMusicPrompt(chat) {
+  const musicMsgs = chat.messages.filter(m => m.type === 'music');
+  if (musicMsgs.length === 0) return '';
+  let sp = '\n【音乐记录】\n';
+  musicMsgs.slice(-5).forEach(m => {
+    const who = m.role === 'me' ? '用户' : '你';
+    sp += `${who}分享了《${m.musicData.title}》- ${m.musicData.artist}\n`;
+  });
+  sp += '你可以自然地提及这些歌曲，或者继续分享歌曲给用户（使用 [[SEND_MUSIC:歌名|歌手|封面URL|音频URL]] 标记）。\n';
+  return sp;
+}
+
+function buildMusicSendActionPrompt() {
+  return '\n【发送歌曲】想要分享歌曲给用户时，请单独一行输出 [[SEND_MUSIC:歌名|歌手|封面URL|音频URL]]。封面和音频URL可以留空，系统会自动匹配本地音乐。例如：[[SEND_MUSIC:至少还有你|林忆莲||]]\n';
+}
+
+// 将音乐分享加入系统提示词
+const originalBuildCharSystemPrompt = buildCharSystemPrompt;
+buildCharSystemPrompt = function(chat, isProactive = false) {
+  let sp = originalBuildCharSystemPrompt(chat, isProactive);
+  const mp = buildMusicPrompt(chat);
+  if (mp) sp += mp;
+  sp += buildMusicSendActionPrompt();
+  return sp;
+};
+
+// 处理 AI 的 SEND_MUSIC 动作
+const originalExecuteCharAction = executeCharAction;
+executeCharAction = async function(chat, action) {
+  if (action.type === 'SEND_MUSIC') {
+    const parts = String(action.payload).split('|');
+    const title = (parts[0] || '').trim();
+    const artist = (parts[1] || '').trim() || '未知歌手';
+    let cover = (parts[2] || '').trim();
+    let url = (parts[3] || '').trim();
+
+    // 如果 URL 为空，从本地播放列表找
+    if (!url && playlist.length > 0) {
+      let target = playlist.find(s => s.name === title);
+      if (!target) target = playlist[0];
+      url = target.url;
+      if (!title) title = target.name;
+    }
+    if (!title || !url) return;
+    if (!cover) cover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover') || '';
+
+    chat.messages.push({
+      id: genId(),
+      role: 'char',
+      type: 'music',
+      musicData: { title, artist, url, cover },
+      status: 'pending',
+      time: Date.now()
+    });
+    pushAwareness(`你分享了歌曲《${title}》`);
+    return;
+  }
+  return await originalExecuteCharAction(chat, action);
+};
+
+// 处理 AI 的 SEND_MUSIC 动作（覆盖原始 parseAndExecuteActions 以支持异步）
+const originalParseAndExecuteActions = parseAndExecuteActions;
+parseAndExecuteActions = async function(chat, rawText) {
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const actions = [];
+  let m;
+  while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
+  const clean = rawText.replace(re, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  for (const a of actions) {
+    try { await executeCharAction(chat, a); } catch (e) { console.warn('动作执行失败', e); }
+  }
+  return clean;
+};
+
+/* ============ 聊天消息渲染修改 ============ */
+// 修改 renderChatMessages 以支持音乐卡片
+const originalRenderChatMessages = renderChatMessages;
+renderChatMessages = function(keepScrollPos) {
+  if (!currentChatId) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const container = document.getElementById('jxChatMessages');
+  if (!container) return;
+  const prevScrollTop = keepScrollPos ? container.scrollTop : null;
+  if (chat.messages.length === 0) {
+    container.innerHTML = `<div class="jx-chat-empty">开始和 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 聊天吧</div>`;
+    return;
+  }
+  const activeMask = getActiveMaskForChat(chat);
+  const defaultMyAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
+  const myAvatar = activeMask ? (activeMask.avatar || defaultMyAvatar) : defaultMyAvatar;
+  const myName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '我') : (localStorage.getItem('moments_name') || '我');
+  
+  container.innerHTML = chat.messages.map((msg, idx) => {
+    if (!msg.id) msg.id = genId();
+    const isMe = msg.role === 'me';
+    const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
+    let inner = '';
+    let bubbleCls = 'jx-msg-bubble';
+    if (msg.content === '__typing__') {
+      inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
+    } else if (msg.type === 'system') {
+      return `<div style="text-align:center; font-size:12px; color:#999; margin: 10px 0;">${escapeHtml(msg.content)}</div>`;
+    } else if (msg.type === 'music') {
+      bubbleCls += ' card-msg';
+      inner = renderMusicCard(msg, chat, idx);
+    } else if (msg.type === 'merged' && Array.isArray(msg.items)) {
+      inner = `<div class="merged-card" onclick="openMergedView('${msg.id}')" style="cursor:pointer;">
+        <div class="merged-title">聊天记录</div>
+        ${msg.items.slice(0, 6).map(it => `<div class="merged-line">${escapeHtml(it.name || '')}: ${escapeHtml((it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || ''))}</div>`).join('')}
+        ${msg.items.length > 6 ? `<div class="merged-line">…共 ${msg.items.length} 条</div>` : ''}
+      </div>`;
+    } else if (msg.type === 'transfer') {
+      bubbleCls += ' transfer';
+      const st = msg.status || (msg.opened ? 'accepted' : 'pending');
+      const isClosed = (st === 'accepted' || st === 'refunded');
+      let footerText = '待收款';
+      if (st === 'accepted') footerText = '已收款';
+      else if (st === 'refunded') footerText = '已退回';
+      else if (msg.role === 'me') footerText = '待对方确认';
+      const clickable = (msg.role === 'char' && st === 'pending');
+      const clickAttr = clickable ? ` data-transfer-id="${msg.id}" style="cursor:pointer;"` : '';
+      inner = `<div class="jx-transfer-card${isClosed ? ' opened' : ''}"${clickAttr}>
+        <div class="t-amount">¥${(msg.amount || 0).toFixed(2)}</div>
+        ${msg.note ? `<div class="t-note">${escapeHtml(msg.note)}</div>` : ''}
+        <div class="t-footer">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+          ${footerText}
+        </div>
+      </div>`;
+    } else if (msg.type === 'coupleProposal') {
+      bubbleCls += ' card';
+      const st = msg.status || 'pending';
+      let statusText = '待你确认';
+      if (st === 'accepted') statusText = '已同意';
+      else if (st === 'rejected') statusText = '已拒绝';
+      const clickable = (msg.role === 'char' && st === 'pending');
+      const clickAttr = clickable ? ` data-couple-msg-id="${msg.id}" style="cursor:pointer;"` : '';
+      inner = `<div class="couple-proposal-card"${clickAttr}>
+        <div class="cp-title">换情头申请</div>
+        <div class="cp-preview">
+          <img src="${msg.boyData}" alt="">
+          <img src="${msg.girlData}" alt="">
+        </div>
+        <div class="cp-name">${escapeHtml(msg.coupleName || '')}</div>
+        <div class="cp-footer">${statusText}</div>
+      </div>`;
+    } else if (msg.type === 'familyCard') {
+      bubbleCls += ' card';
+      let sub = '';
+      if (msg.status === 'pending') sub = `额度${(msg.limit || 0).toFixed(2)}元，待领取`;
+      else if (msg.status === 'accepted') sub = `额度${(msg.limit || 0).toFixed(2)}元，已领取`;
+      else if (msg.status === 'released') sub = `额度${(msg.limit || 0).toFixed(2)}元，已解绑`;
+      else sub = `额度${(msg.limit || 0).toFixed(2)}元，已退还`;
+      inner = `<div class="wx-family-card" data-idx="${idx}" style="cursor:pointer;">
+        <div class="wx-family-card-content">
+          <div class="wx-family-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M12 16.5s-1.5-1.2-1.5-2.2c0-.7.6-1.3 1.3-1.3.5 0 .9.3 1.1.7.2-.4.6-.7 1.1-.7.7 0 1.3.6 1.3 1.3 0 1-1.4 2.2-1.4 2.2z" fill="#fff" stroke="none"/></svg>
+          </div>
+          <div class="wx-family-card-text">
+            <div class="wx-family-card-title">送你一张亲属卡</div>
+            <div class="wx-family-card-subtitle">${sub}</div>
+          </div>
+        </div>
+        <div class="wx-family-card-footer">亲属卡</div>
+      </div>`;
+    } else if (msg.type === 'card' && msg.card) {
+      bubbleCls += ' card-msg';
+      const c = msg.card;
+      const safeAvatar = c.avatar ? String(c.avatar).replace(/'/g, '%27') : '';
+      const avatarHtml = safeAvatar ? `<img src="${safeAvatar}" alt="">` : `<svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+      inner = `<div class="jx-contact-card" data-card-idx="${idx}" style="cursor:pointer;">
+        <div class="jx-contact-card-top">
+          <div class="jx-contact-card-avatar">${avatarHtml}</div>
+          <div class="jx-contact-card-info">
+            <div class="jx-contact-card-name">${escapeHtml(c.name || '未知')}</div>
+            <div class="jx-contact-card-sub">个人名片</div>
+          </div>
+        </div>
+        <div class="jx-contact-card-footer">简讯名片</div>
+      </div>`;
+    } else if (msg.type === 'html') {
+      bubbleCls += ' html-msg';
+      const safeName = escapeHtml(msg.htmlName || 'HTML 组件');
+      const safeId = escapeHtml(msg.htmlId || '');
+      inner = `<div class="jx-html-caption">📄 ${safeName}</div><iframe class="jx-html-frame" data-html-id="${safeId}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>`;
+    } else if (msg.type === 'sticker' && msg.image) {
+      bubbleCls += ' media';
+      const safeSrc = String(msg.image).replace(/'/g, '%27');
+      inner = `<img class="sticker-img" src="${safeSrc}" alt="表情" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
+    } else if (msg.type === 'image' && msg.image) {
+      bubbleCls += ' media';
+      const safeSrc = String(msg.image).replace(/'/g, '%27');
+      inner = `<img src="${safeSrc}" alt="图片" onclick="openImageViewer('${safeSrc}')" style="cursor:pointer;">`;
+    } else {
+      inner = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
+    }
+    if (msg.quote) {
+      const qName = escapeHtml(msg.quote.name || '');
+      const qText = escapeHtml(msg.quote.text || '');
+      inner = `<div class="jx-msg-quote"><span class="qname">${qName}</span><span class="qtext">${qText}</span></div>` + inner;
+    }
+    const checkboxHtml = multiSelectMode ? `<div class="msg-checkbox ${selectedMsgIds.has(msg.id) ? 'checked' : ''}"></div>` : '';
+    return `<div class="jx-msg-row ${isMe ? 'me' : 'other'}" data-msg-id="${msg.id}">
+      ${checkboxHtml}
+      <div class="jx-msg-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
+      <div class="${bubbleCls}">${inner}</div>
+    </div>`;
+  }).join('');
+  
+  container.querySelectorAll('.jx-music-card[data-music-idx]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      const idx = parseInt(this.getAttribute('data-music-idx'), 10);
+      const msg = chat.messages[idx];
+      if (msg && msg.type === 'music') {
+        startListenTogether(chat.id, msg.id);
+      }
+    });
+  });
+
+  container.querySelectorAll('.wx-family-card').forEach(cardEl => {
+    cardEl.addEventListener('click', function(e) {
+      const idx = parseInt(this.getAttribute('data-idx'), 10);
+      const msg = chat.messages[idx];
+      if (msg && msg.role === 'char' && msg.type === 'familyCard' && msg.status === 'pending') {
+        pendingAcceptTarget = { charId: currentChatId, msgIndex: idx, type: 'familyCard' };
+        const charName = chat.customRemark || chat.name || '对方';
+        document.getElementById('wxAcceptText').textContent = '接受来自 ' + charName + ' 的亲属卡（每月额度 ¥' + (msg.limit || 0).toFixed(2) + '）吗？';
+        document.getElementById('wxAcceptMask').classList.add('show');
+      }
+    });
+  });
+
+  container.querySelectorAll('.jx-transfer-card[data-transfer-id]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      const tid = this.getAttribute('data-transfer-id');
+      if (tid) openTransferActionModal(tid);
+    });
+  });
+
+  container.querySelectorAll('.couple-proposal-card[data-couple-msg-id]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      const mid = this.getAttribute('data-couple-msg-id');
+      const idx = chat.messages.findIndex(m => m.id === mid);
+      if (idx < 0) return;
+      const msg = chat.messages[idx];
+      if (msg && msg.role === 'char' && msg.status === 'pending') {
+        pendingAcceptTarget = { charId: currentChatId, msgIndex: idx, type: 'coupleProposal' };
+        const charName = chat.customRemark || chat.name || '对方';
+        document.getElementById('wxAcceptText').textContent = `接受 ${charName} 的换情头申请吗？（双方会自动换上这组情头）`;
+        document.getElementById('wxAcceptMask').classList.add('show');
+      }
+    });
+  });
+
+  container.querySelectorAll('.jx-contact-card').forEach(cardEl => {
+    cardEl.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const idx = parseInt(this.getAttribute('data-card-idx'), 10);
+      const msg = chat.messages[idx];
+      if (msg && msg.type === 'card' && msg.card) {
+        handleContactCardClick(msg.card);
+      }
+    });
+  });
+
+  const htmlList = loadCustomHtmls();
+  container.querySelectorAll('.jx-html-frame').forEach(frame => {
+    const hid = frame.getAttribute('data-html-id');
+    if (!hid) { frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">HTML 组件 ID 缺失</div>'; return; }
+    const item = htmlList.find(h => h.id === hid);
+    if (item) {
+      try { frame.srcdoc = item.code || ''; }
+      catch (e) { frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">HTML 渲染失败</div>'; }
+    } else {
+      frame.srcdoc = '<div style="padding:12px;color:#999;font-size:12px;font-family:sans-serif;">该 HTML 组件已被删除</div>';
+    }
+  });
+
+  attachMsgLongPress(container);
+  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
+  else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
+};
+
+/* ============ 聊天历史构建修改 ============ */
+const originalBuildChatHistory = buildChatHistory;
+buildChatHistory = function(chat) {
+  const recent = chat.messages.filter(m => m.content !== '__typing__').slice(-12);
+  const imgIdxSet = new Set();
+  let cnt = 0;
+  for (let i = recent.length - 1; i >= 0; i--) {
+    if (recent[i].type === 'image' && recent[i].image && cnt < 2) { imgIdxSet.add(i); cnt++; }
+  }
+  const result = [];
+  recent.forEach((m, i) => {
+    const role = m.role === 'me' ? 'user' : 'assistant';
+    let content;
+    if (m.type === 'music') {
+      content = `[音乐] ${m.musicData.title} - ${m.musicData.artist}`;
+    } else if (m.type === 'image' && m.image) {
+      if (imgIdxSet.has(i)) content = [{ type: 'text', text: '[用户发来一张图片]' }, { type: 'image_url', image_url: { url: m.image } }];
+      else content = '[图片]';
+    } else if (m.type === 'sticker') content = m.stickerName ? `[用户发来表情包：${m.stickerName}]` : '[表情包]';
+    else if (m.type === 'transfer') content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
+    else if (m.type === 'familyCard') content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
+    else if (m.type === 'card' && m.card) content = `[名片 ${m.card.name || ''}]`;
+    else if (m.type === 'html') content = `[已发送 HTML 组件：${m.htmlName || ''}]`;
+    else if (m.type === 'coupleProposal') content = `[换情头申请：${m.coupleName || ''}，状态：${m.status}]`;
+    else if (m.type === 'merged' && Array.isArray(m.items)) content = '【转发的聊天记录】\n' + m.items.map(it => `${it.name || ''}：${(it.type === 'image' || it.type === 'sticker') ? '[图片]' : (it.content || '')}`).join('\n');
+    else if (m.type === 'system') content = `[系统提示：${m.content}]`;
+    else {
+      content = m.content || '';
+      if (m.quote) content = `【引用 ${m.quote.name} 的消息：${m.quote.text}】\n` + content;
+    }
+    const last = result[result.length - 1];
+    if (last && last.role === role && typeof last.content === 'string' && typeof content === 'string') last.content += '\n' + content;
+    else result.push({ role: role, content: content });
+  });
+  return result;
+};
+
+// 保留原有的其他函数，确保代码完整
 let personaList = [];
 let editingPersonaId = null;
 let tempAvatarBase64 = '';
@@ -5754,6 +6402,7 @@ function renderJianxunChatList() {
       else if (lastMsgObj.type === 'card') lastMsg = '[名片] ' + ((lastMsgObj.card && lastMsgObj.card.name) || '');
       else if (lastMsgObj.type === 'html') lastMsg = '[HTML] ' + (lastMsgObj.htmlName || '');
       else if (lastMsgObj.type === 'coupleProposal') lastMsg = '[换情头申请]';
+      else if (lastMsgObj.type === 'music') lastMsg = '[音乐] ' + (lastMsgObj.musicData.title || '');
       else if (lastMsgObj.type === 'system') lastMsg = lastMsgObj.content || '';
       else lastMsg = lastMsgObj.content || '[图片]';
     }
@@ -5818,6 +6467,7 @@ function startQuote(msgId) {
   else if (msg.type === 'card') text = '[名片] ' + ((msg.card && msg.card.name) || '');
   else if (msg.type === 'html') text = '[HTML] ' + (msg.htmlName || '');
   else if (msg.type === 'coupleProposal') text = '[换情头申请]';
+  else if (msg.type === 'music') text = '[音乐] ' + (msg.musicData.title || '');
   else text = msg.content || '';
   currentQuote = { msgId: msg.id, name: senderName, text: text };
   renderQuotePreview();
@@ -5861,6 +6511,9 @@ function renderChatMessages(keepScrollPos) {
       inner = '<span style="color:#999;font-style:italic;">正在输入…</span>';
     } else if (msg.type === 'system') {
       return `<div style="text-align:center; font-size:12px; color:#999; margin: 10px 0;">${escapeHtml(msg.content)}</div>`;
+    } else if (msg.type === 'music') {
+      bubbleCls += ' card-msg';
+      inner = renderMusicCard(msg, chat, idx);
     } else if (msg.type === 'merged' && Array.isArray(msg.items)) {
       inner = `<div class="merged-card" onclick="openMergedView('${msg.id}')" style="cursor:pointer;">
         <div class="merged-title">聊天记录</div>
@@ -5965,6 +6618,16 @@ function renderChatMessages(keepScrollPos) {
     </div>`;
   }).join('');
   
+  container.querySelectorAll('.jx-music-card[data-music-idx]').forEach(el => {
+    el.addEventListener('click', function(e) {
+      const idx = parseInt(this.getAttribute('data-music-idx'), 10);
+      const msg = chat.messages[idx];
+      if (msg && msg.type === 'music') {
+        startListenTogether(chat.id, msg.id);
+      }
+    });
+  });
+
   container.querySelectorAll('.wx-family-card').forEach(cardEl => {
     cardEl.addEventListener('click', function(e) {
       const idx = parseInt(this.getAttribute('data-idx'), 10);
@@ -6586,7 +7249,8 @@ function addFavoriteFromMsg(chat, msg) {
     card: msg.card ? cloneSerializable(msg.card) : null,
     source: charName, senderRole: msg.role, senderName: senderName, time: Date.now(),
     amount: msg.amount || 0, limit: msg.limit || 0, note: msg.note || '',
-    htmlId: msg.htmlId || '', htmlName: msg.htmlName || ''
+    htmlId: msg.htmlId || '', htmlName: msg.htmlName || '',
+    musicData: msg.musicData ? cloneSerializable(msg.musicData) : null
   };
   const favorites = loadFavorites();
   favorites.unshift(fav);
@@ -6665,6 +7329,8 @@ function renderFavoritesList() {
       contentHtml = `<div class="jx-fav-text">[HTML 组件：${escapeHtml(fav.htmlName || '')}]</div>`;
     } else if (fav.type === 'coupleProposal') {
       contentHtml = `<div class="jx-fav-text">[换情头申请]</div>`;
+    } else if (fav.type === 'music' && fav.musicData) {
+      contentHtml = `<div class="jx-fav-text">[音乐] ${escapeHtml(fav.musicData.title)} - ${escapeHtml(fav.musicData.artist)}</div>`;
     } else {
       const text = escapeHtml(fav.content || '').replace(/\n/g, '<br>');
       contentHtml = `<div class="jx-fav-text">${text || '（空消息）'}</div>`;
@@ -6706,7 +7372,7 @@ function menuEdit() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html' || msg.type === 'system' || msg.type === 'coupleProposal') { alert('该类型消息不能编辑'); return; }
+  if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'merged' || msg.type === 'transfer' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html' || msg.type === 'system' || msg.type === 'coupleProposal' || msg.type === 'music') { alert('该类型消息不能编辑'); return; }
   editingMsgId = id;
   document.getElementById('editMsgTextarea').value = msg.content || '';
   document.getElementById('jxEditMsgModal').classList.add('show');
@@ -6729,7 +7395,7 @@ async function menuTranslate() {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === id);
   if (!msg) return;
-  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html' || msg.type === 'system' || msg.type === 'coupleProposal') { alert('这条消息没有可翻译的文字内容'); return; }
+  if (!msg.content || msg.content === '[图片]' || msg.content === '[表情]' || msg.type === 'merged' || msg.type === 'familyCard' || msg.type === 'card' || msg.type === 'html' || msg.type === 'system' || msg.type === 'coupleProposal' || msg.type === 'music') { alert('这条消息没有可翻译的文字内容'); return; }
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置，才能翻译'); return; }
   const original = msg.content;
@@ -6990,6 +7656,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
+  sp += '[[SEND_MUSIC:歌名|歌手|封面URL|音频URL]] 分享歌曲给用户（封面和音频URL可以留空，系统会自动匹配本地音乐）\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用，且你必须在每次回复中自然使用这个标记！\n';
   sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。\n';
 
@@ -7043,7 +7710,9 @@ function buildChatHistory(chat) {
   recent.forEach((m, i) => {
     const role = m.role === 'me' ? 'user' : 'assistant';
     let content;
-    if (m.type === 'image' && m.image) {
+    if (m.type === 'music') {
+      content = `[音乐] ${m.musicData.title} - ${m.musicData.artist}`;
+    } else if (m.type === 'image' && m.image) {
       if (imgIdxSet.has(i)) content = [{ type: 'text', text: '[用户发来一张图片]' }, { type: 'image_url', image_url: { url: m.image } }];
       else content = '[图片]';
     } else if (m.type === 'sticker') content = m.stickerName ? `[用户发来表情包：${m.stickerName}]` : '[表情包]';
@@ -7110,6 +7779,7 @@ async function summarizeChatMemory(chat, isManual) {
     else if (m.type === 'html') text = `[HTML组件 ${m.htmlName || ''}]`;
     else if (m.type === 'merged') text = '[聊天记录]';
     else if (m.type === 'coupleProposal') text = '[换情头申请]';
+    else if (m.type === 'music') text = `[音乐 ${m.musicData.title} - ${m.musicData.artist}]`;
     else text = String(m.content || '').slice(0, 200);
     convo += `${who}：${text}\n`;
   });
@@ -7149,7 +7819,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 async function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -7484,6 +8154,33 @@ async function executeCharAction(chat, action) {
     renderMomentsPosts();
     return;
   }
+  if (action.type === 'SEND_MUSIC') {
+    const parts = String(action.payload).split('|');
+    const title = (parts[0] || '').trim();
+    const artist = (parts[1] || '').trim() || '未知歌手';
+    let cover = (parts[2] || '').trim();
+    let url = (parts[3] || '').trim();
+
+    if (!url && playlist.length > 0) {
+      let target = playlist.find(s => s.name === title);
+      if (!target) target = playlist[0];
+      url = target.url;
+      if (!title) title = target.name;
+    }
+    if (!title || !url) return;
+    if (!cover) cover = localStorage.getItem(MUSIC_KEY_PREFIX + 'vinyl_cover') || '';
+
+    chat.messages.push({
+      id: genId(),
+      role: 'char',
+      type: 'music',
+      musicData: { title, artist, url, cover },
+      status: 'pending',
+      time: Date.now()
+    });
+    pushAwareness(`你分享了歌曲《${title}》`);
+    return;
+  }
 }
 
 async function generateCharReply(chat, isProactive = false) {
@@ -7637,17 +8334,16 @@ async function triggerCharReply(chat, isProactive = false) {
       if (sinceLast >= (chat.memoryInterval || 20)) setTimeout(() => { summarizeChatMemory(chat).catch(e => console.warn(e)); }, 1000);
     }
 
-    // ============ 系统消息弹窗通知 ============
-    // 只有真正“正在看这个聊天窗口且页面可见”时才不弹通知；其他情况（切后台、在看别的聊天、在其他页面等）都要弹
     const chatScreenActive = document.getElementById('jxChatScreen').classList.contains('active');
     const userActivelyViewing = !document.hidden && chatScreenActive && currentChatId === chat.id;
     if (!userActivelyViewing && newMessages.length > 0 && loadNotificationBgSetting()) {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        const firstMsg = newMessages.find(m => m.type === 'text' || m.type === 'image' || m.type === 'sticker');
+        const firstMsg = newMessages.find(m => m.type === 'text' || m.type === 'image' || m.type === 'sticker' || m.type === 'music');
         let bodyText = '发来一条新消息';
         if (firstMsg) {
           if (firstMsg.type === 'image') bodyText = '[图片]';
           else if (firstMsg.type === 'sticker') bodyText = '[表情]';
+          else if (firstMsg.type === 'music') bodyText = `[音乐] ${firstMsg.musicData.title}`;
           else bodyText = firstMsg.content || '新消息';
         }
         const charName = chat.customRemark || chat.name || '简讯消息';
@@ -8201,7 +8897,6 @@ function renderMomentsPosts() {
     </div>`;
   }).join('');
 
-  // 用事件委托统一处理点赞和评论（比逐元素绑定更稳，且不会因为每次重渲染丢事件）
   if (!container._postActionBound) {
     container._postActionBound = true;
     container.addEventListener('click', function(e) {
@@ -8224,7 +8919,6 @@ function renderMomentsPosts() {
 }
 
 async function toggleLike(postId) {
-  // 直接使用内存中的 momentsPosts，避免重新加载导致内存中新生成但尚未保存的数据丢失
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
   const currentMaskId = getCurrentMaskId();
