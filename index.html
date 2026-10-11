@@ -7148,13 +7148,15 @@ async function summarizeChatMemory(chat, isManual) {
   } finally { chat._summarizing = false; }
 }
 
-function parseAndExecuteActions(chat, rawText) {
+async function parseAndExecuteActions(chat, rawText) {
   const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
   const clean = rawText.replace(re, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
-  actions.forEach(a => { try { executeCharAction(chat, a); } catch (e) { console.warn('动作执行失败', e); } });
+  for (const a of actions) {
+    try { await executeCharAction(chat, a); } catch (e) { console.warn('动作执行失败', e); }
+  }
   return clean;
 }
 
@@ -7196,7 +7198,7 @@ function cropImageRegion(base64Src, region, ratio) {
   });
 }
 
-function executeCharAction(chat, action) {
+async function executeCharAction(chat, action) {
   if (action.type === 'SET_REMARK') {
     const newRemark = String(action.payload).trim();
     if (newRemark) {
@@ -7229,20 +7231,19 @@ function executeCharAction(chat, action) {
     const refs = getCharImageRefs(chat);
     const img = refs[idx];
     if (img && img.data) {
-      cropImageRegion(img.data, region, ratio).then((base64) => {
-        if (base64) {
-          chat.avatar = base64;
-          saveJianxunChats();
-          if (currentChatId === chat.id) {
-            renderChatMessages(true);
-            renderJianxunChatList();
-            const infoImg = document.getElementById('jxInfoAvatarImg');
-            if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) infoImg.src = base64;
-            const titleEl = document.getElementById('jxChatTitle');
-            if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
-          }
+      const base64 = await cropImageRegion(img.data, region, ratio);
+      if (base64) {
+        chat.avatar = base64;
+        saveJianxunChats();
+        if (currentChatId === chat.id) {
+          renderChatMessages(true);
+          renderJianxunChatList();
+          const infoImg = document.getElementById('jxInfoAvatarImg');
+          if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) infoImg.src = base64;
+          const titleEl = document.getElementById('jxChatTitle');
+          if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
         }
-      });
+      }
     }
     return;
   }
@@ -7444,7 +7445,7 @@ function executeCharAction(chat, action) {
       });
     }
     if (!text && imgs.length === 0) return;
-    loadMomentsPosts();
+    await loadMomentsPosts();
     const currentMaskId = getCurrentMaskId();
     momentsPosts.unshift({
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
@@ -7452,19 +7453,19 @@ function executeCharAction(chat, action) {
       author: chat.customRemark || chat.name || 'TA', authorAvatar: chat.avatar || '',
       maskId: currentMaskId
     });
-    saveMomentsPosts();
+    await saveMomentsPosts();
     renderMomentsPosts();
     return;
   }
   if (action.type === 'LIKE_MOMENT') {
     const idx = parseInt(String(action.payload).trim(), 10) - 1;
-    loadMomentsPosts();
+    await loadMomentsPosts();
     const post = momentsPosts[idx];
     if (!post) return;
     const charName = chat.customRemark || chat.name || 'TA';
     if (!Array.isArray(post.likes)) { post.likes = []; delete post.liked; }
     if (!post.likes.includes(charName)) post.likes.push(charName);
-    saveMomentsPosts();
+    await saveMomentsPosts();
     renderMomentsPosts();
     return;
   }
@@ -7473,13 +7474,13 @@ function executeCharAction(chat, action) {
     const idx = parseInt((parts[0] || '').trim(), 10) - 1;
     const text = (parts.slice(1).join('|') || '').trim();
     if (!text) return;
-    loadMomentsPosts();
+    await loadMomentsPosts();
     const post = momentsPosts[idx];
     if (!post) return;
     if (!post.comments) post.comments = [];
     const charName = chat.customRemark || chat.name || 'TA';
     post.comments.push({ user: charName, text: text });
-    saveMomentsPosts();
+    await saveMomentsPosts();
     renderMomentsPosts();
     return;
   }
@@ -7512,7 +7513,7 @@ async function generateCharReply(chat, isProactive = false) {
     const textHistory = history.map(m => ({ role: m.role, content: typeof m.content === 'string' ? m.content : m.content.map(c => c.text || '[图片]').join(' ') }));
     raw = await callChatAPI(textHistory, systemPrompt, cfg);
   }
-  const clean = parseAndExecuteActions(chat, raw);
+  const clean = await parseAndExecuteActions(chat, raw);
   return clean || raw;
 }
 
@@ -8200,7 +8201,7 @@ function renderMomentsPosts() {
     </div>`;
   }).join('');
 
-  // 用事件委托统一处理点赞和评论（比逐元素绑定更稳）
+  // 用事件委托统一处理点赞和评论（比逐元素绑定更稳，且不会因为每次重渲染丢事件）
   if (!container._postActionBound) {
     container._postActionBound = true;
     container.addEventListener('click', function(e) {
@@ -8223,7 +8224,7 @@ function renderMomentsPosts() {
 }
 
 async function toggleLike(postId) {
-  await loadMomentsPosts();
+  // 直接使用内存中的 momentsPosts，避免重新加载导致内存中新生成但尚未保存的数据丢失
   const post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
   const currentMaskId = getCurrentMaskId();
@@ -8331,7 +8332,6 @@ async function publishPost() {
 }
 async function deletePost(postId) {
   if (!confirm('确定要删除这条动态吗？')) return;
-  await loadMomentsPosts();
   const target = momentsPosts.find(p => p.id === postId);
   momentsPosts = momentsPosts.filter(p => p.id !== postId);
   await saveMomentsPosts();
@@ -8351,7 +8351,6 @@ async function sendComment() {
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
   const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
-  await loadMomentsPosts();
   const post = momentsPosts.find(p => p.id === currentCommentPostId);
   if (post) {
     if (!post.comments) post.comments = [];
@@ -8369,8 +8368,7 @@ async function sendComment() {
 async function replyToMomentsComment(chat, postId, userComment) {
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
-  await loadMomentsPosts();
-  const post = momentsPosts.find(p => p.id === postId);
+  let post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
   const charName = chat.customRemark || chat.name || 'TA';
   const currentMaskId = getCurrentMaskId();
@@ -8396,11 +8394,10 @@ async function replyToMomentsComment(chat, postId, userComment) {
     else if (Array.isArray(c)) text = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
     text = (text || '').trim();
     if (!text) return;
-    await loadMomentsPosts();
-    const p2 = momentsPosts.find(x => x.id === postId);
-    if (!p2) return;
-    if (!p2.comments) p2.comments = [];
-    p2.comments.push({ user: charName, text: text });
+    post = momentsPosts.find(x => x.id === postId);
+    if (!post) return;
+    if (!post.comments) post.comments = [];
+    post.comments.push({ user: charName, text: text });
     await saveMomentsPosts();
     renderMomentsPosts();
   } catch (e) { console.warn('回复朋友圈评论失败', e); }
