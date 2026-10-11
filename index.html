@@ -1001,6 +1001,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .avatar-lib-item{background:#2c2c2e;border-color:#3a3a3c}
 .phone-case.dark-mode .avatar-lib-couple{background:#2c2c2e;border-color:#3a3a3c}
 .phone-case.dark-mode .avatar-lib-couple .avatar-lib-name{background:#3a3a3c;color:#ddd;border-top-color:#2c2c2e}
+.sticker-item-rich{position:relative;width:calc(50% - 4px);display:flex;flex-direction:column;border:1px solid #eee;border-radius:10px;overflow:hidden;background:#fff;box-sizing:border-box}
+.sticker-item-rich img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;cursor:pointer}
+.sticker-item-rich .sticker-edit-input{width:100%;border:none;border-top:1px solid #f5f5f5;padding:6px 8px;font-size:12px;outline:none;box-sizing:border-box;font-family:inherit;background:#fff;color:#333}
+.sticker-item-rich .sticker-edit-input.meaning{color:#666;font-size:11px;background:#fafafa}
+.sticker-item-rich .sticker-edit-input:focus{background:#f0f6ff}
+.sticker-item-rich .sticker-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:19px;text-align:center;cursor:pointer;z-index:5}
+.phone-case.dark-mode .sticker-item-rich{background:#2c2c2e;border-color:#3a3a3c}
+.phone-case.dark-mode .sticker-item-rich .sticker-edit-input{background:#2c2c2e;color:#ddd;border-top-color:#3a3a3c}
+.phone-case.dark-mode .sticker-item-rich .sticker-edit-input.meaning{background:#242426;color:#aaa}
+.phone-case.dark-mode .sticker-item-rich .sticker-edit-input:focus{background:#3a3a3c}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -2778,13 +2788,11 @@ async function applyBeautifyPreset() {
   const preset = presets.find(p => p.id === id);
   if (!preset) { alert('未找到该预设'); return; }
 
-  // 应用 CSS
   document.getElementById('cssEditorTextarea').value = preset.css || '';
   localStorage.setItem(USER_CSS_KEY, preset.css || '');
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = preset.css || '';
 
-  // 应用字体
   if (preset.fontB64) {
     const fontBuffer = b642ab(preset.fontB64);
     await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
@@ -2793,7 +2801,6 @@ async function applyBeautifyPreset() {
   }
   await applyGlobalFont();
 
-  // 应用字号
   if (preset.fontSize) {
     setGlobalFontSize(preset.fontSize);
   } else {
@@ -6341,15 +6348,28 @@ function uploadImagesToPack(packId) {
     const pack = packs.find(p => p.id === packId);
     if (!pack) return;
     if (!pack.stickers) pack.stickers = [];
+    const baseName = prompt('为这批表情添加统一描述（可选，可留空，之后也能在每张图片下单独编辑）：', '');
     for (const file of Array.from(files)) {
       const base64 = await compressImageFile(file, 200, 0.8);
-      if (base64) pack.stickers.push({ id: genId(), name: file.name.replace(/\.[^/.]+$/, ""), url: base64, meaning: '' });
+      if (base64) {
+        const autoName = file.name.replace(/\.[^/.]+$/, "");
+        pack.stickers.push({ id: genId(), name: autoName, url: base64, meaning: baseName || '' });
+      }
     }
     saveStickerPacks(packs);
     expandedStickerPackIds.add(packId);
     renderStickerPackList();
   };
   input.click();
+}
+function updateStickerField(packId, stickerId, field, value) {
+  const packs = loadStickerPacks();
+  const pack = packs.find(p => p.id === packId);
+  if (!pack) return;
+  const sticker = (pack.stickers || []).find(s => s.id === stickerId);
+  if (!sticker) return;
+  sticker[field] = value;
+  saveStickerPacks(packs);
 }
 function renderStickerPackList() {
   const list = document.getElementById('stickerPackList');
@@ -6364,14 +6384,16 @@ function renderStickerPackList() {
     const stickers = pack.stickers || [];
     const isExpanded = expandedStickerPackIds.has(pack.id);
     const cells = stickers.length === 0
-      ? '<div style="grid-column:1/-1; text-align:center; color:#ccc; font-size:12px; padding:14px 0;">（空合集，请点击上方按钮上传图片）</div>'
+      ? '<div style="text-align:center; color:#ccc; font-size:12px; padding:14px 0; width:100%;">（空合集，请点击上方按钮上传图片）</div>'
       : stickers.map(s => {
           const safeUrl = escapeHtml(s.url);
           const safeName = escapeHtml(s.name || '');
           const safeMeaning = escapeHtml(s.meaning || '');
-          return `<div class="sticker-item">
-            <img src="${safeUrl}" alt="${safeName}" title="${safeName}${safeMeaning ? ' · ' + safeMeaning : ''}">
+          return `<div class="sticker-item-rich">
+            <img src="${safeUrl}" alt="${safeName}">
             <span class="sticker-del" onclick="event.stopPropagation(); deleteStickerItem('${pack.id}', '${s.id}')">×</span>
+            <input class="sticker-edit-input" type="text" value="${safeName}" placeholder="表情名称" onchange="updateStickerField('${pack.id}','${s.id}','name',this.value)">
+            <input class="sticker-edit-input meaning" type="text" value="${safeMeaning}" placeholder="含义/使用场景（char会读取）" onchange="updateStickerField('${pack.id}','${s.id}','meaning',this.value)">
           </div>`;
         }).join('');
     return `<div class="sticker-pack-card">
@@ -6389,7 +6411,7 @@ function renderStickerPackList() {
          <div style="display:flex; justify-content:flex-end; margin-bottom: 8px;">
            <button class="sticker-pack-del-btn" style="background:#eef2ff; color:#4b7bec;" onclick="uploadImagesToPack('${pack.id}')">+ 上传图片</button>
          </div>
-         <div class="sticker-grid">${cells}</div>
+         <div style="display:flex;flex-wrap:wrap;gap:8px;">${cells}</div>
       </div>
     </div>`;
   }).join('');
@@ -6824,8 +6846,8 @@ function buildStickerPrompt(chat) {
   const all = [];
   packs.forEach(p => { (p.stickers || []).forEach(s => all.push(s)); });
   if (all.length === 0) return '';
-  let sp = '\n【可用表情包】要发表情时单独一行输出 [[STICKER:名称]]，系统自动换成图片：\n';
-  all.forEach((s, i) => { sp += `${i + 1}.${s.name || '未命名'}${s.meaning ? '(' + s.meaning + ')' : ''}\n`; });
+  let sp = '\n【可用表情包】要发表情时单独一行输出 [[STICKER:名称]]，系统自动换成图片。请仔细阅读每个表情的名称与描述，根据对话情绪和语境选择最贴切的表情；当用户发来表情时，你也能识别其含义并做出自然回应：\n';
+  all.forEach((s, i) => { sp += `${i + 1}.${s.name || '未命名'}${s.meaning ? '（' + s.meaning + '）' : ''}\n`; });
   return sp;
 }
 function buildHtmlPrompt(chat) {
@@ -7024,7 +7046,7 @@ function buildChatHistory(chat) {
     if (m.type === 'image' && m.image) {
       if (imgIdxSet.has(i)) content = [{ type: 'text', text: '[用户发来一张图片]' }, { type: 'image_url', image_url: { url: m.image } }];
       else content = '[图片]';
-    } else if (m.type === 'sticker') content = '[表情包]';
+    } else if (m.type === 'sticker') content = m.stickerName ? `[用户发来表情包：${m.stickerName}]` : '[表情包]';
     else if (m.type === 'transfer') content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
     else if (m.type === 'familyCard') content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
     else if (m.type === 'card' && m.card) content = `[名片 ${m.card.name || ''}]`;
@@ -7615,9 +7637,10 @@ async function triggerCharReply(chat, isProactive = false) {
     }
 
     // ============ 系统消息弹窗通知 ============
-    // 只要开启通知后台保活，且当前不在此聊天窗口，或页面处于后台，就弹出系统通知
-    const isChatOpen = document.getElementById('jxChatScreen').classList.contains('active') && currentChatId === chat.id;
-    if (!isChatOpen && newMessages.length > 0 && loadNotificationBgSetting()) {
+    // 只有真正“正在看这个聊天窗口且页面可见”时才不弹通知；其他情况（切后台、在看别的聊天、在其他页面等）都要弹
+    const chatScreenActive = document.getElementById('jxChatScreen').classList.contains('active');
+    const userActivelyViewing = !document.hidden && chatScreenActive && currentChatId === chat.id;
+    if (!userActivelyViewing && newMessages.length > 0 && loadNotificationBgSetting()) {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         const firstMsg = newMessages.find(m => m.type === 'text' || m.type === 'image' || m.type === 'sticker');
         let bodyText = '发来一条新消息';
@@ -7637,11 +7660,9 @@ async function triggerCharReply(chat, isProactive = false) {
           notification.onclick = function() {
             window.focus();
             this.close();
-            // 如果当前不在简讯App，先打开简讯
             if (!document.getElementById('jianxunScreen').classList.contains('active')) {
               openJianxunApp();
             }
-            // 打开对应的聊天窗口
             setTimeout(() => {
               if (currentChatId !== chat.id) {
                 openChat(chat.id);
@@ -7666,7 +7687,6 @@ function requestNotificationPermission() {
     });
   }
 }
-// 页面加载时请求一次权限
 setTimeout(requestNotificationPermission, 2000);
 
 // ============ 主动消息定时器 ============
@@ -7681,10 +7701,9 @@ setInterval(async () => {
         const lastMsg = chat.messages.filter(m => m.content !== '__typing__').pop();
         const lastTime = lastMsg && lastMsg.time ? lastMsg.time : (chat.lastMessageTime || now);
         const timeSinceLast = now - lastTime;
-        // 超过60秒不活动，触发主动消息
         if (timeSinceLast > 60000) {
           triggerCharReply(chat, true);
-          break; // 一次只触发一个，避免API过载
+          break;
         }
       }
     }
@@ -8172,8 +8191,8 @@ function renderMomentsPosts() {
       <div class="jx-post-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
         <span class="jx-post-visibility" style="display:flex; align-items:center; color:#ccc; font-size:11px;">${visibilityIcon} ${visibilityText}</span>
         <div class="jx-post-actions" style="display:flex; align-items:center; gap:16px;">
-          <svg viewBox="0 0 24 24" class="${likedClass}" data-action="like" data-id="${post.id}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-          <svg viewBox="0 0 24 24" data-action="comment" data-id="${post.id}"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          <svg viewBox="0 0 24 24" class="${likedClass}" data-post-action="like" data-post-id="${post.id}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <svg viewBox="0 0 24 24" data-post-action="comment" data-post-id="${post.id}"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
           <span class="jx-post-delete-btn" onclick="deletePost('${post.id}')" style="display:flex; align-items:center; color:#ccc; font-size:12px; cursor:pointer;">${deleteBtnIcon} 删除</span>
         </div>
       </div>
@@ -8181,21 +8200,26 @@ function renderMomentsPosts() {
     </div>`;
   }).join('');
 
-  // 绑定朋友圈点赞和评论点击事件，解决点击无反应问题
-  container.querySelectorAll('.jx-post-actions svg[data-action="like"]').forEach(el => {
-    el.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const id = this.getAttribute('data-id');
-      if (id) toggleLike(id);
+  // 用事件委托统一处理点赞和评论（比逐元素绑定更稳）
+  if (!container._postActionBound) {
+    container._postActionBound = true;
+    container.addEventListener('click', function(e) {
+      let target = e.target;
+      while (target && target !== container) {
+        if (target.dataset && target.dataset.postAction) {
+          const act = target.dataset.postAction;
+          const postId = target.dataset.postId;
+          if (postId) {
+            e.stopPropagation();
+            if (act === 'like') toggleLike(postId);
+            else if (act === 'comment') openCommentModal(postId);
+          }
+          return;
+        }
+        target = target.parentNode;
+      }
     });
-  });
-  container.querySelectorAll('.jx-post-actions svg[data-action="comment"]').forEach(el => {
-    el.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const id = this.getAttribute('data-id');
-      if (id) openCommentModal(id);
-    });
-  });
+  }
 }
 
 async function toggleLike(postId) {
