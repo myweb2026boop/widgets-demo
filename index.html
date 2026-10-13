@@ -8548,16 +8548,24 @@ function renderMemoryList() {
   if (countEl) countEl.textContent = '(' + memories.length + ')';
   if (memories.length === 0) { list.innerHTML = '<div class="jx-memory-empty">暂无记忆，聊到设定条数后会自动生成</div>'; return; }
   list.innerHTML = memories.map((m, i) => `
-    <div class="jx-memory-card">
-      <div class="jx-memory-card-header">
+    <div class="jx-memory-card" id="memory-card-${m.id}">
+      <div class="jx-memory-card-header" style="cursor: pointer; user-select: none;" onclick="toggleMemoryCard('${m.id}', event)">
         <span>记忆 ${i + 1} · ${formatFavTime(m.time)}</span>
-        <span class="jx-memory-card-del" onclick="deleteMemory('${m.id}')">删除</span>
+        <span class="jx-memory-card-del" onclick="deleteMemory('${m.id}', event)">删除</span>
       </div>
-      <div class="jx-memory-card-content">${escapeHtml(m.content || '')}</div>
+      <div class="jx-memory-card-content" id="memory-content-${m.id}" style="display: none;">${escapeHtml(m.content || '')}</div>
     </div>
   `).join('');
 }
-function deleteMemory(memoryId) {
+function toggleMemoryCard(id, event) {
+  if (event) event.stopPropagation();
+  const content = document.getElementById('memory-content-' + id);
+  if (content) {
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+  }
+}
+function deleteMemory(memoryId, event) {
+  if (event) event.stopPropagation();
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   if (!confirm('确定删除这条记忆吗？删除后角色将不再记得这条信息。')) return;
