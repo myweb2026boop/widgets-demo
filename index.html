@@ -1066,6 +1066,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .music-list-item{border-bottom-color:#2c2c2e;}
 .phone-case.dark-mode .music-list-item .music-item-name{color:#eee;}
 .phone-case.dark-mode .music-list-item .music-item-name[contenteditable="true"]{background:#2c2c2e;}
+
+/* 转发消息查看详情样式 */
+.fwd-msg-item{display:flex;flex-direction:column;margin-bottom:16px;background:#fff;padding:14px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.fwd-msg-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.fwd-msg-avatar{width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center;}
+.fwd-msg-avatar img{width:100%;height:100%;object-fit:cover;}
+.fwd-msg-name{font-size:14px;color:#333;font-weight:600;}
+.fwd-msg-time{font-size:12px;color:#b2b2b2;margin-left:auto;}
+.fwd-msg-content{font-size:15px;color:#333;line-height:1.5;word-break:break-word;}
+.fwd-msg-content img{max-width:100%;border-radius:8px;display:block;margin-top:4px;}
+.phone-case.dark-mode .fwd-msg-item{background:#1c1c1e;box-shadow:none;}
+.phone-case.dark-mode .fwd-msg-name{color:#eee;}
+.phone-case.dark-mode .fwd-msg-content{color:#ddd;}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -5744,13 +5757,40 @@ function openMergedView(msgId) {
   const msg = chat.messages.find(m => m.id === msgId);
   if (!msg || !Array.isArray(msg.items)) return;
   const list = document.getElementById('jxMergedViewList');
+  const activeMask = getActiveMaskForChat(chat);
+  const defaultMyAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
+  const myAvatarFallback = activeMask ? (activeMask.avatar || defaultMyAvatar) : defaultMyAvatar;
+
   list.innerHTML = msg.items.map(it => {
-    const isMe = it.role === 'me';
-    let inner = '';
-    if (it.type === 'image' && it.image) inner = `<img src="${String(it.image).replace(/'/g,'%27')}" style="max-width:140px;border-radius:6px;">`;
-    else if (it.type === 'sticker' && it.image) inner = `<img src="${String(it.image).replace(/'/g,'%27')}" style="max-width:100px;">`;
-    else inner = escapeHtml(it.content || '').replace(/\n/g, '<br>');
-    return `<div class="jx-merged-view-item ${isMe ? 'me' : ''}"><div style="display:flex;flex-direction:column;max-width:75%;"><span class="nm" style="${isMe ? 'text-align:right;' : ''}">${escapeHtml(it.name || '')}</span><div class="bb">${inner}</div></div></div>`;
+    let avatar = it.avatar;
+    if (!avatar) {
+      avatar = it.role === 'me' ? myAvatarFallback : chat.avatar;
+    }
+    let timeStr = '';
+    if (it.time) {
+      const d = new Date(it.time);
+      timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+    let contentHtml = '';
+    if (it.type === 'image' && it.image) {
+      contentHtml = `<img src="${String(it.image).replace(/'/g,'%27')}" alt="图片">`;
+    } else if (it.type === 'sticker' && it.image) {
+      contentHtml = `<img src="${String(it.image).replace(/'/g,'%27')}" style="max-width:120px;" alt="表情">`;
+    } else if (it.type === 'merged' && Array.isArray(it.items)) {
+      contentHtml = `<div style="background:#f7f7f7;padding:8px;border-radius:6px;font-size:12px;color:#666;">[聊天记录]</div>`;
+    } else {
+      contentHtml = escapeHtml(it.content || '').replace(/\n/g, '<br>');
+    }
+    return `<div class="fwd-msg-item">
+      <div class="fwd-msg-header">
+        <div class="fwd-msg-avatar">
+          ${avatar ? `<img src="${avatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+        </div>
+        <span class="fwd-msg-name">${escapeHtml(it.name || '未知用户')}</span>
+        <span class="fwd-msg-time">${timeStr}</span>
+      </div>
+      <div class="fwd-msg-content">${contentHtml}</div>
+    </div>`;
   }).join('');
   document.getElementById('jxMergedViewScreen').style.display = 'flex';
 }
@@ -7424,9 +7464,16 @@ function doForward(targetChatId) {
   if (msgs.length === 0) return;
   const myName = localStorage.getItem('moments_name') || '我';
   const charName = chat.customRemark || chat.name || 'TA';
+  const activeMask = getActiveMaskForChat(chat);
+  const myAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const items = msgs.map(m => ({
-    role: m.role, name: m.role === 'me' ? myName : charName,
-    content: m.content || '', image: m.image || '', type: m.type || 'text'
+    role: m.role, 
+    name: m.role === 'me' ? myName : charName,
+    avatar: m.role === 'me' ? myAvatar : chat.avatar,
+    time: m.time,
+    content: m.content || '', 
+    image: m.image || '', 
+    type: m.type || 'text'
   }));
   target.messages.push({ id: genId(), role: 'me', type: 'merged', content: '[聊天记录]', items: items, time: Date.now() });
   saveJianxunChats();
