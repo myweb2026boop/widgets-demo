@@ -694,10 +694,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-memory-card-del{color:#ff4757;cursor:pointer;padding:3px 8px;border-radius:6px;flex-shrink:0;font-weight:500}
 .jx-memory-card-del:active{background:#ffeaea}
 .jx-memory-empty{text-align:center;padding:22px 0;color:#bbb;font-size:13px}
+.memory-content-editable {
+  width: 100%;
+  border: 1px solid #e6e6e8;
+  background: #fff;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  resize: vertical;
+  padding: 8px 10px;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+  min-height: 56px;
+}
+.memory-content-editable:focus {
+  border-color: #4b7bec;
+  box-shadow: 0 0 0 2px rgba(75,123,236,.12);
+}
 .phone-case.dark-mode .jx-memory-card{background:#2c2c2e}
 .phone-case.dark-mode .jx-memory-card-content{color:#ddd}
 .phone-case.dark-mode .jx-memory-card-header{color:#888}
 .phone-case.dark-mode .jx-memory-card-del:active{background:rgba(255,71,87,.15)}
+.phone-case.dark-mode .memory-content-editable{background:#1c1c1e;border-color:#3a3a3c;color:#ddd}
 .jx-transfer-card{background:#fa9d3b;border-radius:6px;padding:16px 18px;color:#fff;display:flex;flex-direction:column;gap:10px;min-width:180px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .jx-transfer-card .t-amount{font-size:22px;font-weight:500;letter-spacing:.5px}
 .jx-transfer-card .t-note{font-size:12px;opacity:.92}
@@ -736,20 +758,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .wx-tf-family-label{display:flex;align-items:center;gap:8px;font-size:14px;color:#1a1a1a;cursor:pointer}
 .wx-tf-family-label input[type=checkbox]{width:18px;height:18px;accent-color:#07c160}
 .wx-tf-family-balance{font-size:11px;color:#f7b64d;margin-top:4px;padding-left:26px}
-.jx-wallet-header{background:#1a3c34!important;padding:24px 20px!important;display:flex!important;flex-direction:column!important;border-radius:0 0 16px 16px!important;margin:12px!important;box-shadow:0 4px 10px rgba(0,0,0,.1)!important}
-.jx-wallet-header .lbl{font-size:14px!important;color:#a0b5ad!important;margin-bottom:8px!important}
-.jx-wallet-header .amt{font-size:36px!important;color:#fff!important;font-weight:600!important;letter-spacing:.5px!important;margin-bottom:20px!important}
-.jx-wallet-header .amt .yuan{font-size:24px!important;font-weight:500!important;margin-right:4px!important}
-.jx-wallet-btns{display:flex!important;gap:12px!important}
-.jx-wallet-btn{flex:1!important;padding:12px!important;background:rgba(255,255,255,.15)!important;border:none!important;border-radius:8px!important;color:#fff!important;font-size:15px!important;font-weight:500!important;cursor:pointer!important;transition:background .2s!important}
-.jx-wallet-btn:active{background:rgba(255,255,255,.25)!important}
-.jx-wallet-menu{background:#fff!important;margin-top:12px!important;border-radius:12px!important;margin:0 12px 12px 12px!important;overflow:hidden!important}
-.jx-wallet-menu-item{display:flex!important;align-items:center!important;padding:16px!important;border-bottom:1px solid #f0f0f0!important;cursor:pointer!important}
-.jx-wallet-menu-item:last-child{border-bottom:none!important}
-.jx-wallet-menu-icon{width:28px!important;height:28px!important;border-radius:6px!important;display:flex!important;align-items:center!important;justify-content:center!important;margin-right:14px!important;flex-shrink:0!important}
-.jx-wallet-menu-icon svg{width:18px!important;height:18px!important;fill:#fff!important}
-.jx-wallet-menu-item .text{flex:1!important;font-size:16px!important;color:#333!important}
-.jx-wallet-menu-item .arrow{width:16px!important;height:16px!important;fill:#c0c0c0!important}
+.jx-wallet-header{padding:24px 20px;display:flex;flex-direction:column;border-radius:16px;margin:12px;box-shadow:0 4px 10px rgba(0,0,0,.06);background:#fff}
+.jx-wallet-header .lbl{font-size:14px;color:#999;margin-bottom:8px}
+.jx-wallet-header .amt{font-size:36px;color:#333;font-weight:600;letter-spacing:.5px;margin-bottom:20px}
+.jx-wallet-header .amt .yuan{font-size:24px;font-weight:500;margin-right:4px}
+.jx-wallet-btns{display:flex;gap:12px}
+.jx-wallet-btn{flex:1;padding:12px;background:#f2f2f4;border:none;border-radius:8px;color:#333;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s}
+.jx-wallet-btn:active{background:#e5e5e8}
+.jx-wallet-menu{background:#fff;border-radius:12px;margin:0 12px 12px 12px;overflow:hidden}
+.jx-wallet-menu-item{display:flex;align-items:center;padding:16px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.jx-wallet-menu-item:last-child{border-bottom:none}
+.jx-wallet-menu-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;margin-right:14px;flex-shrink:0}
+.jx-wallet-menu-icon svg{width:18px;height:18px;fill:#fff}
+.jx-wallet-menu-item .text{flex:1;font-size:16px;color:#333}
+.jx-wallet-menu-item .arrow{width:16px;height:16px;fill:#c0c0c0}
 .jx-bill-group{background:#fff;margin-bottom:12px}
 .jx-bill-group-title{padding:10px 16px;font-size:12px;color:#999;font-weight:500;background:#f7f8fa}
 .jx-bill-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f5f5f5}
@@ -807,6 +829,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-chat-tool-item{color:#aaa}
 .phone-case.dark-mode .jx-transfer-modal-inner,.phone-case.dark-mode .jx-wallet-header,.phone-case.dark-mode .jx-wallet-menu,.phone-case.dark-mode .jx-bill-group,.phone-case.dark-mode .jx-card-section{background:#1c1c1e}
 .phone-case.dark-mode .jx-wallet-header .amt,.phone-case.dark-mode .jx-wallet-menu-item .text,.phone-case.dark-mode .jx-bill-info .nm,.phone-case.dark-mode .jx-card-info .nm,.phone-case.dark-mode .jx-tm-receiver .nm{color:#eee}
+.phone-case.dark-mode .jx-wallet-header .lbl{color:#888}
+.phone-case.dark-mode .jx-wallet-btn{background:#2c2c2e;color:#ddd}
 .phone-case.dark-mode .jx-tm-header{border-bottom-color:#2c2c2e;color:#eee}
 .phone-case.dark-mode .jx-tm-amount-row .cur,.phone-case.dark-mode .jx-tm-amount-row input,.phone-case.dark-mode .jx-tm-note-row input{color:#eee}
 .phone-case.dark-mode .jx-tm-note-row{border-bottom-color:#3a3a3c}
@@ -1066,8 +1090,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .music-list-item{border-bottom-color:#2c2c2e;}
 .phone-case.dark-mode .music-list-item .music-item-name{color:#eee;}
 .phone-case.dark-mode .music-list-item .music-item-name[contenteditable="true"]{background:#2c2c2e;}
-
-/* 转发消息查看详情样式 */
 .fwd-msg-item{display:flex;flex-direction:column;margin-bottom:16px;background:#fff;padding:14px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
 .fwd-msg-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .fwd-msg-avatar{width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center;}
@@ -1735,14 +1757,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll">
-        <div style="background:#1a3c34; margin:12px; border-radius:12px; padding:24px 20px; color:#fff; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-          <div style="font-size:14px; color:#a0b5ad; margin-bottom:8px;">零钱</div>
-          <div style="font-size:36px; font-weight:600; letter-spacing:0.5px; margin-bottom:20px;">
-            <span style="font-size:24px; font-weight:500; margin-right:4px;">¥</span><span id="jxWalletBalance">500.00</span>
-          </div>
-          <div style="display:flex; gap:12px;">
-            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="openRechargeModal()">充值</button>
-            <button style="flex:1; padding:12px; background:rgba(255,255,255,0.15); border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:500; cursor:pointer;" onclick="openWithdrawModal()">提现</button>
+        <div class="jx-wallet-header">
+          <div class="lbl">零钱</div>
+          <div class="amt"><span class="yuan">¥</span><span id="jxWalletBalance">500.00</span></div>
+          <div class="jx-wallet-btns">
+            <button class="jx-wallet-btn" onclick="openRechargeModal()">充值</button>
+            <button class="jx-wallet-btn" onclick="openWithdrawModal()">提现</button>
           </div>
         </div>
 
@@ -1909,7 +1929,8 @@ https://xxx.com/a.png
             <input type="file" id="maskAvatarInput" accept="image/*" style="display: none;">
           </div>
         </div>
-        <div class="form-group"><label>身份名字</label><input type="text" id="maskName" placeholder="输入身份名字"></div>
+        <div class="form-group"><label>真实姓名（角色会读取这个名字作为你的真名）</label><input type="text" id="maskName" placeholder="输入你的真实名字"></div>
+        <div class="form-group"><label>微信网名（仅用于朋友圈和"我"页面显示，不是真名）</label><input type="text" id="maskNickname" placeholder="输入网名（可留空）"></div>
         <div class="form-group"><label>微信号/备注</label><input type="text" id="maskWxId" placeholder="输入微信号或备注"></div>
         <div class="form-group"><label>身份描述（人设）</label><textarea id="maskDetails" placeholder="输入这个身份的背景、性格、说话风格等..."></textarea></div>
         <div class="form-group">
@@ -2013,123 +2034,6 @@ https://xxx.com/a.png
           <button class="jx-modal-btn" onclick="closeContactCardSelector()">取消</button>
         </div>
       </div>
-
-      <div class="jx-transfer-modal" id="jxTransferModal">
-        <div class="jx-transfer-modal-inner">
-          <div class="jx-tm-header">
-            <span class="cancel" onclick="closeTransferModal()">取消</span>
-            <span class="title">转账</span>
-            <span style="width:36px;"></span>
-          </div>
-          <div class="jx-tm-body">
-            <div class="jx-tm-receiver">
-              <img id="jxTransferReceiverAvatar" src="">
-              <span class="nm" id="jxTransferReceiverName">对方</span>
-            </div>
-            <div class="jx-tm-amount-row">
-              <span class="cur">¥</span>
-              <input type="number" id="jxTransferAmount" placeholder="0.00" step="0.01" min="0">
-            </div>
-            <div class="jx-tm-note-row">
-              <input type="text" id="jxTransferNote" placeholder="添加转账说明" maxlength="30">
-            </div>
-            <div class="wx-tf-family-row" id="wxTransferFamilyRow">
-              <label class="wx-tf-family-label">
-                <input type="checkbox" id="wxTransferUseFamily">
-                <span>使用亲属卡支付</span>
-              </label>
-              <div class="wx-tf-family-balance" id="wxTransferFamilyBalance"></div>
-            </div>
-            <div class="jx-tm-pay" onclick="selectTransferPayMethod()">
-              <span>支付方式</span>
-              <span class="value" id="jxTransferPayValue">零钱
-                <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
-              </span>
-            </div>
-          </div>
-          <button class="jx-tm-submit" onclick="confirmTransfer()">确认转账</button>
-        </div>
-      </div>
-
-      <div class="jx-transfer-modal" id="jxPayMethodModal">
-        <div class="jx-transfer-modal-inner" style="max-width: 320px;">
-          <div class="jx-tm-header">
-            <span class="cancel" onclick="closePayMethodModal()">取消</span>
-            <span class="title">选择支付方式</span>
-            <span style="width:36px;"></span>
-          </div>
-          <div id="jxPayMethodList" style="padding: 0; max-height: 320px; overflow-y: auto;"></div>
-        </div>
-      </div>
-
-      <div class="jx-transfer-modal" id="jxTransferActionModal">
-        <div class="jx-transfer-modal-inner" style="max-width:340px;">
-          <div class="jx-tm-header">
-            <span class="cancel" onclick="closeTransferActionModal()">取消</span>
-            <span class="title">待确认转账</span>
-            <span style="width:36px;"></span>
-          </div>
-          <div class="jx-tm-body">
-            <div class="jx-tm-receiver">
-              <img id="jxTfrActAvatar" src="">
-              <span class="nm" id="jxTfrActName">对方</span>
-            </div>
-            <div style="text-align:center; padding:12px 0;">
-              <div style="font-size:32px; font-weight:600; color:#fa9d3b;">¥<span id="jxTfrActAmount">0.00</span></div>
-              <div style="font-size:12px; color:#999; margin-top:6px;" id="jxTfrActNote"></div>
-            </div>
-          </div>
-          <div style="display:flex; gap:10px; margin:0 20px 20px;">
-            <button class="jx-tm-submit" style="margin:0; flex:1; background:#fff; color:#333; border:1px solid #ddd;" onclick="rejectTransferAction()">退回</button>
-            <button class="jx-tm-submit" style="margin:0; flex:1;" onclick="acceptTransferAction()">收下</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="jx-transfer-modal" id="jxRechargeModal">
-        <div class="jx-transfer-modal-inner" style="max-width:340px;">
-          <div class="jx-tm-header">
-            <span class="cancel" onclick="closeRechargeModal()">取消</span>
-            <span class="title">充值</span>
-            <span style="width:36px;"></span>
-          </div>
-          <div class="jx-tm-body">
-            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
-              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(50)">¥50</button>
-              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(100)">¥100</button>
-              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(200)">¥200</button>
-              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(500)">¥500</button>
-              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(1000)">¥1000</button>
-              <button type="button" class="recharge-opt" onclick="selectRechargeAmount(2000)">¥2000</button>
-            </div>
-            <div class="jx-tm-amount-row" style="margin-top:14px;">
-              <span class="cur">¥</span>
-              <input type="number" id="jxRechargeAmount" placeholder="0.00" step="0.01" min="0">
-            </div>
-            <p style="font-size:11px; color:#999; margin-top:6px;">点击上方快捷金额或手动输入</p>
-          </div>
-          <button class="jx-tm-submit" onclick="confirmRecharge()">确认充值</button>
-        </div>
-      </div>
-
-      <div class="jx-transfer-modal" id="jxWithdrawModal">
-        <div class="jx-transfer-modal-inner" style="max-width:340px;">
-          <div class="jx-tm-header">
-            <span class="cancel" onclick="closeWithdrawModal()">取消</span>
-            <span class="title">提现</span>
-            <span style="width:36px;"></span>
-          </div>
-          <div class="jx-tm-body">
-            <div style="text-align:center; font-size:13px; color:#888; margin-bottom:6px;">当前零钱余额：¥<span id="jxWithdrawBalance">0.00</span></div>
-            <div class="jx-tm-amount-row">
-              <span class="cur">¥</span>
-              <input type="number" id="jxWithdrawAmount" placeholder="0.00" step="0.01" min="0">
-            </div>
-            <p style="font-size:11px; color:#999; margin-top:6px;">提现不可超过当前余额</p>
-          </div>
-          <button class="jx-tm-submit" onclick="confirmWithdraw()">确认提现</button>
-        </div>
-      </div>
     </div>
 
     <div id="jxChatInfoScreen">
@@ -2194,10 +2098,11 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
-          <div style="padding: 14px 16px 6px 16px; font-size: 14px; color: #666; font-weight: 500;">
-            已生成的记忆 <span id="jxMemoryCount" style="color:#999; font-weight: 400;">(0)</span>
+          <div id="jxMemoryHeader" style="padding: 14px 16px; font-size: 14px; color: #333; font-weight: 600; cursor:pointer; display:flex; justify-content:space-between; align-items:center; user-select:none;" onclick="toggleMemorySection()">
+            <span>已生成的记忆 <span id="jxMemoryCount" style="color:#999; font-weight: 400;">(0)</span></span>
+            <span id="jxMemoryArrow" style="color:#999; font-size:12px;">▶</span>
           </div>
-          <div id="jxMemoryList" style="padding: 4px 16px 16px 16px;"></div>
+          <div id="jxMemoryList" style="padding: 4px 16px 16px 16px; display:none;"></div>
         </div>
         <div class="jx-info-block">
           <div class="jx-info-item" onclick="changeMyChatAvatar()">
@@ -2398,6 +2303,124 @@ https://xxx.com/a.png
       </div>
       <div class="lt-bottom-actions">
         <button onclick="ltExitAndChat()">退出一起听并返回聊天</button>
+      </div>
+    </div>
+
+    <!-- 全局弹窗：脱离 jxChatScreen，任何页面都能弹出 -->
+    <div class="jx-transfer-modal" id="jxTransferModal">
+      <div class="jx-transfer-modal-inner">
+        <div class="jx-tm-header">
+          <span class="cancel" onclick="closeTransferModal()">取消</span>
+          <span class="title">转账</span>
+          <span style="width:36px;"></span>
+        </div>
+        <div class="jx-tm-body">
+          <div class="jx-tm-receiver">
+            <img id="jxTransferReceiverAvatar" src="">
+            <span class="nm" id="jxTransferReceiverName">对方</span>
+          </div>
+          <div class="jx-tm-amount-row">
+            <span class="cur">¥</span>
+            <input type="number" id="jxTransferAmount" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <div class="jx-tm-note-row">
+            <input type="text" id="jxTransferNote" placeholder="添加转账说明" maxlength="30">
+          </div>
+          <div class="wx-tf-family-row" id="wxTransferFamilyRow">
+            <label class="wx-tf-family-label">
+              <input type="checkbox" id="wxTransferUseFamily">
+              <span>使用亲属卡支付</span>
+            </label>
+            <div class="wx-tf-family-balance" id="wxTransferFamilyBalance"></div>
+          </div>
+          <div class="jx-tm-pay" onclick="selectTransferPayMethod()">
+            <span>支付方式</span>
+            <span class="value" id="jxTransferPayValue">零钱
+              <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </span>
+          </div>
+        </div>
+        <button class="jx-tm-submit" onclick="confirmTransfer()">确认转账</button>
+      </div>
+    </div>
+
+    <div class="jx-transfer-modal" id="jxPayMethodModal">
+      <div class="jx-transfer-modal-inner" style="max-width: 320px;">
+        <div class="jx-tm-header">
+          <span class="cancel" onclick="closePayMethodModal()">取消</span>
+          <span class="title">选择支付方式</span>
+          <span style="width:36px;"></span>
+        </div>
+        <div id="jxPayMethodList" style="padding: 0; max-height: 320px; overflow-y: auto;"></div>
+      </div>
+    </div>
+
+    <div class="jx-transfer-modal" id="jxTransferActionModal">
+      <div class="jx-transfer-modal-inner" style="max-width:340px;">
+        <div class="jx-tm-header">
+          <span class="cancel" onclick="closeTransferActionModal()">取消</span>
+          <span class="title">待确认转账</span>
+          <span style="width:36px;"></span>
+        </div>
+        <div class="jx-tm-body">
+          <div class="jx-tm-receiver">
+            <img id="jxTfrActAvatar" src="">
+            <span class="nm" id="jxTfrActName">对方</span>
+          </div>
+          <div style="text-align:center; padding:12px 0;">
+            <div style="font-size:32px; font-weight:600; color:#fa9d3b;">¥<span id="jxTfrActAmount">0.00</span></div>
+            <div style="font-size:12px; color:#999; margin-top:6px;" id="jxTfrActNote"></div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin:0 20px 20px;">
+          <button class="jx-tm-submit" style="margin:0; flex:1; background:#fff; color:#333; border:1px solid #ddd;" onclick="rejectTransferAction()">退回</button>
+          <button class="jx-tm-submit" style="margin:0; flex:1;" onclick="acceptTransferAction()">收下</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="jx-transfer-modal" id="jxRechargeModal">
+      <div class="jx-transfer-modal-inner" style="max-width:340px;">
+        <div class="jx-tm-header">
+          <span class="cancel" onclick="closeRechargeModal()">取消</span>
+          <span class="title">充值</span>
+          <span style="width:36px;"></span>
+        </div>
+        <div class="jx-tm-body">
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+            <button type="button" class="recharge-opt" onclick="selectRechargeAmount(50)">¥50</button>
+            <button type="button" class="recharge-opt" onclick="selectRechargeAmount(100)">¥100</button>
+            <button type="button" class="recharge-opt" onclick="selectRechargeAmount(200)">¥200</button>
+            <button type="button" class="recharge-opt" onclick="selectRechargeAmount(500)">¥500</button>
+            <button type="button" class="recharge-opt" onclick="selectRechargeAmount(1000)">¥1000</button>
+            <button type="button" class="recharge-opt" onclick="selectRechargeAmount(2000)">¥2000</button>
+          </div>
+          <div class="jx-tm-amount-row" style="margin-top:14px;">
+            <span class="cur">¥</span>
+            <input type="number" id="jxRechargeAmount" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <p style="font-size:11px; color:#999; margin-top:6px;">点击上方快捷金额或手动输入</p>
+        </div>
+        <button class="jx-tm-submit" onclick="confirmRecharge()">确认充值</button>
+      </div>
+    </div>
+
+    <div class="jx-transfer-modal" id="jxWithdrawModal">
+      <div class="jx-transfer-modal-inner" style="max-width:340px;">
+        <div class="jx-tm-header">
+          <span class="cancel" onclick="closeWithdrawModal()">取消</span>
+          <span class="title">提现</span>
+          <span style="width:36px;"></span>
+        </div>
+        <div class="jx-tm-body">
+          <div style="text-align:center; font-size:13px; color:#888; margin-bottom:6px;">当前零钱余额：¥<span id="jxWithdrawBalance">0.00</span></div>
+          <div class="jx-tm-amount-row">
+            <span class="cur">¥</span>
+            <input type="number" id="jxWithdrawAmount" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <p style="font-size:11px; color:#999; margin-top:6px;">提现不可超过当前余额</p>
+        </div>
+        <button class="jx-tm-submit" onclick="confirmWithdraw()">确认提现</button>
       </div>
     </div>
 
@@ -3004,7 +3027,6 @@ async function applyBeautifyPreset() {
   alert('预设已应用：' + preset.name);
 }
 
-// 通过 id 应用美化预设（美化设置页也调用此函数）
 async function applyBeautifyPresetById(id) {
   const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
   const preset = presets.find(p => p.id === id);
@@ -4654,6 +4676,7 @@ function extractEntriesFromJson(data, defaultEntry) {
     const file = e.target.files[0]; if (!file) return;
     const dotIdx = file.name.lastIndexOf('.');
     const ext = dotIdx >= 0 ? file.name.slice(dotIdx).toLowerCase() : '';
+    const fileBaseName = dotIdx >= 0 ? file.name.slice(0, dotIdx) : file.name;
     const defaultEntry = (entryName, content, keys) => ({
       id: genId(), name: entryName || '未命名条目', keys: keys || '', content: content || '',
       depth: 4, order: 100, position: 'after', binding: 'global', localTarget: '', enabled: true
@@ -4665,10 +4688,14 @@ function extractEntriesFromJson(data, defaultEntry) {
       renderWorldBookList();
       alert(`成功导入 ${entries.length} 个条目`);
     };
-    const buildEntriesFromChunks = (chunks) => chunks.map((chunk, i) => {
-      const firstLine = chunk.split('\n')[0].trim();
-      return defaultEntry(truncate(firstLine, 24) || `条目 ${i + 1}`, chunk, '');
-    });
+    // 需求：一个文件只生成一个条目（不自动分割）
+    const buildOneEntryFromAllText = (allText) => {
+      const text = String(allText || '').trim();
+      if (!text) return [];
+      const firstLine = text.split('\n')[0].trim();
+      const entryName = fileBaseName || truncate(firstLine, 30) || '未命名条目';
+      return [defaultEntry(entryName, text, '')];
+    };
     if (ext === '.docx') {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
@@ -4676,7 +4703,8 @@ function extractEntriesFromJson(data, defaultEntry) {
         mammothConvertHtmlSafe(evt.target.result).then(result => {
           const html = result.value || '';
           const paragraphs = html.split(/<\/p>/i).map(s => s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')).map(s => decodeEntities(s).trim());
-          finish(buildEntriesFromChunks(splitIntoChunks(paragraphs)));
+          const allText = paragraphs.join('\n').trim();
+          finish(buildOneEntryFromAllText(allText));
         }).catch(err => {
           console.error('docx 解析失败：', err);
           alert('docx 解析失败：' + (err && err.message ? err.message : '未知错误'));
@@ -4694,7 +4722,7 @@ function extractEntriesFromJson(data, defaultEntry) {
       const reader = new FileReader();
       reader.onload = (ev) => {
         const text = String(ev.target.result || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-        finish(buildEntriesFromChunks(splitIntoChunks(text.split('\n'))));
+        finish(buildOneEntryFromAllText(text));
       };
       reader.readAsText(file);
     } else { alert('仅支持 docx, json, txt 文件格式'); }
@@ -4865,7 +4893,6 @@ function updatePresetList() {
 }
 updatePresetList();
 
-// 保留这个工具函数，其他地方可能用到
 const isBackupKey = (key) => (
   key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
   key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
@@ -4885,7 +4912,6 @@ const isBackupKey = (key) => (
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 
-// 美化设置页的预设管理：保存 / 应用美化预设
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
   const loadBtn = document.getElementById('loadPresetBtn');
@@ -5884,6 +5910,9 @@ function loadMasks() {
   jxMasks.forEach(m => {
     if (!m.id) m.id = genId();
     if (!Array.isArray(m.boundCharIds)) m.boundCharIds = [];
+    if (typeof m.nickname !== 'string') m.nickname = '';
+    if (typeof m.name !== 'string') m.name = '';
+    if (typeof m.bgImage !== 'string') m.bgImage = '';
   });
 }
 loadMasks();
@@ -5924,6 +5953,7 @@ function renderMaskList() {
     const bindCount = Array.isArray(m.boundCharIds) ? m.boundCharIds.length : 0;
     const bindText = bindCount > 0 ? `已绑定 ${bindCount} 个角色` : '未绑定角色（全局可用）';
     const isCurrent = m.id === currentMaskId;
+    const displayName = m.nickname || m.name || '未命名身份';
     return `<div class="mask-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:12px; background:#fff; border-radius:8px; border-left:4px solid ${isCurrent ? '#07c160' : '#8e44ad'}; box-shadow: 0 2px 8px rgba(0,0,0,.04);">
       <div style="display:flex; align-items:center; gap:12px; flex:1; cursor:pointer; overflow:hidden;" onclick="switchMask('${m.id}')">
         <div class="mask-avatar" style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; background:#f0f0f0;">
@@ -5931,7 +5961,7 @@ function renderMaskList() {
         </div>
         <div class="mask-info" style="flex:1; overflow:hidden;">
           <h4 style="font-size:15px; margin-bottom:4px; display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#333;">
-            ${escapeHtml(m.name || '未命名身份')}
+            ${escapeHtml(displayName)}
             ${isCurrent ? '<span style="font-size:10px; padding:2px 6px; border-radius:10px; background:#e8f5e9; color:#2e7d32; flex-shrink:0;">当前使用</span>' : ''}
           </h4>
           <p style="font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:0;">${escapeHtml(m.wxId || '无微信号')} · ${escapeHtml(bindText)}</p>
@@ -5953,10 +5983,11 @@ function openSwitchMaskScreen() {
     list.innerHTML = jxMasks.map(m => {
       const isCurrent = m.id === currentMaskId;
       const avatarHtml = m.avatar ? `<img src="${m.avatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="40" height="40"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+      const displayName = m.nickname || m.name || '未命名';
       return `<div class="jx-modal-item" onclick="switchMask('${m.id}')" style="justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f0f0;">
         <div style="display:flex; align-items:center; gap:10px;">
           ${avatarHtml}
-          <span style="font-size:15px; color:#333;">${escapeHtml(m.name || '未命名')}</span>
+          <span style="font-size:15px; color:#333;">${escapeHtml(displayName)}</span>
         </div>
         <div class="wb-checkbox ${isCurrent ? 'checked' : ''}"></div>
       </div>`;
@@ -5990,6 +6021,7 @@ function openMaskEdit(id) {
   if (id === null) {
     title.textContent = '创建身份';
     document.getElementById('maskName').value = '';
+    document.getElementById('maskNickname').value = '';
     document.getElementById('maskWxId').value = '';
     document.getElementById('maskDetails').value = '';
     tempMaskAvatarBase64 = '';
@@ -6001,6 +6033,7 @@ function openMaskEdit(id) {
     if (!m) return;
     title.textContent = '编辑身份';
     document.getElementById('maskName').value = m.name || '';
+    document.getElementById('maskNickname').value = m.nickname || '';
     document.getElementById('maskWxId').value = m.wxId || '';
     document.getElementById('maskDetails').value = m.details || '';
     if (m.avatar) {
@@ -6032,12 +6065,13 @@ function openMaskEdit(id) {
 function closeMaskEdit() { document.getElementById('jxMaskEditScreen').style.display = 'none'; }
 function saveMask() {
   const name = document.getElementById('maskName').value.trim();
-  if (!name) { alert('请输入身份名字'); return; }
+  const nickname = document.getElementById('maskNickname').value.trim();
+  if (!name && !nickname) { alert('请至少填写真实姓名或网名'); return; }
   const wxId = document.getElementById('maskWxId').value.trim();
   const details = document.getElementById('maskDetails').value;
   const checkboxes = document.querySelectorAll('#maskBindCharList input[type="checkbox"]:checked');
   const boundCharIds = Array.from(checkboxes).map(cb => cb.value);
-  const data = { avatar: tempMaskAvatarBase64, name, wxId, details, boundCharIds };
+  const data = { avatar: tempMaskAvatarBase64, name: name, nickname: nickname, wxId, details, boundCharIds };
   if (editingMaskId === null) {
     const newId = genId();
     jxMasks.push({ id: newId, ...data });
@@ -6130,10 +6164,16 @@ async function loadJianxunChats() {
       allChats = [];
     }
   }
-  jianxunChats = (Array.isArray(allChats) ? allChats : []).filter(c => {
-    if (!c.maskId) return true;
-    return c.maskId === currentMaskId;
+  allChats = Array.isArray(allChats) ? allChats : [];
+  // 迁移：确保每个 chat 都有 maskId（老数据统一归到第一个 mask 或 default）
+  const fallbackMaskId = currentMaskId || (jxMasks[0] ? jxMasks[0].id : 'default');
+  let migrated = false;
+  allChats.forEach(c => {
+    if (!c.maskId) { c.maskId = fallbackMaskId; migrated = true; }
   });
+  if (migrated) { try { await idbSet(STORE_CHATS, 'main', allChats); } catch(e) {} }
+  // 严格按当前 maskId 过滤
+  jianxunChats = allChats.filter(c => c.maskId === currentMaskId);
   jianxunChats.forEach(chat => {
     if (!chat.id) chat.id = genId();
     if (!chat.messages) chat.messages = [];
@@ -6180,7 +6220,7 @@ async function saveJianxunChats() {
     const currentMaskId = getCurrentMaskId();
     let allChats = await idbGet(STORE_CHATS, 'main') || [];
     if (!Array.isArray(allChats)) allChats = [];
-    allChats = allChats.filter(c => c.maskId !== currentMaskId && c.maskId);
+    allChats = allChats.filter(c => c.maskId !== currentMaskId);
     jianxunChats.forEach(c => { if (!c.maskId) c.maskId = currentMaskId; });
     allChats = allChats.concat(jianxunChats);
     await idbSet(STORE_CHATS, 'main', allChats);
@@ -6285,24 +6325,28 @@ function switchJianxunTab(tabId, navElement) {
     if (tabId === 'jx-me' && navs[3]) { navs[3].classList.add('active'); loadJxMeProfile(); }
   }
 }
+function getMaskDisplayName(mask) {
+  if (!mask) return localStorage.getItem('moments_name') || 'Koi Buono';
+  return mask.nickname || mask.name || 'Koi Buono';
+}
+function getMaskRealName(mask) {
+  if (!mask) return localStorage.getItem('moments_name') || '用户';
+  return mask.name || mask.nickname || '用户';
+}
 function loadJxMeProfile() {
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
   let savedAvatar = localStorage.getItem('moments_avatar');
-  let savedName = localStorage.getItem('moments_name') || 'Koi Buono';
-  let savedWxId = localStorage.getItem('jx_wechat_id') || 'Koi_Buono';
-  if (mask) {
-    if (mask.avatar) savedAvatar = mask.avatar;
-    if (mask.name) savedName = mask.name;
-    if (mask.wxId) savedWxId = mask.wxId;
-  }
+  let savedDisplayName = getMaskDisplayName(mask);
+  let savedWxId = (mask && mask.wxId) ? mask.wxId : (localStorage.getItem('jx_wechat_id') || 'Koi_Buono');
+  if (mask && mask.avatar) savedAvatar = mask.avatar;
   const el1 = document.getElementById('jxMeAvatarImg');
   if (el1) {
     if (savedAvatar) el1.src = savedAvatar;
     else el1.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
   }
   const el2 = document.getElementById('jxMeNameText');
-  if (el2) el2.innerText = savedName;
+  if (el2) el2.innerText = savedDisplayName;
   const el3 = document.getElementById('jxMeWxIdText');
   if (el3) el3.innerText = '微信号：' + savedWxId;
 }
@@ -6347,11 +6391,11 @@ function loadJxMeProfile() {
     e.stopPropagation();
     const currentMaskId = getCurrentMaskId();
     const mask = jxMasks.find(m => m.id === currentMaskId);
-    const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+    const currentName = getMaskDisplayName(mask);
     const newName = prompt('请输入新的网名：', currentName);
     if (newName !== null && newName.trim() !== '') {
       const finalName = newName.trim();
-      if (mask) { mask.name = finalName; saveMasks(); }
+      if (mask) { mask.nickname = finalName; saveMasks(); }
       localStorage.setItem('moments_name', finalName);
       this.innerText = finalName;
       const el = document.getElementById('momentsName');
@@ -6366,7 +6410,7 @@ function loadJxMeProfile() {
     e.stopPropagation();
     const currentMaskId = getCurrentMaskId();
     const mask = jxMasks.find(m => m.id === currentMaskId);
-    const currentWxId = mask ? mask.wxId : (localStorage.getItem('jx_wechat_id') || 'Koi_Buono');
+    const currentWxId = (mask && mask.wxId) ? mask.wxId : (localStorage.getItem('jx_wechat_id') || 'Koi_Buono');
     const newWxId = prompt('请输入新的微信号：', currentWxId);
     if (newWxId !== null && newWxId.trim() !== '') {
       const finalWxId = newWxId.trim();
@@ -6395,9 +6439,6 @@ function renderJianxunContacts() {
   loadPersonaList();
   const list = document.getElementById('jxContactList');
   if (!list) return;
-  const currentMaskId = getCurrentMaskId();
-  const mask = jxMasks.find(m => m.id === currentMaskId);
-  const defaultName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
   const chatNames = new Set(jianxunChats.map(c => c.name));
   const contacts = personaList.filter(p => chatNames.has(p.name));
   if (contacts.length === 0) {
@@ -6406,7 +6447,7 @@ function renderJianxunContacts() {
   }
   const grouped = {};
   contacts.forEach(p => {
-    const name = p.name || defaultName;
+    const name = p.name || '未命名';
     const letter = getFirstLetter(name);
     if (!grouped[letter]) grouped[letter] = [];
     grouped[letter].push({...p, name});
@@ -6436,7 +6477,7 @@ function renderJianxunChatList() {
   if (!list) return;
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
-  const defaultName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  const defaultName = getMaskDisplayName(mask);
   if (jianxunChats.length === 0) {
     list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">暂无聊天记录<br>点击右上角"+"添加人设</div>';
     return;
@@ -6510,7 +6551,9 @@ function startQuote(msgId) {
   if (!chat) return;
   const msg = chat.messages.find(m => m.id === msgId);
   if (!msg) return;
-  const myName = localStorage.getItem('moments_name') || '我';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const myName = getMaskDisplayName(mask) || '我';
   const charName = chat.customRemark || chat.name || 'TA';
   const senderName = msg.role === 'me' ? myName : charName;
   let text = '';
@@ -6555,7 +6598,7 @@ function renderChatMessages(keepScrollPos) {
   const activeMask = getActiveMaskForChat(chat);
   const defaultMyAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
   const myAvatar = activeMask ? (activeMask.avatar || defaultMyAvatar) : defaultMyAvatar;
-  const myName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '我') : (localStorage.getItem('moments_name') || '我');
+  const myName = activeMask ? getMaskDisplayName(activeMask) : (localStorage.getItem('moments_name') || '我');
   container.innerHTML = chat.messages.map((msg, idx) => {
     if (!msg.id) msg.id = genId();
     const isMe = msg.role === 'me';
@@ -6994,11 +7037,24 @@ function renderStickerPanel() {
   bar.innerHTML = packs.map(pack => {
     const active = pack.id === currentStickerPackId ? ' active' : '';
     const isBound = bound.includes(pack.id);
-    return `<div class="sticker-pack-chip${active}" onclick="selectStickerPack('${pack.id}')">
-      <span class="sticker-pack-star${isBound ? ' on' : ''}" onclick="toggleStickerPackBind('${pack.id}', event)">${isBound ? '★' : '☆'}</span>
+    return `<div class="sticker-pack-chip${active}" data-pack-id="${pack.id}">
+      <span class="sticker-pack-star${isBound ? ' on' : ''}" data-pack-star="${pack.id}">${isBound ? '★' : '☆'}</span>
       <span class="sticker-pack-name">${escapeHtml(pack.name || '未命名')}</span>
     </div>`;
   }).join('');
+  // 绑定点击事件（避免内联事件不生效）
+  bar.querySelectorAll('.sticker-pack-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      if (e.target && e.target.classList && e.target.classList.contains('sticker-pack-star')) return;
+      selectStickerPack(chip.getAttribute('data-pack-id'));
+    });
+  });
+  bar.querySelectorAll('.sticker-pack-star').forEach(star => {
+    star.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleStickerPackBind(star.getAttribute('data-pack-star'));
+    });
+  });
   const cur = packs.find(p => p.id === currentStickerPackId);
   const stickers = cur ? (cur.stickers || []) : [];
   if (stickers.length === 0) body.innerHTML = '<div class="sticker-empty">这个合集还没有表情</div>';
@@ -7014,8 +7070,7 @@ function renderStickerPanel() {
   }
 }
 function selectStickerPack(packId) { currentStickerPackId = packId; renderStickerPanel(); }
-function toggleStickerPackBind(packId, e) {
-  if (e) e.stopPropagation();
+function toggleStickerPackBind(packId) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   if (!Array.isArray(chat.boundStickerPacks)) chat.boundStickerPacks = [];
@@ -7293,7 +7348,9 @@ function cloneSerializable(obj) { try { return JSON.parse(JSON.stringify(obj)); 
 function addFavoriteFromMsg(chat, msg) {
   if (!chat || !msg) return null;
   if (msg.content === '__typing__') return null;
-  const myName = localStorage.getItem('moments_name') || '我';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const myName = getMaskDisplayName(mask) || '我';
   const charName = chat.customRemark || chat.name || 'TA';
   const senderName = msg.role === 'me' ? myName : charName;
   const fav = {
@@ -7517,9 +7574,9 @@ function doForward(targetChatId) {
   if (!chat || !target) return;
   const msgs = chat.messages.filter(m => selectedMsgIds.has(m.id));
   if (msgs.length === 0) return;
-  const myName = localStorage.getItem('moments_name') || '我';
-  const charName = chat.customRemark || chat.name || 'TA';
   const activeMask = getActiveMaskForChat(chat);
+  const myName = activeMask ? getMaskDisplayName(activeMask) : (localStorage.getItem('moments_name') || '我');
+  const charName = chat.customRemark || chat.name || 'TA';
   const myAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const items = msgs.map(m => ({
     role: m.role, 
@@ -7607,7 +7664,9 @@ function buildAvatarLibPrompt() {
 function buildMomentsPrompt() {
   loadMomentsPosts();
   if (momentsPosts.length === 0) return '';
-  const name = localStorage.getItem('moments_name') || '用户';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const name = getMaskDisplayName(mask) || '用户';
   const recent = momentsPosts.slice(0, 5);
   let sp = '\n【朋友圈动态】\n';
   recent.forEach((p, i) => {
@@ -7634,7 +7693,9 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   loadPersonaList();
   const persona = personaList.find(p => p.name === chat.name);
   const activeMask = getActiveMaskForChat(chat);
-  const userName = activeMask ? (activeMask.name || localStorage.getItem('moments_name') || '用户') : (localStorage.getItem('moments_name') || '用户');
+  // 真实名字用于角色认知；网名仅用于朋友圈和"我"页面显示
+  const userRealName = activeMask ? getMaskRealName(activeMask) : (localStorage.getItem('moments_name') || '用户');
+  const userNickname = activeMask ? (activeMask.nickname || '') : '';
   const userWxId = activeMask ? (activeMask.wxId || '') : (localStorage.getItem('jx_wechat_id') || '');
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
   const charName = chat.customRemark || chat.name || '未知';
@@ -7644,8 +7705,13 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
-  sp += `【视觉边界与认知解绑 (Visual Boundary & Cognitive Unbinding)】剥离视觉预设，聚焦文本本身：将用户的文字输入视为你唯一的互动源。头像仅是系统标识，绝不代表用户本人的外貌、形象或真实状态。你的所有回应必须完全基于用户发送的文字、对话上下文以及你所扮演角色的设定。严禁在聊天中反复提及用户的头像，严禁聊着聊着突然描绘或解析用户头像的细节，严禁将用户头像上的图片（如动漫人物、风景、动物等）当作用户本人的长相或形象进行任何形式的互动、调侃或代入描写。永远不要超出文字聊天的认知边界去构建用户的物理形象。\n\n`;
-  sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. 消息拆分：把你的回复拆成多条独立的短消息。在自然停顿、呼吸节奏处进行切分。按自然停顿、思路落点和情绪变化拆分消息。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。必须使用 [[SPLIT]] 标记来拆分气泡！\n7. 如果你不想使用 [[SPLIT]] 标记，你也可以直接返回 JSON 数组格式，如 ["第一条消息", "第二条消息"]，或者使用 [char的消息：xxx] 的格式来包裹每一条消息。系统会自动解析并逐条发送。\n\n`;
+  sp += `【视觉边界与认知解绑 (Visual Boundary & Cognitive Unbinding)】严禁围绕头像展开联想！这是硬性禁令：\n`;
+  sp += `  · 绝对禁止在聊天中反复提及用户的头像、评论头像内容、或把头像画面当作话题。\n`;
+  sp += `  · 除非用户本轮消息**明确**在问头像相关的事（如"看我的新头像""你觉得我头像好看吗"），否则对头像只字不提。\n`;
+  sp += `  · 严禁把头像上的图片（动漫人物、风景、动物、梗图等）当作对话素材展开调侃、代入、描绘或互动。\n`;
+  sp += `  · 严禁把"用户换头像"当作一个可闲聊的事件，更不要主动说"你换头像了"这类话。真人聊微信不会盯着头像聊。\n`;
+  sp += `  · 头像只是 UI 标识，不是你与用户交流的内容。用户不会因为你无视头像而感到被冷落，反而会觉得你在没话找话。\n\n`;
+  sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（重要）**：请务必把回复拆成多条独立短消息，**必须在每次回复中都使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。如果不使用 [[SPLIT]]，系统会认为你想发一整段长消息——这在微信聊天里非常不自然。请自觉每 1~2 句话就用一次 [[SPLIT]]。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
   if (persona) {
@@ -7655,11 +7721,13 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     if (persona.details) sp += `详细人设：${persona.details}\n`;
   }
 
-  sp += `\n【用户信息】${userName}`;
-  if (userWxId) sp += `（微信号：${userWxId}）`;
-  sp += '\n';
+  sp += `\n【用户信息】\n`;
+  sp += `· 用户的真实名字：${userRealName}（这是用户告诉你的真名/称呼，你应该用这个名字来称呼 TA）\n`;
+  if (userNickname) sp += `· 用户的微信网名：${userNickname}（**只是微信号上的显示名，不是真名！不要把它当作真实姓名来称呼或理解**）\n`;
+  if (userWxId) sp += `· 微信号：${userWxId}\n`;
+  sp += `· 记住：用户告诉你的"真实名字"才是真名。网名只是账号显示名。绝对不要把网名当作用户的真实姓名来使用。\n`;
   if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
-  if (userAvatar) sp += `用户头像会以图片形式附在每条用户消息末尾，你能看清内容。\n**重要提示**：真人不会盯着对方头像反复点评。除非对方刚刚换了头像、或者聊天内容恰好涉及（比如对方问"你看我新头像怎么样"），否则请直接忽略头像本身，就当它不存在。频繁提头像是非常机械的行为，要避免。\n`;
+  if (userAvatar) sp += `（用户头像会以图片形式附在每条用户消息末尾，你能看清内容。**再次强调：绝对不要在对话中谈论或提及用户的头像**，除非本轮用户消息明确要求你评价头像。）\n`;
 
   if (isProactive) {
     sp += `\n【系统提示】用户已经有一段时间没有回复了。现在你想主动开启一个新话题、分享一些符合你人设的内容，或者发送一条日常消息。不要回复用户，只需发送一条新消息。\n`;
@@ -7683,7 +7751,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const rtp = buildRealTimePrompt();
   if (rtp) sp += rtp;
 
-  // 可用本地音乐列表（角色只能从用户上传的音乐里分享）
   if (Array.isArray(playlist) && playlist.length > 0) {
     sp += '\n【可用本地音乐】（用户已上传到音乐App，你只能从以下列表里选歌分享给用户）\n';
     playlist.forEach((s, i) => {
@@ -7731,10 +7798,10 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
   sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。列表里没有的歌就不要分享。\n';
   sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请（当用户分享音乐给你，且你打算接受时使用）\n';
-  sp += '[[SPLIT]] 单独一行，把消息分成多条；用户要求"发N条/连发"时必须用，且你必须在每次回复中自然使用这个标记！\n';
+  sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
   sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。\n';
 
-  sp += '\n【排版】长文本直接换行排版即可；不要滥用换行或 SPLIT。\n';
+  sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
 
   const globalPrompt = loadGlobalPrompt().trim();
   if (globalPrompt) sp += '\n【用户附加指示 · 优先级高，请务必遵守】\n' + globalPrompt + '\n';
@@ -7840,10 +7907,12 @@ async function summarizeChatMemory(chat, isManual) {
   if (sliceMsgs.length < 2) { if (isManual) alert('消息太少，无需总结'); return; }
   chat._summarizing = true;
   const charName = chat.customRemark || chat.name || 'TA';
-  const myName = localStorage.getItem('moments_name') || '用户';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const myRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
   let convo = '';
   sliceMsgs.forEach(m => {
-    const who = m.role === 'me' ? myName : charName;
+    const who = m.role === 'me' ? myRealName : charName;
     let text = '';
     if (m.type === 'image') text = '[图片]';
     else if (m.type === 'sticker') text = '[表情]';
@@ -7857,7 +7926,8 @@ async function summarizeChatMemory(chat, isManual) {
     else text = String(m.content || '').slice(0, 200);
     convo += `${who}：${text}\n`;
   });
-  const sysPrompt = `你是「${charName}」的记忆整理助手。下面是你和「${myName}」最近的一段对话记录。` +
+  const sysPrompt = `你是「${charName}」的记忆整理助手。下面是你和「${myRealName}」最近的一段对话记录。` +
+    `**注意：用户的真实名字是「${myRealName}」，不是网名。请务必用真实名字来记录关于用户的信息，不要把网名当作用户的真名。**` +
     `请提取出这段对话中值得长期记住的关键信息（包括但不限于：用户的喜好、习惯、个人信息、共同经历、重要事件、约定、情绪状态、关系进展等）。` +
     `用简洁的第三人称陈述句总结成 3~8 条要点，每条一行，以「-」开头。` +
     `只输出要点列表本身，不要任何前言后语、不要加粗或 markdown 代码块。`;
@@ -8229,7 +8299,6 @@ async function executeCharAction(chat, action) {
     return;
   }
   if (action.type === 'SEND_MUSIC') {
-    // 只从用户上传的本地音乐列表中匹配
     const parts = String(action.payload).split('|');
     const title = (parts[0] || '').trim();
     const artist = (parts[1] || '').trim();
@@ -8343,12 +8412,18 @@ function parseReplyIntoBubbles(rawText) {
   }
   if (segments.length === 0 && trimmed.includes('[[SPLIT]]')) segments = trimmed.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(Boolean);
   if (segments.length === 0 && trimmed.includes('\n')) segments = trimmed.split('\n').map(s => s.trim()).filter(Boolean);
-  if (segments.length === 0 && trimmed.length > 15) {
+  if (segments.length === 0) {
+    // 增强：按标点自动切分（避免整段长文本）
     const punctuationRegex = /(?<=[。！？!?~…])\s*/;
     const splitArr = trimmed.split(punctuationRegex).map(s => s.trim()).filter(s => s.length > 0);
-    if (splitArr.length > 1) segments = splitArr;
+    if (splitArr.length > 1 && trimmed.length > 30) segments = splitArr;
   }
   if (segments.length === 0) segments = [trimmed];
+  // 如果只有一条且长度超过40字，尝试再次切分
+  if (segments.length === 1 && segments[0].length > 40) {
+    const parts = segments[0].split(/(?<=[。！？!?~…，,])\s*/).map(s => s.trim()).filter(s => s.length > 0);
+    if (parts.length > 1) segments = parts;
+  }
   return segments.map(s => s.trim()).filter(s => s.length > 0);
 }
 
@@ -8533,10 +8608,26 @@ function openChatInfo() {
   if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
   const memIntEl = document.getElementById('jxMemoryIntervalText');
   if (memIntEl) memIntEl.textContent = (chat.memoryInterval || 20) + '条';
+  // 记忆区块默认折叠
+  memorySectionExpanded = false;
+  const memList = document.getElementById('jxMemoryList');
+  const memArrow = document.getElementById('jxMemoryArrow');
+  if (memList) memList.style.display = 'none';
+  if (memArrow) memArrow.textContent = '▶';
   renderMemoryList();
   document.getElementById('jxChatInfoScreen').classList.add('active');
 }
 function closeChatInfo() { document.getElementById('jxChatInfoScreen').classList.remove('active'); }
+
+let memorySectionExpanded = false;
+function toggleMemorySection() {
+  memorySectionExpanded = !memorySectionExpanded;
+  const list = document.getElementById('jxMemoryList');
+  const arrow = document.getElementById('jxMemoryArrow');
+  if (list) list.style.display = memorySectionExpanded ? 'block' : 'none';
+  if (arrow) arrow.textContent = memorySectionExpanded ? '▼' : '▶';
+  if (memorySectionExpanded) renderMemoryList();
+}
 
 function renderMemoryList() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -8549,19 +8640,21 @@ function renderMemoryList() {
   if (memories.length === 0) { list.innerHTML = '<div class="jx-memory-empty">暂无记忆，聊到设定条数后会自动生成</div>'; return; }
   list.innerHTML = memories.map((m, i) => `
     <div class="jx-memory-card" id="memory-card-${m.id}">
-      <div class="jx-memory-card-header" style="cursor: pointer; user-select: none;" onclick="toggleMemoryCard('${m.id}', event)">
+      <div class="jx-memory-card-header">
         <span>记忆 ${i + 1} · ${formatFavTime(m.time)}</span>
         <span class="jx-memory-card-del" onclick="deleteMemory('${m.id}', event)">删除</span>
       </div>
-      <div class="jx-memory-card-content" id="memory-content-${m.id}" style="display: none;">${escapeHtml(m.content || '')}</div>
+      <textarea class="memory-content-editable" id="memory-edit-${m.id}" rows="3" placeholder="（记忆内容）" onchange="saveMemoryContent('${m.id}', this.value)">${escapeHtml(m.content || '')}</textarea>
     </div>
   `).join('');
 }
-function toggleMemoryCard(id, event) {
-  if (event) event.stopPropagation();
-  const content = document.getElementById('memory-content-' + id);
-  if (content) {
-    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+function saveMemoryContent(memoryId, newContent) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const mem = (chat.memories || []).find(m => m.id === memoryId);
+  if (mem) {
+    mem.content = String(newContent || '');
+    saveJianxunChats();
   }
 }
 function deleteMemory(memoryId, event) {
@@ -8829,22 +8922,22 @@ function addPersonaToChat(index) {
 }
 
 function loadMomentsData() {
-  const bg = localStorage.getItem('moments_bg');
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const bg = mask ? mask.bgImage : '';
   const hdr = document.getElementById('jxMomentsHeader');
   if (bg) { hdr.style.backgroundImage = `url(${bg})`; hdr.style.backgroundSize = 'cover'; hdr.style.backgroundPosition = 'center'; hdr.style.backgroundRepeat = 'no-repeat'; }
   else hdr.style.backgroundImage = 'none';
-  const currentMaskId = getCurrentMaskId();
-  const mask = jxMasks.find(m => m.id === currentMaskId);
-  const nm = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  const nm = getMaskDisplayName(mask);
   const nameEl = document.getElementById('momentsName');
   if (nameEl) nameEl.innerText = nm;
-  const sig = localStorage.getItem('moments_sig');
+  const sig = mask ? (mask.signature || '') : (localStorage.getItem('moments_sig') || '');
   if (sig) document.getElementById('momentsSignature').innerText = sig;
-  const joinDate = localStorage.getItem('moments_join_date');
+  const joinDate = mask ? (mask.joinDate || '') : (localStorage.getItem('moments_join_date') || '');
   if (joinDate) document.getElementById('momentsJoinDate').innerText = joinDate;
   const avatarEl = document.getElementById('momentsAvatarImg');
   if (avatarEl) {
-    const av = mask && mask.avatar ? mask.avatar : (localStorage.getItem('moments_avatar') || '');
+    const av = (mask && mask.avatar) ? mask.avatar : (localStorage.getItem('moments_avatar') || '');
     if (av) avatarEl.src = av;
     else avatarEl.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
   }
@@ -8861,7 +8954,10 @@ function loadMomentsData() {
       hdr.style.backgroundSize = 'cover';
       hdr.style.backgroundPosition = 'center';
       hdr.style.backgroundRepeat = 'no-repeat';
-      try { localStorage.setItem('moments_bg', base64); } catch(err){}
+      // 按面具保存
+      const currentMaskId = getCurrentMaskId();
+      const mask = jxMasks.find(m => m.id === currentMaskId);
+      if (mask) { mask.bgImage = base64; saveMasks(); }
       input.value = '';
     });
   });
@@ -8908,9 +9004,25 @@ function initEditableTexts() {
       let finalText = this.innerText.trim();
       if (finalText === '') { finalText = this.getAttribute('data-placeholder') || '点击输入'; this.innerText = finalText; }
       try {
-        if (this.id === 'momentsName') { localStorage.setItem('moments_name', finalText); renderMomentsPosts(); }
-        else if (this.id === 'momentsSignature') localStorage.setItem('moments_sig', finalText);
-        else if (this.id === 'momentsJoinDate') localStorage.setItem('moments_join_date', finalText);
+        if (this.id === 'momentsName') {
+          const currentMaskId = getCurrentMaskId();
+          const mask = jxMasks.find(m => m.id === currentMaskId);
+          if (mask) { mask.nickname = finalText; saveMasks(); }
+          localStorage.setItem('moments_name', finalText);
+          renderMomentsPosts();
+        }
+        else if (this.id === 'momentsSignature') {
+          const currentMaskId = getCurrentMaskId();
+          const mask = jxMasks.find(m => m.id === currentMaskId);
+          if (mask) { mask.signature = finalText; saveMasks(); }
+          localStorage.setItem('moments_sig', finalText);
+        }
+        else if (this.id === 'momentsJoinDate') {
+          const currentMaskId = getCurrentMaskId();
+          const mask = jxMasks.find(m => m.id === currentMaskId);
+          if (mask) { mask.joinDate = finalText; saveMasks(); }
+          localStorage.setItem('moments_join_date', finalText);
+        }
         else localStorage.setItem(key, finalText);
       } catch(e){}
     });
@@ -8929,10 +9041,13 @@ async function loadMomentsPosts() {
     if (localData) { try { allPosts = JSON.parse(localData); } catch(e) { allPosts = []; } }
     else allPosts = [];
   }
-  momentsPosts = (Array.isArray(allPosts) ? allPosts : []).filter(p => {
-    if (!p.maskId) return true;
-    return p.maskId === currentMaskId;
-  });
+  allPosts = Array.isArray(allPosts) ? allPosts : [];
+  // 迁移：老数据没有 maskId 的归到第一个 mask
+  const fallbackMaskId = currentMaskId || (jxMasks[0] ? jxMasks[0].id : 'default');
+  let migrated = false;
+  allPosts.forEach(p => { if (!p.maskId) { p.maskId = fallbackMaskId; migrated = true; } });
+  if (migrated) { try { await idbSet(STORE_CHATS, 'moments', allPosts); } catch(e) {} }
+  momentsPosts = allPosts.filter(p => p.maskId === currentMaskId);
   momentsPosts.forEach(p => { if (!p.id) p.id = genId(); });
 }
 async function saveMomentsPosts() {
@@ -8940,7 +9055,7 @@ async function saveMomentsPosts() {
     const currentMaskId = getCurrentMaskId();
     let allPosts = await idbGet(STORE_CHATS, 'moments') || [];
     if (!Array.isArray(allPosts)) allPosts = [];
-    allPosts = allPosts.filter(p => p.maskId !== currentMaskId && p.maskId);
+    allPosts = allPosts.filter(p => p.maskId !== currentMaskId);
     momentsPosts.forEach(p => { if (!p.maskId) p.maskId = currentMaskId; });
     allPosts = allPosts.concat(momentsPosts);
     await idbSet(STORE_CHATS, 'moments', allPosts);
@@ -8952,7 +9067,7 @@ function renderMomentsPosts() {
   document.getElementById('momentsPostCount').innerText = `帖子数量 ${momentsPosts.length}`;
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
-  const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  const currentName = getMaskDisplayName(mask);
   const myAvatar = mask ? (mask.avatar || '') : (localStorage.getItem('moments_avatar') || '');
   if (momentsPosts.length === 0) { container.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#ccc; font-size:13px;">暂无动态</div>'; return; }
   container.innerHTML = momentsPosts.map(post => {
@@ -9028,7 +9143,7 @@ async function toggleLike(postId) {
   if (!post) return;
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
-  const myName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  const myName = getMaskDisplayName(mask);
   if (!Array.isArray(post.likes)) { post.likes = post.liked ? [myName] : []; delete post.liked; }
   const i = post.likes.indexOf(myName);
   if (i >= 0) post.likes.splice(i, 1);
@@ -9149,7 +9264,7 @@ async function sendComment() {
   if (!text) return;
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
-  const currentName = mask ? mask.name : (localStorage.getItem('moments_name') || 'Koi Buono');
+  const currentName = getMaskDisplayName(mask);
   const post = momentsPosts.find(p => p.id === currentCommentPostId);
   if (post) {
     if (!post.comments) post.comments = [];
@@ -9172,10 +9287,10 @@ async function replyToMomentsComment(chat, postId, userComment) {
   const charName = chat.customRemark || chat.name || 'TA';
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
-  const userName = mask ? mask.name : (localStorage.getItem('moments_name') || '用户');
+  const userRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
   const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
     `你之前发过一条朋友圈：「${post.content || '[图片]'}」。\n` +
-    `现在「${userName}」在这条动态下评论了你：「${userComment}」。\n` +
+    `现在「${userRealName}」在这条动态下评论了你：「${userComment}」。\n` +
     `请用 1~2 句简短、口语化的话回复这条评论，符合你的性格。\n` +
     `只输出评论内容本身，不要加引号、不要解释、不要带"回复："这样的前缀。`;
   try {
