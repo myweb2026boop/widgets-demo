@@ -449,6 +449,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .mention-item{font-size:13px;padding:6px 12px;border-radius:14px;background:#f0f0f0;color:#333;cursor:pointer}
 .mention-item.selected{background:#07c160;color:#fff}
 #worldBookSelectScreen.active{display:flex!important}
+#htmlSelectScreen.active{display:flex!important}
 .wb-checkbox{width:22px;height:22px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;box-sizing:border-box}
 .wb-checkbox.checked{background-color:#07c160;border-color:#07c160}
 .wb-checkbox.checked::after{content:'';width:6px;height:11px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);margin-bottom:2px}
@@ -1112,6 +1113,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-time-stamp {
     color: #777;
 }
+.jx-search-result-item:active{background:#f5f5f5}
+.phone-case.dark-mode .jx-search-result-item{background:#1c1c1e!important;border-bottom-color:#2c2c2e!important}
+.phone-case.dark-mode .jx-search-result-item:active{background:#2c2c2e!important}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1761,6 +1765,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       <div class="jx-info-scroll" id="jxMergedViewList" style="padding: 12px;"></div>
     </div>
 
+    <div id="jxChatSearchScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1010;">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeChatSearch()">‹</span>
+        <span class="title">查找聊天内容</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div style="padding: 12px 16px; background: #fff; border-bottom: 1px solid #eee;">
+        <input type="text" id="jxChatSearchInput" placeholder="搜索聊天记录..." oninput="doChatSearch(this.value)" style="width:100%; border:1px solid #ddd; border-radius:8px; padding:10px 14px; font-size:14px; outline:none; box-sizing:border-box; font-family:inherit;">
+      </div>
+      <div class="jx-info-scroll" id="jxChatSearchResults" style="padding: 12px 0;"></div>
+    </div>
+
     <div id="jxWalletScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1007;">
       <div class="jx-info-top-bar">
         <span class="back-btn" onclick="closeWalletScreen()">‹</span>
@@ -2063,7 +2079,7 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
-          <div class="jx-info-item" onclick="alert('暂未开发查找聊天内容功能')">
+          <div class="jx-info-item" onclick="openChatSearch()">
             <span class="label">查找聊天内容</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
@@ -2317,7 +2333,6 @@ https://xxx.com/a.png
       </div>
     </div>
 
-    <!-- 全局弹窗：脱离 jxChatScreen，任何页面都能弹出 -->
     <div class="jx-transfer-modal" id="jxTransferModal">
       <div class="jx-transfer-modal-inner">
         <div class="jx-tm-header">
@@ -3343,7 +3358,6 @@ function buildRealTimePrompt(chat) {
   else if (h >= 18 && h < 22) period = '晚上';
   let sp = `\n【真实时间感知】你能感知真实世界的时间，你认知中的时间与下面的真实时间完全一致：${timeStr}（${period}）。`;
   
-  // 添加时间间隔感知
   if (chat && chat.messages && chat.messages.length > 0) {
     const lastMsg = chat.messages[chat.messages.length - 1];
     if (lastMsg.time) {
@@ -4755,7 +4769,6 @@ function extractEntriesFromJson(data, defaultEntry) {
       renderWorldBookList();
       alert(`成功导入 ${entries.length} 个条目`);
     };
-    // 需求：一个文件只生成一个条目（不自动分割）
     const buildOneEntryFromAllText = (allText) => {
       const text = String(allText || '').trim();
       if (!text) return [];
@@ -5993,6 +6006,96 @@ function openMergedView(msgId) {
 }
 function closeMergedView() { document.getElementById('jxMergedViewScreen').style.display = 'none'; }
 
+/* ============ 查找聊天内容 ============ */
+function openChatSearch() {
+  const input = document.getElementById('jxChatSearchInput');
+  if (input) input.value = '';
+  const results = document.getElementById('jxChatSearchResults');
+  if (results) results.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:13px;">输入关键词搜索聊天记录</div>';
+  const screen = document.getElementById('jxChatSearchScreen');
+  if (screen) screen.style.display = 'flex';
+  setTimeout(() => { if (input) input.focus(); }, 100);
+}
+function closeChatSearch() {
+  const screen = document.getElementById('jxChatSearchScreen');
+  if (screen) screen.style.display = 'none';
+}
+function doChatSearch(keyword) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const container = document.getElementById('jxChatSearchResults');
+  if (!container) return;
+  const kw = String(keyword || '').trim().toLowerCase();
+  if (!kw) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:13px;">输入关键词搜索聊天记录</div>';
+    return;
+  }
+  const results = [];
+  chat.messages.forEach((m, idx) => {
+    if (!m || m.content === '__typing__') return;
+    let text = '';
+    if (m.type === 'image') text = '[图片]';
+    else if (m.type === 'sticker') text = '[表情]' + (m.stickerName || '');
+    else if (m.type === 'transfer') text = '[转账 ¥' + ((m.amount || 0).toFixed(2)) + ']' + (m.note || '');
+    else if (m.type === 'familyCard') text = '[亲属卡 ¥' + ((m.limit || 0).toFixed(2)) + ']' + (m.note || '');
+    else if (m.type === 'card') text = '[名片]' + ((m.card && m.card.name) || '');
+    else if (m.type === 'html') text = '[HTML]' + (m.htmlName || '');
+    else if (m.type === 'music') text = '[音乐]' + ((m.musicData && m.musicData.title) || '');
+    else if (m.type === 'merged') text = '[聊天记录]';
+    else if (m.type === 'coupleProposal') text = '[换情头申请]';
+    else if (m.type === 'system') text = m.content || '';
+    else text = m.content || '';
+    if (text.toLowerCase().indexOf(kw) >= 0) {
+      results.push({ msg: m, text: text, idx: idx });
+    }
+  });
+  if (results.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:13px;">没有找到匹配的消息</div>';
+    return;
+  }
+  const myAvatar = chat.myAvatar || localStorage.getItem('moments_avatar') || '';
+  const chatName = chat.customRemark || chat.name || 'TA';
+  const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(' + escapedKw + ')', 'gi');
+  container.innerHTML = results.map(r => {
+    const isMe = r.msg.role === 'me';
+    const avatarUrl = isMe ? myAvatar : (chat.avatar || '');
+    const safeText = escapeHtml(r.text);
+    const highlighted = safeText.replace(re, '<mark style="background:#ffe082;color:#333;padding:0 2px;border-radius:2px;">$1</mark>');
+    const timeStr = r.msg.time ? formatChatTimestamp(r.msg.time) : '';
+    return `<div class="jx-search-result-item" style="background:#fff;margin:0 12px 8px;padding:12px 14px;border-radius:10px;display:flex;gap:10px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04);" onclick="jumpToMessage('${r.msg.id}')">
+      <div style="width:36px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
+        ${avatarUrl ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="20" height="20"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;gap:8px;">
+          <span style="font-size:13px;color:#333;font-weight:500;">${isMe ? '我' : escapeHtml(chatName)}</span>
+          <span style="font-size:11px;color:#bbb;flex-shrink:0;">${escapeHtml(timeStr)}</span>
+        </div>
+        <div style="font-size:14px;color:#666;line-height:1.5;word-break:break-word;">${highlighted}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function jumpToMessage(msgId) {
+  const screen = document.getElementById('jxChatSearchScreen');
+  if (screen) screen.style.display = 'none';
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  renderChatMessages();
+  setTimeout(() => {
+    const container = document.getElementById('jxChatMessages');
+    if (!container) return;
+    const targetEl = container.querySelector(`[data-msg-id="${msgId}"]`);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetEl.style.transition = 'background .3s';
+      targetEl.style.background = 'rgba(255,235,59,.3)';
+      setTimeout(() => { targetEl.style.background = ''; }, 1200);
+    }
+  }, 100);
+}
+
 function loadGlobalPrompt() {
   try { return localStorage.getItem(JX_GLOBAL_PROMPT_KEY) || ''; } catch (e) { return ''; }
 }
@@ -6284,14 +6387,12 @@ async function loadJianxunChats() {
     }
   }
   allChats = Array.isArray(allChats) ? allChats : [];
-  // 迁移：确保每个 chat 都有 maskId（老数据统一归到第一个 mask 或 default）
   const fallbackMaskId = currentMaskId || (jxMasks[0] ? jxMasks[0].id : 'default');
   let migrated = false;
   allChats.forEach(c => {
     if (!c.maskId) { c.maskId = fallbackMaskId; migrated = true; }
   });
   if (migrated) { try { await idbSet(STORE_CHATS, 'main', allChats); } catch(e) {} }
-  // 严格按当前 maskId 过滤
   jianxunChats = allChats.filter(c => c.maskId === currentMaskId);
   jianxunChats.forEach(chat => {
     if (!chat.id) chat.id = genId();
@@ -6726,7 +6827,6 @@ function renderChatMessages(keepScrollPos) {
     let inner = '';
     let bubbleCls = 'jx-msg-bubble';
     
-    // 时间戳
     let timeHtml = '';
     if (msg.time) {
       const gap = msg.time - lastMsgTime;
@@ -7173,7 +7273,6 @@ function renderStickerPanel() {
       <span class="sticker-pack-name">${escapeHtml(pack.name || '未命名')}</span>
     </div>`;
   }).join('');
-  // 绑定点击事件（避免内联事件不生效）
   bar.querySelectorAll('.sticker-pack-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       if (e.target && e.target.classList && e.target.classList.contains('sticker-pack-star')) return;
@@ -7824,7 +7923,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   loadPersonaList();
   const persona = personaList.find(p => p.name === chat.name);
   const activeMask = getActiveMaskForChat(chat);
-  // 真实名字用于角色认知；网名仅用于朋友圈和"我"页面显示
   const userRealName = activeMask ? getMaskRealName(activeMask) : (localStorage.getItem('moments_name') || '用户');
   const userNickname = activeMask ? (activeMask.nickname || '') : '';
   const userWxId = activeMask ? (activeMask.wxId || '') : (localStorage.getItem('jx_wechat_id') || '');
@@ -8560,13 +8658,11 @@ function parseReplyIntoBubbles(rawText) {
   if (segments.length === 0 && trimmed.includes('[[SPLIT]]')) segments = trimmed.split(/[ \t]*\[\[\s*SPLIT\s*\]\][ \t]*/gi).map(s => s.trim()).filter(Boolean);
   if (segments.length === 0 && trimmed.includes('\n')) segments = trimmed.split('\n').map(s => s.trim()).filter(Boolean);
   if (segments.length === 0) {
-    // 增强：按标点自动切分（避免整段长文本）
     const punctuationRegex = /(?<=[。！？!?~…])\s*/;
     const splitArr = trimmed.split(punctuationRegex).map(s => s.trim()).filter(s => s.length > 0);
     if (splitArr.length > 1 && trimmed.length > 30) segments = splitArr;
   }
   if (segments.length === 0) segments = [trimmed];
-  // 如果只有一条且长度超过40字，尝试再次切分
   if (segments.length === 1 && segments[0].length > 40) {
     const parts = segments[0].split(/(?<=[。！？!?~…，,])\s*/).map(s => s.trim()).filter(s => s.length > 0);
     if (parts.length > 1) segments = parts;
@@ -8755,7 +8851,6 @@ function openChatInfo() {
   if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
   const memIntEl = document.getElementById('jxMemoryIntervalText');
   if (memIntEl) memIntEl.textContent = (chat.memoryInterval || 20) + '条';
-  // 记忆区块默认折叠
   memorySectionExpanded = false;
   const memList = document.getElementById('jxMemoryList');
   const memArrow = document.getElementById('jxMemoryArrow');
@@ -9101,7 +9196,6 @@ function loadMomentsData() {
       hdr.style.backgroundSize = 'cover';
       hdr.style.backgroundPosition = 'center';
       hdr.style.backgroundRepeat = 'no-repeat';
-      // 按面具保存
       const currentMaskId = getCurrentMaskId();
       const mask = jxMasks.find(m => m.id === currentMaskId);
       if (mask) { mask.bgImage = base64; saveMasks(); }
@@ -9189,7 +9283,6 @@ async function loadMomentsPosts() {
     else allPosts = [];
   }
   allPosts = Array.isArray(allPosts) ? allPosts : [];
-  // 迁移：老数据没有 maskId 的归到第一个 mask
   const fallbackMaskId = currentMaskId || (jxMasks[0] ? jxMasks[0].id : 'default');
   let migrated = false;
   allPosts.forEach(p => { if (!p.maskId) { p.maskId = fallbackMaskId; migrated = true; } });
