@@ -1525,6 +1525,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
           <p class="hint-text">开启后，角色能感知当前真实日期与时间，与你的认知时间一致；关闭后角色不知道现实时间，只能靠你告知。</p>
         </div>
+        <div class="section-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> 头像感知</h4>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:14px; color:#444;">让角色感知用户头像</span>
+            <div class="jx-switch" id="avatarAwareSwitch" onclick="toggleAvatarAware()"></div>
+          </div>
+          <p class="hint-text">开启后，角色能看见你的头像与照片，并能使用换头像、引用图片、发起情头申请等与头像相关的功能；关闭后角色完全不知道你的头像，也不会主动提及或使用任何头像相关话题（默认关闭）。</p>
+        </div>
         <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> API 配置（角色回复将使用此配置）</h4>
           <div class="form-group"><label>API 地址（Endpoint）</label><input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1"><p class="hint-text" style="margin-top:4px;">可填 base URL（如 https://xxx/v1），也可填完整端点（如 https://xxx/v1/chat/completions）。</p></div>
@@ -2566,6 +2574,7 @@ const AVATAR_LIB_KEY = 'avatar_library';
 const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
 const NOTIFICATION_BG_KEY = 'notification_bg_enabled';
 const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
+const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 
 /* ============ 音乐持久化存储（IndexedDB） ============ */
 const MUSIC_DB_NAME = 'TuTooth_MusicDB';
@@ -3378,6 +3387,20 @@ function buildRealTimePrompt(chat) {
   return sp;
 }
 
+/* ============ 头像感知 ============ */
+function loadAvatarAwareSetting() {
+  return localStorage.getItem(AVATAR_AWARE_KEY) === 'true';
+}
+function applyAvatarAwareUI() {
+  const el = document.getElementById('avatarAwareSwitch');
+  if (el) el.className = 'jx-switch' + (loadAvatarAwareSetting() ? ' on' : '');
+}
+function toggleAvatarAware() {
+  const v = !loadAvatarAwareSetting();
+  localStorage.setItem(AVATAR_AWARE_KEY, v ? 'true' : 'false');
+  applyAvatarAwareUI();
+}
+
 /* ============ 通知后台保活 ============ */
 function loadNotificationBgSetting() {
   return localStorage.getItem(NOTIFICATION_BG_KEY) === 'true';
@@ -3443,6 +3466,7 @@ function openSettingsApp() {
   updateApiPresetList();
   applyRealTimeUI();
   applyNotificationBgUI();
+  applyAvatarAwareUI();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
   const box = document.getElementById('modelListBox');
@@ -4938,6 +4962,7 @@ const isBackupKey = (key) => (
   key === JX_GLOBAL_PROMPT_KEY ||
   key === CUSTOM_HTML_KEY ||
   key === BEAUTIFY_PRESETS_KEY ||
+  key === AVATAR_AWARE_KEY ||
   key === 'wx-family-received' || key === 'wx-family-given'
 );
 
@@ -6281,12 +6306,20 @@ let currentChatId = null;
 
 function getCharImageRefs(chat) {
   const refs = [];
+  const avatarAware = loadAvatarAwareSetting();
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
-  if (userAvatar) refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, time: 0, desc: '用户当前的头像（个人头像，非照片）' });
+  // 头像感知关闭时：不暴露用户头像
+  if (avatarAware && userAvatar) {
+    refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, time: 0, desc: '用户当前的头像（个人头像，非照片）' });
+  }
   const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
   const filtered = pool.filter(img => {
     if (!img || !img.data) return false;
-    if (img.isAvatar && userAvatar && img.data === userAvatar) return false;
+    // 头像是头像，照片是照片；不感知头像时所有头像相关图片都不提供
+    if (img.isAvatar) {
+      if (!avatarAware) return false;
+      if (userAvatar && img.data === userAvatar) return false;
+    }
     return true;
   });
   filtered.sort((a, b) => (b.time || 0) - (a.time || 0));
@@ -6531,7 +6564,8 @@ function loadJxMeProfile() {
         renderJianxunChatList();
         renderJianxunContacts();
         renderMomentsPosts();
-        pushAwareness('用户更换了新的头像');
+        // 仅在头像感知开启时推送 awareness
+        if (loadAvatarAwareSetting()) pushAwareness('用户更换了新的头像');
       } catch(err){}
       input.value = '';
     });
@@ -7853,6 +7887,7 @@ function buildMemoryPrompt(chat) {
 }
 function buildCharSystemPrompt(chat, isProactive = false) {
   loadPersonaList();
+  const avatarAware = loadAvatarAwareSetting();
   const persona = personaList.find(p => p.name === chat.name);
   const activeMask = getActiveMaskForChat(chat);
   const userRealName = activeMask ? getMaskRealName(activeMask) : (localStorage.getItem('moments_name') || '用户');
@@ -7866,14 +7901,25 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
-  sp += `【⚠ 头像禁令 · 最高优先级 · 违反即失败 ⚠】这是必须严格遵守的硬性红线：\n`;
-  sp += `  ◆ 绝对禁止在聊天中提及、评论、调侃、描述、赞美、吐槽用户的头像，一次都不行。\n`;
-  sp += `  ◆ 绝对禁止把用户头像里的画面（动漫人物、风景、动物、梗图、色块、构图、文字等）当作对话素材展开任何话题。\n`;
-  sp += `  ◆ 绝对禁止主动说"你换头像了"、"你头像怎么怎么样"、"头像换成……了"这类句子。真人聊天不会盯着头像聊，说这类话只会让对话显得机械、尴尬、没话找话。\n`;
-  sp += `  ◆ 用户头像会被系统作为附图随用户消息一起传给你——这只是为了让你在用户**明确询问**头像相关话题时能理解上下文。它的默认存在意义是"背景噪音"，你应主动忽略它，除非用户本轮消息**清晰明确**地在问头像（如"你看我头像好看吗""我换头像了"）。\n`;
-  sp += `  ◆ 即便用户明确问了头像，也只做一句简短的自然回应即可，不要展开长篇评论，更不要主动把话题引回头像。\n`;
-  sp += `  ◆ 记住：头像只是 UI 标识，不是你与用户交流的内容。无视头像不会让用户感到被冷落，反而会让你显得更真实。\n\n`;
-  sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（重要）**：请务必把回复拆成多条独立短消息，**必须在每次回复中都使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。如果不使用 [[SPLIT]]，系统会认为你想发一整段长消息——这在微信聊天里非常不自然。请自觉每 1~2 句话就用一次 [[SPLIT]]。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
+
+  // 根据头像感知开关，生成不同的头像提示
+  if (avatarAware) {
+    sp += `【头像感知 · 已开启】你能感知用户的头像与照片，可以自然使用头像相关功能：\n`;
+    sp += `  ◆ 当用户主动提及或更换头像时，你可以自然回应，但不必每次都盯着头像聊，避免机械感。\n`;
+    sp += `  ◆ 你可以根据人设和聊天氛围，主动使用头像相关功能（换头像、引用图片、发起情头申请等），但不要过于频繁。\n`;
+    sp += `  ◆ 记住：头像只是可选的互动素材，不必刻意反复强调，除非情境自然需要。\n\n`;
+  } else {
+    sp += `【⚠ 头像感知 · 已关闭 · 最高优先级 · 违反即失败 ⚠】这是必须严格遵守的硬性红线：\n`;
+    sp += `  ◆ 你完全不知道用户当前的头像是什么，系统不会向你提供任何用户头像相关的信息或图片。\n`;
+    sp += `  ◆ 绝对禁止在聊天中提及、评论、调侃、描述、赞美、吐槽用户的头像，一次都不行。\n`;
+    sp += `  ◆ 绝对禁止把用户头像里的画面（动漫人物、风景、动物、梗图、色块、构图、文字等）当作对话素材展开任何话题。\n`;
+    sp += `  ◆ 绝对禁止主动说"你换头像了"、"你头像怎么怎么样"、"头像换成……了"这类句子。真人聊天不会盯着头像聊，说这类话只会让对话显得机械、尴尬、没话找话。\n`;
+    sp += `  ◆ 用户更换头像对你来说没有任何感知，你完全不知道有这回事。\n`;
+    sp += `  ◆ 绝对禁止使用任何与用户头像相关的动作标记（如 [[SET_AVATAR]]、[[CROP_AVATAR]]、[[USE_AVATAR]]、[[SET_USER_AVATAR]]、[[PROPOSE_COUPLE]] 等）。\n`;
+    sp += `  ◆ 即便用户直接问"你看我头像好看吗"这类问题，也要么不回应头像本身，要么用"我没太注意"、"头像对我来说只是个符号"等自然话语轻轻带过——绝不要展开评论或讨论头像的具体内容。\n\n`;
+  }
+
+  sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（极其重要）**：请务必把回复拆成多条独立短消息。**你必须主动使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分（每 1~2 句用一次）。如果不使用 [[SPLIT]] 标记，系统仍然会尝试按标点和长度自动切分，但可能不如你亲手切分自然。为了最佳效果，请务必自觉使用 [[SPLIT]]。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
   if (persona) {
@@ -7906,8 +7952,11 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const htp = buildHtmlPrompt(chat);
   if (htp) sp += htp;
 
-  const alp = buildAvatarLibPrompt();
-  if (alp) sp += alp;
+  // 仅在头像感知开启时，注入头像库
+  if (avatarAware) {
+    const alp = buildAvatarLibPrompt();
+    if (alp) sp += alp;
+  }
 
   const rtp = buildRealTimePrompt(chat);
   if (rtp) sp += rtp;
@@ -7922,29 +7971,35 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     sp += '\n【可用本地音乐】（用户还没有在「音乐」App 里上传任何歌曲，你暂时无法分享音乐）\n';
   }
 
-  const refs = getCharImageRefs(chat);
-  sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）。**再次强调：可引用图片是为了让你在用户主动询问头像/照片时能对上号，默认场景下不要主动提及这些图片。**\n';
-  if (refs.length === 0) sp += '（暂无）\n';
-  else {
-    refs.forEach((img, i) => {
-      const tag = img.isAvatar ? '★头像' : '照片';
-      const desc = img.desc || (img.isAvatar ? '用户头像' : '用户照片');
-      const time = img.time ? new Date(img.time).toLocaleString('zh-CN') : '';
-      let note = '';
-      if (i === 0 && img.isAvatar) note = '(不是照片)';
-      else if (i === 1 && !img.isAvatar) note = '(最新照片，用户说"那张"优先指它)';
-      sp += `${i + 1}.${tag}·${desc}${time ? '(' + time + ')' : ''}${note}\n`;
-    });
+  // 仅在头像感知开启时，提供"可引用图片"信息
+  if (avatarAware) {
+    const refs = getCharImageRefs(chat);
+    sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）。**再次强调：可引用图片是为了让你在用户主动询问头像/照片时能对上号，默认场景下不要主动提及这些图片。**\n';
+    if (refs.length === 0) sp += '（暂无）\n';
+    else {
+      refs.forEach((img, i) => {
+        const tag = img.isAvatar ? '★头像' : '照片';
+        const desc = img.desc || (img.isAvatar ? '用户头像' : '用户照片');
+        const time = img.time ? new Date(img.time).toLocaleString('zh-CN') : '';
+        let note = '';
+        if (i === 0 && img.isAvatar) note = '(不是照片)';
+        else if (i === 1 && !img.isAvatar) note = '(最新照片，用户说"那张"优先指它)';
+        sp += `${i + 1}.${tag}·${desc}${time ? '(' + time + ')' : ''}${note}\n`;
+      });
+    }
   }
 
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
-  sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
-  sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
-  sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
-  sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
-  sp += '[[USE_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换你自己的聊天头像。\n';
-  sp += '[[SET_USER_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换用户的聊天头像（用户会感知到是你换的）。\n';
-  sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头（你换上A图，用户换上B图）。\n';
+  // 仅在头像感知开启时提供头像相关动作
+  if (avatarAware) {
+    sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
+    sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
+    sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
+    sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
+    sp += '[[USE_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换你自己的聊天头像。\n';
+    sp += '[[SET_USER_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换用户的聊天头像（用户会感知到是你换的）。\n';
+    sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头（你换上A图，用户换上B图）。\n';
+  }
   sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
   sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
   sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。系统会自动找到最近一条匹配的用户消息，把引用内容显示在你的气泡上方。只在你想明确回应某句话时使用。\n';
@@ -7963,7 +8018,11 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。列表里没有的歌就不要分享。\n';
   sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请（当用户分享音乐给你，且你打算接受时使用）\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。\n';
+  if (avatarAware) {
+    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。\n';
+  } else {
+    sp += '规则：标记嵌在自然文字里；不要滥用。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
+  }
 
   sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
 
@@ -7994,10 +8053,12 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const mp = buildMomentsPrompt();
   if (mp) sp += mp;
 
+  // 头像感知关闭时，不推送"换头像"相关 awareness 给角色
   const log = loadAwarenessLog();
-  if (log.length > 0) {
+  const filteredLog = avatarAware ? log : log.filter(e => !/头像/.test(e.text || ''));
+  if (filteredLog.length > 0) {
     sp += '\n【用户近期操作】（你都知道，可自然提及，不必每次提）\n';
-    log.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
+    filteredLog.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
   }
 
   sp += '\n现在以角色身份自然回复用户。';
@@ -8193,6 +8254,12 @@ function cropImageRegion(base64Src, region, ratio) {
 }
 
 async function executeCharAction(chat, action) {
+  // 头像感知关闭时，禁用所有头像相关动作
+  const avatarAware = loadAvatarAwareSetting();
+  if (!avatarAware && ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'].includes(action.type)) {
+    return;
+  }
+
   if (action.type === 'QUOTE') {
     const want = String(action.payload).trim();
     if (!want) return;
@@ -8593,9 +8660,11 @@ async function generateCharReply(chat, isProactive = false) {
   if (!useAI) throw new Error('尚未配置 API');
   const systemPrompt = buildCharSystemPrompt(chat, isProactive);
   const history = buildChatHistory(chat);
+  const avatarAware = loadAvatarAwareSetting();
   const activeMask = getActiveMaskForChat(chat);
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
-  if (userAvatar && history.length > 0) {
+  // 仅在头像感知开启时，才把用户头像作为图片追加
+  if (avatarAware && userAvatar && history.length > 0) {
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].role === 'user') {
         let contentArr;
@@ -8654,10 +8723,37 @@ function parseReplyIntoBubbles(rawText) {
     if (splitArr.length > 1 && trimmed.length > 30) segments = splitArr;
   }
   if (segments.length === 0) segments = [trimmed];
-  if (segments.length === 1 && segments[0].length > 40) {
-    const parts = segments[0].split(/(?<=[。！？!?~…，,])\s*/).map(s => s.trim()).filter(s => s.length > 0);
+  
+  // 增强兜底：如果最终只有一段且过长，强制按标点/长度切分，保证即使模型没打 [[SPLIT]] 也能出多条气泡
+  if (segments.length === 1 && segments[0].length > 25) {
+    const one = segments[0];
+    // 1. 先按句末标点切
+    let parts = one.split(/(?<=[。！？!?…~])\s*/).map(s => s.trim()).filter(s => s.length > 0);
+    // 2. 若仍只有一段，尝试按逗号/分号/顿号切
+    if (parts.length <= 1) {
+      parts = one.split(/(?<=[，,；;、])\s*/).map(s => s.trim()).filter(s => s.length > 0);
+    }
+    // 3. 若仍只有一段且超长，按长度强制切（找最近的标点作为切点）
+    if (parts.length <= 1 && one.length > 45) {
+      const chunks = [];
+      let rest = one;
+      while (rest.length > 30) {
+        let cut = -1;
+        const puncts = ['。', '！', '？', '，', '、', '；', '…', '~', '.', '!', '?', ','];
+        for (const p of puncts) {
+          const idx = rest.lastIndexOf(p, 30);
+          if (idx > cut) cut = idx;
+        }
+        if (cut < 10) cut = 30;
+        chunks.push(rest.slice(0, cut + 1).trim());
+        rest = rest.slice(cut + 1);
+      }
+      if (rest.trim()) chunks.push(rest.trim());
+      if (chunks.length > 1) parts = chunks;
+    }
     if (parts.length > 1) segments = parts;
   }
+  
   return segments.map(s => s.trim()).filter(s => s.length > 0);
 }
 
@@ -9075,10 +9171,10 @@ function changeMyChatAvatar() {
       if (chat) {
         chat.myAvatar = base64;
         if (chat.userAvatarByChar) {
-          pushAwareness(`用户修改了你帮她换的头像`);
+          if (loadAvatarAwareSetting()) pushAwareness(`用户修改了你帮她换的头像`);
           chat.userAvatarByChar = false;
         } else {
-          pushAwareness(`用户修改了自己的头像`);
+          if (loadAvatarAwareSetting()) pushAwareness(`用户修改了自己的头像`);
         }
         const cmid = getCurrentMaskId();
         const cmask = jxMasks.find(m => m.id === cmid);
@@ -9233,7 +9329,8 @@ function loadMomentsData() {
         chat.imagePool = avatars.concat(photos);
       });
       saveJianxunChats();
-      pushAwareness('用户更换了新的头像');
+      // 仅在头像感知开启时推送 awareness
+      if (loadAvatarAwareSetting()) pushAwareness('用户更换了新的头像');
       input.value = '';
     });
   });
