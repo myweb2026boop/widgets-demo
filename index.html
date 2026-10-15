@@ -4700,56 +4700,6 @@ function deleteEntry() {
     renderWorldBookList();
   });
 })();
-function splitIntoChunks(paragraphs) {
-  const chunks = [];
-  let current = [];
-  paragraphs.forEach(p => {
-    const t = (p || '').trim();
-    if (t === '') { if (current.length) { chunks.push(current.join('\n')); current = []; } }
-    else { current.push(t); }
-  });
-  if (current.length) chunks.push(current.join('\n'));
-  return chunks;
-}
-function extractEntriesFromJson(data, defaultEntry) {
-  const out = [];
-  const pushOne = (obj, fallbackName) => {
-    if (obj == null) return;
-    if (typeof obj === 'string') { if (obj.trim()) out.push(defaultEntry(fallbackName || truncate(obj, 24), obj, '')); return; }
-    if (typeof obj !== 'object') return;
-    const keysRaw = obj.keys ?? obj.key ?? obj.keywords ?? obj.trigger ?? obj.triggers ?? '';
-    const keyStr = Array.isArray(keysRaw) ? keysRaw.join(', ') : String(keysRaw || '');
-    const content = obj.content ?? obj.text ?? obj.value ?? obj.description ?? obj.desc ?? obj.detail ?? '';
-    const name = obj.name ?? obj.comment ?? obj.title ?? obj.subject ?? fallbackName ?? '';
-    if (!String(content).trim() && !keyStr.trim()) return;
-    const positionRaw = String(obj.position ?? obj.insertion_position ?? obj.insertionPosition ?? '').toLowerCase();
-    let position = 'after';
-    if (/before|前/.test(positionRaw)) position = 'before';
-    else if (/middle|中|in_?char/.test(positionRaw)) position = 'middle';
-    out.push({
-      id: genId(),
-      name: String(name || truncate(keyStr || String(content), 24) || '未命名条目'),
-      keys: keyStr, content: String(content),
-      depth: Number(obj.depth ?? obj.insertion_depth) || 4,
-      order: Number(obj.order ?? obj.priority ?? obj.insertion_order) || 100,
-      position: position,
-      binding: (obj.binding === 'local' || obj.local === true) ? 'local' : 'global',
-      localTarget: obj.localTarget || obj.character || '',
-      enabled: obj.enabled !== false && obj.disable !== true
-    });
-  };
-  if (Array.isArray(data)) { data.forEach((item, i) => pushOne(item, `条目 ${i + 1}`)); }
-  else if (data && typeof data === 'object') {
-    if (Array.isArray(data.entries)) data.entries.forEach((item, i) => pushOne(item, `条目 ${i + 1}`));
-    else if (data.entries && typeof data.entries === 'object') Object.entries(data.entries).forEach(([k, v]) => pushOne(v, `条目 ${k}`));
-    else if (data.keys || data.key || data.content || data.text) pushOne(data);
-    else Object.entries(data).forEach(([k, v]) => {
-      if (typeof v === 'string') { if (v.trim()) out.push(defaultEntry(k, v, k)); }
-      else if (v && typeof v === 'object') pushOne({ ...v, name: v.name ?? v.comment ?? k }, k);
-    });
-  }
-  return out;
-}
 (function initWbFileInput() {
   const input = document.getElementById('worldBookFileInput');
   if (!input) return;
@@ -4767,13 +4717,13 @@ function extractEntriesFromJson(data, defaultEntry) {
       worldBookEntries = worldBookEntries.concat(entries);
       saveWorldBook();
       renderWorldBookList();
-      alert(`成功导入 ${entries.length} 个条目`);
+      alert(`成功导入 ${entries.length} 本世界书（${entries[0].name}）`);
     };
+    // 需求：一个文件始终生成一本世界书（一个条目），不再自动分成多条
     const buildOneEntryFromAllText = (allText) => {
       const text = String(allText || '').trim();
       if (!text) return [];
-      const firstLine = text.split('\n')[0].trim();
-      const entryName = fileBaseName || truncate(firstLine, 30) || '未命名条目';
+      const entryName = fileBaseName || '未命名世界书';
       return [defaultEntry(entryName, text, '')];
     };
     if (ext === '.docx') {
@@ -4794,8 +4744,13 @@ function extractEntriesFromJson(data, defaultEntry) {
     } else if (ext === '.json') {
       const reader = new FileReader();
       reader.onload = (ev) => {
-        try { finish(extractEntriesFromJson(JSON.parse(ev.target.result), defaultEntry)); }
-        catch (err) { alert('JSON 解析失败'); }
+        const raw = String(ev.target.result || '');
+        let text = raw;
+        try {
+          const parsed = JSON.parse(raw);
+          text = JSON.stringify(parsed, null, 2);
+        } catch (err) { /* 保留原始文本 */ }
+        finish(buildOneEntryFromAllText(text));
       };
       reader.readAsText(file);
     } else if (ext === '.txt') {
@@ -5500,37 +5455,15 @@ function confirmGiveCard() {
   const limit = parseFloat(document.getElementById('jxGiveCardAmount').value);
   const note = document.getElementById('jxGiveCardNote').value.trim();
   if (isNaN(limit) || limit <= 0) { alert('请输入正确的额度'); return; }
-  const cid = chat.id;
-  const cn = chat.customRemark || chat.name || '对方';
-  const mi = chat.messages.length;
+  // 只发一条 pending 卡片，等角色主动接受或拒绝（由 AI 通过隐藏动作决定，绝不默认接受/默认回复）
   chat.messages.push({ id: genId(), role: 'me', type: 'familyCard', limit: limit, note: note, status: 'pending', time: Date.now(), content: '[亲属卡]' });
   saveJianxunChats();
   closeGiveCardModal();
   renderChatMessages();
   renderJianxunChatList();
-  alert('亲属卡已赠送，等待对方接受');
-  setTimeout(function(){
-    const h2 = jianxunChats.find(c => c.id === cid);
-    if (!h2) return;
-    const m = h2.messages[mi];
-    if (!m || m.type !== 'familyCard' || m.status !== 'pending') return;
-    const acc = Math.random() < 0.85;
-    if (acc) {
-      m.status = 'accepted';
-      const cardId = 'fc_' + Date.now();
-      const gv = getGiven();
-      gv.unshift({ id: cardId, toCharId: cid, toName: cn, limit: limit, used: 0, createdAt: Date.now() });
-      saveGiven(gv);
-      m.cardId = cardId;
-      h2.messages.push({ id: genId(), role: 'char', type: 'text', content: '谢谢你的亲属卡', time: Date.now() });
-    } else {
-      m.status = 'rejected';
-      h2.messages.push({ id: genId(), role: 'char', type: 'text', content: '不用送我亲属卡啦', time: Date.now() });
-    }
-    saveJianxunChats();
-    if (currentChatId === cid) renderChatMessages();
-    renderJianxunChatList();
-  }, 2200);
+  pushAwareness(`你送给 ${chat.customRemark || chat.name || 'TA'} 一张亲属卡（额度 ¥${limit.toFixed(2)}），等待对方处理。`);
+  // 触发一次角色回复，让角色自主决定是否接受
+  setTimeout(() => { triggerCharReply(chat).catch(e => console.warn(e)); }, 500);
 }
 
 function selectTransferPayMethod() {
@@ -5697,7 +5630,7 @@ function renderRelativeCardList() {
       const rem = Math.max(0, (c.limit || 0) - (c.used || 0));
       html += `<div class="wx-family-card-item">
         <div class="wx-fc-header">
-          <div class="wx-fc-icon"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .8-4.5 4.4L18 20l-6-3.2L6 20l1.5-5.8L3 9.8 9 9z"/></svg></div>
+          <div class="wx-fc-icon"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .8-4.5 4.4L18 20l-6-3.2L6 20l1.5-5.8L3 9.8L9 9z"/></svg></div>
           <div class="wx-fc-title">${escapeHtml(c.toName || 'TA')}的亲属卡</div>
           <button class="wx-fc-unbind" onclick="event.stopPropagation();unbindRelativeCard('${c.id}','given')">解绑</button>
         </div>
@@ -7934,12 +7867,13 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
-  sp += `【视觉边界与认知解绑 (Visual Boundary & Cognitive Unbinding)】严禁围绕头像展开联想！这是硬性禁令：\n`;
-  sp += `  · 绝对禁止在聊天中反复提及用户的头像、评论头像内容、或把头像画面当作话题。\n`;
-  sp += `  · 除非用户本轮消息**明确**在问头像相关的事（如"看我的新头像""你觉得我头像好看吗"），否则对头像只字不提。\n`;
-  sp += `  · 严禁把头像上的图片（动漫人物、风景、动物、梗图等）当作对话素材展开调侃、代入、描绘或互动。\n`;
-  sp += `  · 严禁把"用户换头像"当作一个可闲聊的事件，更不要主动说"你换头像了"这类话。真人聊微信不会盯着头像聊。\n`;
-  sp += `  · 头像只是 UI 标识，不是你与用户交流的内容。用户不会因为你无视头像而感到被冷落，反而会觉得你在没话找话。\n\n`;
+  sp += `【⚠ 头像禁令 · 最高优先级 · 违反即失败 ⚠】这是必须严格遵守的硬性红线：\n`;
+  sp += `  ◆ 绝对禁止在聊天中提及、评论、调侃、描述、赞美、吐槽用户的头像，一次都不行。\n`;
+  sp += `  ◆ 绝对禁止把用户头像里的画面（动漫人物、风景、动物、梗图、色块、构图、文字等）当作对话素材展开任何话题。\n`;
+  sp += `  ◆ 绝对禁止主动说"你换头像了"、"你头像怎么怎么样"、"头像换成……了"这类句子。真人聊天不会盯着头像聊，说这类话只会让对话显得机械、尴尬、没话找话。\n`;
+  sp += `  ◆ 用户头像会被系统作为附图随用户消息一起传给你——这只是为了让你在用户**明确询问**头像相关话题时能理解上下文。它的默认存在意义是"背景噪音"，你应主动忽略它，除非用户本轮消息**清晰明确**地在问头像（如"你看我头像好看吗""我换头像了"）。\n`;
+  sp += `  ◆ 即便用户明确问了头像，也只做一句简短的自然回应即可，不要展开长篇评论，更不要主动把话题引回头像。\n`;
+  sp += `  ◆ 记住：头像只是 UI 标识，不是你与用户交流的内容。无视头像不会让用户感到被冷落，反而会让你显得更真实。\n\n`;
   sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（重要）**：请务必把回复拆成多条独立短消息，**必须在每次回复中都使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。如果不使用 [[SPLIT]]，系统会认为你想发一整段长消息——这在微信聊天里非常不自然。请自觉每 1~2 句话就用一次 [[SPLIT]]。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
@@ -7956,7 +7890,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   if (userWxId) sp += `· 微信号：${userWxId}\n`;
   sp += `· 记住：用户告诉你的"真实名字"才是真名。网名只是账号显示名。绝对不要把网名当作用户的真实姓名来使用。\n`;
   if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
-  if (userAvatar) sp += `（用户头像会以图片形式附在每条用户消息末尾，你能看清内容。**再次强调：绝对不要在对话中谈论或提及用户的头像**，除非本轮用户消息明确要求你评价头像。）\n`;
 
   if (isProactive) {
     sp += `\n【系统提示】用户已经有一段时间没有回复了。现在你想主动开启一个新话题、分享一些符合你人设的内容，或者发送一条日常消息。不要回复用户，只需发送一条新消息。\n`;
@@ -7991,7 +7924,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   }
 
   const refs = getCharImageRefs(chat);
-  sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）\n';
+  sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）。**再次强调：可引用图片是为了让你在用户主动询问头像/照片时能对上号，默认场景下不要主动提及这些图片。**\n';
   if (refs.length === 0) sp += '（暂无）\n';
   else {
     refs.forEach((img, i) => {
@@ -8020,6 +7953,8 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
   sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
   sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
+  sp += '[[ACCEPT_FAMILY_CARD]] 接受用户送给你的最近一张待处理的亲属卡（必须是你本人真实愿意接受时才使用）\n';
+  sp += '[[REFUND_FAMILY_CARD]] 退还用户送给你的最近一张待处理的亲属卡（必须是你本人不愿意接受时才使用）\n';
   sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡（用户明确要求退还/解绑时）\n';
   sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
@@ -8028,7 +7963,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。列表里没有的歌就不要分享。\n';
   sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请（当用户分享音乐给你，且你打算接受时使用）\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。\n';
+  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。\n';
 
   sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
 
@@ -8088,7 +8023,7 @@ function buildChatHistory(chat) {
       else content = '[图片]';
     } else if (m.type === 'sticker') content = m.stickerName ? `[用户发来表情包：${m.stickerName}]` : '[表情包]';
     else if (m.type === 'transfer') content = `[转账 ¥${(m.amount || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'accepted' ? ' 已收下' : (m.status === 'refunded' ? ' 已退回' : ' 待确认')}]`;
-    else if (m.type === 'familyCard') content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}]`;
+    else if (m.type === 'familyCard') content = `[亲属卡 额度¥${(m.limit || 0).toFixed(2)}${m.note ? ' 备注：' + m.note : ''}${m.status === 'pending' ? ' 待处理' : (m.status === 'accepted' ? ' 已接受' : (m.status === 'refunded' ? ' 已退还' : ''))}]`;
     else if (m.type === 'card' && m.card) content = `[名片 ${m.card.name || ''}]`;
     else if (m.type === 'html') content = `[已发送 HTML 组件：${m.htmlName || ''}]`;
     else if (m.type === 'coupleProposal') content = `[换情头申请：${m.coupleName || ''}，状态：${m.status}]`;
@@ -8208,7 +8143,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 async function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|ACCEPT_FAMILY_CARD|REFUND_FAMILY_CARD|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -8422,6 +8357,33 @@ async function executeCharAction(chat, action) {
     pushAwareness(`${charName} 送给你一张亲属卡，额度 ¥${limit.toFixed(2)}`);
     return;
   }
+  if (action.type === 'ACCEPT_FAMILY_CARD') {
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type === 'familyCard' && m.status === 'pending') {
+        m.status = 'accepted';
+        const cardId = 'fc_' + Date.now();
+        const gv = getGiven();
+        gv.unshift({ id: cardId, toCharId: chat.id, toName: chat.customRemark || chat.name || 'TA', limit: m.limit, used: 0, createdAt: Date.now() });
+        saveGiven(gv);
+        m.cardId = cardId;
+        pushAwareness(`${chat.customRemark || chat.name || 'TA'} 收下了你送的亲属卡`);
+        break;
+      }
+    }
+    return;
+  }
+  if (action.type === 'REFUND_FAMILY_CARD') {
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type === 'familyCard' && m.status === 'pending') {
+        m.status = 'refunded';
+        pushAwareness(`${chat.customRemark || chat.name || 'TA'} 退还了你送的亲属卡`);
+        break;
+      }
+    }
+    return;
+  }
   if (action.type === 'REMOVE_CARD') {
     const raw = String(action.payload || '').trim().toLowerCase();
     const charName = chat.customRemark || chat.name || 'TA';
@@ -8610,7 +8572,7 @@ async function generateCharReply(chat, isProactive = false) {
         let contentArr;
         if (Array.isArray(history[i].content)) contentArr = history[i].content.slice();
         else contentArr = [{ type: 'text', text: String(history[i].content || '') }];
-        contentArr.push({ type: 'text', text: '（这是我现在的头像）' });
+        contentArr.push({ type: 'text', text: '（这是我现在的头像，你默认忽略它，除非我明确问你）' });
         contentArr.push({ type: 'image_url', image_url: { url: userAvatar } });
         history[i].content = contentArr;
         break;
@@ -8942,11 +8904,16 @@ function toggleSetting(key) {
 function changeMaxReply() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  const val = prompt('请输入一次最多回复句数（1-5）：', chat.maxReply || 1);
+  const val = prompt('请输入一次最多回复句数（正整数，上限由你自己决定）：', chat.maxReply || 1);
   if (val !== null && val.trim() !== '') {
-    const num = parseInt(val);
-    if (num >= 1 && num <= 5) { chat.maxReply = num; document.getElementById('jxMaxReplyText').innerText = num + '句'; saveJianxunChats(); }
-    else alert('请输入1到5之间的数字');
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 1) {
+      chat.maxReply = num;
+      document.getElementById('jxMaxReplyText').innerText = num + '句';
+      saveJianxunChats();
+    } else {
+      alert('请输入 1 或更大的正整数');
+    }
   }
 }
 function changeRemark() {
