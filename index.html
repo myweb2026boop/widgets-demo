@@ -4717,9 +4717,9 @@ function deleteEntry() {
       worldBookEntries = worldBookEntries.concat(entries);
       saveWorldBook();
       renderWorldBookList();
-      alert(`成功导入 ${entries.length} 本世界书（${entries[0].name}）`);
+      alert(`成功导入 1 本世界书（${entries[0].name}）`);
     };
-    // 需求：一个文件始终生成一本世界书（一个条目），不再自动分成多条
+    // 需求：导入一个文件就是一本世界书，完整读取文件内容，不作分段处理
     const buildOneEntryFromAllText = (allText) => {
       const text = String(allText || '').trim();
       if (!text) return [];
@@ -4730,10 +4730,9 @@ function deleteEntry() {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
       reader.onload = (evt) => {
-        mammothConvertHtmlSafe(evt.target.result).then(result => {
-          const html = result.value || '';
-          const paragraphs = html.split(/<\/p>/i).map(s => s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')).map(s => decodeEntities(s).trim());
-          const allText = paragraphs.join('\n').trim();
+        // 使用 extractRawText 保持文本原样，保留换行，避免乱码或标签缺失
+        mammoth.extractRawText({ arrayBuffer: evt.target.result }).then(result => {
+          const allText = result.value || '';
           finish(buildOneEntryFromAllText(allText));
         }).catch(err => {
           console.error('docx 解析失败：', err);
@@ -4745,12 +4744,7 @@ function deleteEntry() {
       const reader = new FileReader();
       reader.onload = (ev) => {
         const raw = String(ev.target.result || '');
-        let text = raw;
-        try {
-          const parsed = JSON.parse(raw);
-          text = JSON.stringify(parsed, null, 2);
-        } catch (err) { /* 保留原始文本 */ }
-        finish(buildOneEntryFromAllText(text));
+        finish(buildOneEntryFromAllText(raw));
       };
       reader.readAsText(file);
     } else if (ext === '.txt') {
@@ -5455,15 +5449,13 @@ function confirmGiveCard() {
   const limit = parseFloat(document.getElementById('jxGiveCardAmount').value);
   const note = document.getElementById('jxGiveCardNote').value.trim();
   if (isNaN(limit) || limit <= 0) { alert('请输入正确的额度'); return; }
-  // 只发一条 pending 卡片，等角色主动接受或拒绝（由 AI 通过隐藏动作决定，绝不默认接受/默认回复）
   chat.messages.push({ id: genId(), role: 'me', type: 'familyCard', limit: limit, note: note, status: 'pending', time: Date.now(), content: '[亲属卡]' });
   saveJianxunChats();
   closeGiveCardModal();
   renderChatMessages();
   renderJianxunChatList();
   pushAwareness(`你送给 ${chat.customRemark || chat.name || 'TA'} 一张亲属卡（额度 ¥${limit.toFixed(2)}），等待对方处理。`);
-  // 触发一次角色回复，让角色自主决定是否接受
-  setTimeout(() => { triggerCharReply(chat).catch(e => console.warn(e)); }, 500);
+  // 不触发自动回复，等待用户主动点击麦克风唤醒角色
 }
 
 function selectTransferPayMethod() {
@@ -5630,7 +5622,7 @@ function renderRelativeCardList() {
       const rem = Math.max(0, (c.limit || 0) - (c.used || 0));
       html += `<div class="wx-family-card-item">
         <div class="wx-fc-header">
-          <div class="wx-fc-icon"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .8-4.5 4.4L18 20l-6-3.2L6 20l1.5-5.8L3 9.8L9 9z"/></svg></div>
+          <div class="wx-fc-icon"><svg viewBox="0 0 24 24"><path d="M12 3l3 6 6 .8-4.5 4.4L18 20l-6-3.2L6 20l1.5-5.8L3 9.8 9 9z"/></svg></div>
           <div class="wx-fc-title">${escapeHtml(c.toName || 'TA')}的亲属卡</div>
           <button class="wx-fc-unbind" onclick="event.stopPropagation();unbindRelativeCard('${c.id}','given')">解绑</button>
         </div>
@@ -8904,7 +8896,7 @@ function toggleSetting(key) {
 function changeMaxReply() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  const val = prompt('请输入一次最多回复句数（正整数，上限由你自己决定）：', chat.maxReply || 1);
+  const val = prompt('请输入一次最多回复句数：', chat.maxReply || 1);
   if (val !== null && val.trim() !== '') {
     const num = parseInt(val, 10);
     if (!isNaN(num) && num >= 1) {
