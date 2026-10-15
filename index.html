@@ -5859,8 +5859,15 @@ if(wxAcceptConfirm)wxAcceptConfirm.addEventListener('click',function(){
     m.status='accepted';
     var cardId='fc_'+Date.now();
     var rc=getRecv();
-    rc.unshift({ id:cardId, fromCharId:cid, fromName:cn, limit:parseFloat(m.limit), used:0, createdAt:Date.now() });
-    saveRecv(rc);
+    // 防重复：检查是否已经有相同的卡片（同一角色、同一额度、最近几秒内创建）
+    var now = Date.now();
+    var dup = rc.find(x => x.fromCharId===cid && Math.abs((x.limit||0)-parseFloat(m.limit))<0.001 && Math.abs((x.createdAt||0)-now)<5000);
+    if (dup) {
+      cardId = dup.id;
+    } else {
+      rc.unshift({ id:cardId, fromCharId:cid, fromName:cn, limit:parseFloat(m.limit), used:0, createdAt:Date.now() });
+      saveRecv(rc);
+    }
     m.cardId = cardId;
     saveJianxunChats();
     wxAcceptMask.classList.remove('show');
@@ -7940,6 +7947,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头（你换上A图，用户换上B图）。\n';
   sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
   sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
+  sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。系统会自动找到最近一条匹配的用户消息，把引用内容显示在你的气泡上方。只在你想明确回应某句话时使用。\n';
   sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行\n';
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
   sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
@@ -7955,7 +7963,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。列表里没有的歌就不要分享。\n';
   sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请（当用户分享音乐给你，且你打算接受时使用）\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
-  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。\n';
+  sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。\n';
 
   sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
 
@@ -8135,7 +8143,7 @@ async function summarizeChatMemory(chat, isManual) {
 }
 
 async function parseAndExecuteActions(chat, rawText) {
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|ACCEPT_FAMILY_CARD|REFUND_FAMILY_CARD|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|ACCEPT_FAMILY_CARD|REFUND_FAMILY_CARD|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN|QUOTE)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
@@ -8185,6 +8193,37 @@ function cropImageRegion(base64Src, region, ratio) {
 }
 
 async function executeCharAction(chat, action) {
+  if (action.type === 'QUOTE') {
+    const want = String(action.payload).trim();
+    if (!want) return;
+    // 优先精确匹配最近的用户文本消息
+    let found = null;
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      const m = chat.messages[i];
+      if (m.role === 'me' && m.type !== 'system' && m.content && m.content.includes(want)) {
+        found = m;
+        break;
+      }
+    }
+    if (!found) {
+      // 模糊匹配：找最近一条用户文本消息
+      for (let i = chat.messages.length - 1; i >= 0; i--) {
+        const m = chat.messages[i];
+        if (m.role === 'me' && m.type !== 'system' && m.content && m.type !== 'image' && m.type !== 'sticker') {
+          found = m;
+          break;
+        }
+      }
+    }
+    if (found) {
+      chat._pendingQuote = {
+        msgId: found.id,
+        name: '我',
+        text: (found.content || '').slice(0, 60)
+      };
+    }
+    return;
+  }
   if (action.type === 'SET_REMARK') {
     const newRemark = String(action.payload).trim();
     if (newRemark) {
@@ -8342,9 +8381,7 @@ async function executeCharAction(chat, action) {
     if (isNaN(limit) || limit <= 0) return;
     const charName = chat.customRemark || chat.name || 'TA';
     const cardId = genId();
-    const rc = getRecv();
-    rc.unshift({ id: cardId, fromCharId: chat.id, fromName: charName, limit: limit, used: 0, createdAt: Date.now() });
-    saveRecv(rc);
+    // 关键修复：不立即写入 getRecv()，等用户点击"接受"时再写入，避免出现两张一模一样的卡
     chat.messages.push({ id: genId(), role: 'char', type: 'familyCard', limit: limit, note: note, content: '[亲属卡]', status: 'pending', cardId: cardId, time: Date.now() });
     pushAwareness(`${charName} 送给你一张亲属卡，额度 ¥${limit.toFixed(2)}`);
     return;
@@ -8629,6 +8666,7 @@ async function triggerCharReply(chat, isProactive = false) {
   chat._replying = true;
   chat._pendingStickers = [];
   chat._pendingHtmls = [];
+  chat._pendingQuote = null;
   chat.lastMessageTime = Date.now();
   
   const typingId = genId();
@@ -8644,17 +8682,25 @@ async function triggerCharReply(chat, isProactive = false) {
     if (rawReply) {
       const segments = parseReplyIntoBubbles(rawReply);
       if (segments.length > 0) {
-        segments.forEach(seg => { 
+        segments.forEach((seg, sIdx) => { 
           const msg = { id: genId(), role: 'char', type: 'text', content: seg, time: Date.now() };
+          // 把 quote 附加到第一条气泡
+          if (sIdx === 0 && chat._pendingQuote) {
+            msg.quote = { ...chat._pendingQuote };
+          }
           chat.messages.push(msg);
           newMessages.push(msg);
         });
       } else {
         const msg = { id: genId(), role: 'char', type: 'text', content: rawReply, time: Date.now() };
+        if (chat._pendingQuote) {
+          msg.quote = { ...chat._pendingQuote };
+        }
         chat.messages.push(msg);
         newMessages.push(msg);
       }
     }
+    chat._pendingQuote = null;
     if (Array.isArray(chat._pendingStickers) && chat._pendingStickers.length > 0) {
       chat._pendingStickers.forEach(st => { 
         const msg = { id: genId(), role: 'char', type: 'sticker', image: st.url, stickerName: st.name || '', content: '[表情]', time: Date.now() };
