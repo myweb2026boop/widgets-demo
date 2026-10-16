@@ -1102,7 +1102,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .fwd-msg-item{background:#1c1c1e;box-shadow:none;}
 .phone-case.dark-mode .fwd-msg-name{color:#eee;}
 .phone-case.dark-mode .fwd-msg-content{color:#ddd;}
-/* 时间戳样式 */
 .jx-time-stamp {
     text-align: center;
     font-size: 11px;
@@ -1116,7 +1115,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-search-result-item:active{background:#f5f5f5}
 .phone-case.dark-mode .jx-search-result-item{background:#1c1c1e!important;border-bottom-color:#2c2c2e!important}
 .phone-case.dark-mode .jx-search-result-item:active{background:#2c2c2e!important}
-/* ============ 拆分消息弹窗 ============ */
 .jx-split-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20003;display:none}
 .jx-split-modal.show{display:flex}
 .jx-split-modal-content{background:#fff;width:90%;max-width:400px;border-radius:12px;padding:20px;text-align:left;display:flex;flex-direction:column;max-height:85vh}
@@ -1962,7 +1960,7 @@ https://xxx.com/a.png
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll" style="padding: 16px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的"面具"来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
         <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
         <div id="jxMaskList"></div>
         <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
@@ -2528,7 +2526,7 @@ const STORE_CHATS = 'chats';
 const STORE_IMAGES = 'images';
 let dbPromise = null;
 
-// ★ 新增：预设专用的 IndexedDB
+// 预设专用的 IndexedDB
 const PRESET_DB_NAME = 'TuTooth_PresetDB';
 const PRESET_STORE_NAME = 'presets';
 let _presetDBPromise = null;
@@ -2681,7 +2679,6 @@ const NOTIFICATION_BG_KEY = 'notification_bg_enabled';
 const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 
-/* ============ 音乐持久化存储（IndexedDB） ============ */
 const MUSIC_DB_NAME = 'TuTooth_MusicDB';
 const MUSIC_DB_VERSION = 1;
 const MUSIC_STORE_NAME = 'songs';
@@ -3152,11 +3149,9 @@ async function saveBeautifyPreset() {
     time: Date.now()
   };
   
-  // 保存完整预设到 IndexedDB
   const dbSaved = await presetDBPut(newPreset);
   if (!dbSaved) { alert('保存失败：无法写入本地数据库'); return; }
   
-  // 只保存轻量元数据到 localStorage，避免配额超限
   try {
     const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
     const meta = { id: newPreset.id, name: newPreset.name, fontSize: newPreset.fontSize, fontOrigSize: newPreset.fontOrigSize, time: newPreset.time };
@@ -3181,7 +3176,6 @@ async function applyBeautifyPreset() {
 }
 
 async function applyBeautifyPresetById(id) {
-  // 从 IndexedDB 获取完整预设
   const allPresets = await presetDBGetAll();
   const preset = allPresets.find(p => p.id === id);
   if (!preset) { alert('未找到该预设，可能已被清理'); return; }
@@ -3427,7 +3421,6 @@ function openPersonaApp() { loadPersonaList(); openScreen('personaScreen'); rend
 function openWorldBookApp() { loadWorldBook(); loadPersonaList(); openScreen('worldBookScreen'); renderWorldBookList(); }
 function openPlayApp() { openScreen('playScreen'); renderHtmlList(); }
 
-/* ============ 真实时间感知 ============ */
 function loadRealTimeSetting() {
   return localStorage.getItem(REAL_TIME_AWARE_KEY) === 'true';
 }
@@ -3487,7 +3480,6 @@ function buildRealTimePrompt(chat) {
   return sp;
 }
 
-/* ============ 头像感知 ============ */
 function loadAvatarAwareSetting() {
   return localStorage.getItem(AVATAR_AWARE_KEY) === 'true';
 }
@@ -3501,7 +3493,6 @@ function toggleAvatarAware() {
   applyAvatarAwareUI();
 }
 
-/* ============ 通知后台保活 ============ */
 function loadNotificationBgSetting() {
   return localStorage.getItem(NOTIFICATION_BG_KEY) === 'true';
 }
@@ -3573,7 +3564,6 @@ function openSettingsApp() {
   if (box) { box.classList.remove('show'); box.innerHTML = ''; }
 }
 
-/* ============ 头像库 App ============ */
 function loadAvatarLib() {
   try {
     const raw = localStorage.getItem(AVATAR_LIB_KEY);
@@ -3664,7 +3654,6 @@ function deleteCoupleAvatar(id) {
   });
 })();
 
-// ================= 多功能 App：HTML 组件库 =================
 function loadCustomHtmls() {
   try {
     const raw = localStorage.getItem(CUSTOM_HTML_KEY);
@@ -4017,7 +4006,6 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-/* ============ 音乐列表渲染 & 单击播放 & 双击改名 ============ */
 function renderMusicList() {
   const emptyEl = document.getElementById('musicListEmpty');
   const container = document.getElementById('musicListContainer');
@@ -4104,7 +4092,6 @@ function startRenameSong(item) {
   });
 }
 
-/* ============ 从 IndexedDB 恢复播放列表（刷新/退出/重进均保留） ============ */
 async function loadPlaylistFromDB() {
   let songs = [];
   try { songs = await musicDBGetAll(); } catch (e) { songs = []; }
@@ -4127,7 +4114,6 @@ async function loadPlaylistFromDB() {
   renderMusicList();
 }
 
-/* ============ MP3 上传（存入 IndexedDB，永久保存） ============ */
 (function initMp3Input() {
   const mp3Input = document.getElementById('mp3Input');
   if (!mp3Input) return;
@@ -4177,10 +4163,8 @@ function playSong(index) {
   }).catch(err => { console.log('播放失败:', err); });
 }
 
-/* 页面启动时恢复歌曲列表 */
 loadPlaylistFromDB();
 
-/* ============ 音乐分享与一起听 ============ */
 let listenTogetherChatId = null;
 let listenTogetherSong = null;
 let listenTogetherIsPlaying = false;
@@ -4843,7 +4827,6 @@ function deleteEntry() {
       renderWorldBookList();
       alert(`成功导入 1 本世界书（${entries[0].name}）`);
     };
-    // 需求：导入一个文件就是一本世界书，完整读取文件内容，不作分段处理
     const buildOneEntryFromAllText = (allText) => {
       const text = String(allText || '').trim();
       if (!text) return [];
@@ -4854,7 +4837,6 @@ function deleteEntry() {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
       reader.onload = (evt) => {
-        // 使用 extractRawText 保持文本原样，保留换行，避免乱码或标签缺失
         mammoth.extractRawText({ arrayBuffer: evt.target.result }).then(result => {
           const allText = result.value || '';
           finish(buildOneEntryFromAllText(allText));
@@ -5093,11 +5075,9 @@ const isBackupKey = (key) => (
       time: Date.now()
     };
     
-    // 保存完整预设到 IndexedDB
     const dbSaved = await presetDBPut(newPreset);
     if (!dbSaved) { alert('保存失败：无法写入本地数据库'); return; }
     
-    // 只保存轻量元数据到 localStorage
     try {
       const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
       const meta = { id: newPreset.id, name: newPreset.name, fontSize: newPreset.fontSize, fontOrigSize: newPreset.fontOrigSize, time: newPreset.time };
@@ -5594,7 +5574,6 @@ function confirmGiveCard() {
   renderChatMessages();
   renderJianxunChatList();
   pushAwareness(`你送给 ${chat.customRemark || chat.name || 'TA'} 一张亲属卡（额度 ¥${limit.toFixed(2)}），等待对方处理。`);
-  // 不触发自动回复，等待用户主动点击麦克风唤醒角色
 }
 
 function selectTransferPayMethod() {
@@ -5998,7 +5977,6 @@ if(wxAcceptConfirm)wxAcceptConfirm.addEventListener('click',function(){
     m.status='accepted';
     var cardId='fc_'+Date.now();
     var rc=getRecv();
-    // 防重复：检查是否已经有相同的卡片（同一角色、同一额度、最近几秒内创建）
     var now = Date.now();
     var dup = rc.find(x => x.fromCharId===cid && Math.abs((x.limit||0)-parseFloat(m.limit))<0.001 && Math.abs((x.createdAt||0)-now)<5000);
     if (dup) {
@@ -6077,7 +6055,6 @@ function openMergedView(msgId) {
 }
 function closeMergedView() { document.getElementById('jxMergedViewScreen').style.display = 'none'; }
 
-/* ============ 查找聊天内容 ============ */
 function openChatSearch() {
   const input = document.getElementById('jxChatSearchInput');
   if (input) input.value = '';
@@ -6422,14 +6399,12 @@ function getCharImageRefs(chat) {
   const refs = [];
   const avatarAware = loadAvatarAwareSetting();
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
-  // 头像感知关闭时：不暴露用户头像
   if (avatarAware && userAvatar) {
     refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, time: 0, desc: '用户当前的头像（个人头像，非照片）' });
   }
   const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
   const filtered = pool.filter(img => {
     if (!img || !img.data) return false;
-    // 头像是头像，照片是照片；不感知头像时所有头像相关图片都不提供
     if (img.isAvatar) {
       if (!avatarAware) return false;
       if (userAvatar && img.data === userAvatar) return false;
@@ -6678,7 +6653,6 @@ function loadJxMeProfile() {
         renderJianxunChatList();
         renderJianxunContacts();
         renderMomentsPosts();
-        // 仅在头像感知开启时推送 awareness
         if (loadAvatarAwareSetting()) pushAwareness('用户更换了新的头像');
       } catch(err){}
       input.value = '';
@@ -7926,7 +7900,6 @@ async function translateText(text, cfg) {
   return '';
 }
 
-/* ============ 手动拆分消息 ============ */
 let splittingMsgId = null;
 function menuSplit() {
   const id = menuMsgId;
@@ -8103,7 +8076,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
 
-  // 根据头像感知开关，生成不同的头像提示
   if (avatarAware) {
     sp += `【头像感知 · 已开启】你能感知用户的头像与照片，可以自然使用头像相关功能：\n`;
     sp += `  ◆ 当用户主动提及或更换头像时，你可以自然回应，但不必每次都盯着头像聊，避免机械感。\n`;
@@ -8153,7 +8125,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const htp = buildHtmlPrompt(chat);
   if (htp) sp += htp;
 
-  // 仅在头像感知开启时，注入头像库
   if (avatarAware) {
     const alp = buildAvatarLibPrompt();
     if (alp) sp += alp;
@@ -8172,7 +8143,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     sp += '\n【可用本地音乐】（用户还没有在「音乐」App 里上传任何歌曲，你暂时无法分享音乐）\n';
   }
 
-  // 仅在头像感知开启时，提供"可引用图片"信息
   if (avatarAware) {
     const refs = getCharImageRefs(chat);
     sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）。**再次强调：可引用图片是为了让你在用户主动询问头像/照片时能对上号，默认场景下不要主动提及这些图片。**\n';
@@ -8191,7 +8161,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   }
 
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
-  // 仅在头像感知开启时提供头像相关动作
   if (avatarAware) {
     sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
     sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
@@ -8254,7 +8223,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const mp = buildMomentsPrompt();
   if (mp) sp += mp;
 
-  // 头像感知关闭时，不推送"换头像"相关 awareness 给角色
   const log = loadAwarenessLog();
   const filteredLog = avatarAware ? log : log.filter(e => !/头像/.test(e.text || ''));
   if (filteredLog.length > 0) {
@@ -8455,7 +8423,6 @@ function cropImageRegion(base64Src, region, ratio) {
 }
 
 async function executeCharAction(chat, action) {
-  // 头像感知关闭时，禁用所有头像相关动作
   const avatarAware = loadAvatarAwareSetting();
   if (!avatarAware && ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'].includes(action.type)) {
     return;
@@ -9767,7 +9734,7 @@ async function publishPost() {
   await saveMomentsPosts();
   renderMomentsPosts();
   closePublishScreen();
-  pushAwareness('用户发布了一条朋友圈ware动态："' + (content || '[图片]').sliceness(0, 40) + '"' + (('tempPostImages.length ? '（含' +用户 tempPostImages.length + '张图片）' :评论 ''));
+  pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
   if (mentions.length > 0) {
     setTimeout(async () => {
       await loadMomentsPosts();
@@ -9805,7 +9772,7 @@ async function sendComment() {
     await saveMomentsPosts();
     renderMomentsPosts();
     closeCommentModal();
-    pushA了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
+    pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
     if (post.author) {
       const chat = jianxunChats.find(c => (c.customRemark || c.name) === post.author);
       if (chat) setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
