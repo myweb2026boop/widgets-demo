@@ -1116,6 +1116,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-search-result-item:active{background:#f5f5f5}
 .phone-case.dark-mode .jx-search-result-item{background:#1c1c1e!important;border-bottom-color:#2c2c2e!important}
 .phone-case.dark-mode .jx-search-result-item:active{background:#2c2c2e!important}
+/* ============ 拆分消息弹窗 ============ */
+.jx-split-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20003;display:none}
+.jx-split-modal.show{display:flex}
+.jx-split-modal-content{background:#fff;width:90%;max-width:400px;border-radius:12px;padding:20px;text-align:left;display:flex;flex-direction:column;max-height:85vh}
+.jx-split-modal-content h3{font-size:16px;margin-bottom:6px;color:#333}
+.jx-split-modal-content .split-hint{font-size:12px;color:#888;margin-bottom:12px;line-height:1.6}
+.jx-split-modal-content .split-hint b{color:#07c160}
+.jx-split-textarea{width:100%;flex:1;min-height:200px;max-height:50vh;border:1px solid #ddd;border-radius:8px;padding:12px;font-size:14px;resize:vertical;outline:none;font-family:inherit;line-height:1.6;margin-bottom:10px;white-space:pre-wrap;word-break:break-word;box-sizing:border-box;background:#fafafa}
+.jx-split-textarea:focus{border-color:#07c160;background:#fff;box-shadow:0 0 0 2px rgba(7,193,96,.1)}
+.jx-split-preview-info{font-size:11px;color:#999;margin-bottom:12px;text-align:right}
+.jx-split-actions{display:flex;gap:10px}
+.jx-split-actions button{flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.jx-split-actions .cancel{background:#f0f0f0;color:#333}
+.jx-split-actions .save{background:#07c160;color:#fff}
+.phone-case.dark-mode .jx-split-modal-content{background:#1c1c1e}
+.phone-case.dark-mode .jx-split-modal-content h3{color:#eee}
+.phone-case.dark-mode .jx-split-modal-content .split-hint{color:#999}
+.phone-case.dark-mode .jx-split-textarea{background:#2c2c2e;border-color:#3a3a3c;color:#eee}
+.phone-case.dark-mode .jx-split-textarea:focus{background:#2c2c2e;border-color:#07c160}
+.phone-case.dark-mode .jx-split-actions .cancel{background:#2c2c2e;color:#ddd}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -2246,6 +2266,20 @@ https://xxx.com/a.png
       </div>
     </div>
 
+    <!-- ★ 新增：拆分消息弹窗 ★ -->
+    <div class="jx-split-modal" id="jxSplitMsgModal">
+      <div class="jx-split-modal-content">
+        <h3>拆分消息</h3>
+        <p class="split-hint">在想要拆分的<b>位置按回车换行</b>。每一行会变成一条独立气泡。例如：<br>你好呀<br>今天天气不错<br>要一起出去吗</p>
+        <textarea class="jx-split-textarea" id="splitMsgTextarea" placeholder="在这里编辑消息内容..."></textarea>
+        <div class="jx-split-preview-info" id="splitMsgPreviewInfo"></div>
+        <div class="jx-split-actions">
+          <button class="cancel" onclick="closeSplitMsgModal()">取消</button>
+          <button class="save" onclick="saveSplitMsg()">拆分</button>
+        </div>
+      </div>
+    </div>
+
     <div class="jx-modal" id="personaSelectorModal">
       <div class="jx-modal-content">
         <h3>选择人设添加到简讯</h3>
@@ -2277,6 +2311,7 @@ https://xxx.com/a.png
         <div class="jx-msg-menu-item" onclick="menuFavorite()">收藏</div>
         <div class="jx-msg-menu-item" onclick="menuDelete()">删除</div>
         <div class="jx-msg-menu-item" onclick="menuEdit()">编辑</div>
+        <div class="jx-msg-menu-item" onclick="menuSplit()">拆分</div>
         <div class="jx-msg-menu-item" onclick="menuQuote()">引用</div>
         <div class="jx-msg-menu-item" onclick="menuTranslate()">翻译</div>
         <div class="jx-msg-menu-item" onclick="menuMultiSelect()">多选</div>
@@ -7811,6 +7846,100 @@ async function translateText(text, cfg) {
   if (Array.isArray(c)) return c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('').trim();
   return '';
 }
+
+/* ============ ★ 新增：手动拆分消息 ★ ============ */
+let splittingMsgId = null;
+function menuSplit() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === id);
+  if (!msg) return;
+  if (!msg.content || msg.content === '__typing__') { alert('该消息没有可拆分的文字内容'); return; }
+  if (msg.type && msg.type !== 'text' && msg.type !== 'system') { alert('只能拆分文本消息'); return; }
+  openSplitMsgModal(id);
+}
+function openSplitMsgModal(msgId) {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === msgId);
+  if (!msg) return;
+  splittingMsgId = msgId;
+  const ta = document.getElementById('splitMsgTextarea');
+  if (ta) {
+    // 把已有的 [[SPLIT]] 标记转成换行，方便用户直接编辑
+    ta.value = String(msg.content || '').replace(/\[\[\s*SPLIT\s*\]\]/gi, '\n');
+    updateSplitPreview();
+  }
+  document.getElementById('jxSplitMsgModal').classList.add('show');
+  setTimeout(() => {
+    if (ta) {
+      ta.focus();
+      // 光标移到末尾
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    }
+  }, 120);
+}
+function updateSplitPreview() {
+  const ta = document.getElementById('splitMsgTextarea');
+  const info = document.getElementById('splitMsgPreviewInfo');
+  if (!ta || !info) return;
+  const parts = ta.value.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  if (parts.length <= 1) {
+    info.textContent = '当前只有 1 段（不会拆分，请按回车换行）';
+    info.style.color = '#e67e22';
+  } else {
+    info.textContent = `将会拆分成 ${parts.length} 条消息`;
+    info.style.color = '#07c160';
+  }
+}
+function closeSplitMsgModal() {
+  document.getElementById('jxSplitMsgModal').classList.remove('show');
+  splittingMsgId = null;
+}
+function saveSplitMsg() {
+  if (!splittingMsgId) return;
+  const ta = document.getElementById('splitMsgTextarea');
+  if (!ta) return;
+  const raw = ta.value;
+  // 按换行拆分，trim 每一段，过滤空段
+  const parts = raw.split(/\n+/).map(s => s.trim()).filter(s => s.length > 0);
+  if (parts.length < 2) {
+    alert('请至少分成两条消息（按回车换行即可拆分）');
+    return;
+  }
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const idx = chat.messages.findIndex(m => m.id === splittingMsgId);
+  if (idx < 0) return;
+  const oldMsg = chat.messages[idx];
+
+  // 时间基准：使用原消息的时间；为避免同一时刻消息排序问题，每条增加 1ms
+  const baseTime = oldMsg.time || Date.now();
+
+  // 用多条新消息替换原来的一条
+  const newMsgs = parts.map((p, i) => {
+    const m = {
+      id: genId(),
+      role: oldMsg.role,
+      type: 'text',
+      content: p,
+      time: baseTime + i
+    };
+    // 引用只保留在第一条
+    if (i === 0 && oldMsg.quote) m.quote = { ...oldMsg.quote };
+    return m;
+  });
+
+  chat.messages.splice(idx, 1, ...newMsgs);
+  saveJianxunChats();
+  closeSplitMsgModal();
+  renderChatMessages(true);
+  renderJianxunChatList();
+}
+/* ★ 新增结束 ★ */
 
 function buildWorldBookPrompt(chat) {
   const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
