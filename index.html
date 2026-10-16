@@ -2271,7 +2271,7 @@ https://xxx.com/a.png
       <div class="jx-split-modal-content">
         <h3>拆分消息</h3>
         <p class="split-hint">在想要拆分的<b>位置按回车换行</b>。每一行会变成一条独立气泡。例如：<br>你好呀<br>今天天气不错<br>要一起出去吗</p>
-        <textarea class="jx-split-textarea" id="splitMsgTextarea" placeholder="在这里编辑消息内容..."></textarea>
+        <textarea class="jx-split-textarea" id="splitMsgTextarea" placeholder="在这里编辑消息内容..." oninput="updateSplitPreview()"></textarea>
         <div class="jx-split-preview-info" id="splitMsgPreviewInfo"></div>
         <div class="jx-split-actions">
           <button class="cancel" onclick="closeSplitMsgModal()">取消</button>
@@ -2524,9 +2524,10 @@ https://xxx.com/a.png
 <script>
 // ================= 核心：IndexedDB 存储 =================
 const DB_NAME = 'TuToothDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_CHATS = 'chats';
 const STORE_IMAGES = 'images';
+const STORE_PRESETS = 'presets';
 let dbPromise = null;
 
 function openDB() {
@@ -2537,6 +2538,7 @@ function openDB() {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE_CHATS)) db.createObjectStore(STORE_CHATS);
       if (!db.objectStoreNames.contains(STORE_IMAGES)) db.createObjectStore(STORE_IMAGES);
+      if (!db.objectStoreNames.contains(STORE_PRESETS)) db.createObjectStore(STORE_PRESETS);
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -3058,38 +3060,43 @@ function updateBeautifyPresetList() {
   } catch(e) {}
 }
 
-function saveBeautifyPreset() {
+async function saveBeautifyPreset() {
   const nameInput = document.getElementById('beautifyPresetName');
   const name = nameInput.value.trim();
   if (!name) { alert('请输入预设名称'); return; }
   const css = document.getElementById('cssEditorTextarea').value;
   const fontSize = getGlobalFontSizeScale();
-  getFontFromDB().then(fontData => {
-    let fontB64 = null, fontSizeBytes = 0;
-    if (fontData && fontData.data) {
-      fontB64 = ab2b64(fontData.data);
-      fontSizeBytes = fontData.origSize;
-    }
-    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
-    const newPreset = {
-      id: genId(),
-      name: name,
-      css: css,
-      fontSize: fontSize,
-      fontB64: fontB64,
-      fontOrigSize: fontSizeBytes,
-      time: Date.now()
-    };
-    presets.push(newPreset);
-    try {
-      localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
-      alert('预设已保存：' + name);
-      nameInput.value = '';
-      updateBeautifyPresetList();
-      updatePresetList();
-      document.getElementById('beautifyPresetSelect').value = newPreset.id;
-    } catch(e) { alert('保存失败，存储空间可能不足'); }
-  });
+  const fontData = await getFontFromDB();
+  const newPresetId = genId();
+  let hasFont = false;
+  let fontOrigSize = 0;
+  if (fontData && fontData.data) {
+    hasFont = true;
+    fontOrigSize = fontData.origSize || fontData.data.byteLength;
+    // 将字体数据存入 IndexedDB 的 presets 表
+    await idbSet(STORE_PRESETS, newPresetId, { fontData: fontData.data, fontOrigSize: fontOrigSize });
+  }
+  const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+  const newPreset = {
+    id: newPresetId,
+    name: name,
+    css: css,
+    fontSize: fontSize,
+    hasFont: hasFont,
+    fontOrigSize: fontOrigSize,
+    time: Date.now()
+  };
+  presets.push(newPreset);
+  try {
+    localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+    alert('预设已保存：' + name);
+    nameInput.value = '';
+    updateBeautifyPresetList();
+    updatePresetList();
+    document.getElementById('beautifyPresetSelect').value = newPresetId;
+  } catch(e) {
+    alert('保存失败，存储空间可能不足');
+  }
 }
 
 async function applyBeautifyPreset() {
@@ -3105,9 +3112,10 @@ async function applyBeautifyPreset() {
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = preset.css || '';
 
-  if (preset.fontB64) {
-    const fontBuffer = b642ab(preset.fontB64);
-    await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
+  // 从 IndexedDB 中读取预设字体
+  const presetData = await idbGet(STORE_PRESETS, id);
+  if (presetData && presetData.fontData) {
+    await saveFontToDB(presetData.fontData, presetData.fontOrigSize || presetData.fontData.byteLength);
   } else {
     await deleteFontFromDB();
   }
@@ -3131,9 +3139,10 @@ async function applyBeautifyPresetById(id) {
   localStorage.setItem(USER_CSS_KEY, preset.css || '');
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = preset.css || '';
-  if (preset.fontB64) {
-    const fontBuffer = b642ab(preset.fontB64);
-    await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
+  // 从 IndexedDB 中读取预设字体
+  const presetData = await idbGet(STORE_PRESETS, id);
+  if (presetData && presetData.fontData) {
+    await saveFontToDB(presetData.fontData, presetData.fontOrigSize || presetData.fontData.byteLength);
   } else {
     await deleteFontFromDB();
   }
@@ -3145,13 +3154,14 @@ async function applyBeautifyPresetById(id) {
   alert('美化预设已应用：' + preset.name);
 }
 
-function deleteBeautifyPreset() {
+async function deleteBeautifyPreset() {
   const sel = document.getElementById('beautifyPresetSelect');
   const id = sel.value;
   if (!id) { alert('请选择预设'); return; }
   if (!confirm('确定删除该预设吗？')) return;
   let presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
   presets = presets.filter(p => p.id !== id);
+  await idbDelete(STORE_PRESETS, id);
   try {
     localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
     updateBeautifyPresetList();
@@ -5004,53 +5014,54 @@ const isBackupKey = (key) => (
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
   const loadBtn = document.getElementById('loadPresetBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
+  if (saveBtn) saveBtn.addEventListener('click', async () => {
     const nameInput = document.getElementById('presetNameInput');
     const name = (nameInput.value || '').trim();
     if (!name) { alert('请输入预设名称'); return; }
     const ta = document.getElementById('cssEditorTextarea');
     const css = (ta && ta.value) || localStorage.getItem(USER_CSS_KEY) || '';
     const fontSize = getGlobalFontSizeScale();
-    getFontFromDB().then(fontData => {
-      let fontB64 = null, fontOrigSize = 0;
-      if (fontData && fontData.data) {
-        try { fontB64 = ab2b64(fontData.data); fontOrigSize = fontData.origSize || 0; } catch(e){}
-      }
-      const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
-      const newPreset = {
-        id: genId(),
-        name: name,
-        css: css,
-        fontSize: fontSize,
-        fontB64: fontB64,
-        fontOrigSize: fontOrigSize,
-        time: Date.now()
-      };
-      presets.push(newPreset);
-      try {
-        localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
-        alert('美化预设已保存：' + name);
-        nameInput.value = '';
-        updatePresetList();
-        updateBeautifyPresetList();
-        if (presetSelect) presetSelect.value = newPreset.id;
-        const bSel = document.getElementById('beautifyPresetSelect');
-        if (bSel) bSel.value = newPreset.id;
-      } catch (e) {
-        alert('保存失败：' + (e.message || '存储空间不足'));
-      }
-    }).catch(err => {
-      alert('读取字体失败：' + (err.message || '未知错误'));
-    });
+    const fontData = await getFontFromDB();
+    const newPresetId = genId();
+    let hasFont = false;
+    let fontOrigSize = 0;
+    if (fontData && fontData.data) {
+      hasFont = true;
+      fontOrigSize = fontData.origSize || fontData.data.byteLength;
+      await idbSet(STORE_PRESETS, newPresetId, { fontData: fontData.data, fontOrigSize: fontOrigSize });
+    }
+    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    const newPreset = {
+      id: newPresetId,
+      name: name,
+      css: css,
+      fontSize: fontSize,
+      hasFont: hasFont,
+      fontOrigSize: fontOrigSize,
+      time: Date.now()
+    };
+    presets.push(newPreset);
+    try {
+      localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+      alert('美化预设已保存：' + name);
+      nameInput.value = '';
+      updatePresetList();
+      updateBeautifyPresetList();
+      if (presetSelect) presetSelect.value = newPresetId;
+      const bSel = document.getElementById('beautifyPresetSelect');
+      if (bSel) bSel.value = newPresetId;
+    } catch (e) {
+      alert('保存失败：' + (e.message || '存储空间不足'));
+    }
   });
-  if (loadBtn) loadBtn.addEventListener('click', () => {
+  if (loadBtn) loadBtn.addEventListener('click', async () => {
     const id = presetSelect.value;
     if (!id) { alert('请选择要应用的美化预设'); return; }
     const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
     const preset = presets.find(p => p.id === id);
     if (!preset) { alert('未找到该预设'); return; }
     if (!confirm('确定应用预设「' + preset.name + '」吗？当前美化设置将被替换。')) return;
-    applyBeautifyPresetById(id);
+    await applyBeautifyPresetById(id);
   });
 })();
 
@@ -5073,10 +5084,19 @@ async function exportAllData() {
     fontB64 = ab2b64(fontData.data);
     fontOrigSize = fontData.origSize;
   }
+  // 导出预设中的字体数据
+  const presetKeys = await idbGetAllKeys(STORE_PRESETS);
+  const presetFonts = {};
+  for (const k of presetKeys) {
+    const p = await idbGet(STORE_PRESETS, k);
+    if (p && p.fontData) {
+      presetFonts[k] = { fontB64: ab2b64(p.fontData), fontOrigSize: p.fontOrigSize || p.fontData.byteLength };
+    }
+  }
   const musicSongs = await musicDBGetAll();
   const backup = { 
     localStorage: localData, 
-    indexedDB: { chats: chatData, moments: momentData, images: imageData },
+    indexedDB: { chats: chatData, moments: momentData, images: imageData, presetFonts: presetFonts },
     font: { b64: fontB64, size: fontOrigSize },
     music: musicSongs
   };
@@ -5109,12 +5129,25 @@ async function importAllData(jsonStr) {
     for (const k of chatKeys) await idbDelete(STORE_CHATS, k);
     const imgKeys = await idbGetAllKeys(STORE_IMAGES);
     for (const k of imgKeys) await idbDelete(STORE_IMAGES, k);
+    const presetKeys = await idbGetAllKeys(STORE_PRESETS);
+    for (const k of presetKeys) await idbDelete(STORE_PRESETS, k);
     if (data.indexedDB.chats) await idbSet(STORE_CHATS, 'main', data.indexedDB.chats);
     if (data.indexedDB.moments) await idbSet(STORE_CHATS, 'moments', data.indexedDB.moments);
     if (data.indexedDB.images) {
       for (const k in data.indexedDB.images) {
         if (Object.prototype.hasOwnProperty.call(data.indexedDB.images, k)) {
           await idbSet(STORE_IMAGES, k, data.indexedDB.images[k]);
+        }
+      }
+    }
+    if (data.indexedDB.presetFonts) {
+      for (const k in data.indexedDB.presetFonts) {
+        if (Object.prototype.hasOwnProperty.call(data.indexedDB.presetFonts, k)) {
+          const pf = data.indexedDB.presetFonts[k];
+          if (pf && pf.fontB64) {
+            const buf = b642ab(pf.fontB64);
+            await idbSet(STORE_PRESETS, k, { fontData: buf, fontOrigSize: pf.fontOrigSize });
+          }
         }
       }
     }
@@ -7847,7 +7880,7 @@ async function translateText(text, cfg) {
   return '';
 }
 
-/* ============ ★ 新增：手动拆分消息 ★ ============ */
+/* ============ ★ 手动拆分消息 ★ ============ */
 let splittingMsgId = null;
 function menuSplit() {
   const id = menuMsgId;
@@ -7869,7 +7902,6 @@ function openSplitMsgModal(msgId) {
   splittingMsgId = msgId;
   const ta = document.getElementById('splitMsgTextarea');
   if (ta) {
-    // 把已有的 [[SPLIT]] 标记转成换行，方便用户直接编辑
     ta.value = String(msg.content || '').replace(/\[\[\s*SPLIT\s*\]\]/gi, '\n');
     updateSplitPreview();
   }
@@ -7877,7 +7909,6 @@ function openSplitMsgModal(msgId) {
   setTimeout(() => {
     if (ta) {
       ta.focus();
-      // 光标移到末尾
       ta.setSelectionRange(ta.value.length, ta.value.length);
     }
   }, 120);
@@ -7904,7 +7935,6 @@ function saveSplitMsg() {
   const ta = document.getElementById('splitMsgTextarea');
   if (!ta) return;
   const raw = ta.value;
-  // 按换行拆分，trim 每一段，过滤空段
   const parts = raw.split(/\n+/).map(s => s.trim()).filter(s => s.length > 0);
   if (parts.length < 2) {
     alert('请至少分成两条消息（按回车换行即可拆分）');
@@ -7915,11 +7945,7 @@ function saveSplitMsg() {
   const idx = chat.messages.findIndex(m => m.id === splittingMsgId);
   if (idx < 0) return;
   const oldMsg = chat.messages[idx];
-
-  // 时间基准：使用原消息的时间；为避免同一时刻消息排序问题，每条增加 1ms
   const baseTime = oldMsg.time || Date.now();
-
-  // 用多条新消息替换原来的一条
   const newMsgs = parts.map((p, i) => {
     const m = {
       id: genId(),
@@ -7928,18 +7954,16 @@ function saveSplitMsg() {
       content: p,
       time: baseTime + i
     };
-    // 引用只保留在第一条
     if (i === 0 && oldMsg.quote) m.quote = { ...oldMsg.quote };
     return m;
   });
-
   chat.messages.splice(idx, 1, ...newMsgs);
   saveJianxunChats();
   closeSplitMsgModal();
   renderChatMessages(true);
   renderJianxunChatList();
 }
-/* ★ 新增结束 ★ */
+/* ★ 手动拆分消息结束 ★ */
 
 function buildWorldBookPrompt(chat) {
   const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
@@ -8392,7 +8416,6 @@ async function executeCharAction(chat, action) {
   if (action.type === 'QUOTE') {
     const want = String(action.payload).trim();
     if (!want) return;
-    // 优先精确匹配最近的用户文本消息
     let found = null;
     for (let i = chat.messages.length - 1; i >= 0; i--) {
       const m = chat.messages[i];
@@ -8402,7 +8425,6 @@ async function executeCharAction(chat, action) {
       }
     }
     if (!found) {
-      // 模糊匹配：找最近一条用户文本消息
       for (let i = chat.messages.length - 1; i >= 0; i--) {
         const m = chat.messages[i];
         if (m.role === 'me' && m.type !== 'system' && m.content && m.type !== 'image' && m.type !== 'sticker') {
@@ -8853,16 +8875,12 @@ function parseReplyIntoBubbles(rawText) {
   }
   if (segments.length === 0) segments = [trimmed];
   
-  // 增强兜底：如果最终只有一段且过长，强制按标点/长度切分，保证即使模型没打 [[SPLIT]] 也能出多条气泡
   if (segments.length === 1 && segments[0].length > 25) {
     const one = segments[0];
-    // 1. 先按句末标点切
     let parts = one.split(/(?<=[。！？!?…~])\s*/).map(s => s.trim()).filter(s => s.length > 0);
-    // 2. 若仍只有一段，尝试按逗号/分号/顿号切
     if (parts.length <= 1) {
       parts = one.split(/(?<=[，,；;、])\s*/).map(s => s.trim()).filter(s => s.length > 0);
     }
-    // 3. 若仍只有一段且超长，按长度强制切（找最近的标点作为切点）
     if (parts.length <= 1 && one.length > 45) {
       const chunks = [];
       let rest = one;
@@ -8909,7 +8927,6 @@ async function triggerCharReply(chat, isProactive = false) {
       if (segments.length > 0) {
         segments.forEach((seg, sIdx) => { 
           const msg = { id: genId(), role: 'char', type: 'text', content: seg, time: Date.now() };
-          // 把 quote 附加到第一条气泡
           if (sIdx === 0 && chat._pendingQuote) {
             msg.quote = { ...chat._pendingQuote };
           }
