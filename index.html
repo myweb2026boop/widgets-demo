@@ -9140,7 +9140,6 @@ async function closeChatScreen() {
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
-  await loadJianxunChats();
 }
 function openChatInfo() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -9428,15 +9427,17 @@ function clearChatHistory() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
-function deleteChat() {
+async function deleteChat() {
   if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
-  jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
-  saveJianxunChats();
+  const targetId = currentChatId;
+  jianxunChats = jianxunChats.filter(c => c.id !== targetId);
+  await saveJianxunChats();
   closeChatInfo();
-  closeChatScreen();
+  document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
 }
-function showPersonaSelector() {
+
+async function showPersonaSelector() {
   try {
     loadPersonaList();
     const modal = document.getElementById('personaSelectorModal');
@@ -9454,15 +9455,30 @@ function showPersonaSelector() {
   } catch (e) { alert('打开联系人失败：' + (e && e.message ? e.message : '未知错误')); }
 }
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
-function addPersonaToChat(index) {
+async function addPersonaToChat(index) {
   const persona = personaList[index]; if (!persona) return;
+  
   const exists = jianxunChats.find(c => c.name === persona.name);
   if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
+  
+  let allChats = await idbGet(STORE_CHATS, 'main') || [];
+  const oldChat = allChats.find(c => c.name === persona.name && c.messages && c.messages.length > 0);
+  if (oldChat) {
+    oldChat.maskId = getCurrentMaskId();
+    jianxunChats.push(oldChat);
+    jianxunChats = jianxunChats.filter(c => c.id === oldChat.id || !(c.name === persona.name && c.messages.length === 0));
+    await saveJianxunChats();
+    renderJianxunChatList();
+    closePersonaSelector();
+    alert(`已找回「${persona.name}」的历史聊天记录并添加到列表`);
+    return;
+  }
+
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
   const currentMaskId = getCurrentMaskId();
-  jianxunChats.push({
+  const newChat = {
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
     boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
@@ -9470,8 +9486,9 @@ function addPersonaToChat(index) {
     userAvatarByChar: false,
     maskId: currentMaskId,
     lastMessageTime: Date.now()
-  });
-  saveJianxunChats();
+  };
+  jianxunChats.push(newChat);
+  await saveJianxunChats();
   renderJianxunChatList();
   closePersonaSelector();
 }
