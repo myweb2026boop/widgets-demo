@@ -2184,7 +2184,7 @@ https://xxx.com/a.png
         </div>
         <div class="jx-info-block">
           <div class="jx-info-item jx-danger-item" onclick="deleteChat()">
-            <span class="label jx-danger-text">删除</span>
+            <span class="label jx-danger-text">删除联系人（不影响人设库）</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
@@ -9110,7 +9110,6 @@ async function closeChatScreen() {
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
-  await loadJianxunChats();
 }
 function openChatInfo() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -9398,13 +9397,22 @@ function clearChatHistory() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
-function deleteChat() {
-  if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
+async function deleteChat() {
+  if (!confirm('确定要删除该联系人及聊天记录吗？此操作不可恢复。（注意：不会影响您的人设库数据）')) return;
+  
+  // 1. 从当前内存的聊天列表中移除
   jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
-  saveJianxunChats();
+  
+  // 2. 关闭 UI
   closeChatInfo();
-  closeChatScreen();
+  document.getElementById('jxChatScreen').classList.remove('active');
+  
+  // 3. 立即刷新 UI（确保视觉上已经删除）
   renderJianxunChatList();
+  renderJianxunContacts();
+  
+  // 4. 异步保存到数据库（等待保存完成，避免竞态条件）
+  await saveJianxunChats();
 }
 function showPersonaSelector() {
   try {
