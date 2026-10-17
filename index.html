@@ -2615,7 +2615,7 @@ const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
 const BEAUTIFY_PRESETS_IDB_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 
-/* ============ 美化预设从 localStorage 迁移到 IndexedDB ============ */
+/* ============ 美化预设 IndexedDB ============ */
 let _beautifyPresetsCache = null;
 let _beautifyPresetsReadyPromise = null;
 
@@ -2664,7 +2664,7 @@ async function saveBeautifyPresetsAsync(presets) {
   }
 }
 
-/* ============ 音乐持久化存储（IndexedDB） ============ */
+/* ============ 音乐持久化存储 ============ */
 const MUSIC_DB_NAME = 'TuTooth_MusicDB';
 const MUSIC_DB_VERSION = 1;
 const MUSIC_STORE_NAME = 'songs';
@@ -3153,6 +3153,7 @@ function saveBeautifyPreset() {
 
 async function applyBeautifyPreset() {
   const sel = document.getElementById('beautifyPresetSelect');
+  if (!sel) return;
   const id = sel.value;
   if (!id) { alert('请选择预设'); return; }
   await initBeautifyPresets();
@@ -4017,7 +4018,7 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-/* ============ 音乐列表渲染 & 单击播放 & 双击改名 ============ */
+/* ============ 音乐列表渲染 ============ */
 function renderMusicList() {
   const emptyEl = document.getElementById('musicListEmpty');
   const container = document.getElementById('musicListContainer');
@@ -4104,7 +4105,6 @@ function startRenameSong(item) {
   });
 }
 
-/* ============ 从 IndexedDB 恢复播放列表（刷新/退出/重进均保留） ============ */
 async function loadPlaylistFromDB() {
   let songs = [];
   try { songs = await musicDBGetAll(); } catch (e) { songs = []; }
@@ -4127,7 +4127,6 @@ async function loadPlaylistFromDB() {
   renderMusicList();
 }
 
-/* ============ MP3 上传（存入 IndexedDB，永久保存） ============ */
 (function initMp3Input() {
   const mp3Input = document.getElementById('mp3Input');
   if (!mp3Input) return;
@@ -4177,7 +4176,6 @@ function playSong(index) {
   }).catch(err => { console.log('播放失败:', err); });
 }
 
-/* 页面启动时恢复歌曲列表 */
 loadPlaylistFromDB();
 
 /* ============ 音乐分享与一起听 ============ */
@@ -5027,9 +5025,8 @@ function triggerAppIconUpload(appId, previewElement) {
   input.click();
 }
 
-const presetSelect = document.getElementById('presetSelect');
-
 function updatePresetList() {
+  const presetSelect = document.getElementById('presetSelect');
   if (!presetSelect) return;
   presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
   const presets = getBeautifyPresetsSync();
@@ -5040,26 +5037,6 @@ function updatePresetList() {
     presetSelect.appendChild(opt);
   });
 }
-
-const isBackupKey = (key) => (
-  key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
-  key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
-  key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY ||
-  key === 'is_fullscreen' || key === 'dark_mode' || key === 'api_config' ||
-  key.startsWith('api_preset_') || key.startsWith('moments_') ||
-  key === 'jianxun_chats' || key === 'jianxun_settings' ||
-  key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
-  key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
-  key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY || key === CURRENT_MASK_ID_KEY ||
-  key === AVATAR_LIB_KEY || key === REAL_TIME_AWARE_KEY || key === NOTIFICATION_BG_KEY ||
-  key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
-  key === FONT_SIZE_SCALE_KEY ||
-  key === JX_GLOBAL_PROMPT_KEY ||
-  key === CUSTOM_HTML_KEY ||
-  key === BEAUTIFY_PRESETS_KEY ||
-  key === AVATAR_AWARE_KEY ||
-  key === 'wx-family-received' || key === 'wx-family-given'
-);
 
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
@@ -5095,9 +5072,10 @@ const isBackupKey = (key) => (
         nameInput.value = '';
         updatePresetList();
         updateBeautifyPresetList();
-        if (presetSelect) presetSelect.value = newPreset.id;
-        const bSel = document.getElementById('beautifyPresetSelect');
-        if (bSel) bSel.value = newPreset.id;
+        const sel1 = document.getElementById('presetSelect');
+        if (sel1) sel1.value = newPreset.id;
+        const sel2 = document.getElementById('beautifyPresetSelect');
+        if (sel2) sel2.value = newPreset.id;
       } else {
         alert('保存失败，请稍后再试');
       }
@@ -5106,8 +5084,9 @@ const isBackupKey = (key) => (
     });
   });
   if (loadBtn) loadBtn.addEventListener('click', async () => {
+    const presetSelect = document.getElementById('presetSelect');
+    if (!presetSelect || !presetSelect.value) { alert('请选择要应用的美化预设'); return; }
     const id = presetSelect.value;
-    if (!id) { alert('请选择要应用的美化预设'); return; }
     await initBeautifyPresets();
     const presets = getBeautifyPresetsSync();
     const preset = presets.find(p => p.id === id);
@@ -5365,12 +5344,7 @@ async function testApiConnection() {
     let data = null;
     try { data = await response.json(); }
     catch(e) { setApiStatus('fail', '❌ 服务器返回的不是 JSON，请检查 API 地址是否正确'); return; }
-    let reply = '';
-    if (data && data.choices && data.choices[0]) {
-      const choice = data.choices[0];
-      if (choice.message && typeof choice.message.content === 'string') reply = choice.message.content;
-      else if (choice.text) reply = choice.text;
-    }
+    const reply = (data && data.choices && data.choices[0] && (data.choices[0].message?.content || data.choices[0].text)) || '';
     setApiStatus('ok', `✅ 连接成功！\n请求地址：${chatUrl}\n模型回复：${reply ? reply.trim().slice(0, 100) : '（空）'}`);
   } catch (err) {
     clearTimeout(timeoutId);
@@ -6369,11 +6343,7 @@ function openMaskEdit(id) {
   if (personaList.length === 0) {
     bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:10px;text-align:center;">暂无人设可绑定</div>';
   } else {
-    let currentBound = [];
-    if (id !== null) {
-      const mask = jxMasks.find(x => x.id === id);
-      if (mask && Array.isArray(mask.boundCharIds)) currentBound = mask.boundCharIds;
-    }
+    const currentBound = id !== null ? (jxMasks.find(x => x.id === id)?.boundCharIds || []) : [];
     bindList.innerHTML = personaList.map(p => {
       const checked = currentBound.includes(p.name) ? 'checked' : '';
       return `<label class="mask-bind-item">
@@ -9140,6 +9110,7 @@ async function closeChatScreen() {
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
+  await loadJianxunChats();
 }
 function openChatInfo() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -9427,17 +9398,15 @@ function clearChatHistory() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
-async function deleteChat() {
+function deleteChat() {
   if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
-  const targetId = currentChatId;
-  jianxunChats = jianxunChats.filter(c => c.id !== targetId);
-  await saveJianxunChats();
+  jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
+  saveJianxunChats();
   closeChatInfo();
-  document.getElementById('jxChatScreen').classList.remove('active');
+  closeChatScreen();
   renderJianxunChatList();
 }
-
-async function showPersonaSelector() {
+function showPersonaSelector() {
   try {
     loadPersonaList();
     const modal = document.getElementById('personaSelectorModal');
@@ -9455,30 +9424,15 @@ async function showPersonaSelector() {
   } catch (e) { alert('打开联系人失败：' + (e && e.message ? e.message : '未知错误')); }
 }
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
-async function addPersonaToChat(index) {
+function addPersonaToChat(index) {
   const persona = personaList[index]; if (!persona) return;
-  
   const exists = jianxunChats.find(c => c.name === persona.name);
   if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
-  
-  let allChats = await idbGet(STORE_CHATS, 'main') || [];
-  const oldChat = allChats.find(c => c.name === persona.name && c.messages && c.messages.length > 0);
-  if (oldChat) {
-    oldChat.maskId = getCurrentMaskId();
-    jianxunChats.push(oldChat);
-    jianxunChats = jianxunChats.filter(c => c.id === oldChat.id || !(c.name === persona.name && c.messages.length === 0));
-    await saveJianxunChats();
-    renderJianxunChatList();
-    closePersonaSelector();
-    alert(`已找回「${persona.name}」的历史聊天记录并添加到列表`);
-    return;
-  }
-
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
   const currentMaskId = getCurrentMaskId();
-  const newChat = {
+  jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
     messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
     boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
@@ -9486,9 +9440,8 @@ async function addPersonaToChat(index) {
     userAvatarByChar: false,
     maskId: currentMaskId,
     lastMessageTime: Date.now()
-  };
-  jianxunChats.push(newChat);
-  await saveJianxunChats();
+  });
+  saveJianxunChats();
   renderJianxunChatList();
   closePersonaSelector();
 }
@@ -9889,10 +9842,12 @@ async function replyToMomentsComment(chat, postId, userComment) {
 
 initGlobalFontSizeControl();
 
+// 初始化美化预设
 initBeautifyPresets().then(() => {
   updatePresetList();
   updateBeautifyPresetList();
-}).catch(e => console.warn('初始化预设失败', e));
+});
+
 </script>
 
 </body>
