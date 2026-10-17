@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清理聊天数据库</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; padding: 20px; color: #333; margin: 0; }
+  .card { background: #fff; border-radius: 14px; padding: 20px; max-width: 480px; margin: 0 auto; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  h1 { font-size: 19px; margin: 0 0 12px; }
+  p { font-size: 14px; line-height: 1.65; color: #666; margin: 0 0 12px; }
+  p b { color: #e74c3c; }
+  .stat { font-size: 13px; background: #f7f8fa; border-radius: 10px; padding: 12px; margin-bottom: 14px; line-height: 1.8; white-space: pre-wrap; color: #444; font-family: "SF Mono", Menlo, monospace; }
+  button { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+  .btn-danger { background: #ff4757; color: #fff; }
+  .btn-danger:active { background: #e63c4d; }
+  .btn-danger:disabled { background: #ccc; }
+  .btn-back { background: #f0f0f0; color: #333; }
+  .result { margin-top: 14px; font-size: 13px; color: #07c160; line-height: 1.7; display: none; white-space: pre-wrap; background: #f2fdf5; padding: 12px; border-radius: 8px; }
+  .result.show { display: block; }
+  .warn { font-size: 12px; color: #999; margin-top: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>清理聊天数据库</h1>
+  <p>如果你遇到"删除联系人后又复活"的问题，这个页面能彻底清掉本地的聊天数据库。</p>
+  <p>只清理聊天记录、朋友圈帖子、美化预设的存储。<br>人设、世界书、表情、音乐、API 配置、美化设置本身 <b>不受影响</b>。</p>
+  <div class="stat" id="stat">正在检测本地数据库…</div>
+  <button class="btn-danger" id="btnClean" onclick="cleanAll()">清除聊天数据库</button>
+  <button class="btn-back" onclick="location.href='./'">返回 App</button>
+  <div class="result" id="result"></div>
+  <p class="warn">提示：如果显示"被占用"，直接关闭所有 App 标签页，重新打开这个页面再点一次。</p>
+</div>
+<script>
+function detect() {
+  var out = [];
+  var dbs = [
+    ['TuToothDB', '聊天记录 / 朋友圈 / 美化预设'],
+    ['TuTooth_MusicDB', '本地音乐'],
+    ['TuTooth_FontDB', '自定义字体']
+  ];
+  var scan = (indexedDB.databases ? indexedDB.databases() : Promise.resolve([]))
+    .catch(function(){ return []; });
+  return scan.then(function(list) {
+    var names = (list || []).map(function(d){ return d.name; });
+    dbs.forEach(function(d) {
+      var exists = names.indexOf(d[0]) >= 0;
+      out.push((exists ? '🟢 ' : '⚪ ') + d[0] + '（' + d[1] + '）' + (exists ? ' 存在' : ' 不存在'));
+    });
+    out.push('');
+    out.push('localStorage 残留：');
+    try {
+      var a = localStorage.getItem('jianxun_chats');
+      var b = localStorage.getItem('moments_posts');
+      var c = localStorage.getItem('beautify_presets');
+      out.push((a ? '🔴 ' : '⚪ ') + 'jianxun_chats');
+      out.push((b ? '🔴 ' : '⚪ ') + 'moments_posts');
+      out.push((c ? '🔴 ' : '⚪ ') + 'beautify_presets');
+    } catch(e) {
+      out.push('（无法读取 localStorage）');
+    }
+    return out.join('\n');
+  });
+}
+
+function cleanAll() {
+  if (!confirm('确定清除聊天数据库吗？\n\n将清除：\n- 所有聊天记录\n- 所有朋友圈动态\n- 美化预设的存储\n\n不会动：\n- 人设库\n- 世界书\n- 表情\n- 音乐\n- API 配置\n- 美化设置本身\n- 头像库')) return;
+  var btn = document.getElementById('btnClean');
+  btn.disabled = true;
+  btn.textContent = '清理中…';
+
+  var dbs = ['TuToothDB', 'TuTooth_MusicDB', 'TuTooth_FontDB'];
+  var tasks = dbs.map(function(name) {
+    return new Promise(function(resolve) {
+      var req;
+      try { req = indexedDB.deleteDatabase(name); }
+      catch(e) { resolve(name + ' 删除请求失败'); return; }
+      var done = false;
+      function finish(msg) { if (!done) { done = true; resolve(msg); } }
+      req.onsuccess = function() { finish('✅ ' + name + ' 已删除'); };
+      req.onerror = function() { finish('⚠️ ' + name + ' 删除失败'); };
+      req.onblocked = function() { finish('⏳ ' + name + ' 被占用，请关闭其他标签页后再点一次'); };
+      setTimeout(function() { finish('⏳ ' + name + ' 超时（可能被其他标签页占用）'); }, 3000);
+    });
+  });
+
+  Promise.all(tasks).then(function(results) {
+    try { localStorage.removeItem('jianxun_chats'); } catch(e) {}
+    try { localStorage.removeItem('moments_posts'); } catch(e) {}
+    try { localStorage.removeItem('beautify_presets'); } catch(e) {}
+
+    var r = document.getElementById('result');
+    r.textContent = results.join('\n') + '\n\n清理完成，点击"返回 App"重新进入即可。';
+    r.classList.add('show');
+    btn.textContent = '已清理完成';
+    btn.disabled = true;
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  detect().then(function(txt) {
+    document.getElementById('stat').textContent = txt;
+  }).catch(function() {
+    document.getElementById('stat').textContent = '检测失败，可以直接点击清除按钮';
+  });
+});
+</script>
+</body>
+</html>
