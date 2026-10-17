@@ -1466,6 +1466,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <div class="preset-select-row">
             <select id="presetSelect"><option value="">-- 选择预设 --</option></select>
             <button class="btn btn-primary" id="loadPresetBtn">应用预设</button>
+            <button class="btn btn-danger" id="deletePresetBtn">删除预设</button>
           </div>
           <p style="font-size:12px;color:#666;margin-top:8px;">保存当前美化设置（CSS样式 + 字体 + 字号）为预设，下次可一键应用。</p>
         </div>
@@ -2168,6 +2169,10 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
+          <div class="jx-info-item" onclick="exportSingleChat()">
+            <span class="label">导出当前聊天记录</span>
+            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
           <div class="jx-info-item" onclick="clearChatHistory()">
             <span class="label">清空聊天记录</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
@@ -2622,7 +2627,6 @@ async function initBeautifyPresets() {
     try {
       let presets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
       if (!Array.isArray(presets)) presets = [];
-      // 从旧的 localStorage 一次性迁移
       if (presets.length === 0) {
         try {
           const raw = localStorage.getItem(BEAUTIFY_PRESETS_KEY);
@@ -2635,7 +2639,6 @@ async function initBeautifyPresets() {
           }
         } catch(e) {}
       }
-      // 迁移后清理 localStorage，释放宝贵的 5MB 空间
       try { localStorage.removeItem(BEAUTIFY_PRESETS_KEY); } catch(e) {}
       _beautifyPresetsCache = presets;
     } catch (e) {
@@ -3205,9 +3208,9 @@ async function applyBeautifyPresetById(id) {
 }
 
 async function deleteBeautifyPreset() {
-  const sel = document.getElementById('beautifyPresetSelect');
+  const sel = document.getElementById('beautifyPresetSelect') || document.getElementById('presetSelect');
+  if (!sel || !sel.value) { alert('请选择预设'); return; }
   const id = sel.value;
-  if (!id) { alert('请选择预设'); return; }
   if (!confirm('确定删除该预设吗？')) return;
   await initBeautifyPresets();
   let presets = getBeautifyPresetsSync().slice();
@@ -5061,6 +5064,7 @@ const isBackupKey = (key) => (
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
   const loadBtn = document.getElementById('loadPresetBtn');
+  const delBtn = document.getElementById('deletePresetBtn');
   if (saveBtn) saveBtn.addEventListener('click', () => {
     const nameInput = document.getElementById('presetNameInput');
     const name = (nameInput.value || '').trim();
@@ -5111,6 +5115,7 @@ const isBackupKey = (key) => (
     if (!confirm('确定应用预设「' + preset.name + '」吗？当前美化设置将被替换。')) return;
     applyBeautifyPresetById(id);
   });
+  if (delBtn) delBtn.addEventListener('click', deleteBeautifyPreset);
 })();
 
 async function exportAllData() {
@@ -5151,6 +5156,31 @@ async function exportAllData() {
   URL.revokeObjectURL(url);
   setTimeout(() => {
     if (confirm("数据导出成功！\n\n如果手机无法下载文件，请点击\"确定\"后长按复制代码保存。")) {
+      prompt("请长按复制以下全部数据代码：", json);
+    }
+  }, 500);
+}
+
+async function exportSingleChat() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (chat.messages.length === 0) { alert('当前聊天没有可导出的记录'); return; }
+  const exportData = {
+    chatName: chat.customRemark || chat.name,
+    avatar: chat.avatar,
+    exportTime: new Date().toLocaleString(),
+    messages: chat.messages
+  };
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    if (confirm("导出成功！\n\n如果手机无法下载文件，请点击\"确定\"后长按复制代码保存。")) {
       prompt("请长按复制以下全部数据代码：", json);
     }
   }, 500);
@@ -9623,7 +9653,8 @@ function renderMomentsPosts() {
         <span class="jx-post-visibility" style="display:flex; align-items:center; color:#ccc; font-size:11px;">${visibilityIcon} ${visibilityText}</span>
         <div class="jx-post-actions" style="display:flex; align-items:center; gap:16px;">
           <svg viewBox="0 0 24 24" class="${likedClass}" data-post-action="like" data-post-id="${post.id}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-          <svg viewBox="0 0 24 24" data-post-action="comment" data-post-id="${post.id}"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+          <svg viewBox="0 0 24 24" data-post-action="comment" data-post-id="${post.id}"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2Like 2v12c0(post 1.1.9 2 Id2 2h14l4 4-.01-18);
+zM18 14H6v           -2h12v2zm else0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
           <span class="jx-post-delete-btn" onclick="deletePost('${post.id}')" style="display:flex; align-items:center; color:#ccc; font-size:12px; cursor:pointer;">${deleteBtnIcon} 删除</span>
         </div>
       </div>
@@ -9641,8 +9672,7 @@ function renderMomentsPosts() {
           const postId = target.dataset.postId;
           if (postId) {
             e.stopPropagation();
-            if (act === 'like') toggleLike(postId);
-            else if (act === 'comment') openCommentModal(postId);
+            if (act === 'like') toggle if (act === 'comment') openCommentModal(postId);
           }
           return;
         }
