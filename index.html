@@ -1102,6 +1102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .fwd-msg-item{background:#1c1c1e;box-shadow:none;}
 .phone-case.dark-mode .fwd-msg-name{color:#eee;}
 .phone-case.dark-mode .fwd-msg-content{color:#ddd;}
+/* 时间戳样式 */
 .jx-time-stamp {
     text-align: center;
     font-size: 11px;
@@ -1115,6 +1116,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-search-result-item:active{background:#f5f5f5}
 .phone-case.dark-mode .jx-search-result-item{background:#1c1c1e!important;border-bottom-color:#2c2c2e!important}
 .phone-case.dark-mode .jx-search-result-item:active{background:#2c2c2e!important}
+/* ============ 拆分消息弹窗 ============ */
 .jx-split-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20003;display:none}
 .jx-split-modal.show{display:flex}
 .jx-split-modal-content{background:#fff;width:90%;max-width:400px;border-radius:12px;padding:20px;text-align:left;display:flex;flex-direction:column;max-height:85vh}
@@ -1466,7 +1468,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <div class="preset-select-row">
             <select id="presetSelect"><option value="">-- 选择预设 --</option></select>
             <button class="btn btn-primary" id="loadPresetBtn">应用预设</button>
-            <button class="btn btn-danger" id="deletePresetBtn">删除预设</button>
           </div>
           <p style="font-size:12px;color:#666;margin-top:8px;">保存当前美化设置（CSS样式 + 字体 + 字号）为预设，下次可一键应用。</p>
         </div>
@@ -2169,10 +2170,6 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
-          <div class="jx-info-item" onclick="exportSingleChat()">
-            <span class="label">导出当前聊天记录</span>
-            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
-          </div>
           <div class="jx-info-item" onclick="clearChatHistory()">
             <span class="label">清空聊天记录</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
@@ -2184,7 +2181,7 @@ https://xxx.com/a.png
         </div>
         <div class="jx-info-block">
           <div class="jx-info-item jx-danger-item" onclick="deleteChat()">
-            <span class="label jx-danger-text">删除联系人（不影响人设库）</span>
+            <span class="label jx-danger-text">删除</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
@@ -2531,6 +2528,77 @@ const STORE_CHATS = 'chats';
 const STORE_IMAGES = 'images';
 let dbPromise = null;
 
+// ★ 新增：预设专用的 IndexedDB
+const PRESET_DB_NAME = 'TuTooth_PresetDB';
+const PRESET_STORE_NAME = 'presets';
+let _presetDBPromise = null;
+
+function openPresetDB() {
+  if (_presetDBPromise) return _presetDBPromise;
+  _presetDBPromise = new Promise((resolve, reject) => {
+    let req;
+    try { req = indexedDB.open(PRESET_DB_NAME, 1); }
+    catch (e) { reject(e); return; }
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(PRESET_STORE_NAME)) {
+        db.createObjectStore(PRESET_STORE_NAME, { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return _presetDBPromise;
+}
+
+async function presetDBPut(preset) {
+  try {
+    const db = await openPresetDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(PRESET_STORE_NAME, 'readwrite');
+      tx.objectStore(PRESET_STORE_NAME).put(preset);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+
+async function presetDBGetAll() {
+  try {
+    const db = await openPresetDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(PRESET_STORE_NAME, 'readonly');
+      const req = tx.objectStore(PRESET_STORE_NAME).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch (e) { return []; }
+}
+
+async function presetDBDelete(id) {
+  try {
+    const db = await openPresetDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(PRESET_STORE_NAME, 'readwrite');
+      tx.objectStore(PRESET_STORE_NAME).delete(id);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+
+async function presetDBClear() {
+  try {
+    const db = await openPresetDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(PRESET_STORE_NAME, 'readwrite');
+      tx.objectStore(PRESET_STORE_NAME).clear();
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+
 function openDB() {
   if (dbPromise) return dbPromise;
   dbPromise = new Promise((resolve, reject) => {
@@ -2562,15 +2630,14 @@ async function idbGet(storeName, key) {
 async function idbSet(storeName, key, value) {
   try {
     const db = await openDB();
-    return await new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const tx = db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
       store.put(value, key);
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => resolve(false);
-      tx.onabort = () => resolve(false);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
-  } catch (e) { return false; }
+  } catch (e) {}
 }
 
 async function idbDelete(storeName, key) {
@@ -2612,59 +2679,9 @@ const AVATAR_LIB_KEY = 'avatar_library';
 const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
 const NOTIFICATION_BG_KEY = 'notification_bg_enabled';
 const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
-const BEAUTIFY_PRESETS_IDB_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 
-/* ============ 美化预设 IndexedDB ============ */
-let _beautifyPresetsCache = null;
-let _beautifyPresetsReadyPromise = null;
-
-async function initBeautifyPresets() {
-  if (_beautifyPresetsReadyPromise) return _beautifyPresetsReadyPromise;
-  _beautifyPresetsReadyPromise = (async () => {
-    if (_beautifyPresetsCache !== null) return _beautifyPresetsCache;
-    _beautifyPresetsCache = [];
-    try {
-      let presets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
-      if (!Array.isArray(presets)) presets = [];
-      if (presets.length === 0) {
-        try {
-          const raw = localStorage.getItem(BEAUTIFY_PRESETS_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              presets = parsed;
-              await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, presets);
-            }
-          }
-        } catch(e) {}
-      }
-      try { localStorage.removeItem(BEAUTIFY_PRESETS_KEY); } catch(e) {}
-      _beautifyPresetsCache = presets;
-    } catch (e) {
-      _beautifyPresetsCache = [];
-    }
-    return _beautifyPresetsCache;
-  })();
-  return _beautifyPresetsReadyPromise;
-}
-
-function getBeautifyPresetsSync() {
-  return Array.isArray(_beautifyPresetsCache) ? _beautifyPresetsCache : [];
-}
-
-async function saveBeautifyPresetsAsync(presets) {
-  _beautifyPresetsCache = Array.isArray(presets) ? presets : [];
-  try {
-    const ok = await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, _beautifyPresetsCache);
-    return ok;
-  } catch (e) {
-    console.warn('预设保存到 IndexedDB 失败', e);
-    return false;
-  }
-}
-
-/* ============ 音乐持久化存储 ============ */
+/* ============ 音乐持久化存储（IndexedDB） ============ */
 const MUSIC_DB_NAME = 'TuTooth_MusicDB';
 const MUSIC_DB_VERSION = 1;
 const MUSIC_STORE_NAME = 'songs';
@@ -3100,100 +3117,80 @@ function updateBeautifyPresetList() {
   const sel = document.getElementById('beautifyPresetSelect');
   if (!sel) return;
   sel.innerHTML = '<option value="">-- 选择预设 --</option>';
-  const presets = getBeautifyPresetsSync();
-  presets.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name || '未命名';
-    sel.appendChild(opt);
-  });
+  try {
+    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    presets.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
 }
 
-function saveBeautifyPreset() {
+async function saveBeautifyPreset() {
   const nameInput = document.getElementById('beautifyPresetName');
-  const name = (nameInput.value || '').trim();
+  const name = nameInput.value.trim();
   if (!name) { alert('请输入预设名称'); return; }
   const css = document.getElementById('cssEditorTextarea').value;
   const fontSize = getGlobalFontSizeScale();
-  getFontFromDB().then(async fontData => {
-    let fontB64 = null, fontSizeBytes = 0;
-    if (fontData && fontData.data) {
-      fontB64 = ab2b64(fontData.data);
-      fontSizeBytes = fontData.origSize;
-    }
-    await initBeautifyPresets();
-    const presets = getBeautifyPresetsSync().slice();
-    const newPreset = {
-      id: genId(),
-      name: name,
-      css: css,
-      fontSize: fontSize,
-      fontB64: fontB64,
-      fontOrigSize: fontSizeBytes,
-      time: Date.now()
-    };
-    presets.push(newPreset);
-    const ok = await saveBeautifyPresetsAsync(presets);
-    if (ok) {
-      alert('预设已保存：' + name);
-      nameInput.value = '';
-      updateBeautifyPresetList();
-      updatePresetList();
-      const sel1 = document.getElementById('beautifyPresetSelect');
-      if (sel1) sel1.value = newPreset.id;
-      const sel2 = document.getElementById('presetSelect');
-      if (sel2) sel2.value = newPreset.id;
-    } else {
-      alert('保存失败，请稍后再试');
-    }
-  }).catch(err => {
-    alert('读取字体失败：' + (err && err.message ? err.message : '未知错误'));
-  });
+  
+  const fontData = await getFontFromDB();
+  let fontB64 = null, fontSizeBytes = 0;
+  if (fontData && fontData.data) {
+    fontB64 = ab2b64(fontData.data);
+    fontSizeBytes = fontData.origSize;
+  }
+  
+  const newPreset = {
+    id: genId(),
+    name: name,
+    css: css,
+    fontSize: fontSize,
+    fontB64: fontB64,
+    fontOrigSize: fontSizeBytes,
+    time: Date.now()
+  };
+  
+  // 保存完整预设到 IndexedDB
+  const dbSaved = await presetDBPut(newPreset);
+  if (!dbSaved) { alert('保存失败：无法写入本地数据库'); return; }
+  
+  // 只保存轻量元数据到 localStorage，避免配额超限
+  try {
+    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    const meta = { id: newPreset.id, name: newPreset.name, fontSize: newPreset.fontSize, fontOrigSize: newPreset.fontOrigSize, time: newPreset.time };
+    presets.push(meta);
+    localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+    
+    alert('预设已保存：' + name);
+    nameInput.value = '';
+    updateBeautifyPresetList();
+    updatePresetList();
+    document.getElementById('beautifyPresetSelect').value = newPreset.id;
+  } catch(e) { 
+    alert('保存元数据失败：' + e.message);
+  }
 }
 
 async function applyBeautifyPreset() {
   const sel = document.getElementById('beautifyPresetSelect');
-  if (!sel) return;
   const id = sel.value;
   if (!id) { alert('请选择预设'); return; }
-  await initBeautifyPresets();
-  const presets = getBeautifyPresetsSync();
-  const preset = presets.find(p => p.id === id);
-  if (!preset) { alert('未找到该预设'); return; }
-
-  const ta = document.getElementById('cssEditorTextarea');
-  if (ta) ta.value = preset.css || '';
-  try { localStorage.setItem(USER_CSS_KEY, preset.css || ''); } catch(e) {}
-  const styleEl = document.getElementById('userCustomStyle');
-  if (styleEl) styleEl.textContent = preset.css || '';
-
-  if (preset.fontB64) {
-    const fontBuffer = b642ab(preset.fontB64);
-    await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
-  } else {
-    await deleteFontFromDB();
-  }
-  await applyGlobalFont();
-
-  if (preset.fontSize) {
-    setGlobalFontSize(preset.fontSize);
-  } else {
-    setGlobalFontSize(100);
-  }
-
-  alert('预设已应用：' + preset.name);
+  await applyBeautifyPresetById(id);
 }
 
 async function applyBeautifyPresetById(id) {
-  await initBeautifyPresets();
-  const presets = getBeautifyPresetsSync();
-  const preset = presets.find(p => p.id === id);
-  if (!preset) { alert('未找到该预设'); return; }
-  const ta = document.getElementById('cssEditorTextarea');
-  if (ta) ta.value = preset.css || '';
-  try { localStorage.setItem(USER_CSS_KEY, preset.css || ''); } catch(e) {}
+  // 从 IndexedDB 获取完整预设
+  const allPresets = await presetDBGetAll();
+  const preset = allPresets.find(p => p.id === id);
+  if (!preset) { alert('未找到该预设，可能已被清理'); return; }
+  
+  document.getElementById('cssEditorTextarea').value = preset.css || '';
+  localStorage.setItem(USER_CSS_KEY, preset.css || '');
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = preset.css || '';
+  
   if (preset.fontB64) {
     const fontBuffer = b642ab(preset.fontB64);
     await saveFontToDB(fontBuffer, preset.fontOrigSize || 0);
@@ -3201,29 +3198,31 @@ async function applyBeautifyPresetById(id) {
     await deleteFontFromDB();
   }
   await applyGlobalFont();
+  
   if (preset.fontSize) setGlobalFontSize(preset.fontSize);
   else setGlobalFontSize(100);
+  
   const bSel = document.getElementById('beautifyPresetSelect');
   if (bSel) bSel.value = id;
   alert('美化预设已应用：' + preset.name);
 }
 
 async function deleteBeautifyPreset() {
-  const sel = document.getElementById('beautifyPresetSelect') || document.getElementById('presetSelect');
-  if (!sel || !sel.value) { alert('请选择预设'); return; }
+  const sel = document.getElementById('beautifyPresetSelect');
   const id = sel.value;
+  if (!id) { alert('请选择预设'); return; }
   if (!confirm('确定删除该预设吗？')) return;
-  await initBeautifyPresets();
-  let presets = getBeautifyPresetsSync().slice();
+  
+  await presetDBDelete(id);
+  
+  let presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
   presets = presets.filter(p => p.id !== id);
-  const ok = await saveBeautifyPresetsAsync(presets);
-  if (ok) {
+  try {
+    localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
     updateBeautifyPresetList();
     updatePresetList();
     alert('预设已删除');
-  } else {
-    alert('删除失败，请稍后再试');
-  }
+  } catch(e) {}
 }
 
 function insertClassNames(type) {
@@ -4018,7 +4017,7 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-/* ============ 音乐列表渲染 ============ */
+/* ============ 音乐列表渲染 & 单击播放 & 双击改名 ============ */
 function renderMusicList() {
   const emptyEl = document.getElementById('musicListEmpty');
   const container = document.getElementById('musicListContainer');
@@ -4105,6 +4104,7 @@ function startRenameSong(item) {
   });
 }
 
+/* ============ 从 IndexedDB 恢复播放列表（刷新/退出/重进均保留） ============ */
 async function loadPlaylistFromDB() {
   let songs = [];
   try { songs = await musicDBGetAll(); } catch (e) { songs = []; }
@@ -4127,6 +4127,7 @@ async function loadPlaylistFromDB() {
   renderMusicList();
 }
 
+/* ============ MP3 上传（存入 IndexedDB，永久保存） ============ */
 (function initMp3Input() {
   const mp3Input = document.getElementById('mp3Input');
   if (!mp3Input) return;
@@ -4176,6 +4177,7 @@ function playSong(index) {
   }).catch(err => { console.log('播放失败:', err); });
 }
 
+/* 页面启动时恢复歌曲列表 */
 loadPlaylistFromDB();
 
 /* ============ 音乐分享与一起听 ============ */
@@ -4841,6 +4843,7 @@ function deleteEntry() {
       renderWorldBookList();
       alert(`成功导入 1 本世界书（${entries[0].name}）`);
     };
+    // 需求：导入一个文件就是一本世界书，完整读取文件内容，不作分段处理
     const buildOneEntryFromAllText = (allText) => {
       const text = String(allText || '').trim();
       if (!text) return [];
@@ -4851,6 +4854,7 @@ function deleteEntry() {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
       reader.onload = (evt) => {
+        // 使用 extractRawText 保持文本原样，保留换行，避免乱码或标签缺失
         mammoth.extractRawText({ arrayBuffer: evt.target.result }).then(result => {
           const allText = result.value || '';
           finish(buildOneEntryFromAllText(allText));
@@ -5025,76 +5029,101 @@ function triggerAppIconUpload(appId, previewElement) {
   input.click();
 }
 
+const presetSelect = document.getElementById('presetSelect');
+
 function updatePresetList() {
-  const presetSelect = document.getElementById('presetSelect');
   if (!presetSelect) return;
   presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
-  const presets = getBeautifyPresetsSync();
-  presets.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name || '未命名预设';
-    presetSelect.appendChild(opt);
-  });
+  try {
+    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    presets.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name || '未命名预设';
+      presetSelect.appendChild(opt);
+    });
+  } catch (e) {}
 }
+updatePresetList();
+
+const isBackupKey = (key) => (
+  key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
+  key.startsWith(APP_ICON_KEY_PREFIX) || key.startsWith(APP_NAME_KEY_PREFIX) ||
+  key.startsWith(MUSIC_KEY_PREFIX) || key === PERSONA_KEY || key === WORLDBOOK_KEY ||
+  key === 'is_fullscreen' || key === 'dark_mode' || key === 'api_config' ||
+  key.startsWith('api_preset_') || key.startsWith('moments_') ||
+  key === 'jianxun_chats' || key === 'jianxun_settings' ||
+  key === 'jx_awareness_log' || key === 'jx_wechat_id' ||
+  key === STICKER_KEY || key === STICKER_PACKS_KEY || key === FAVORITES_KEY ||
+  key === BILLS_KEY || key === CARDS_KEY || key === MASK_KEY || key === CURRENT_MASK_ID_KEY ||
+  key === AVATAR_LIB_KEY || key === REAL_TIME_AWARE_KEY || key === NOTIFICATION_BG_KEY ||
+  key === 'user_custom_css' || key === 'user_custom_font' || key === 'user_custom_font_orig_size' ||
+  key === FONT_SIZE_SCALE_KEY ||
+  key === JX_GLOBAL_PROMPT_KEY ||
+  key === CUSTOM_HTML_KEY ||
+  key === BEAUTIFY_PRESETS_KEY ||
+  key === AVATAR_AWARE_KEY ||
+  key === 'wx-family-received' || key === 'wx-family-given'
+);
 
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
   const loadBtn = document.getElementById('loadPresetBtn');
-  const delBtn = document.getElementById('deletePresetBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
+  if (saveBtn) saveBtn.addEventListener('click', async () => {
     const nameInput = document.getElementById('presetNameInput');
     const name = (nameInput.value || '').trim();
     if (!name) { alert('请输入预设名称'); return; }
     const ta = document.getElementById('cssEditorTextarea');
     const css = (ta && ta.value) || localStorage.getItem(USER_CSS_KEY) || '';
     const fontSize = getGlobalFontSizeScale();
-    getFontFromDB().then(async fontData => {
-      let fontB64 = null, fontOrigSize = 0;
-      if (fontData && fontData.data) {
-        try { fontB64 = ab2b64(fontData.data); fontOrigSize = fontData.origSize || 0; } catch(e){}
-      }
-      await initBeautifyPresets();
-      const presets = getBeautifyPresetsSync().slice();
-      const newPreset = {
-        id: genId(),
-        name: name,
-        css: css,
-        fontSize: fontSize,
-        fontB64: fontB64,
-        fontOrigSize: fontOrigSize,
-        time: Date.now()
-      };
-      presets.push(newPreset);
-      const ok = await saveBeautifyPresetsAsync(presets);
-      if (ok) {
-        alert('美化预设已保存：' + name);
-        nameInput.value = '';
-        updatePresetList();
-        updateBeautifyPresetList();
-        const sel1 = document.getElementById('presetSelect');
-        if (sel1) sel1.value = newPreset.id;
-        const sel2 = document.getElementById('beautifyPresetSelect');
-        if (sel2) sel2.value = newPreset.id;
-      } else {
-        alert('保存失败，请稍后再试');
-      }
-    }).catch(err => {
-      alert('读取字体失败：' + (err.message || '未知错误'));
-    });
+    
+    const fontData = await getFontFromDB();
+    let fontB64 = null, fontOrigSize = 0;
+    if (fontData && fontData.data) {
+      try { fontB64 = ab2b64(fontData.data); fontOrigSize = fontData.origSize || 0; } catch(e){}
+    }
+    
+    const newPreset = {
+      id: genId(),
+      name: name,
+      css: css,
+      fontSize: fontSize,
+      fontB64: fontB64,
+      fontOrigSize: fontOrigSize,
+      time: Date.now()
+    };
+    
+    // 保存完整预设到 IndexedDB
+    const dbSaved = await presetDBPut(newPreset);
+    if (!dbSaved) { alert('保存失败：无法写入本地数据库'); return; }
+    
+    // 只保存轻量元数据到 localStorage
+    try {
+      const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+      const meta = { id: newPreset.id, name: newPreset.name, fontSize: newPreset.fontSize, fontOrigSize: newPreset.fontOrigSize, time: newPreset.time };
+      presets.push(meta);
+      localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+      
+      alert('美化预设已保存：' + name);
+      nameInput.value = '';
+      updatePresetList();
+      updateBeautifyPresetList();
+      if (presetSelect) presetSelect.value = newPreset.id;
+      const bSel = document.getElementById('beautifyPresetSelect');
+      if (bSel) bSel.value = newPreset.id;
+    } catch (e) {
+      alert('保存元数据失败：' + (e.message || '存储空间不足'));
+    }
   });
   if (loadBtn) loadBtn.addEventListener('click', async () => {
-    const presetSelect = document.getElementById('presetSelect');
-    if (!presetSelect || !presetSelect.value) { alert('请选择要应用的美化预设'); return; }
     const id = presetSelect.value;
-    await initBeautifyPresets();
-    const presets = getBeautifyPresetsSync();
-    const preset = presets.find(p => p.id === id);
+    if (!id) { alert('请选择要应用的美化预设'); return; }
+    const allPresets = await presetDBGetAll();
+    const preset = allPresets.find(p => p.id === id);
     if (!preset) { alert('未找到该预设'); return; }
     if (!confirm('确定应用预设「' + preset.name + '」吗？当前美化设置将被替换。')) return;
-    applyBeautifyPresetById(id);
+    await applyBeautifyPresetById(id);
   });
-  if (delBtn) delBtn.addEventListener('click', deleteBeautifyPreset);
 })();
 
 async function exportAllData() {
@@ -5105,7 +5134,6 @@ async function exportAllData() {
   }
   const chatData = await idbGet(STORE_CHATS, 'main') || [];
   const momentData = await idbGet(STORE_CHATS, 'moments') || [];
-  const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
   const imageKeys = await idbGetAllKeys(STORE_IMAGES);
   const imageData = {};
   for (const k of imageKeys) {
@@ -5118,12 +5146,12 @@ async function exportAllData() {
     fontOrigSize = fontData.origSize;
   }
   const musicSongs = await musicDBGetAll();
+  const presetData = await presetDBGetAll();
   const backup = { 
     localStorage: localData, 
-    indexedDB: { chats: chatData, moments: momentData, images: imageData, beautifyPresets: beautifyPresetsData },
+    indexedDB: { chats: chatData, moments: momentData, images: imageData, presets: presetData },
     font: { b64: fontB64, size: fontOrigSize },
-    music: musicSongs,
-    beautifyPresets: beautifyPresetsData
+    music: musicSongs
   };
   const json = JSON.stringify(backup, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
@@ -5135,31 +5163,6 @@ async function exportAllData() {
   URL.revokeObjectURL(url);
   setTimeout(() => {
     if (confirm("数据导出成功！\n\n如果手机无法下载文件，请点击\"确定\"后长按复制代码保存。")) {
-      prompt("请长按复制以下全部数据代码：", json);
-    }
-  }, 500);
-}
-
-async function exportSingleChat() {
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  if (chat.messages.length === 0) { alert('当前聊天没有可导出的记录'); return; }
-  const exportData = {
-    chatName: chat.customRemark || chat.name,
-    avatar: chat.avatar,
-    exportTime: new Date().toLocaleString(),
-    messages: chat.messages
-  };
-  const json = JSON.stringify(exportData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  setTimeout(() => {
-    if (confirm("导出成功！\n\n如果手机无法下载文件，请点击\"确定\"后长按复制代码保存。")) {
       prompt("请长按复制以下全部数据代码：", json);
     }
   }, 500);
@@ -5181,21 +5184,17 @@ async function importAllData(jsonStr) {
     for (const k of imgKeys) await idbDelete(STORE_IMAGES, k);
     if (data.indexedDB.chats) await idbSet(STORE_CHATS, 'main', data.indexedDB.chats);
     if (data.indexedDB.moments) await idbSet(STORE_CHATS, 'moments', data.indexedDB.moments);
-    if (data.indexedDB.beautifyPresets) {
-      await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data.indexedDB.beautifyPresets);
-    } else if (Array.isArray(data.beautifyPresets)) {
-      await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data.beautifyPresets);
-    } else if (data.localStorage && data.localStorage['beautify_presets']) {
-      try {
-        const parsed = JSON.parse(data.localStorage['beautify_presets']);
-        if (Array.isArray(parsed)) await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, parsed);
-      } catch(e) {}
-    }
     if (data.indexedDB.images) {
       for (const k in data.indexedDB.images) {
         if (Object.prototype.hasOwnProperty.call(data.indexedDB.images, k)) {
           await idbSet(STORE_IMAGES, k, data.indexedDB.images[k]);
         }
+      }
+    }
+    await presetDBClear();
+    if (data.indexedDB.presets) {
+      for (const p of data.indexedDB.presets) {
+        await presetDBPut(p);
       }
     }
     if (data.font && data.font.b64) {
@@ -5595,6 +5594,7 @@ function confirmGiveCard() {
   renderChatMessages();
   renderJianxunChatList();
   pushAwareness(`你送给 ${chat.customRemark || chat.name || 'TA'} 一张亲属卡（额度 ¥${limit.toFixed(2)}），等待对方处理。`);
+  // 不触发自动回复，等待用户主动点击麦克风唤醒角色
 }
 
 function selectTransferPayMethod() {
@@ -5998,6 +5998,7 @@ if(wxAcceptConfirm)wxAcceptConfirm.addEventListener('click',function(){
     m.status='accepted';
     var cardId='fc_'+Date.now();
     var rc=getRecv();
+    // 防重复：检查是否已经有相同的卡片（同一角色、同一额度、最近几秒内创建）
     var now = Date.now();
     var dup = rc.find(x => x.fromCharId===cid && Math.abs((x.limit||0)-parseFloat(m.limit))<0.001 && Math.abs((x.createdAt||0)-now)<5000);
     if (dup) {
@@ -6421,12 +6422,14 @@ function getCharImageRefs(chat) {
   const refs = [];
   const avatarAware = loadAvatarAwareSetting();
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
+  // 头像感知关闭时：不暴露用户头像
   if (avatarAware && userAvatar) {
     refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, time: 0, desc: '用户当前的头像（个人头像，非照片）' });
   }
   const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
   const filtered = pool.filter(img => {
     if (!img || !img.data) return false;
+    // 头像是头像，照片是照片；不感知头像时所有头像相关图片都不提供
     if (img.isAvatar) {
       if (!avatarAware) return false;
       if (userAvatar && img.data === userAvatar) return false;
@@ -6449,33 +6452,7 @@ function pushAwareness(text) {
   } catch (e) {}
 }
 
-/* ============================================================
-   核心修复区域：saveJianxunChats 使用 Promise 队列 + loadJianxunChats 等待队列，
-   彻底解决“删除联系人后重新打开 App 又出现”的竞态问题
-   ============================================================ */
-let _chatSaveQueue = Promise.resolve();
-
-async function saveJianxunChats() {
-  _chatSaveQueue = _chatSaveQueue.then(async () => {
-    try {
-      const currentMaskId = getCurrentMaskId();
-      let allChats = await idbGet(STORE_CHATS, 'main') || [];
-      if (!Array.isArray(allChats)) allChats = [];
-      allChats = allChats.filter(c => c.maskId !== currentMaskId);
-      jianxunChats.forEach(c => { if (!c.maskId) c.maskId = currentMaskId; });
-      allChats = allChats.concat(jianxunChats);
-      await idbSet(STORE_CHATS, 'main', allChats);
-    } catch (e) {
-      console.warn('saveJianxunChats 错误', e);
-    }
-  });
-  return _chatSaveQueue;
-}
-
 async function loadJianxunChats() {
-  // 关键：等待所有挂起的保存完成，避免读取到旧数据导致删除被撤销
-  try { await _chatSaveQueue; } catch (e) {}
-
   loadWorldBook();
   loadMasks();
   const currentMaskId = getCurrentMaskId();
@@ -6535,6 +6512,18 @@ async function loadJianxunChats() {
     chat.messages.forEach(m => { if (!m.id) m.id = genId(); if (!m.time) m.time = Date.now(); });
     if (!chat.lastMessageTime) chat.lastMessageTime = Date.now();
   });
+}
+
+async function saveJianxunChats() {
+  try {
+    const currentMaskId = getCurrentMaskId();
+    let allChats = await idbGet(STORE_CHATS, 'main') || [];
+    if (!Array.isArray(allChats)) allChats = [];
+    allChats = allChats.filter(c => c.maskId !== currentMaskId);
+    jianxunChats.forEach(c => { if (!c.maskId) c.maskId = currentMaskId; });
+    allChats = allChats.concat(jianxunChats);
+    await idbSet(STORE_CHATS, 'main', allChats);
+  } catch (e) {}
 }
 
 function cleanupChatImages() {
@@ -6689,6 +6678,7 @@ function loadJxMeProfile() {
         renderJianxunChatList();
         renderJianxunContacts();
         renderMomentsPosts();
+        // 仅在头像感知开启时推送 awareness
         if (loadAvatarAwareSetting()) pushAwareness('用户更换了新的头像');
       } catch(err){}
       input.value = '';
@@ -8113,6 +8103,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
 
+  // 根据头像感知开关，生成不同的头像提示
   if (avatarAware) {
     sp += `【头像感知 · 已开启】你能感知用户的头像与照片，可以自然使用头像相关功能：\n`;
     sp += `  ◆ 当用户主动提及或更换头像时，你可以自然回应，但不必每次都盯着头像聊，避免机械感。\n`;
@@ -8162,6 +8153,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const htp = buildHtmlPrompt(chat);
   if (htp) sp += htp;
 
+  // 仅在头像感知开启时，注入头像库
   if (avatarAware) {
     const alp = buildAvatarLibPrompt();
     if (alp) sp += alp;
@@ -8180,6 +8172,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     sp += '\n【可用本地音乐】（用户还没有在「音乐」App 里上传任何歌曲，你暂时无法分享音乐）\n';
   }
 
+  // 仅在头像感知开启时，提供"可引用图片"信息
   if (avatarAware) {
     const refs = getCharImageRefs(chat);
     sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）。**再次强调：可引用图片是为了让你在用户主动询问头像/照片时能对上号，默认场景下不要主动提及这些图片。**\n';
@@ -8198,6 +8191,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   }
 
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
+  // 仅在头像感知开启时提供头像相关动作
   if (avatarAware) {
     sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
     sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
@@ -8260,6 +8254,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const mp = buildMomentsPrompt();
   if (mp) sp += mp;
 
+  // 头像感知关闭时，不推送"换头像"相关 awareness 给角色
   const log = loadAwarenessLog();
   const filteredLog = avatarAware ? log : log.filter(e => !/头像/.test(e.text || ''));
   if (filteredLog.length > 0) {
@@ -8460,6 +8455,7 @@ function cropImageRegion(base64Src, region, ratio) {
 }
 
 async function executeCharAction(chat, action) {
+  // 头像感知关闭时，禁用所有头像相关动作
   const avatarAware = loadAvatarAwareSetting();
   if (!avatarAware && ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'].includes(action.type)) {
     return;
@@ -9124,6 +9120,7 @@ async function closeChatScreen() {
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   renderJianxunChatList();
+  await loadJianxunChats();
 }
 function openChatInfo() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -9411,29 +9408,13 @@ function clearChatHistory() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
-async function deleteChat() {
-  if (!confirm('确定要删除该联系人及聊天记录吗？此操作不可恢复。（注意：不会影响您的人设库数据）')) return;
-  
-  const idToDelete = currentChatId;
-  
-  // 1. 从当前内存的聊天列表中移除
-  jianxunChats = jianxunChats.filter(c => c.id !== idToDelete);
-  
-  // 2. 清空 currentChatId，防止后续误用
-  currentChatId = null;
-  
-  // 3. 关闭 UI
+function deleteChat() {
+  if (!confirm('确定要删除该聊天吗？此操作不可恢复。')) return;
+  jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
+  saveJianxunChats();
   closeChatInfo();
-  document.getElementById('jxChatScreen').classList.remove('active');
-  
-  // 4. 立即刷新 UI（确保视觉上已经删除）
+  closeChatScreen();
   renderJianxunChatList();
-  renderJianxunContacts();
-  
-  // 5. 等待保存完成，确保删除被持久化到数据库。
-  //    结合 saveJianxunChats 的 Promise 队列机制，以及 loadJianxunChats 会先等待保存队列完成，
-  //    彻底解决“删除后重新打开又出现”的竞态问题。
-  await saveJianxunChats();
 }
 function showPersonaSelector() {
   try {
@@ -9870,13 +9851,6 @@ async function replyToMomentsComment(chat, postId, userComment) {
 }
 
 initGlobalFontSizeControl();
-
-// 初始化美化预设
-initBeautifyPresets().then(() => {
-  updatePresetList();
-  updateBeautifyPresetList();
-});
-
 </script>
 
 </body>
