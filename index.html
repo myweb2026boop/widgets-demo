@@ -6449,7 +6449,33 @@ function pushAwareness(text) {
   } catch (e) {}
 }
 
+/* ============================================================
+   核心修复区域：saveJianxunChats 使用 Promise 队列 + loadJianxunChats 等待队列，
+   彻底解决“删除联系人后重新打开 App 又出现”的竞态问题
+   ============================================================ */
+let _chatSaveQueue = Promise.resolve();
+
+async function saveJianxunChats() {
+  _chatSaveQueue = _chatSaveQueue.then(async () => {
+    try {
+      const currentMaskId = getCurrentMaskId();
+      let allChats = await idbGet(STORE_CHATS, 'main') || [];
+      if (!Array.isArray(allChats)) allChats = [];
+      allChats = allChats.filter(c => c.maskId !== currentMaskId);
+      jianxunChats.forEach(c => { if (!c.maskId) c.maskId = currentMaskId; });
+      allChats = allChats.concat(jianxunChats);
+      await idbSet(STORE_CHATS, 'main', allChats);
+    } catch (e) {
+      console.warn('saveJianxunChats 错误', e);
+    }
+  });
+  return _chatSaveQueue;
+}
+
 async function loadJianxunChats() {
+  // 关键：等待所有挂起的保存完成，避免读取到旧数据导致删除被撤销
+  try { await _chatSaveQueue; } catch (e) {}
+
   loadWorldBook();
   loadMasks();
   const currentMaskId = getCurrentMaskId();
@@ -6509,18 +6535,6 @@ async function loadJianxunChats() {
     chat.messages.forEach(m => { if (!m.id) m.id = genId(); if (!m.time) m.time = Date.now(); });
     if (!chat.lastMessageTime) chat.lastMessageTime = Date.now();
   });
-}
-
-async function saveJianxunChats() {
-  try {
-    const currentMaskId = getCurrentMaskId();
-    let allChats = await idbGet(STORE_CHATS, 'main') || [];
-    if (!Array.isArray(allChats)) allChats = [];
-    allChats = allChats.filter(c => c.maskId !== currentMaskId);
-    jianxunChats.forEach(c => { if (!c.maskId) c.maskId = currentMaskId; });
-    allChats = allChats.concat(jianxunChats);
-    await idbSet(STORE_CHATS, 'main', allChats);
-  } catch (e) {}
 }
 
 function cleanupChatImages() {
@@ -9400,18 +9414,25 @@ function clearChatHistory() {
 async function deleteChat() {
   if (!confirm('确定要删除该联系人及聊天记录吗？此操作不可恢复。（注意：不会影响您的人设库数据）')) return;
   
-  // 1. 从当前内存的聊天列表中移除
-  jianxunChats = jianxunChats.filter(c => c.id !== currentChatId);
+  const idToDelete = currentChatId;
   
-  // 2. 关闭 UI
+  // 1. 从当前内存的聊天列表中移除
+  jianxunChats = jianxunChats.filter(c => c.id !== idToDelete);
+  
+  // 2. 清空 currentChatId，防止后续误用
+  currentChatId = null;
+  
+  // 3. 关闭 UI
   closeChatInfo();
   document.getElementById('jxChatScreen').classList.remove('active');
   
-  // 3. 立即刷新 UI（确保视觉上已经删除）
+  // 4. 立即刷新 UI（确保视觉上已经删除）
   renderJianxunChatList();
   renderJianxunContacts();
   
-  // 4. 异步保存到数据库（等待保存完成，避免竞态条件）
+  // 5. 等待保存完成，确保删除被持久化到数据库。
+  //    结合 saveJianxunChats 的 Promise 队列机制，以及 loadJianxunChats 会先等待保存队列完成，
+  //    彻底解决“删除后重新打开又出现”的竞态问题。
   await saveJianxunChats();
 }
 function showPersonaSelector() {
