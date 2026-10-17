@@ -1102,7 +1102,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .fwd-msg-item{background:#1c1c1e;box-shadow:none;}
 .phone-case.dark-mode .fwd-msg-name{color:#eee;}
 .phone-case.dark-mode .fwd-msg-content{color:#ddd;}
-/* 时间戳样式 */
 .jx-time-stamp {
     text-align: center;
     font-size: 11px;
@@ -1116,7 +1115,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-search-result-item:active{background:#f5f5f5}
 .phone-case.dark-mode .jx-search-result-item{background:#1c1c1e!important;border-bottom-color:#2c2c2e!important}
 .phone-case.dark-mode .jx-search-result-item:active{background:#2c2c2e!important}
-/* ============ 拆分消息弹窗 ============ */
 .jx-split-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20003;display:none}
 .jx-split-modal.show{display:flex}
 .jx-split-modal-content{background:#fff;width:90%;max-width:400px;border-radius:12px;padding:20px;text-align:left;display:flex;flex-direction:column;max-height:85vh}
@@ -1468,6 +1466,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <div class="preset-select-row">
             <select id="presetSelect"><option value="">-- 选择预设 --</option></select>
             <button class="btn btn-primary" id="loadPresetBtn">应用预设</button>
+            <button class="btn btn-danger" id="deletePresetBtn">删除预设</button>
           </div>
           <p style="font-size:12px;color:#666;margin-top:8px;">保存当前美化设置（CSS样式 + 字体 + 字号）为预设，下次可一键应用。</p>
         </div>
@@ -2170,6 +2169,10 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
+          <div class="jx-info-item" onclick="exportSingleChat()">
+            <span class="label">导出当前聊天记录</span>
+            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
           <div class="jx-info-item" onclick="clearChatHistory()">
             <span class="label">清空聊天记录</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
@@ -2266,7 +2269,6 @@ https://xxx.com/a.png
       </div>
     </div>
 
-    <!-- ★ 新增：拆分消息弹窗 ★ -->
     <div class="jx-split-modal" id="jxSplitMsgModal">
       <div class="jx-split-modal-content">
         <h3>拆分消息</h3>
@@ -2560,14 +2562,15 @@ async function idbGet(storeName, key) {
 async function idbSet(storeName, key, value) {
   try {
     const db = await openDB();
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve) => {
       const tx = db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
       store.put(value, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+      tx.onabort = () => resolve(false);
     });
-  } catch (e) {}
+  } catch (e) { return false; }
 }
 
 async function idbDelete(storeName, key) {
@@ -2609,7 +2612,57 @@ const AVATAR_LIB_KEY = 'avatar_library';
 const REAL_TIME_AWARE_KEY = 'jx_real_time_aware';
 const NOTIFICATION_BG_KEY = 'notification_bg_enabled';
 const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
+const BEAUTIFY_PRESETS_IDB_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
+
+/* ============ 美化预设从 localStorage 迁移到 IndexedDB ============ */
+let _beautifyPresetsCache = null;
+let _beautifyPresetsReadyPromise = null;
+
+async function initBeautifyPresets() {
+  if (_beautifyPresetsReadyPromise) return _beautifyPresetsReadyPromise;
+  _beautifyPresetsReadyPromise = (async () => {
+    if (_beautifyPresetsCache !== null) return _beautifyPresetsCache;
+    _beautifyPresetsCache = [];
+    try {
+      let presets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
+      if (!Array.isArray(presets)) presets = [];
+      if (presets.length === 0) {
+        try {
+          const raw = localStorage.getItem(BEAUTIFY_PRESETS_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              presets = parsed;
+              await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, presets);
+            }
+          }
+        } catch(e) {}
+      }
+      try { localStorage.removeItem(BEAUTIFY_PRESETS_KEY); } catch(e) {}
+      _beautifyPresetsCache = presets;
+    } catch (e) {
+      _beautifyPresetsCache = [];
+    }
+    return _beautifyPresetsCache;
+  })();
+  return _beautifyPresetsReadyPromise;
+}
+
+function getBeautifyPresetsSync() {
+  return Array.isArray(_beautifyPresetsCache) ? _beautifyPresetsCache : [];
+}
+
+async function saveBeautifyPresetsAsync(presets) {
+  _beautifyPresetsCache = Array.isArray(presets) ? presets : [];
+  try {
+    const ok = await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, _beautifyPresetsCache);
+    return ok;
+  } catch (e) {
+    console.warn('预设保存到 IndexedDB 失败', e);
+    return false;
+  }
+}
 
 /* ============ 音乐持久化存储（IndexedDB） ============ */
 const MUSIC_DB_NAME = 'TuTooth_MusicDB';
@@ -3047,30 +3100,29 @@ function updateBeautifyPresetList() {
   const sel = document.getElementById('beautifyPresetSelect');
   if (!sel) return;
   sel.innerHTML = '<option value="">-- 选择预设 --</option>';
-  try {
-    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
-    presets.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.name;
-      sel.appendChild(opt);
-    });
-  } catch(e) {}
+  const presets = getBeautifyPresetsSync();
+  presets.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name || '未命名';
+    sel.appendChild(opt);
+  });
 }
 
 function saveBeautifyPreset() {
   const nameInput = document.getElementById('beautifyPresetName');
-  const name = nameInput.value.trim();
+  const name = (nameInput.value || '').trim();
   if (!name) { alert('请输入预设名称'); return; }
   const css = document.getElementById('cssEditorTextarea').value;
   const fontSize = getGlobalFontSizeScale();
-  getFontFromDB().then(fontData => {
+  getFontFromDB().then(async fontData => {
     let fontB64 = null, fontSizeBytes = 0;
     if (fontData && fontData.data) {
       fontB64 = ab2b64(fontData.data);
       fontSizeBytes = fontData.origSize;
     }
-    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    await initBeautifyPresets();
+    const presets = getBeautifyPresetsSync().slice();
     const newPreset = {
       id: genId(),
       name: name,
@@ -3081,14 +3133,21 @@ function saveBeautifyPreset() {
       time: Date.now()
     };
     presets.push(newPreset);
-    try {
-      localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+    const ok = await saveBeautifyPresetsAsync(presets);
+    if (ok) {
       alert('预设已保存：' + name);
       nameInput.value = '';
       updateBeautifyPresetList();
       updatePresetList();
-      document.getElementById('beautifyPresetSelect').value = newPreset.id;
-    } catch(e) { alert('保存失败，存储空间可能不足'); }
+      const sel1 = document.getElementById('beautifyPresetSelect');
+      if (sel1) sel1.value = newPreset.id;
+      const sel2 = document.getElementById('presetSelect');
+      if (sel2) sel2.value = newPreset.id;
+    } else {
+      alert('保存失败，请稍后再试');
+    }
+  }).catch(err => {
+    alert('读取字体失败：' + (err && err.message ? err.message : '未知错误'));
   });
 }
 
@@ -3096,12 +3155,14 @@ async function applyBeautifyPreset() {
   const sel = document.getElementById('beautifyPresetSelect');
   const id = sel.value;
   if (!id) { alert('请选择预设'); return; }
-  const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+  await initBeautifyPresets();
+  const presets = getBeautifyPresetsSync();
   const preset = presets.find(p => p.id === id);
   if (!preset) { alert('未找到该预设'); return; }
 
-  document.getElementById('cssEditorTextarea').value = preset.css || '';
-  localStorage.setItem(USER_CSS_KEY, preset.css || '');
+  const ta = document.getElementById('cssEditorTextarea');
+  if (ta) ta.value = preset.css || '';
+  try { localStorage.setItem(USER_CSS_KEY, preset.css || ''); } catch(e) {}
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = preset.css || '';
 
@@ -3123,12 +3184,13 @@ async function applyBeautifyPreset() {
 }
 
 async function applyBeautifyPresetById(id) {
-  const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+  await initBeautifyPresets();
+  const presets = getBeautifyPresetsSync();
   const preset = presets.find(p => p.id === id);
   if (!preset) { alert('未找到该预设'); return; }
   const ta = document.getElementById('cssEditorTextarea');
   if (ta) ta.value = preset.css || '';
-  localStorage.setItem(USER_CSS_KEY, preset.css || '');
+  try { localStorage.setItem(USER_CSS_KEY, preset.css || ''); } catch(e) {}
   const styleEl = document.getElementById('userCustomStyle');
   if (styleEl) styleEl.textContent = preset.css || '';
   if (preset.fontB64) {
@@ -3145,19 +3207,22 @@ async function applyBeautifyPresetById(id) {
   alert('美化预设已应用：' + preset.name);
 }
 
-function deleteBeautifyPreset() {
-  const sel = document.getElementById('beautifyPresetSelect');
+async function deleteBeautifyPreset() {
+  const sel = document.getElementById('beautifyPresetSelect') || document.getElementById('presetSelect');
+  if (!sel || !sel.value) { alert('请选择预设'); return; }
   const id = sel.value;
-  if (!id) { alert('请选择预设'); return; }
   if (!confirm('确定删除该预设吗？')) return;
-  let presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+  await initBeautifyPresets();
+  let presets = getBeautifyPresetsSync().slice();
   presets = presets.filter(p => p.id !== id);
-  try {
-    localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+  const ok = await saveBeautifyPresetsAsync(presets);
+  if (ok) {
     updateBeautifyPresetList();
     updatePresetList();
     alert('预设已删除');
-  } catch(e) {}
+  } else {
+    alert('删除失败，请稍后再试');
+  }
 }
 
 function insertClassNames(type) {
@@ -4778,7 +4843,6 @@ function deleteEntry() {
       renderWorldBookList();
       alert(`成功导入 1 本世界书（${entries[0].name}）`);
     };
-    // 需求：导入一个文件就是一本世界书，完整读取文件内容，不作分段处理
     const buildOneEntryFromAllText = (allText) => {
       const text = String(allText || '').trim();
       if (!text) return [];
@@ -4789,7 +4853,6 @@ function deleteEntry() {
       if (typeof mammoth === 'undefined') { alert('docx 解析库未加载'); return; }
       const reader = new FileReader();
       reader.onload = (evt) => {
-        // 使用 extractRawText 保持文本原样，保留换行，避免乱码或标签缺失
         mammoth.extractRawText({ arrayBuffer: evt.target.result }).then(result => {
           const allText = result.value || '';
           finish(buildOneEntryFromAllText(allText));
@@ -4969,17 +5032,14 @@ const presetSelect = document.getElementById('presetSelect');
 function updatePresetList() {
   if (!presetSelect) return;
   presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
-  try {
-    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
-    presets.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.name || '未命名预设';
-      presetSelect.appendChild(opt);
-    });
-  } catch (e) {}
+  const presets = getBeautifyPresetsSync();
+  presets.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name || '未命名预设';
+    presetSelect.appendChild(opt);
+  });
 }
-updatePresetList();
 
 const isBackupKey = (key) => (
   key.startsWith('saved_') || key.startsWith('uploaded_') || key.startsWith('edit_') ||
@@ -5004,6 +5064,7 @@ const isBackupKey = (key) => (
 (function initPresetBtn() {
   const saveBtn = document.getElementById('savePresetBtn');
   const loadBtn = document.getElementById('loadPresetBtn');
+  const delBtn = document.getElementById('deletePresetBtn');
   if (saveBtn) saveBtn.addEventListener('click', () => {
     const nameInput = document.getElementById('presetNameInput');
     const name = (nameInput.value || '').trim();
@@ -5011,12 +5072,13 @@ const isBackupKey = (key) => (
     const ta = document.getElementById('cssEditorTextarea');
     const css = (ta && ta.value) || localStorage.getItem(USER_CSS_KEY) || '';
     const fontSize = getGlobalFontSizeScale();
-    getFontFromDB().then(fontData => {
+    getFontFromDB().then(async fontData => {
       let fontB64 = null, fontOrigSize = 0;
       if (fontData && fontData.data) {
         try { fontB64 = ab2b64(fontData.data); fontOrigSize = fontData.origSize || 0; } catch(e){}
       }
-      const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+      await initBeautifyPresets();
+      const presets = getBeautifyPresetsSync().slice();
       const newPreset = {
         id: genId(),
         name: name,
@@ -5027,8 +5089,8 @@ const isBackupKey = (key) => (
         time: Date.now()
       };
       presets.push(newPreset);
-      try {
-        localStorage.setItem(BEAUTIFY_PRESETS_KEY, JSON.stringify(presets));
+      const ok = await saveBeautifyPresetsAsync(presets);
+      if (ok) {
         alert('美化预设已保存：' + name);
         nameInput.value = '';
         updatePresetList();
@@ -5036,22 +5098,24 @@ const isBackupKey = (key) => (
         if (presetSelect) presetSelect.value = newPreset.id;
         const bSel = document.getElementById('beautifyPresetSelect');
         if (bSel) bSel.value = newPreset.id;
-      } catch (e) {
-        alert('保存失败：' + (e.message || '存储空间不足'));
+      } else {
+        alert('保存失败，请稍后再试');
       }
     }).catch(err => {
       alert('读取字体失败：' + (err.message || '未知错误'));
     });
   });
-  if (loadBtn) loadBtn.addEventListener('click', () => {
+  if (loadBtn) loadBtn.addEventListener('click', async () => {
     const id = presetSelect.value;
     if (!id) { alert('请选择要应用的美化预设'); return; }
-    const presets = JSON.parse(localStorage.getItem(BEAUTIFY_PRESETS_KEY) || '[]');
+    await initBeautifyPresets();
+    const presets = getBeautifyPresetsSync();
     const preset = presets.find(p => p.id === id);
     if (!preset) { alert('未找到该预设'); return; }
     if (!confirm('确定应用预设「' + preset.name + '」吗？当前美化设置将被替换。')) return;
     applyBeautifyPresetById(id);
   });
+  if (delBtn) delBtn.addEventListener('click', deleteBeautifyPreset);
 })();
 
 async function exportAllData() {
@@ -5062,6 +5126,7 @@ async function exportAllData() {
   }
   const chatData = await idbGet(STORE_CHATS, 'main') || [];
   const momentData = await idbGet(STORE_CHATS, 'moments') || [];
+  const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
   const imageKeys = await idbGetAllKeys(STORE_IMAGES);
   const imageData = {};
   for (const k of imageKeys) {
@@ -5076,9 +5141,10 @@ async function exportAllData() {
   const musicSongs = await musicDBGetAll();
   const backup = { 
     localStorage: localData, 
-    indexedDB: { chats: chatData, moments: momentData, images: imageData },
+    indexedDB: { chats: chatData, moments: momentData, images: imageData, beautifyPresets: beautifyPresetsData },
     font: { b64: fontB64, size: fontOrigSize },
-    music: musicSongs
+    music: musicSongs,
+    beautifyPresets: beautifyPresetsData
   };
   const json = JSON.stringify(backup, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
@@ -5090,6 +5156,31 @@ async function exportAllData() {
   URL.revokeObjectURL(url);
   setTimeout(() => {
     if (confirm("数据导出成功！\n\n如果手机无法下载文件，请点击\"确定\"后长按复制代码保存。")) {
+      prompt("请长按复制以下全部数据代码：", json);
+    }
+  }, 500);
+}
+
+async function exportSingleChat() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (chat.messages.length === 0) { alert('当前聊天没有可导出的记录'); return; }
+  const exportData = {
+    chatName: chat.customRemark || chat.name,
+    avatar: chat.avatar,
+    exportTime: new Date().toLocaleString(),
+    messages: chat.messages
+  };
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    if (confirm("导出成功！\n\n如果手机无法下载文件，请点击\"确定\"后长按复制代码保存。")) {
       prompt("请长按复制以下全部数据代码：", json);
     }
   }, 500);
@@ -5111,6 +5202,16 @@ async function importAllData(jsonStr) {
     for (const k of imgKeys) await idbDelete(STORE_IMAGES, k);
     if (data.indexedDB.chats) await idbSet(STORE_CHATS, 'main', data.indexedDB.chats);
     if (data.indexedDB.moments) await idbSet(STORE_CHATS, 'moments', data.indexedDB.moments);
+    if (data.indexedDB.beautifyPresets) {
+      await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data.indexedDB.beautifyPresets);
+    } else if (Array.isArray(data.beautifyPresets)) {
+      await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data.beautifyPresets);
+    } else if (data.localStorage && data.localStorage['beautify_presets']) {
+      try {
+        const parsed = JSON.parse(data.localStorage['beautify_presets']);
+        if (Array.isArray(parsed)) await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, parsed);
+      } catch(e) {}
+    }
     if (data.indexedDB.images) {
       for (const k in data.indexedDB.images) {
         if (Object.prototype.hasOwnProperty.call(data.indexedDB.images, k)) {
@@ -5264,7 +5365,12 @@ async function testApiConnection() {
     let data = null;
     try { data = await response.json(); }
     catch(e) { setApiStatus('fail', '❌ 服务器返回的不是 JSON，请检查 API 地址是否正确'); return; }
-    const reply = (data && data.choices && data.choices[0] && (data.choices[0].message?.content || data.choices[0].text)) || '';
+    let reply = '';
+    if (data && data.choices && data.choices[0]) {
+      const choice = data.choices[0];
+      if (choice.message && typeof choice.message.content === 'string') reply = choice.message.content;
+      else if (choice.text) reply = choice.text;
+    }
     setApiStatus('ok', `✅ 连接成功！\n请求地址：${chatUrl}\n模型回复：${reply ? reply.trim().slice(0, 100) : '（空）'}`);
   } catch (err) {
     clearTimeout(timeoutId);
@@ -5515,7 +5621,6 @@ function confirmGiveCard() {
   renderChatMessages();
   renderJianxunChatList();
   pushAwareness(`你送给 ${chat.customRemark || chat.name || 'TA'} 一张亲属卡（额度 ¥${limit.toFixed(2)}），等待对方处理。`);
-  // 不触发自动回复，等待用户主动点击麦克风唤醒角色
 }
 
 function selectTransferPayMethod() {
@@ -5919,7 +6024,6 @@ if(wxAcceptConfirm)wxAcceptConfirm.addEventListener('click',function(){
     m.status='accepted';
     var cardId='fc_'+Date.now();
     var rc=getRecv();
-    // 防重复：检查是否已经有相同的卡片（同一角色、同一额度、最近几秒内创建）
     var now = Date.now();
     var dup = rc.find(x => x.fromCharId===cid && Math.abs((x.limit||0)-parseFloat(m.limit))<0.001 && Math.abs((x.createdAt||0)-now)<5000);
     if (dup) {
@@ -6265,7 +6369,11 @@ function openMaskEdit(id) {
   if (personaList.length === 0) {
     bindList.innerHTML = '<div style="font-size:12px;color:#999;padding:10px;text-align:center;">暂无人设可绑定</div>';
   } else {
-    const currentBound = id !== null ? (jxMasks.find(x => x.id === id)?.boundCharIds || []) : [];
+    let currentBound = [];
+    if (id !== null) {
+      const mask = jxMasks.find(x => x.id === id);
+      if (mask && Array.isArray(mask.boundCharIds)) currentBound = mask.boundCharIds;
+    }
     bindList.innerHTML = personaList.map(p => {
       const checked = currentBound.includes(p.name) ? 'checked' : '';
       return `<label class="mask-bind-item">
@@ -6343,14 +6451,12 @@ function getCharImageRefs(chat) {
   const refs = [];
   const avatarAware = loadAvatarAwareSetting();
   const userAvatar = chat.myAvatar || localStorage.getItem('moments_avatar');
-  // 头像感知关闭时：不暴露用户头像
   if (avatarAware && userAvatar) {
     refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, time: 0, desc: '用户当前的头像（个人头像，非照片）' });
   }
   const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
   const filtered = pool.filter(img => {
     if (!img || !img.data) return false;
-    // 头像是头像，照片是照片；不感知头像时所有头像相关图片都不提供
     if (img.isAvatar) {
       if (!avatarAware) return false;
       if (userAvatar && img.data === userAvatar) return false;
@@ -6599,7 +6705,6 @@ function loadJxMeProfile() {
         renderJianxunChatList();
         renderJianxunContacts();
         renderMomentsPosts();
-        // 仅在头像感知开启时推送 awareness
         if (loadAvatarAwareSetting()) pushAwareness('用户更换了新的头像');
       } catch(err){}
       input.value = '';
@@ -7847,7 +7952,7 @@ async function translateText(text, cfg) {
   return '';
 }
 
-/* ============ ★ 新增：手动拆分消息 ★ ============ */
+/* ============ 手动拆分消息 ============ */
 let splittingMsgId = null;
 function menuSplit() {
   const id = menuMsgId;
@@ -7869,7 +7974,6 @@ function openSplitMsgModal(msgId) {
   splittingMsgId = msgId;
   const ta = document.getElementById('splitMsgTextarea');
   if (ta) {
-    // 把已有的 [[SPLIT]] 标记转成换行，方便用户直接编辑
     ta.value = String(msg.content || '').replace(/\[\[\s*SPLIT\s*\]\]/gi, '\n');
     updateSplitPreview();
   }
@@ -7877,7 +7981,6 @@ function openSplitMsgModal(msgId) {
   setTimeout(() => {
     if (ta) {
       ta.focus();
-      // 光标移到末尾
       ta.setSelectionRange(ta.value.length, ta.value.length);
     }
   }, 120);
@@ -7904,7 +8007,6 @@ function saveSplitMsg() {
   const ta = document.getElementById('splitMsgTextarea');
   if (!ta) return;
   const raw = ta.value;
-  // 按换行拆分，trim 每一段，过滤空段
   const parts = raw.split(/\n+/).map(s => s.trim()).filter(s => s.length > 0);
   if (parts.length < 2) {
     alert('请至少分成两条消息（按回车换行即可拆分）');
@@ -7916,10 +8018,8 @@ function saveSplitMsg() {
   if (idx < 0) return;
   const oldMsg = chat.messages[idx];
 
-  // 时间基准：使用原消息的时间；为避免同一时刻消息排序问题，每条增加 1ms
   const baseTime = oldMsg.time || Date.now();
 
-  // 用多条新消息替换原来的一条
   const newMsgs = parts.map((p, i) => {
     const m = {
       id: genId(),
@@ -7928,7 +8028,6 @@ function saveSplitMsg() {
       content: p,
       time: baseTime + i
     };
-    // 引用只保留在第一条
     if (i === 0 && oldMsg.quote) m.quote = { ...oldMsg.quote };
     return m;
   });
@@ -7939,7 +8038,6 @@ function saveSplitMsg() {
   renderChatMessages(true);
   renderJianxunChatList();
 }
-/* ★ 新增结束 ★ */
 
 function buildWorldBookPrompt(chat) {
   const bound = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook : [];
@@ -8031,7 +8129,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
   sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
 
-  // 根据头像感知开关，生成不同的头像提示
   if (avatarAware) {
     sp += `【头像感知 · 已开启】你能感知用户的头像与照片，可以自然使用头像相关功能：\n`;
     sp += `  ◆ 当用户主动提及或更换头像时，你可以自然回应，但不必每次都盯着头像聊，避免机械感。\n`;
@@ -8081,7 +8178,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const htp = buildHtmlPrompt(chat);
   if (htp) sp += htp;
 
-  // 仅在头像感知开启时，注入头像库
   if (avatarAware) {
     const alp = buildAvatarLibPrompt();
     if (alp) sp += alp;
@@ -8100,7 +8196,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     sp += '\n【可用本地音乐】（用户还没有在「音乐」App 里上传任何歌曲，你暂时无法分享音乐）\n';
   }
 
-  // 仅在头像感知开启时，提供"可引用图片"信息
   if (avatarAware) {
     const refs = getCharImageRefs(chat);
     sp += '\n【可引用图片】编号从1起；图1=用户头像，图2+=用户照片（越新编号越小）。**再次强调：可引用图片是为了让你在用户主动询问头像/照片时能对上号，默认场景下不要主动提及这些图片。**\n';
@@ -8119,7 +8214,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   }
 
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
-  // 仅在头像感知开启时提供头像相关动作
   if (avatarAware) {
     sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
     sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
@@ -8182,7 +8276,6 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const mp = buildMomentsPrompt();
   if (mp) sp += mp;
 
-  // 头像感知关闭时，不推送"换头像"相关 awareness 给角色
   const log = loadAwarenessLog();
   const filteredLog = avatarAware ? log : log.filter(e => !/头像/.test(e.text || ''));
   if (filteredLog.length > 0) {
@@ -8383,7 +8476,6 @@ function cropImageRegion(base64Src, region, ratio) {
 }
 
 async function executeCharAction(chat, action) {
-  // 头像感知关闭时，禁用所有头像相关动作
   const avatarAware = loadAvatarAwareSetting();
   if (!avatarAware && ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'].includes(action.type)) {
     return;
@@ -8392,7 +8484,6 @@ async function executeCharAction(chat, action) {
   if (action.type === 'QUOTE') {
     const want = String(action.payload).trim();
     if (!want) return;
-    // 优先精确匹配最近的用户文本消息
     let found = null;
     for (let i = chat.messages.length - 1; i >= 0; i--) {
       const m = chat.messages[i];
@@ -8402,7 +8493,6 @@ async function executeCharAction(chat, action) {
       }
     }
     if (!found) {
-      // 模糊匹配：找最近一条用户文本消息
       for (let i = chat.messages.length - 1; i >= 0; i--) {
         const m = chat.messages[i];
         if (m.role === 'me' && m.type !== 'system' && m.content && m.type !== 'image' && m.type !== 'sticker') {
@@ -8577,7 +8667,6 @@ async function executeCharAction(chat, action) {
     if (isNaN(limit) || limit <= 0) return;
     const charName = chat.customRemark || chat.name || 'TA';
     const cardId = genId();
-    // 关键修复：不立即写入 getRecv()，等用户点击"接受"时再写入，避免出现两张一模一样的卡
     chat.messages.push({ id: genId(), role: 'char', type: 'familyCard', limit: limit, note: note, content: '[亲属卡]', status: 'pending', cardId: cardId, time: Date.now() });
     pushAwareness(`${charName} 送给你一张亲属卡，额度 ¥${limit.toFixed(2)}`);
     return;
@@ -8792,7 +8881,6 @@ async function generateCharReply(chat, isProactive = false) {
   const avatarAware = loadAvatarAwareSetting();
   const activeMask = getActiveMaskForChat(chat);
   const userAvatar = activeMask ? (activeMask.avatar || chat.myAvatar || localStorage.getItem('moments_avatar')) : (chat.myAvatar || localStorage.getItem('moments_avatar'));
-  // 仅在头像感知开启时，才把用户头像作为图片追加
   if (avatarAware && userAvatar && history.length > 0) {
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].role === 'user') {
@@ -8853,16 +8941,12 @@ function parseReplyIntoBubbles(rawText) {
   }
   if (segments.length === 0) segments = [trimmed];
   
-  // 增强兜底：如果最终只有一段且过长，强制按标点/长度切分，保证即使模型没打 [[SPLIT]] 也能出多条气泡
   if (segments.length === 1 && segments[0].length > 25) {
     const one = segments[0];
-    // 1. 先按句末标点切
     let parts = one.split(/(?<=[。！？!?…~])\s*/).map(s => s.trim()).filter(s => s.length > 0);
-    // 2. 若仍只有一段，尝试按逗号/分号/顿号切
     if (parts.length <= 1) {
       parts = one.split(/(?<=[，,；;、])\s*/).map(s => s.trim()).filter(s => s.length > 0);
     }
-    // 3. 若仍只有一段且超长，按长度强制切（找最近的标点作为切点）
     if (parts.length <= 1 && one.length > 45) {
       const chunks = [];
       let rest = one;
@@ -8909,7 +8993,6 @@ async function triggerCharReply(chat, isProactive = false) {
       if (segments.length > 0) {
         segments.forEach((seg, sIdx) => { 
           const msg = { id: genId(), role: 'char', type: 'text', content: seg, time: Date.now() };
-          // 把 quote 附加到第一条气泡
           if (sIdx === 0 && chat._pendingQuote) {
             msg.quote = { ...chat._pendingQuote };
           }
@@ -9458,7 +9541,6 @@ function loadMomentsData() {
         chat.imagePool = avatars.concat(photos);
       });
       saveJianxunChats();
-      // 仅在头像感知开启时推送 awareness
       if (loadAvatarAwareSetting()) pushAwareness('用户更换了新的头像');
       input.value = '';
     });
@@ -9789,6 +9871,11 @@ async function replyToMomentsComment(chat, postId, userComment) {
 }
 
 initGlobalFontSizeControl();
+
+initBeautifyPresets().then(() => {
+  updatePresetList();
+  updateBeautifyPresetList();
+}).catch(e => console.warn('初始化预设失败', e));
 </script>
 
 </body>
