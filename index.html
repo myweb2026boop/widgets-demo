@@ -1554,14 +1554,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
           <p class="hint-text">开启后，角色能看见你的头像与照片，并能使用换头像、引用图片、发起情头申请等与头像相关的功能；关闭后角色完全不知道你的头像，也不会主动提及或使用任何头像相关话题（默认关闭）。</p>
         </div>
-        <div class="section-card">
-          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg> 朋友圈互动</h4>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:14px; color:#444;">允许角色主动发朋友圈</span>
-            <div class="jx-switch" id="charPostMomentSwitch" onclick="toggleCharPostMoment()"></div>
-          </div>
-          <p class="hint-text">开启后，角色在聊天时会根据上下文、心情自行发朋友圈。关闭后，角色不能主动发朋友圈，但依然可以读取你的朋友圈内容，并进行点赞和评论。</p>
-        </div>
         <div class="section-card highlight-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> API 配置（角色回复将使用此配置）</h4>
           <div class="form-group"><label>API 地址（Endpoint）</label><input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1"><p class="hint-text" style="margin-top:4px;">可填 base URL（如 https://xxx/v1），也可填完整端点（如 https://xxx/v1/chat/completions）。</p></div>
@@ -1613,6 +1605,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
           <input type="file" id="importAllDataInput" accept=".json,application/json" style="display: none;">
           <p class="hint-text">包含所有 App 设置、人设、世界书、API 配置、美化数据、聊天记录、朋友圈等全部内容。<br>导入将<b>覆盖</b>当前所有数据，请谨慎操作。</p>
+        </div>
+        <div class="section-card">
+          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 清理数据</h4>
+          <button class="btn btn-danger" onclick="cleanupAllChatImages()" style="width:100%">清理所有聊天及朋友圈图片</button>
+          <p class="hint-text">清理所有聊天中的图片消息和朋友圈图片，文字和聊天记录不受影响，用于释放空间。</p>
         </div>
       </div>
     </div>
@@ -2126,6 +2123,10 @@ https://xxx.com/a.png
             <span class="label">允许主动发消息</span>
             <div class="jx-switch" id="jxAllowActiveSwitch" onclick="toggleSetting('allowActive')"></div>
           </div>
+          <div class="jx-info-item">
+            <span class="label">允许角色主动发朋友圈</span>
+            <div class="jx-switch" id="jxCharPostMomentSwitch" onclick="toggleSetting('charPostMoment')"></div>
+          </div>
           <div class="jx-info-item" onclick="changeMaxReply()">
             <span class="label">一次最多回复句数</span>
             <div class="value"><span id="jxMaxReplyText">1句</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
@@ -2189,10 +2190,6 @@ https://xxx.com/a.png
           </div>
           <div class="jx-info-item" onclick="clearChatHistory()">
             <span class="label">清空聊天记录</span>
-            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
-          </div>
-          <div class="jx-info-item" onclick="cleanupChatImages()">
-            <span class="label">清理聊天图片释放空间</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
@@ -3521,10 +3518,6 @@ function toggleAvatarAware() {
 function loadCharPostMomentSetting() {
   return localStorage.getItem(CHAR_POST_MOMENT_KEY) !== 'false';
 }
-function applyCharPostMomentUI() {
-  const el = document.getElementById('charPostMomentSwitch');
-  if (el) el.className = 'jx-switch' + (loadCharPostMomentSetting() ? ' on' : '');
-}
 function toggleCharPostMoment() {
   const v = !loadCharPostMomentSetting();
   localStorage.setItem(CHAR_POST_MOMENT_KEY, v ? 'true' : 'false');
@@ -3597,7 +3590,6 @@ function openSettingsApp() {
   applyRealTimeUI();
   applyNotificationBgUI();
   applyAvatarAwareUI();
-  applyCharPostMomentUI();
   const statusEl = document.getElementById('apiTestStatus');
   if (statusEl) { statusEl.style.display = 'none'; statusEl.innerText = ''; statusEl.classList.remove('ok', 'fail', 'pending'); }
   const box = document.getElementById('modelListBox');
@@ -5136,86 +5128,98 @@ function showCopyDialog(text) {
 }
 
 async function exportAllData() {
-  try {
-    const localData = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      localData[key] = localStorage.getItem(key);
+  if (window._isExporting) return;
+  window._isExporting = true;
+  setTimeout(async () => {
+    try {
+      const localData = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        localData[key] = localStorage.getItem(key);
+      }
+      const chatData = await idbGet(STORE_CHATS, 'main') || [];
+      const momentData = await idbGet(STORE_CHATS, 'moments') || [];
+      const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
+      const imageKeys = await idbGetAllKeys(STORE_IMAGES);
+      const imageData = {};
+      for (const k of imageKeys) {
+        imageData[k] = await idbGet(STORE_IMAGES, k);
+      }
+      const fontData = await getFontFromDB();
+      let fontB64 = null, fontOrigSize = 0;
+      if (fontData && fontData.data) {
+        fontB64 = ab2b64(fontData.data);
+        fontOrigSize = fontData.origSize;
+      }
+      const musicSongs = await musicDBGetAll();
+      const backup = { 
+        type: 'full',
+        localStorage: localData, 
+        indexedDB: { chats: chatData, moments: momentData, images: imageData, beautifyPresets: beautifyPresetsData },
+        font: { b64: fontB64, size: fontOrigSize },
+        music: musicSongs,
+        beautifyPresets: beautifyPresetsData
+      };
+      const json = JSON.stringify(backup); // 不格式化，防止卡死
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `TuTooth_AllData_${new Date().getTime()}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      alert('导出失败：' + (e.message || '未知错误'));
+    } finally {
+      window._isExporting = false;
     }
-    const chatData = await idbGet(STORE_CHATS, 'main') || [];
-    const momentData = await idbGet(STORE_CHATS, 'moments') || [];
-    const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
-    const imageKeys = await idbGetAllKeys(STORE_IMAGES);
-    const imageData = {};
-    for (const k of imageKeys) {
-      imageData[k] = await idbGet(STORE_IMAGES, k);
-    }
-    const fontData = await getFontFromDB();
-    let fontB64 = null, fontOrigSize = 0;
-    if (fontData && fontData.data) {
-      fontB64 = ab2b64(fontData.data);
-      fontOrigSize = fontData.origSize;
-    }
-    const musicSongs = await musicDBGetAll();
-    const backup = { 
-      type: 'full',
-      localStorage: localData, 
-      indexedDB: { chats: chatData, moments: momentData, images: imageData, beautifyPresets: beautifyPresetsData },
-      font: { b64: fontB64, size: fontOrigSize },
-      music: musicSongs,
-      beautifyPresets: beautifyPresetsData
-    };
-    const json = JSON.stringify(backup, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `TuTooth_AllData_${new Date().getTime()}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch (e) {
-    alert('导出失败：' + (e.message || '未知错误'));
-  }
+  }, 100);
 }
 
 async function exportBeautifyData() {
-    try {
-        const keysToExport = [
-            'user_custom_css', 'user_font_size_scale', 'uploaded_captcha_image',
-            'is_fullscreen', 'dark_mode', 'app_name_beautify', 'app_name_wechat',
-            'app_name_qqmusic', 'app_name_persona', 'app_name_book', 'app_name_play',
-            'app_name_clock', 'app_name_avatarlib', 'app_icon_beautify', 'app_icon_wechat',
-            'app_icon_qqmusic', 'app_icon_persona', 'app_icon_book', 'app_icon_play',
-            'app_icon_clock', 'app_icon_avatarlib', 'uploaded_icon_1', 'uploaded_icon_2',
-            'saved_wallpaper'
-        ];
-        const localData = {};
-        keysToExport.forEach(k => {
-            const val = localStorage.getItem(k);
-            if (val) localData[k] = val;
-        });
-        const fontData = await getFontFromDB();
-        let fontB64 = null, fontOrigSize = 0;
-        if (fontData && fontData.data) {
-            fontB64 = ab2b64(fontData.data);
-            fontOrigSize = fontData.origSize;
+    if (window._isExporting) return;
+    window._isExporting = true;
+    setTimeout(async () => {
+        try {
+            const keysToExport = [
+                'user_custom_css', 'user_font_size_scale', 'uploaded_captcha_image',
+                'is_fullscreen', 'dark_mode', 'app_name_beautify', 'app_name_wechat',
+                'app_name_qqmusic', 'app_name_persona', 'app_name_book', 'app_name_play',
+                'app_name_clock', 'app_name_avatarlib', 'app_icon_beautify', 'app_icon_wechat',
+                'app_icon_qqmusic', 'app_icon_persona', 'app_icon_book', 'app_icon_play',
+                'app_icon_clock', 'app_icon_avatarlib', 'uploaded_icon_1', 'uploaded_icon_2',
+                'saved_wallpaper'
+            ];
+            const localData = {};
+            keysToExport.forEach(k => {
+                const val = localStorage.getItem(k);
+                if (val) localData[k] = val;
+            });
+            const fontData = await getFontFromDB();
+            let fontB64 = null, fontOrigSize = 0;
+            if (fontData && fontData.data) {
+                fontB64 = ab2b64(fontData.data);
+                fontOrigSize = fontData.origSize;
+            }
+            const backup = { 
+                type: 'beautify',
+                localStorage: localData, 
+                font: { b64: fontB64, size: fontOrigSize }
+            };
+            const json = JSON.stringify(backup); // 不格式化
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TuTooth_Beautify_${new Date().getTime()}.json`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (e) {
+            alert('导出美化失败：' + (e.message || '未知错误'));
+        } finally {
+            window._isExporting = false;
         }
-        const backup = { 
-            type: 'beautify',
-            localStorage: localData, 
-            font: { b64: fontB64, size: fontOrigSize }
-        };
-        const json = JSON.stringify(backup, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `TuTooth_Beautify_${new Date().getTime()}.json`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (e) {
-        alert('导出美化失败：' + (e.message || '未知错误'));
-    }
+    }, 100);
 }
 
 async function importAllData(jsonStr, isBeautify = false) {
@@ -5333,6 +5337,52 @@ function importSingleChat() {
         reader.readAsText(file);
     };
     input.click();
+}
+
+async function cleanupAllChatImages() {
+    if (!confirm('确定清理所有聊天及朋友圈中的图片以释放空间吗？图片消息将变为文字提示。')) return;
+    try {
+        let cleanedCount = 0;
+        let allChats = await idbGet(STORE_CHATS, 'main') || [];
+        allChats.forEach(chat => {
+            if (Array.isArray(chat.imagePool)) chat.imagePool = chat.imagePool.filter(img => img.isAvatar);
+            if (Array.isArray(chat.messages)) {
+                chat.messages.forEach(m => {
+                    if (m.type === 'image' || m.type === 'sticker') {
+                        if (m.image) cleanedCount++;
+                        delete m.image;
+                        m.type = 'text';
+                        m.content = '[图片已清理]';
+                    }
+                });
+            }
+        });
+        await idbSet(STORE_CHATS, 'main', allChats);
+        
+        let allMoments = await idbGet(STORE_CHATS, 'moments') || [];
+        allMoments = allMoments.map(post => {
+            if (post.images && post.images.length > 0) {
+                cleanedCount += post.images.length;
+                post.images = [];
+                post.content = post.content + ' [图片已清理]';
+            }
+            return post;
+        });
+        await idbSet(STORE_CHATS, 'moments', allMoments);
+        
+        await loadJianxunChats();
+        await loadMomentsPosts();
+        
+        if (document.getElementById('jxChatScreen').classList.contains('active')) {
+            renderChatMessages();
+        }
+        renderJianxunChatList();
+        renderMomentsPosts();
+        
+        alert(`已清理 ${cleanedCount} 张图片。`);
+    } catch(e) {
+        alert('清理失败：' + e.message);
+    }
 }
 
 (function initAllDataBackup() {
@@ -6641,6 +6691,7 @@ async function loadJianxunChats() {
     if (!chat.messages) chat.messages = [];
     if (chat.pinned === undefined) chat.pinned = false;
     if (chat.allowActive === undefined) chat.allowActive = false;
+    if (chat.charPostMoment === undefined) chat.charPostMoment = loadCharPostMomentSetting();
     if (chat.maxReply === undefined) chat.maxReply = 1;
     if (chat.customRemark === undefined) chat.customRemark = '';
     if (chat.chatBg === undefined) chat.chatBg = '';
@@ -8239,7 +8290,7 @@ function buildMemoryPrompt(chat) {
 function buildCharSystemPrompt(chat, isProactive = false) {
   loadPersonaList();
   const avatarAware = loadAvatarAwareSetting();
-  const charPostMoment = loadCharPostMomentSetting();
+  const charPostMoment = chat.charPostMoment !== false;
   const persona = personaList.find(p => p.name === chat.name);
   const activeMask = getActiveMaskForChat(chat);
   const userRealName = activeMask ? getMaskRealName(activeMask) : (localStorage.getItem('moments_name') || '用户');
@@ -9279,6 +9330,7 @@ function openChatInfo() {
   document.getElementById('jxInfoAvatarImg').src = chat.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3C/svg%3E";
   document.getElementById('jxInfoName').innerText = chat.customRemark || chat.name || '用户';
   document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
+  document.getElementById('jxCharPostMomentSwitch').className = 'jx-switch' + (chat.charPostMoment !== false ? ' on' : '');
   document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
   document.getElementById('jxRemarkText').innerText = chat.customRemark || '未设置';
   const boundCount = Array.isArray(chat.boundWorldBook) ? chat.boundWorldBook.length : 0;
@@ -9373,6 +9425,7 @@ function toggleSetting(key) {
   if (!chat) return;
   chat[key] = !chat[key];
   if (key === 'allowActive') document.getElementById('jxAllowActiveSwitch').className = 'jx-switch' + (chat.allowActive ? ' on' : '');
+  else if (key === 'charPostMoment') document.getElementById('jxCharPostMomentSwitch').className = 'jx-switch' + (chat.charPostMoment ? ' on' : '');
   else if (key === 'pinned') document.getElementById('jxPinnedSwitch').className = 'jx-switch' + (chat.pinned ? ' on' : '');
   else if (key === 'memoryEnabled') { const el = document.getElementById('jxMemoryEnabledSwitch'); if (el) el.className = 'jx-switch' + (chat.memoryEnabled ? ' on' : ''); }
   saveJianxunChats();
@@ -9618,7 +9671,7 @@ function addPersonaToChat(index) {
   const currentMaskId = getCurrentMaskId();
   jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
-    messages: [], pinned: false, allowActive: false, maxReply: 1, customRemark: '',
+    messages: [], pinned: false, allowActive: false, charPostMoment: loadCharPostMomentSetting(), maxReply: 1, customRemark: '',
     boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
     userAvatarByChar: false,
