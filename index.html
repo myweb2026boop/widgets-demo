@@ -3938,6 +3938,37 @@ function compressImageFile(file, maxDim, quality) {
   });
 }
 
+async function compressBase64Image(base64, maxDim = 800, quality = 0.7) {
+  return new Promise((resolve) => {
+    if (!base64 || !base64.startsWith('data:image')) return resolve(base64);
+    if (base64.length < 150000) return resolve(base64);
+    
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        const scale = maxDim / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      try {
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      } catch(e) {
+        resolve(base64);
+      }
+    };
+    img.onerror = () => resolve(base64);
+    img.src = base64;
+  });
+}
+
 (function initMusicApp() {
   const musicBgArea = document.getElementById('musicBgArea');
   const musicBgInput = document.getElementById('musicBgInput');
@@ -5114,29 +5145,44 @@ function updatePresetList() {
   if (delBtn) delBtn.addEventListener('click', deleteBeautifyPreset);
 })();
 
-function showCopyDialog(text) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-    overlay.innerHTML = `
-        <div style="background:#fff;border-radius:12px;width:100%;max-width:500px;padding:16px;display:flex;flex-direction:column;gap:10px;max-height:80vh;">
-            <div style="font-size:16px;font-weight:600;color:#333;">导出数据（请全选复制）</div>
-            <textarea style="flex:1;width:100%;height:300px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:12px;font-family:monospace;resize:none;" readonly>${text}</textarea>
-            <button style="padding:10px;background:#07c160;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">关闭</button>
-        </div>
-    `;
-    document.body.appendChild(overlay);
+function showLoadingOverlay(text) {
+  const div = document.createElement('div');
+  div.id = 'loadingOverlay';
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-size:16px;';
+  div.innerHTML = `<div style="margin-bottom:16px;">${text}</div><div style="width:30px;height:30px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>`;
+  if (!document.getElementById('spinStyle')) {
+    const style = document.createElement('style');
+    style.id = 'spinStyle';
+    style.textContent = '@keyframes spin { 100% { transform: rotate(360deg); } }';
+    document.head.appendChild(style);
+  }
+  document.body.appendChild(div);
+  return div;
 }
 
 async function exportAllData() {
   if (window._isExporting) return;
   window._isExporting = true;
+  const overlay = showLoadingOverlay('正在打包数据，请稍候...');
+  
   setTimeout(async () => {
     try {
+      // 1. 抓取所有数据
       const localData = {};
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         localData[key] = localStorage.getItem(key);
       }
+      // 压缩 localStorage 里的大图
+      const bigImageKeys = ['uploaded_captcha_image', 'music_bg', 'music_avatar', 'music_vinyl_cover', 'saved_wallpaper', 'moments_avatar'];
+      for (let key in localData) {
+        if (bigImageKeys.includes(key) || key.startsWith('app_icon_') || key.startsWith('uploaded_icon_')) {
+          if (localData[key] && localData[key].startsWith('data:image')) {
+            localData[key] = await compressBase64Image(localData[key], 800, 0.7);
+          }
+        }
+      }
+      
       const chatData = await idbGet(STORE_CHATS, 'main') || [];
       const momentData = await idbGet(STORE_CHATS, 'moments') || [];
       const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
@@ -5145,6 +5191,40 @@ async function exportAllData() {
       for (const k of imageKeys) {
         imageData[k] = await idbGet(STORE_IMAGES, k);
       }
+      
+      // 2. 压缩聊天记录和朋友圈图片
+      for (let i = 0; i < chatData.length; i++) {
+        const chat = chatData[i];
+        if (chat.avatar) chat.avatar = await compressBase64Image(chat.avatar, 300, 0.7);
+        if (chat.myAvatar) chat.myAvatar = await compressBase64Image(chat.myAvatar, 300, 0.7);
+        if (chat.chatBg) chat.chatBg = await compressBase64Image(chat.chatBg, 800, 0.7);
+        if (Array.isArray(chat.imagePool)) {
+          for (let j = 0; j < chat.imagePool.length; j++) {
+            if (chat.imagePool[j].data) {
+              chat.imagePool[j].data = await compressBase64Image(chat.imagePool[j].data, 600, 0.7);
+            }
+          }
+        }
+        if (Array.isArray(chat.messages)) {
+          for (let j = 0; j < chat.messages.length; j++) {
+            const msg = chat.messages[j];
+            if ((msg.type === 'image' || msg.type === 'sticker') && msg.image) {
+              msg.image = await compressBase64Image(msg.image, 600, 0.7);
+            }
+          }
+        }
+      }
+      
+      for (let i = 0; i < momentData.length; i++) {
+        const post = momentData[i];
+        if (post.authorAvatar) post.authorAvatar = await compressBase64Image(post.authorAvatar, 300, 0.7);
+        if (Array.isArray(post.images)) {
+          for (let j = 0; j < post.images.length; j++) {
+            post.images[j] = await compressBase64Image(post.images[j], 800, 0.7);
+          }
+        }
+      }
+      
       const fontData = await getFontFromDB();
       let fontB64 = null, fontOrigSize = 0;
       if (fontData && fontData.data) {
@@ -5152,23 +5232,56 @@ async function exportAllData() {
         fontOrigSize = fontData.origSize;
       }
       const musicSongs = await musicDBGetAll();
-      const backup = { 
-        type: 'full',
-        localStorage: localData, 
-        indexedDB: { chats: chatData, moments: momentData, images: imageData, beautifyPresets: beautifyPresetsData },
-        font: { b64: fontB64, size: fontOrigSize },
-        music: musicSongs,
-        beautifyPresets: beautifyPresetsData
-      };
-      const json = JSON.stringify(backup); // 不格式化，防止卡死
-      const blob = new Blob([json], { type: 'application/json' });
+      
+      // 3. 分段生成 Blob 避免大字符串
+      const parts = [];
+      parts.push('{"type":"full",');
+      parts.push('"localStorage":' + JSON.stringify(localData) + ',');
+      if (fontB64) {
+        parts.push('"font":{"b64":"');
+        const chunkSize = 1024 * 1024;
+        for (let i = 0; i < fontB64.length; i += chunkSize) {
+          parts.push(fontB64.substring(i, i + chunkSize));
+        }
+        parts.push('","size":' + fontOrigSize + '},');
+      } else {
+        parts.push('"font":null,');
+      }
+      parts.push('"music":' + JSON.stringify(musicSongs) + ',');
+      parts.push('"beautifyPresets":' + JSON.stringify(beautifyPresetsData) + ',');
+      
+      parts.push('"indexedDB":{"chats":[');
+      for (let i = 0; i < chatData.length; i++) {
+        if (i > 0) parts.push(',');
+        parts.push(JSON.stringify(chatData[i]));
+      }
+      parts.push('],');
+      
+      parts.push('"moments":[');
+      for (let i = 0; i < momentData.length; i++) {
+        if (i > 0) parts.push(',');
+        parts.push(JSON.stringify(momentData[i]));
+      }
+      parts.push('],');
+      
+      parts.push('"images":' + JSON.stringify(imageData) + ',');
+      parts.push('"beautifyPresets":' + JSON.stringify(beautifyPresetsData) + '}');
+      parts.push('}');
+      
+      const blob = new Blob(parts, { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `TuTooth_AllData_${new Date().getTime()}.json`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      
+      overlay.remove();
+      alert('导出成功！图片已进行自适应压缩以保证数据完整且可成功下载。');
     } catch (e) {
+      overlay.remove();
       alert('导出失败：' + (e.message || '未知错误'));
     } finally {
       window._isExporting = false;
@@ -5179,6 +5292,7 @@ async function exportAllData() {
 async function exportBeautifyData() {
     if (window._isExporting) return;
     window._isExporting = true;
+    const overlay = showLoadingOverlay('正在打包美化数据...');
     setTimeout(async () => {
         try {
             const keysToExport = [
@@ -5191,30 +5305,51 @@ async function exportBeautifyData() {
                 'saved_wallpaper'
             ];
             const localData = {};
-            keysToExport.forEach(k => {
-                const val = localStorage.getItem(k);
-                if (val) localData[k] = val;
-            });
+            for (let i = 0; i < keysToExport.length; i++) {
+                const k = keysToExport[i];
+                let val = localStorage.getItem(k);
+                if (val) {
+                    if (val.startsWith('data:image')) {
+                        val = await compressBase64Image(val, 1000, 0.7);
+                    }
+                    localData[k] = val;
+                }
+            }
+            
             const fontData = await getFontFromDB();
             let fontB64 = null, fontOrigSize = 0;
             if (fontData && fontData.data) {
                 fontB64 = ab2b64(fontData.data);
                 fontOrigSize = fontData.origSize;
             }
-            const backup = { 
-                type: 'beautify',
-                localStorage: localData, 
-                font: { b64: fontB64, size: fontOrigSize }
-            };
-            const json = JSON.stringify(backup); // 不格式化
-            const blob = new Blob([json], { type: 'application/json' });
+            
+            const parts = [];
+            parts.push('{"type":"beautify",');
+            parts.push('"localStorage":' + JSON.stringify(localData) + ',');
+            if (fontB64) {
+              parts.push('"font":{"b64":"');
+              const chunkSize = 1024 * 1024;
+              for (let i = 0; i < fontB64.length; i += chunkSize) {
+                parts.push(fontB64.substring(i, i + chunkSize));
+              }
+              parts.push('","size":' + fontOrigSize + '}}');
+            } else {
+              parts.push('"font":null}');
+            }
+            
+            const blob = new Blob(parts, { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `TuTooth_Beautify_${new Date().getTime()}.json`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
+            
+            overlay.remove();
         } catch (e) {
+            overlay.remove();
             alert('导出美化失败：' + (e.message || '未知错误'));
         } finally {
             window._isExporting = false;
@@ -5223,12 +5358,16 @@ async function exportBeautifyData() {
 }
 
 async function importAllData(jsonStr, isBeautify = false) {
+  const overlay = showLoadingOverlay('正在恢复数据，请稍候...');
   try {
     const data = JSON.parse(jsonStr);
     if (!data) throw new Error('数据为空');
     
     if (isBeautify && data.type !== 'beautify') {
-      if (!confirm('导入的文件不是美化文件，确定要继续吗？')) return;
+      if (!confirm('导入的文件不是美化文件，确定要继续吗？')) {
+        overlay.remove();
+        return;
+      }
     }
     
     if (data.localStorage) {
@@ -5272,9 +5411,11 @@ async function importAllData(jsonStr, isBeautify = false) {
       }
     }
     
+    overlay.remove();
     alert('导入成功！页面即将重新加载。');
     location.reload();
   } catch(e) {
+    overlay.remove();
     alert('导入失败：' + (e.message || '文件损坏或格式不正确'));
   }
 }
@@ -5283,20 +5424,52 @@ async function exportSingleChat() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
   if (chat.messages.length === 0) { alert('当前聊天没有可导出的记录'); return; }
-  const exportData = {
-    chatName: chat.customRemark || chat.name,
-    avatar: chat.avatar,
-    exportTime: new Date().toLocaleString(),
-    messages: chat.messages
-  };
-  const json = JSON.stringify(exportData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.json`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  
+  const overlay = showLoadingOverlay('正在打包聊天记录...');
+  try {
+    const exportData = {
+      chatName: chat.customRemark || chat.name,
+      avatar: chat.avatar,
+      exportTime: new Date().toLocaleString(),
+      messages: []
+    };
+    
+    // 压缩单聊记录里的图片
+    for (let i = 0; i < chat.messages.length; i++) {
+      const msg = JSON.parse(JSON.stringify(chat.messages[i]));
+      if ((msg.type === 'image' || msg.type === 'sticker') && msg.image) {
+        msg.image = await compressBase64Image(msg.image, 600, 0.7);
+      }
+      exportData.messages.push(msg);
+    }
+    if (exportData.avatar) exportData.avatar = await compressBase64Image(exportData.avatar, 300, 0.7);
+    
+    const parts = [];
+    parts.push('{"chatName":' + JSON.stringify(exportData.chatName) + ',');
+    parts.push('"avatar":' + JSON.stringify(exportData.avatar) + ',');
+    parts.push('"exportTime":' + JSON.stringify(exportData.exportTime) + ',');
+    parts.push('"messages":[');
+    for (let i = 0; i < exportData.messages.length; i++) {
+      if (i > 0) parts.push(',');
+      parts.push(JSON.stringify(exportData.messages[i]));
+    }
+    parts.push(']}');
+    
+    const blob = new Blob(parts, { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    
+    overlay.remove();
+  } catch(e) {
+    overlay.remove();
+    alert('导出失败：' + e.message);
+  }
 }
 
 function importSingleChat() {
@@ -5306,12 +5479,14 @@ function importSingleChat() {
     input.onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        const overlay = showLoadingOverlay('正在导入聊天记录...');
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
                 const data = JSON.parse(event.target.result);
                 if (!data || !Array.isArray(data.messages)) {
                     alert('文件格式不正确，缺少 messages 字段');
+                    overlay.remove();
                     return;
                 }
                 const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -5329,8 +5504,10 @@ function importSingleChat() {
                 saveJianxunChats();
                 renderChatMessages();
                 renderJianxunChatList();
+                overlay.remove();
                 alert(`成功导入 ${addedCount} 条聊天记录`);
             } catch (err) {
+                overlay.remove();
                 alert('导入失败：' + (err.message || '文件解析错误'));
             }
         };
@@ -5341,6 +5518,7 @@ function importSingleChat() {
 
 async function cleanupAllChatImages() {
     if (!confirm('确定清理所有聊天及朋友圈中的图片以释放空间吗？图片消息将变为文字提示。')) return;
+    const overlay = showLoadingOverlay('正在清理图片...');
     try {
         let cleanedCount = 0;
         let allChats = await idbGet(STORE_CHATS, 'main') || [];
@@ -5379,8 +5557,10 @@ async function cleanupAllChatImages() {
         renderJianxunChatList();
         renderMomentsPosts();
         
+        overlay.remove();
         alert(`已清理 ${cleanedCount} 张图片。`);
     } catch(e) {
+        overlay.remove();
         alert('清理失败：' + e.message);
     }
 }
