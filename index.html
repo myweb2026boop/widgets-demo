@@ -1435,8 +1435,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <button class="btn btn-primary" id="exportBeautifyBtn">导出美化</button>
             <button class="btn btn-success" id="importBeautifyBtn">导入美化</button>
           </div>
-          <input type="file" id="importBeautifyInput" accept=".json,application/json" style="display: none;">
-          <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：仅导出/导入壁纸、图标、CSS、字体等外观数据，不包含聊天记录。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
+          <input type="file" id="importBeautifyInput" accept=".zip,.json" style="display: none;">
+          <p style="font-size: 12px; color: #666; margin-top: 8px;">提示：仅导出/导入壁纸、图标、CSS、字体等外观数据，不包含聊天记录。打包为ZIP格式防止白屏。如果手机无法下载，可以长按弹窗中的代码进行复制备份。</p>
         </div>
         <div class="section-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg> 夜间模式</h4>
@@ -1603,8 +1603,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <button class="btn btn-primary" id="exportAllDataBtn">导出全部数据</button>
             <button class="btn btn-success" id="importAllDataBtn">导入全部数据</button>
           </div>
-          <input type="file" id="importAllDataInput" accept=".json,application/json" style="display: none;">
-          <p class="hint-text">包含所有 App 设置、人设、世界书、API 配置、美化数据、聊天记录、朋友圈等全部内容。<br>导入将<b>覆盖</b>当前所有数据，请谨慎操作。</p>
+          <input type="file" id="importAllDataInput" accept=".zip,.json" style="display: none;">
+          <p class="hint-text">包含所有 App 设置、人设、世界书、API 配置、美化数据、聊天记录、朋友圈等全部内容，打包为ZIP格式防止内存溢出。<br>导入将<b>覆盖</b>当前所有数据，请谨慎操作。</p>
         </div>
         <div class="section-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 清理数据</h4>
@@ -3938,35 +3938,34 @@ function compressImageFile(file, maxDim, quality) {
   });
 }
 
-async function compressBase64Image(base64, maxDim = 800, quality = 0.7) {
-  return new Promise((resolve) => {
-    if (!base64 || !base64.startsWith('data:image')) return resolve(base64);
-    if (base64.length < 150000) return resolve(base64);
-    
-    const img = new Image();
-    img.onload = () => {
-      let w = img.width, h = img.height;
-      if (w > maxDim || h > maxDim) {
-        const scale = maxDim / Math.max(w, h);
-        w = Math.round(w * scale);
-        h = Math.round(h * scale);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
-      try {
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      } catch(e) {
-        resolve(base64);
-      }
-    };
-    img.onerror = () => resolve(base64);
-    img.src = base64;
-  });
+async function ultraCompressImage(base64, maxDim = 400, quality = 0.5) {
+    if (!base64 || !base64.startsWith('data:image')) return base64;
+    if (base64.length < 30000) return base64;
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+                const scale = maxDim / Math.max(w, h);
+                w = Math.round(w * scale);
+                h = Math.round(h * scale);
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            try {
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            } catch(e) {
+                resolve(base64);
+            }
+        };
+        img.onerror = () => resolve(base64);
+        img.src = base64;
+    });
 }
 
 (function initMusicApp() {
@@ -5163,126 +5162,127 @@ function showLoadingOverlay(text) {
 async function exportAllData() {
   if (window._isExporting) return;
   window._isExporting = true;
-  const overlay = showLoadingOverlay('正在打包数据，请稍候...');
-  
+  const overlay = showLoadingOverlay('正在深度压缩并打包 (ZIP)，请稍候...');
+
   setTimeout(async () => {
     try {
-      // 1. 抓取所有数据
+      const zip = new JSZip();
+      
+      // 1. LocalStorage
       const localData = {};
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        localData[key] = localStorage.getItem(key);
-      }
-      // 压缩 localStorage 里的大图
-      const bigImageKeys = ['uploaded_captcha_image', 'music_bg', 'music_avatar', 'music_vinyl_cover', 'saved_wallpaper', 'moments_avatar'];
-      for (let key in localData) {
-        if (bigImageKeys.includes(key) || key.startsWith('app_icon_') || key.startsWith('uploaded_icon_')) {
-          if (localData[key] && localData[key].startsWith('data:image')) {
-            localData[key] = await compressBase64Image(localData[key], 800, 0.7);
-          }
+        let val = localStorage.getItem(key);
+        if (val && val.startsWith('data:image')) {
+            val = await ultraCompressImage(val, 500, 0.5);
         }
+        localData[key] = val;
       }
+      zip.file('localStorage.json', JSON.stringify(localData));
       
+      // 2. IndexedDB - Chats
       const chatData = await idbGet(STORE_CHATS, 'main') || [];
-      const momentData = await idbGet(STORE_CHATS, 'moments') || [];
-      const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
-      const imageKeys = await idbGetAllKeys(STORE_IMAGES);
-      const imageData = {};
-      for (const k of imageKeys) {
-        imageData[k] = await idbGet(STORE_IMAGES, k);
-      }
+      const chatChunks = [];
+      let currentChunk = [];
       
-      // 2. 压缩聊天记录和朋友圈图片
       for (let i = 0; i < chatData.length; i++) {
         const chat = chatData[i];
-        if (chat.avatar) chat.avatar = await compressBase64Image(chat.avatar, 300, 0.7);
-        if (chat.myAvatar) chat.myAvatar = await compressBase64Image(chat.myAvatar, 300, 0.7);
-        if (chat.chatBg) chat.chatBg = await compressBase64Image(chat.chatBg, 800, 0.7);
+        if (chat.avatar) chat.avatar = await ultraCompressImage(chat.avatar, 200, 0.5);
+        if (chat.myAvatar) chat.myAvatar = await ultraCompressImage(chat.myAvatar, 200, 0.5);
+        if (chat.chatBg) chat.chatBg = await ultraCompressImage(chat.chatBg, 500, 0.5);
         if (Array.isArray(chat.imagePool)) {
-          for (let j = 0; j < chat.imagePool.length; j++) {
-            if (chat.imagePool[j].data) {
-              chat.imagePool[j].data = await compressBase64Image(chat.imagePool[j].data, 600, 0.7);
+            for (let j = 0; j < chat.imagePool.length; j++) {
+                chat.imagePool[j].data = await ultraCompressImage(chat.imagePool[j].data, 400, 0.5);
             }
-          }
         }
         if (Array.isArray(chat.messages)) {
-          for (let j = 0; j < chat.messages.length; j++) {
-            const msg = chat.messages[j];
-            if ((msg.type === 'image' || msg.type === 'sticker') && msg.image) {
-              msg.image = await compressBase64Image(msg.image, 600, 0.7);
+            for (let j = 0; j < chat.messages.length; j++) {
+                const msg = chat.messages[j];
+                if ((msg.type === 'image' || msg.type === 'sticker') && msg.image) {
+                    msg.image = await ultraCompressImage(msg.image, 400, 0.5);
+                }
+                if (msg.type === 'merged' && Array.isArray(msg.items)) {
+                    for (let k = 0; k < msg.items.length; k++) {
+                         if (msg.items[k].image) {
+                             msg.items[k].image = await ultraCompressImage(msg.items[k].image, 400, 0.5);
+                         }
+                    }
+                }
             }
-          }
+        }
+        
+        currentChunk.push(chat);
+        // 分块，避免单个JSON过大
+        if (currentChunk.length >= 3) {
+            chatChunks.push(currentChunk);
+            currentChunk = [];
         }
       }
+      if (currentChunk.length > 0) chatChunks.push(currentChunk);
       
+      chatChunks.forEach((chunk, idx) => {
+         zip.file(`chats/chats_${idx}.json`, JSON.stringify(chunk));
+      });
+
+      // 3. IndexedDB - Moments
+      const momentData = await idbGet(STORE_CHATS, 'moments') || [];
       for (let i = 0; i < momentData.length; i++) {
         const post = momentData[i];
-        if (post.authorAvatar) post.authorAvatar = await compressBase64Image(post.authorAvatar, 300, 0.7);
+        if (post.authorAvatar) post.authorAvatar = await ultraCompressImage(post.authorAvatar, 200, 0.5);
         if (Array.isArray(post.images)) {
-          for (let j = 0; j < post.images.length; j++) {
-            post.images[j] = await compressBase64Image(post.images[j], 800, 0.7);
-          }
+            for (let j = 0; j < post.images.length; j++) {
+                post.images[j] = await ultraCompressImage(post.images[j], 500, 0.5);
+            }
         }
       }
-      
+      zip.file('moments.json', JSON.stringify(momentData));
+
+      // 4. Beautify Presets
+      const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
+      zip.file('beautify_presets.json', JSON.stringify(beautifyPresetsData));
+
+      // 5. Font
       const fontData = await getFontFromDB();
-      let fontB64 = null, fontOrigSize = 0;
       if (fontData && fontData.data) {
-        fontB64 = ab2b64(fontData.data);
-        fontOrigSize = fontData.origSize;
+          zip.file('font.ttf', fontData.data);
+          zip.file('font_meta.json', JSON.stringify({ origSize: fontData.origSize }));
       }
+
+      // 6. Music
       const musicSongs = await musicDBGetAll();
-      
-      // 3. 分段生成 Blob 避免大字符串
-      const parts = [];
-      parts.push('{"type":"full",');
-      parts.push('"localStorage":' + JSON.stringify(localData) + ',');
-      if (fontB64) {
-        parts.push('"font":{"b64":"');
-        const chunkSize = 1024 * 1024;
-        for (let i = 0; i < fontB64.length; i += chunkSize) {
-          parts.push(fontB64.substring(i, i + chunkSize));
-        }
-        parts.push('","size":' + fontOrigSize + '},');
-      } else {
-        parts.push('"font":null,');
+      const musicMeta = [];
+      for (const s of musicSongs) {
+          if (s.url && s.url.startsWith('data:')) {
+             const base64Data = s.url.split(',')[1];
+             zip.file(`music/${s.id}.bin`, base64Data, {base64: true});
+             const meta = { ...s };
+             delete meta.url; // URL 太大，不放在 meta
+             musicMeta.push(meta);
+          } else {
+             musicMeta.push(s); 
+          }
       }
-      parts.push('"music":' + JSON.stringify(musicSongs) + ',');
-      parts.push('"beautifyPresets":' + JSON.stringify(beautifyPresetsData) + ',');
-      
-      parts.push('"indexedDB":{"chats":[');
-      for (let i = 0; i < chatData.length; i++) {
-        if (i > 0) parts.push(',');
-        parts.push(JSON.stringify(chatData[i]));
-      }
-      parts.push('],');
-      
-      parts.push('"moments":[');
-      for (let i = 0; i < momentData.length; i++) {
-        if (i > 0) parts.push(',');
-        parts.push(JSON.stringify(momentData[i]));
-      }
-      parts.push('],');
-      
-      parts.push('"images":' + JSON.stringify(imageData) + ',');
-      parts.push('"beautifyPresets":' + JSON.stringify(beautifyPresetsData) + '}');
-      parts.push('}');
-      
-      const blob = new Blob(parts, { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
+      zip.file('music_meta.json', JSON.stringify(musicMeta));
+
+      // 生成 zip
+      const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }, (metadata) => {
+          overlay.innerHTML = `<div style="margin-bottom:16px;">打包中... ${metadata.percent.toFixed(1)}%</div><div style="width:30px;height:30px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>`;
+      });
+
+      const url = URL.createObjectURL(content);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `TuTooth_AllData_${new Date().getTime()}.json`;
+      a.download = `TuTooth_Backup_${new Date().getTime()}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      
+
       overlay.remove();
-      alert('导出成功！图片已进行自适应压缩以保证数据完整且可成功下载。');
-    } catch (e) {
+      alert('导出成功！保存为 ZIP 压缩包，包含完整的文字、结构，且图片已进行智能压缩以保证体积与内存安全。');
+    } catch(e) {
       overlay.remove();
-      alert('导出失败：' + (e.message || '未知错误'));
+      alert('导出失败：' + e.message);
     } finally {
       window._isExporting = false;
     }
@@ -5292,9 +5292,10 @@ async function exportAllData() {
 async function exportBeautifyData() {
     if (window._isExporting) return;
     window._isExporting = true;
-    const overlay = showLoadingOverlay('正在打包美化数据...');
+    const overlay = showLoadingOverlay('正在打包美化数据 (ZIP)...');
     setTimeout(async () => {
         try {
+            const zip = new JSZip();
             const keysToExport = [
                 'user_custom_css', 'user_font_size_scale', 'uploaded_captcha_image',
                 'is_fullscreen', 'dark_mode', 'app_name_beautify', 'app_name_wechat',
@@ -5310,43 +5311,30 @@ async function exportBeautifyData() {
                 let val = localStorage.getItem(k);
                 if (val) {
                     if (val.startsWith('data:image')) {
-                        val = await compressBase64Image(val, 1000, 0.7);
+                        val = await ultraCompressImage(val, 600, 0.6);
                     }
                     localData[k] = val;
                 }
             }
+            zip.file('localStorage.json', JSON.stringify(localData));
             
             const fontData = await getFontFromDB();
-            let fontB64 = null, fontOrigSize = 0;
             if (fontData && fontData.data) {
-                fontB64 = ab2b64(fontData.data);
-                fontOrigSize = fontData.origSize;
+                zip.file('font.ttf', fontData.data);
+                zip.file('font_meta.json', JSON.stringify({ origSize: fontData.origSize }));
             }
-            
-            const parts = [];
-            parts.push('{"type":"beautify",');
-            parts.push('"localStorage":' + JSON.stringify(localData) + ',');
-            if (fontB64) {
-              parts.push('"font":{"b64":"');
-              const chunkSize = 1024 * 1024;
-              for (let i = 0; i < fontB64.length; i += chunkSize) {
-                parts.push(fontB64.substring(i, i + chunkSize));
-              }
-              parts.push('","size":' + fontOrigSize + '}}');
-            } else {
-              parts.push('"font":null}');
-            }
-            
-            const blob = new Blob(parts, { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+
+            const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }, (metadata) => {
+                overlay.innerHTML = `<div style="margin-bottom:16px;">打包中... ${metadata.percent.toFixed(1)}%</div><div style="width:30px;height:30px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>`;
+            });
+            const url = URL.createObjectURL(content);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `TuTooth_Beautify_${new Date().getTime()}.json`;
+            a.download = `TuTooth_Beautify_${new Date().getTime()}.zip`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
-            
             overlay.remove();
         } catch (e) {
             overlay.remove();
@@ -5357,66 +5345,105 @@ async function exportBeautifyData() {
     }, 100);
 }
 
-async function importAllData(jsonStr, isBeautify = false) {
-  const overlay = showLoadingOverlay('正在恢复数据，请稍候...');
+async function importAllData(file) {
+  const overlay = showLoadingOverlay('正在解压并恢复数据...');
   try {
-    const data = JSON.parse(jsonStr);
-    if (!data) throw new Error('数据为空');
+    const zip = await JSZip.loadAsync(file);
     
-    if (isBeautify && data.type !== 'beautify') {
-      if (!confirm('导入的文件不是美化文件，确定要继续吗？')) {
-        overlay.remove();
-        return;
-      }
+    // 1. LocalStorage
+    const lsFile = zip.file('localStorage.json');
+    if (lsFile) {
+       const lsStr = await lsFile.async('string');
+       const data = JSON.parse(lsStr);
+       for (const key in data) {
+           try { localStorage.setItem(key, data[key]); } catch(e) {}
+       }
     }
-    
-    if (data.localStorage) {
-      for (const key in data.localStorage) {
-        if (Object.prototype.hasOwnProperty.call(data.localStorage, key)) {
-          try { localStorage.setItem(key, data.localStorage[key]); } catch(e) {}
+
+    // 2. Font
+    const fontFile = zip.file('font.ttf');
+    if (fontFile) {
+        const fontBuffer = await fontFile.async('arraybuffer');
+        const fontMetaFile = zip.file('font_meta.json');
+        let origSize = fontBuffer.byteLength;
+        if (fontMetaFile) {
+            const metaStr = await fontMetaFile.async('string');
+            const meta = JSON.parse(metaStr);
+            origSize = meta.origSize || origSize;
         }
-      }
+        await saveFontToDB(fontBuffer, origSize);
+    } else {
+        await deleteFontFromDB();
     }
-    
-    if (data.font && data.font.b64) {
-      const fontBuffer = b642ab(data.font.b64);
-      await saveFontToDB(fontBuffer, data.font.size);
+
+    // 3. Chats
+    const chatFiles = zip.file(/^chats\/chats_\d+\.json$/);
+    let allChats = [];
+    for (const f of chatFiles) {
+        const str = await f.async('string');
+        const chunk = JSON.parse(str);
+        if (Array.isArray(chunk)) allChats = allChats.concat(chunk);
     }
-    
-    if (!isBeautify) {
-      if (data.indexedDB) {
+    if (allChats.length > 0) {
         const chatKeys = await idbGetAllKeys(STORE_CHATS);
         for (const k of chatKeys) await idbDelete(STORE_CHATS, k);
+        await idbSet(STORE_CHATS, 'main', allChats);
+    }
+
+    // 4. Moments
+    const momentFile = zip.file('moments.json');
+    if (momentFile) {
+        const str = await momentFile.async('string');
+        const data = JSON.parse(str);
+        await idbSet(STORE_CHATS, 'moments', data);
+    }
+
+    // 5. Beautify Presets
+    const beautifyFile = zip.file('beautify_presets.json');
+    if (beautifyFile) {
+        const str = await beautifyFile.async('string');
+        const data = JSON.parse(str);
+        await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data);
+    }
+
+    // 6. Images
+    const imgFile = zip.file('images.json');
+    if (imgFile) {
+        const str = await imgFile.async('string');
+        const data = JSON.parse(str);
         const imgKeys = await idbGetAllKeys(STORE_IMAGES);
         for (const k of imgKeys) await idbDelete(STORE_IMAGES, k);
-        
-        if (data.indexedDB.chats) await idbSet(STORE_CHATS, 'main', data.indexedDB.chats);
-        if (data.indexedDB.moments) await idbSet(STORE_CHATS, 'moments', data.indexedDB.moments);
-        if (data.indexedDB.beautifyPresets) {
-          await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data.indexedDB.beautifyPresets);
+        for (const k in data) {
+            await idbSet(STORE_IMAGES, k, data[k]);
         }
-        if (data.indexedDB.images) {
-          for (const k in data.indexedDB.images) {
-            if (Object.prototype.hasOwnProperty.call(data.indexedDB.images, k)) {
-              await idbSet(STORE_IMAGES, k, data.indexedDB.images[k]);
-            }
-          }
-        }
-      }
-      if (Array.isArray(data.music)) {
-        await musicDBClear();
-        for (const s of data.music) {
-          if (s && s.id && s.url) await musicDBPut(s);
-        }
-      }
     }
-    
+
+    // 7. Music
+    const musicMetaFile = zip.file('music_meta.json');
+    if (musicMetaFile) {
+        await musicDBClear();
+        const metaStr = await musicMetaFile.async('string');
+        const metas = JSON.parse(metaStr);
+        for (const m of metas) {
+            if (m.url) {
+                await musicDBPut(m);
+            } else {
+                const binFile = zip.file(`music/${m.id}.bin`);
+                if (binFile) {
+                    const b64 = await binFile.async('base64');
+                    m.url = `data:audio/mpeg;base64,${b64}`;
+                    await musicDBPut(m);
+                }
+            }
+        }
+    }
+
     overlay.remove();
     alert('导入成功！页面即将重新加载。');
     location.reload();
   } catch(e) {
     overlay.remove();
-    alert('导入失败：' + (e.message || '文件损坏或格式不正确'));
+    alert('导入失败：' + e.message);
   }
 }
 
@@ -5427,91 +5454,95 @@ async function exportSingleChat() {
   
   const overlay = showLoadingOverlay('正在打包聊天记录...');
   try {
-    const exportData = {
-      chatName: chat.customRemark || chat.name,
-      avatar: chat.avatar,
-      exportTime: new Date().toLocaleString(),
-      messages: []
-    };
-    
-    // 压缩单聊记录里的图片
-    for (let i = 0; i < chat.messages.length; i++) {
-      const msg = JSON.parse(JSON.stringify(chat.messages[i]));
-      if ((msg.type === 'image' || msg.type === 'sticker') && msg.image) {
-        msg.image = await compressBase64Image(msg.image, 600, 0.7);
+      const zip = new JSZip();
+      const exportData = {
+        chatName: chat.customRemark || chat.name,
+        avatar: await ultraCompressImage(chat.avatar, 200, 0.5),
+        exportTime: new Date().toLocaleString(),
+        messages: []
+      };
+      
+      for (let i = 0; i < chat.messages.length; i++) {
+        const msg = JSON.parse(JSON.stringify(chat.messages[i]));
+        if ((msg.type === 'image' || msg.type === 'sticker') && msg.image) {
+            msg.image = await ultraCompressImage(msg.image, 400, 0.5);
+        }
+        if (msg.type === 'merged' && Array.isArray(msg.items)) {
+            for (let k = 0; k < msg.items.length; k++) {
+                 if (msg.items[k].image) {
+                     msg.items[k].image = await ultraCompressImage(msg.items[k].image, 400, 0.5);
+                 }
+            }
+        }
+        exportData.messages.push(msg);
       }
-      exportData.messages.push(msg);
-    }
-    if (exportData.avatar) exportData.avatar = await compressBase64Image(exportData.avatar, 300, 0.7);
-    
-    const parts = [];
-    parts.push('{"chatName":' + JSON.stringify(exportData.chatName) + ',');
-    parts.push('"avatar":' + JSON.stringify(exportData.avatar) + ',');
-    parts.push('"exportTime":' + JSON.stringify(exportData.exportTime) + ',');
-    parts.push('"messages":[');
-    for (let i = 0; i < exportData.messages.length; i++) {
-      if (i > 0) parts.push(',');
-      parts.push(JSON.stringify(exportData.messages[i]));
-    }
-    parts.push(']}');
-    
-    const blob = new Blob(parts, { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    
-    overlay.remove();
+      
+      zip.file('chat.json', JSON.stringify(exportData));
+      
+      const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Chat_${exportData.chatName}_${new Date().getTime()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      overlay.remove();
   } catch(e) {
-    overlay.remove();
-    alert('导出失败：' + e.message);
+      overlay.remove();
+      alert('导出失败：' + e.message);
   }
 }
 
 function importSingleChat() {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json,application/json';
-    input.onchange = (e) => {
+    input.accept = '.zip,.json';
+    input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const overlay = showLoadingOverlay('正在导入聊天记录...');
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const data = JSON.parse(event.target.result);
-                if (!data || !Array.isArray(data.messages)) {
-                    alert('文件格式不正确，缺少 messages 字段');
-                    overlay.remove();
-                    return;
+        try {
+            let data = null;
+            if (file.name.endsWith('.zip')) {
+                const zip = await JSZip.loadAsync(file);
+                const chatFile = zip.file('chat.json');
+                if (chatFile) {
+                    const str = await chatFile.async('string');
+                    data = JSON.parse(str);
                 }
-                const chat = jianxunChats.find(c => c.id === currentChatId);
-                if (!chat) return;
-                const existingIds = new Set(chat.messages.map(m => m.id));
-                let addedCount = 0;
-                data.messages.forEach(m => {
-                    if (!m.id) m.id = genId();
-                    if (!existingIds.has(m.id)) {
-                        chat.messages.push(m);
-                        addedCount++;
-                    }
-                });
-                chat.messages.sort((a, b) => (a.time || 0) - (b.time || 0));
-                saveJianxunChats();
-                renderChatMessages();
-                renderJianxunChatList();
-                overlay.remove();
-                alert(`成功导入 ${addedCount} 条聊天记录`);
-            } catch (err) {
-                overlay.remove();
-                alert('导入失败：' + (err.message || '文件解析错误'));
+            } else {
+                const str = await file.text();
+                data = JSON.parse(str);
             }
-        };
-        reader.readAsText(file);
+            
+            if (!data || !Array.isArray(data.messages)) {
+                alert('文件格式不正确，缺少 messages 字段');
+                overlay.remove();
+                return;
+            }
+            const chat = jianxunChats.find(c => c.id === currentChatId);
+            if (!chat) return;
+            const existingIds = new Set(chat.messages.map(m => m.id));
+            let addedCount = 0;
+            data.messages.forEach(m => {
+                if (!m.id) m.id = genId();
+                if (!existingIds.has(m.id)) {
+                    chat.messages.push(m);
+                    addedCount++;
+                }
+            });
+            chat.messages.sort((a, b) => (a.time || 0) - (b.time || 0));
+            saveJianxunChats();
+            renderChatMessages();
+            renderJianxunChatList();
+            overlay.remove();
+            alert(`成功导入 ${addedCount} 条聊天记录`);
+        } catch (err) {
+            overlay.remove();
+            alert('导入失败：' + (err.message || '文件解析错误'));
+        }
     };
     input.click();
 }
@@ -5573,9 +5604,7 @@ async function cleanupAllChatImages() {
   if (importBtn) importBtn.addEventListener('click', () => importInput.click());
   if (importInput) importInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) { importAllData(event.target.result, false); };
-    reader.readAsText(file);
+    importAllData(file);
     this.value = '';
   });
 })();
@@ -5588,9 +5617,7 @@ async function cleanupAllChatImages() {
   if (importBtn) importBtn.addEventListener('click', () => importInput.click());
   if (importInput) importInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) { importAllData(event.target.result, true); };
-    reader.readAsText(file);
+    importAllData(file);
     this.value = '';
   });
 })();
