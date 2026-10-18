@@ -279,10 +279,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-post-actions svg.liked{fill:#ff4757}
 .jx-post-visibility{font-size:11px;color:#ccc;display:flex;align-items:center}
 .jx-post-comments{background:#f7f7f7;border-radius:4px;padding:8px 10px;margin-top:8px;font-size:13px}
-.jx-comment-item{margin-bottom:4px;line-height:1.4}
+.jx-comment-item{margin-bottom:4px;line-height:1.4;display:flex;align-items:flex-start;gap:4px;}
 .jx-comment-item:last-child{margin-bottom:0}
-.jx-comment-user{color:#576b95;font-weight:500}
-.jx-comment-text{color:#333}
+.jx-comment-user{color:#576b95;font-weight:500;flex-shrink:0;}
+.jx-comment-text{color:#333;flex:1;word-break:break-word;}
+.jx-comment-actions{margin-left:auto;display:flex;gap:4px;flex-shrink:0;}
+.jx-comment-action-btn{font-size:11px;color:#999;cursor:pointer;padding:0 4px;border-radius:3px;white-space:nowrap;}
+.jx-comment-action-btn:active{background:#e0e0e0;}
 .jx-contacts-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#fff;position:sticky;top:0;z-index:10}
 .jx-contacts-header .title{font-size:17px;font-weight:600;color:#000;flex:1;text-align:center}
 .jx-contacts-header .icon{font-size:22px;color:#333;width:24px;height:24px;fill:#333}
@@ -1513,7 +1516,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
         </div>
         <div class="wb-search-bar">
           <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-          <input type="text" id="worldBookSearchInput" placeholder="搜索条目名称、关键词或内容..." oninput="onWorldBookSearch(this.value)">
+          <input type="text" id="worldBookSearchInput" placeholder="搜索条目标题关键词..." oninput="onWorldBookSearch(this.value)">
         </div>
         <div class="wb-stats-bar" id="wbStatsBar" style="display:none;">
           <span id="wbStats">共 0 条 · 启用 0 条</span>
@@ -1619,8 +1622,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
         </div>
         <div class="section-card">
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> 清理数据</h4>
-          <button class="btn btn-danger" onclick="cleanupAllChatImages()" style="width:100%">清理所有聊天及朋友圈图片</button>
-          <p class="hint-text">清理所有聊天中的图片消息和朋友圈图片，文字和聊天记录不受影响，用于释放空间。</p>
+          <button class="btn btn-danger" onclick="cleanupAllChatImages()" style="width:100%">清理所有聊天及朋友圈图片（保留表情包）</button>
+          <p class="hint-text">清理所有聊天中的图片消息和朋友圈图片，聊天中的表情包不会被清理，文字和聊天记录不受影响，用于释放空间。</p>
         </div>
       </div>
     </div>
@@ -2137,6 +2140,10 @@ https://xxx.com/a.png
           <div class="jx-info-item">
             <span class="label">允许角色主动发朋友圈</span>
             <div class="jx-switch" id="jxCharPostMomentSwitch" onclick="toggleSetting('charPostMoment')"></div>
+          </div>
+          <div class="jx-info-item" onclick="changeCharPostMomentFrequency()">
+            <span class="label">角色发朋友圈频率</span>
+            <div class="value"><span id="jxCharPostMomentFrequencyText">中</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
           <div class="jx-info-item" onclick="changeMaxReply()">
             <span class="label">一次最多回复句数</span>
@@ -4781,9 +4788,7 @@ function renderWorldBookList() {
   let filteredEntries = worldBookEntries;
   if (keyword) {
     filteredEntries = worldBookEntries.filter(entry =>
-      (entry.name || '').toLowerCase().includes(keyword) ||
-      (entry.keys || '').toLowerCase().includes(keyword) ||
-      (entry.content || '').toLowerCase().includes(keyword)
+      (entry.name || '').toLowerCase().includes(keyword)
     );
   }
   if (filteredEntries.length === 0) {
@@ -5587,7 +5592,7 @@ function importSingleChat() {
 }
 
 async function cleanupAllChatImages() {
-    if (!confirm('确定清理所有聊天及朋友圈中的图片以释放空间吗？图片消息将变为文字提示。')) return;
+    if (!confirm('确定清理所有聊天及朋友圈中的图片以释放空间吗？图片消息将变为文字提示，表情包不会被清理。')) return;
     const overlay = showLoadingOverlay('正在清理图片...');
     try {
         let cleanedCount = 0;
@@ -5596,7 +5601,7 @@ async function cleanupAllChatImages() {
             if (Array.isArray(chat.imagePool)) chat.imagePool = chat.imagePool.filter(img => img.isAvatar);
             if (Array.isArray(chat.messages)) {
                 chat.messages.forEach(m => {
-                    if (m.type === 'image' || m.type === 'sticker') {
+                    if (m.type === 'image') {
                         if (m.image) cleanedCount++;
                         delete m.image;
                         m.type = 'text';
@@ -5628,7 +5633,7 @@ async function cleanupAllChatImages() {
         renderMomentsPosts();
         
         overlay.remove();
-        alert(`已清理 ${cleanedCount} 张图片。`);
+        alert(`已清理 ${cleanedCount} 张图片（表情包已保留）。`);
     } catch(e) {
         overlay.remove();
         alert('清理失败：' + e.message);
@@ -6939,6 +6944,7 @@ async function loadJianxunChats() {
     if (chat.pinned === undefined) chat.pinned = false;
     if (chat.allowActive === undefined) chat.allowActive = false;
     if (chat.charPostMoment === undefined) chat.charPostMoment = loadCharPostMomentSetting();
+    if (chat.charPostMomentFrequency === undefined) chat.charPostMomentFrequency = 'medium';
     if (chat.maxReply === undefined) chat.maxReply = 1;
     if (chat.customRemark === undefined) chat.customRemark = '';
     if (chat.chatBg === undefined) chat.chatBg = '';
@@ -6982,7 +6988,7 @@ function cleanupChatImages() {
     if (Array.isArray(chat.imagePool)) chat.imagePool = chat.imagePool.filter(img => img.isAvatar);
     if (Array.isArray(chat.messages)) {
       chat.messages.forEach(m => {
-        if (m.type === 'image' || m.type === 'sticker') {
+        if (m.type === 'image') {
           if (m.image) cleanedCount++;
           delete m.image;
           m.type = 'text';
@@ -8543,6 +8549,8 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   loadPersonaList();
   const avatarAware = loadAvatarAwareSetting();
   const charPostMoment = chat.charPostMoment !== false;
+  const frequency = chat.charPostMomentFrequency || 'medium';
+  const frequencyText = { high: '较高', medium: '中等', low: '较低' }[frequency] || '中等';
   const persona = personaList.find(p => p.name === chat.name);
   const activeMask = getActiveMaskForChat(chat);
   const userRealName = activeMask ? getMaskRealName(activeMask) : (localStorage.getItem('moments_name') || '用户');
@@ -8656,7 +8664,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。系统会自动找到最近一条匹配的用户消息，把引用内容显示在你的气泡上方。只在你想明确回应某句话时使用。\n';
   
   if (charPostMoment) {
-    sp += '[[POST_MOMENT:文字|编号]] 发朋友圈（多图2,3；纯文字写"文字|"）— 用户要求发朋友圈/发动态时必须立刻执行。另外，**你可以根据当前聊天上下文、心情、或者想与用户分享某件事时，主动发布一条符合人设的朋友圈动态**（注意克制，不要过于频繁）。\n';
+    sp += `[[POST_MOMENT:文字|编号|notify]] 发朋友圈（多图2,3；纯文字写"文字|"；第三项可选填 notify 表示提醒用户观看）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。如果决定提醒用户观看，加上 notify 参数，系统会在聊天中提示用户"${charName}更新了朋友圈"。\n`;
   } else {
     sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
   }
@@ -8677,9 +8685,9 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
   
   if (avatarAware) {
-    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。\n';
+    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。POST_MOMENT 发朋友圈时，你可以根据频率和心情选择是否提醒用户，提醒时加上 notify。\n';
   } else {
-    sp += '规则：标记嵌在自然文字里；不要滥用。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
+    sp += '规则：标记嵌在自然文字里；不要滥用。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。POST_MOMENT 发朋友圈时，你可以根据频率和心情选择是否提醒用户，提醒时加上 notify。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
   }
 
   sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
@@ -9203,7 +9211,8 @@ async function executeCharAction(chat, action) {
   if (action.type === 'POST_MOMENT') {
     const parts = String(action.payload).split('|');
     const text = (parts[0] || '').trim();
-    const numStr = (parts.slice(1).join('|') || '').trim().replace(/[^0-9,，、\s]/g, '');
+    const numStr = (parts[1] || '').trim().replace(/[^0-9,，、\s]/g, '');
+    const notify = (parts[2] || '').trim().toLowerCase() === 'notify';
     const imgs = [];
     if (numStr) {
       const refs = getCharImageRefs(chat);
@@ -9217,14 +9226,25 @@ async function executeCharAction(chat, action) {
     if (!text && imgs.length === 0) return;
     await loadMomentsPosts();
     const currentMaskId = getCurrentMaskId();
+    const charName = chat.customRemark || chat.name || 'TA';
     momentsPosts.unshift({
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
       mentions: [], customVisibles: [], likes: [], comments: [],
-      author: chat.customRemark || chat.name || 'TA', authorAvatar: chat.avatar || '',
+      author: charName, authorAvatar: chat.avatar || '',
       maskId: currentMaskId
     });
     await saveMomentsPosts();
     renderMomentsPosts();
+    if (notify) {
+      chat.messages.push({
+        id: genId(), role: 'char', type: 'system',
+        content: `${charName} 更新了朋友圈。`,
+        time: Date.now()
+      });
+      saveJianxunChats();
+      if (currentChatId === chat.id) renderChatMessages();
+      renderJianxunChatList();
+    }
     return;
   }
   if (action.type === 'LIKE_MOMENT') {
@@ -9249,7 +9269,13 @@ async function executeCharAction(chat, action) {
     if (!post) return;
     if (!post.comments) post.comments = [];
     const charName = chat.customRemark || chat.name || 'TA';
-    post.comments.push({ user: charName, text: text });
+    post.comments.push({
+      id: genId(),
+      user: charName,
+      text: text,
+      isChar: true,
+      charId: chat.id
+    });
     await saveMomentsPosts();
     renderMomentsPosts();
     return;
@@ -9590,6 +9616,9 @@ function openChatInfo() {
   const htmlCount = Array.isArray(chat.enabledHtmls) ? chat.enabledHtmls.length : 0;
   document.getElementById('jxHtmlText').innerText = htmlCount > 0 ? `已启用 ${htmlCount} 个` : '未启用';
   document.getElementById('jxMaxReplyText').innerText = (chat.maxReply || 1) + '句';
+  const freq = chat.charPostMomentFrequency || 'medium';
+  const freqText = { high: '高', medium: '中', low: '低' }[freq] || '中';
+  document.getElementById('jxCharPostMomentFrequencyText').innerText = freqText;
   const memSwitch = document.getElementById('jxMemoryEnabledSwitch');
   if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
   const memIntEl = document.getElementById('jxMemoryIntervalText');
@@ -9603,6 +9632,23 @@ function openChatInfo() {
   document.getElementById('jxChatInfoScreen').classList.add('active');
 }
 function closeChatInfo() { document.getElementById('jxChatInfoScreen').classList.remove('active'); }
+
+function changeCharPostMomentFrequency() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const current = chat.charPostMomentFrequency || 'medium';
+  const map = { high: '高', medium: '中', low: '低' };
+  const val = prompt(`请选择角色发朋友圈频率：\n1 - 高\n2 - 中\n3 - 低\n\n当前：${map[current] || '中'}`, current === 'high' ? '1' : current === 'low' ? '3' : '2');
+  if (val === null) return;
+  let newFreq = 'medium';
+  if (val === '1' || val.toLowerCase() === '高' || val === 'high') newFreq = 'high';
+  else if (val === '3' || val.toLowerCase() === '低' || val === 'low') newFreq = 'low';
+  else if (val === '2' || val.toLowerCase() === '中' || val === 'medium') newFreq = 'medium';
+  else { alert('无效输入，请重新设置'); return; }
+  chat.charPostMomentFrequency = newFreq;
+  document.getElementById('jxCharPostMomentFrequencyText').innerText = map[newFreq];
+  saveJianxunChats();
+}
 
 let memorySectionExpanded = false;
 function toggleMemorySection() {
@@ -9919,7 +9965,7 @@ function addPersonaToChat(index) {
   const currentMaskId = getCurrentMaskId();
   jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
-    messages: [], pinned: false, allowActive: false, charPostMoment: loadCharPostMomentSetting(), maxReply: 1, customRemark: '',
+    messages: [], pinned: false, allowActive: false, charPostMoment: loadCharPostMomentSetting(), charPostMomentFrequency: 'medium', maxReply: 1, customRemark: '',
     boundWorldBook: [], boundStickerPacks: [], enabledHtmls: [], chatBg: '', myAvatar: '', imagePool: imagePool,
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
     userAvatarByChar: false,
@@ -10093,7 +10139,14 @@ function renderMomentsPosts() {
     if (likesArr.length > 0) likesHtml = `<div class="jx-post-likes"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>${likesArr.map(escapeHtml).join('，')}</span></div>`;
     let commentsHtml = '';
     const hasComments = post.comments && post.comments.length > 0;
-    if (hasComments || likesHtml) commentsHtml = `<div class="jx-post-comments">${likesHtml}${hasComments ? post.comments.map(c => `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}：</span><span class="jx-comment-text">${escapeHtml(c.text)}</span></div>`).join('') : ''}</div>`;
+    if (hasComments || likesHtml) commentsHtml = `<div class="jx-post-comments">${likesHtml}${hasComments ? post.comments.map(c => {
+      const isCharComment = c.isChar === true;
+      const actions = isCharComment ? `<span class="jx-comment-actions">
+        <span class="jx-comment-action-btn" onclick="event.stopPropagation();editMomentComment('${post.id}','${c.id}')">编辑</span>
+        <span class="jx-comment-action-btn" onclick="event.stopPropagation();deleteMomentComment('${post.id}','${c.id}')">删除</span>
+      </span>` : '';
+      return `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}：</span><span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}</div>`;
+    }).join('') : ''}</div>`;
     let visibilityIcon = '';
     let visibilityText = '';
     if (post.visibility === 'private') {
@@ -10144,6 +10197,104 @@ function renderMomentsPosts() {
         target = target.parentNode;
       }
     });
+  }
+}
+
+function editMomentComment(postId, commentId) {
+  const post = momentsPosts.find(p => p.id === postId);
+  if (!post) return;
+  const comment = (post.comments || []).find(c => c.id === commentId);
+  if (!comment) return;
+  const newText = prompt('编辑评论：', comment.text);
+  if (newText !== null && newText.trim() !== '') {
+    comment.text = newText.trim();
+    saveMomentsPosts();
+    renderMomentsPosts();
+  }
+}
+
+function deleteMomentComment(postId, commentId) {
+  const post = momentsPosts.find(p => p.id === postId);
+  if (!post) return;
+  const commentIndex = (post.comments || []).findIndex(c => c.id === commentId);
+  if (commentIndex < 0) return;
+  const comment = post.comments[commentIndex];
+  const choice = prompt('删除评论：\n输入 1 - 删除但保留角色记忆（角色会记得你删了评论）\n输入 2 - 直接删除（角色无记忆）\n输入其他取消', '1');
+  if (choice === null) return;
+  if (choice === '1') {
+    if (comment.charId) {
+      const chat = jianxunChats.find(c => c.id === comment.charId);
+      if (chat) {
+        pushAwareness(`用户删除了你在朋友圈的评论：“${comment.text}”`);
+      }
+    }
+    post.comments.splice(commentIndex, 1);
+    saveMomentsPosts();
+    renderMomentsPosts();
+    alert('评论已删除，角色会记得这件事。');
+  } else if (choice === '2') {
+    post.comments.splice(commentIndex, 1);
+    saveMomentsPosts();
+    renderMomentsPosts();
+    alert('评论已直接删除，角色不会记得。');
+  } else {
+    alert('已取消删除');
+  }
+}
+
+async function generateCharMomentComment(chat, post) {
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return null;
+  const charName = chat.customRemark || chat.name || 'TA';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const userRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
+  const persona = personaList.find(p => p.name === chat.name);
+  let personaDesc = '';
+  if (persona) {
+    personaDesc = `角色设定：${persona.name || ''}，${persona.gender || ''}，${persona.age || ''}，${persona.details || ''}`;
+  }
+  const recentMessages = chat.messages.slice(-5).map(m => {
+    const who = m.role === 'me' ? userRealName : charName;
+    let text = '';
+    if (m.type === 'image') text = '[图片]';
+    else if (m.type === 'sticker') text = '[表情]';
+    else if (m.type === 'transfer') text = '[转账]';
+    else if (m.type === 'familyCard') text = '[亲属卡]';
+    else if (m.type === 'card') text = '[名片]';
+    else if (m.type === 'html') text = '[HTML]';
+    else if (m.type === 'merged') text = '[聊天记录]';
+    else if (m.type === 'coupleProposal') text = '[换情头申请]';
+    else if (m.type === 'music') text = '[音乐]';
+    else text = String(m.content || '').slice(0, 80);
+    return `${who}：${text}`;
+  }).join('\n');
+  const memories = (chat.memories || []).map(m => m.content).join('\n');
+  const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
+    `${personaDesc}\n` +
+    `当前聊天上下文（最近5条）：\n${recentMessages}\n` +
+    `你的长期记忆：\n${memories || '（暂无）'}\n\n` +
+    `用户「${userRealName}」发了一条朋友圈动态：「${post.content || '[图片]'}」。\n` +
+    `请以「${charName}」的身份，针对这条动态写一条符合人设的评论。要求：1~2句，口语化，符合角色性格和你们的关系，不要写死板客套话，不要加引号或前缀，只输出评论内容本身。`;
+  try {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({ model: cfg.model, messages: [{ role: 'user', content: sys }], temperature: cfg.temperature || 0.8, max_tokens: 256 })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    let text = '';
+    if (typeof c === 'string') text = c;
+    else if (Array.isArray(c)) text = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    text = (text || '').trim();
+    if (!text) return null;
+    return text;
+  } catch (e) {
+    console.warn('生成朋友圈评论失败', e);
+    return null;
   }
 }
 
@@ -10244,12 +10395,27 @@ async function publishPost() {
   renderMomentsPosts();
   closePublishScreen();
   pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
-  if (mentions.length > 0) {
-    setTimeout(async () => {
-      await loadMomentsPosts();
+  // 对每个被@的角色生成符合人设的评论
+  for (const mentionName of mentions) {
+    const chat = jianxunChats.find(c => (c.customRemark || c.name) === mentionName);
+    if (!chat) continue;
+    const commentText = await generateCharMomentComment(chat, newPost);
+    if (commentText) {
       const post = momentsPosts.find(p => p.id === newPost.id);
-      if (post) { post.comments.push({ user: mentions[0], text: '收到！我会看的~' }); await saveMomentsPosts(); renderMomentsPosts(); }
-    }, 1500);
+      if (post) {
+        post.comments.push({
+          id: genId(),
+          user: chat.customRemark || chat.name || mentionName,
+          text: commentText,
+          isChar: true,
+          charId: chat.id
+        });
+        await saveMomentsPosts();
+        renderMomentsPosts();
+      }
+    }
+  }
+  if (mentions.length > 0) {
     alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态。`);
   } else alert('发布成功！');
 }
@@ -10277,7 +10443,7 @@ async function sendComment() {
   const post = momentsPosts.find(p => p.id === currentCommentPostId);
   if (post) {
     if (!post.comments) post.comments = [];
-    post.comments.push({ user: currentName, text: text });
+    post.comments.push({ id: genId(), user: currentName, text: text, isChar: false });
     await saveMomentsPosts();
     renderMomentsPosts();
     closeCommentModal();
@@ -10320,7 +10486,13 @@ async function replyToMomentsComment(chat, postId, userComment) {
     post = momentsPosts.find(x => x.id === postId);
     if (!post) return;
     if (!post.comments) post.comments = [];
-    post.comments.push({ user: charName, text: text });
+    post.comments.push({
+      id: genId(),
+      user: charName,
+      text: text,
+      isChar: true,
+      charId: chat.id
+    });
     await saveMomentsPosts();
     renderMomentsPosts();
   } catch (e) { console.warn('回复朋友圈评论失败', e); }
