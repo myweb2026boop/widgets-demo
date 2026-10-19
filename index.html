@@ -271,6 +271,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-post-delete-btn{font-size:12px;color:#ccc;cursor:pointer;padding:4px;display:flex;align-items:center;transition:color .2s}
 .jx-post-delete-btn:hover{color:#ff4757}
 .jx-post-content{font-size:15px;color:#333;line-height:1.6;margin-bottom:12px;white-space:pre-wrap}
+.jx-post-content span.mention{color:#576b95;cursor:pointer;}
 .jx-post-images{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
 .jx-post-images img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px}
 .jx-post-footer{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#b2b2b2;margin-bottom:8px}
@@ -1423,6 +1424,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           </div>
           <div class="form-group"><label>年龄</label><input type="text" id="personaAge" placeholder="输入年龄"></div>
           <div class="form-group"><label>详细人设</label><textarea id="personaDetails" placeholder="输入详细人设描述..."></textarea></div>
+          
+          <div class="form-group" style="border-top:1px solid #eee; padding-top:16px; margin-top:16px;">
+            <label style="font-weight:600; color:#333; display:flex; justify-content:space-between; align-items:center;">
+              <span>NPC 联系人（用于朋友圈互动）</span>
+              <button class="btn btn-outline" style="padding:2px 8px; font-size:12px; flex:none; border-radius:4px;" onclick="addNpcToPersona()">+ 添加NPC</button>
+            </label>
+            <div id="personaNpcList" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+
           <div class="form-actions">
             <button class="btn btn-cancel" onclick="cancelPersonaEdit()">取消</button>
             <button class="btn btn-delete" id="personaDeleteBtn" onclick="deletePersona()">删除</button>
@@ -4550,10 +4560,15 @@ function buildMusicPrompt(chat) {
 let personaList = [];
 let editingPersonaId = null;
 let tempAvatarBase64 = '';
+let tempNpcs = [];
+
 function loadPersonaList() {
   const data = localStorage.getItem(PERSONA_KEY);
   if (data) { try { personaList = JSON.parse(data); } catch(e) { personaList = []; } } else { personaList = []; }
   if (!Array.isArray(personaList)) personaList = [];
+  personaList.forEach(p => {
+    if (!Array.isArray(p.npcs)) p.npcs = [];
+  });
 }
 loadPersonaList();
 
@@ -4590,6 +4605,40 @@ function renderPersonaList() {
   });
 }
 
+function renderNpcList() {
+  const container = document.getElementById('personaNpcList');
+  if (!container) return;
+  if (tempNpcs.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:#999;text-align:center;padding:10px;">暂无 NPC，点击上方按钮添加</div>';
+    return;
+  }
+  container.innerHTML = tempNpcs.map((npc, i) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#f7f8fa; padding:8px 12px; border-radius:6px; border:1px solid #eee;">
+      <div style="flex:1; overflow:hidden;">
+        <div style="font-size:13px; font-weight:500; color:#333;">${escapeHtml(npc.name)} <span style="font-size:11px; color:#888; font-weight:normal;">(${escapeHtml(npc.relation)})</span></div>
+        <div style="font-size:11px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${escapeHtml(npc.description)}</div>
+      </div>
+      <button class="btn btn-danger" style="flex:none; padding:4px 8px; font-size:11px; margin-left:8px;" onclick="deleteNpcFromPersona(${i})">删除</button>
+    </div>
+  `).join('');
+}
+
+function addNpcToPersona() {
+  const name = prompt('请输入 NPC 名字：');
+  if (!name || !name.trim()) return;
+  const relation = prompt('请输入 NPC 与该角色的关系（如：朋友、同事、前任）：');
+  if (relation === null) return;
+  const description = prompt('请输入 NPC 的介绍/人设：');
+  if (description === null) return;
+  tempNpcs.push({ id: genId(), name: name.trim(), relation: relation.trim(), description: description.trim() });
+  renderNpcList();
+}
+
+function deleteNpcFromPersona(index) {
+  tempNpcs.splice(index, 1);
+  renderNpcList();
+}
+
 function openPersonaEdit(index) {
   const view = document.getElementById('personaEditView');
   const list = document.getElementById('personaList');
@@ -4606,6 +4655,7 @@ function openPersonaEdit(index) {
     document.getElementById('personaAge').value = '';
     document.getElementById('personaDetails').value = '';
     tempAvatarBase64 = '';
+    tempNpcs = [];
     document.getElementById('personaAvatarImg').style.display = 'none';
     document.getElementById('personaAvatarSvg').style.display = 'block';
     document.getElementById('personaDeleteBtn').style.display = 'none';
@@ -4627,8 +4677,10 @@ function openPersonaEdit(index) {
       document.getElementById('personaAvatarImg').style.display = 'none';
       document.getElementById('personaAvatarSvg').style.display = 'block';
     }
+    tempNpcs = Array.isArray(persona.npcs) ? JSON.parse(JSON.stringify(persona.npcs)) : [];
     document.getElementById('personaDeleteBtn').style.display = 'block';
   }
+  renderNpcList();
 }
 function cancelPersonaEdit() {
   document.getElementById('personaEditView').classList.remove('active');
@@ -4641,7 +4693,7 @@ function savePersona() {
   const age = document.getElementById('personaAge').value.trim();
   const details = document.getElementById('personaDetails').value;
   if (!name) { alert('请至少填写名字'); return; }
-  const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details };
+  const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details, npcs: tempNpcs };
   if (editingPersonaId === null) personaList.push(personaData);
   else personaList[editingPersonaId] = personaData;
   localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
@@ -4659,7 +4711,7 @@ function deletePersona() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    let parsedData = { name: file.name.replace(/\.[^/.]+$/, ""), nickname: '', gender: '', age: '', details: '' };
+    let parsedData = { name: file.name.replace(/\.[^/.]+$/, ""), nickname: '', gender: '', age: '', details: '', npcs: [] };
     const showEditForm = () => {
       editingPersonaId = null;
       document.getElementById('personaName').value = parsedData.name;
@@ -4668,12 +4720,14 @@ function deletePersona() {
       document.getElementById('personaAge').value = parsedData.age;
       document.getElementById('personaDetails').value = parsedData.details;
       tempAvatarBase64 = '';
+      tempNpcs = [];
       document.getElementById('personaAvatarImg').style.display = 'none';
       document.getElementById('personaAvatarSvg').style.display = 'block';
       document.getElementById('personaDeleteBtn').style.display = 'none';
       document.getElementById('personaEditView').classList.add('active');
       document.getElementById('personaList').style.display = 'none';
       document.getElementById('personaEmptyState').style.display = 'none';
+      renderNpcList();
     };
     const normalizeText = (text) => text ? text.replace(/\r\n/g, '\n').replace(/\r/g, '\n') : '';
     if (file.name.endsWith('.docx')) {
@@ -4702,6 +4756,10 @@ function deletePersona() {
           parsedData.gender = jsonData.gender || jsonData.sex || '';
           parsedData.age = jsonData.age || '';
           parsedData.details = normalizeText(jsonData.details || jsonData.description || jsonData.persona || content);
+          if (Array.isArray(jsonData.npcs)) {
+            parsedData.npcs = jsonData.npcs;
+            tempNpcs = jsonData.npcs;
+          }
         } catch (err) { parsedData.details = normalizeText(content); }
         showEditForm();
       };
@@ -7624,7 +7682,7 @@ function handleContactCardClick(card) {
   loadPersonaList();
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
-    personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '' });
+    personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '', npcs: [] });
     try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
   }
   const imagePool = [];
@@ -8589,6 +8647,13 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     if (persona.gender) sp += `性别：${persona.gender}\n`;
     if (persona.age) sp += `年龄：${persona.age}\n`;
     if (persona.details) sp += `详细人设：${persona.details}\n`;
+    if (Array.isArray(persona.npcs) && persona.npcs.length > 0) {
+      sp += `你的社交圈（NPC）：\n`;
+      persona.npcs.forEach(npc => {
+        sp += `- ${npc.name}（${npc.relation}）：${npc.description}\n`;
+      });
+      sp += `你可以在聊天中自然提起他们，或者在发朋友圈/评论时 @他们。\n`;
+    }
   }
 
   sp += `\n【用户信息】\n`;
@@ -8664,13 +8729,15 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。系统会自动找到最近一条匹配的用户消息，把引用内容显示在你的气泡上方。只在你想明确回应某句话时使用。\n';
   
   if (charPostMoment) {
-    sp += `[[POST_MOMENT:文字|编号|notify]] 发朋友圈（多图2,3；纯文字写"文字|"；第三项可选填 notify 表示提醒用户观看）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。如果决定提醒用户观看，加上 notify 参数，系统会在聊天中提示用户"${charName}更新了朋友圈"。\n`;
+    sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈（多图2,3；纯文字写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
+    sp += `**如果你想在聊天里提到"我去发个朋友圈"，请务必同时输出 [[POST_MOMENT:...]] 标记，否则系统不会帮你发，用户也看不到！**\n`;
+    sp += `**当你在朋友圈评论用户时，可以自然地 @ 人设中提到的 NPC（如 [[COMMENT_MOMENT:1|内容|@NPC名]]）。**\n`;
   } else {
     sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
   }
   
   sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
-  sp += '[[COMMENT_MOMENT:编号|内容]] 评论朋友圈\n';
+  sp += '[[COMMENT_MOMENT:编号|内容|@A]] 评论朋友圈（第三项可选，@某人或NPC）\n';
   sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
   sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
   sp += '[[ACCEPT_FAMILY_CARD]] 接受用户送给你的最近一张待处理的亲属卡（必须是你本人真实愿意接受时才使用）\n';
@@ -8685,9 +8752,9 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
   
   if (avatarAware) {
-    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。POST_MOMENT 发朋友圈时，你可以根据频率和心情选择是否提醒用户，提醒时加上 notify。\n';
+    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。\n';
   } else {
-    sp += '规则：标记嵌在自然文字里；不要滥用。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。POST_MOMENT 发朋友圈时，你可以根据频率和心情选择是否提醒用户，提醒时加上 notify。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
+    sp += '规则：标记嵌在自然文字里；不要滥用。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
   }
 
   sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
@@ -9213,6 +9280,7 @@ async function executeCharAction(chat, action) {
     const text = (parts[0] || '').trim();
     const numStr = (parts[1] || '').trim().replace(/[^0-9,，、\s]/g, '');
     const notify = (parts[2] || '').trim().toLowerCase() === 'notify';
+    const mentionsStr = (parts[3] || '').trim();
     const imgs = [];
     if (numStr) {
       const refs = getCharImageRefs(chat);
@@ -9227,9 +9295,13 @@ async function executeCharAction(chat, action) {
     await loadMomentsPosts();
     const currentMaskId = getCurrentMaskId();
     const charName = chat.customRemark || chat.name || 'TA';
+    let mentions = [];
+    if (mentionsStr) {
+      mentions = mentionsStr.split(/[,，、\s]+/).map(s => s.replace(/^@/, '').trim()).filter(Boolean);
+    }
     momentsPosts.unshift({
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
-      mentions: [], customVisibles: [], likes: [], comments: [],
+      mentions: mentions, customVisibles: [], likes: [], comments: [],
       author: charName, authorAvatar: chat.avatar || '',
       maskId: currentMaskId
     });
@@ -9262,7 +9334,9 @@ async function executeCharAction(chat, action) {
   if (action.type === 'COMMENT_MOMENT') {
     const parts = String(action.payload).split('|');
     const idx = parseInt((parts[0] || '').trim(), 10) - 1;
-    const text = (parts.slice(1).join('|') || '').trim();
+    const text = (parts[1] || '').trim();
+    const replyToRaw = (parts[2] || '').trim();
+    const replyTo = replyToRaw.replace(/^@/, '').trim();
     if (!text) return;
     await loadMomentsPosts();
     const post = momentsPosts[idx];
@@ -9274,7 +9348,8 @@ async function executeCharAction(chat, action) {
       user: charName,
       text: text,
       isChar: true,
-      charId: chat.id
+      charId: chat.id,
+      replyTo: replyTo || null
     });
     await saveMomentsPosts();
     renderMomentsPosts();
@@ -9885,7 +9960,7 @@ function changeChatBg() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.9).then((base64) => {
+    compressImageFile(file, 1920, 0.95).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -10135,6 +10210,13 @@ function renderMomentsPosts() {
     if (post.images && post.images.length > 0) imagesHtml = `<div class="jx-post-images">${post.images.map(img => { const safeSrc = String(img).replace(/'/g, '%27'); return `<img src="${safeSrc}" onclick="openImageViewer('${safeSrc}')">`; }).join('')}</div>`;
     let mentionsHtml = '';
     if (post.mentions && post.mentions.length > 0) mentionsHtml = `<div style="font-size:12px; color:#576b95; margin-top:4px;">@ ${post.mentions.map(escapeHtml).join('、')}</div>`;
+    let contentHtml = escapeHtml(post.content || '');
+    if (post.mentions && post.mentions.length > 0) {
+      post.mentions.forEach(m => {
+        const regex = new RegExp('@' + escapeHtml(m), 'g');
+        contentHtml = contentHtml.replace(regex, `<span class="mention">@${escapeHtml(m)}</span>`);
+      });
+    }
     let likesHtml = '';
     if (likesArr.length > 0) likesHtml = `<div class="jx-post-likes"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>${likesArr.map(escapeHtml).join('，')}</span></div>`;
     let commentsHtml = '';
@@ -10145,7 +10227,11 @@ function renderMomentsPosts() {
         <span class="jx-comment-action-btn" onclick="event.stopPropagation();editMomentComment('${post.id}','${c.id}')">编辑</span>
         <span class="jx-comment-action-btn" onclick="event.stopPropagation();deleteMomentComment('${post.id}','${c.id}')">删除</span>
       </span>` : '';
-      return `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}：</span><span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}</div>`;
+      let replyPrefix = '';
+      if (c.replyTo) {
+        replyPrefix = `回复 <span style="color:#576b95;">@${escapeHtml(c.replyTo)}</span>：`;
+      }
+      return `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}${replyPrefix ? ' ' : '：'}</span>${replyPrefix ? replyPrefix : ''}<span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}</div>`;
     }).join('') : ''}</div>`;
     let visibilityIcon = '';
     let visibilityText = '';
@@ -10165,7 +10251,7 @@ function renderMomentsPosts() {
         <div class="jx-post-avatar">${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : ''}</div>
         <div class="jx-post-user">${escapeHtml(authorName)}</div>
       </div>
-      <div class="jx-post-content">${escapeHtml(post.content || '')}</div>
+      <div class="jx-post-content">${contentHtml}</div>
       ${imagesHtml}${mentionsHtml}
       <div class="jx-post-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
         <span class="jx-post-visibility" style="display:flex; align-items:center; color:#ccc; font-size:11px;">${visibilityIcon} ${visibilityText}</span>
@@ -10253,6 +10339,12 @@ async function generateCharMomentComment(chat, post) {
   let personaDesc = '';
   if (persona) {
     personaDesc = `角色设定：${persona.name || ''}，${persona.gender || ''}，${persona.age || ''}，${persona.details || ''}`;
+    if (Array.isArray(persona.npcs) && persona.npcs.length > 0) {
+      personaDesc += `\n你的NPC社交圈：\n`;
+      persona.npcs.forEach(npc => {
+        personaDesc += `- ${npc.name}（${npc.relation}）：${npc.description}\n`;
+      });
+    }
   }
   const recentMessages = chat.messages.slice(-5).map(m => {
     const who = m.role === 'me' ? userRealName : charName;
@@ -10270,12 +10362,58 @@ async function generateCharMomentComment(chat, post) {
     return `${who}：${text}`;
   }).join('\n');
   const memories = (chat.memories || []).map(m => m.content).join('\n');
-  const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
+  
+  const isAutoTrigger = !post.mentions || !post.mentions.includes(charName);
+  let sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
     `${personaDesc}\n` +
     `当前聊天上下文（最近5条）：\n${recentMessages}\n` +
     `你的长期记忆：\n${memories || '（暂无）'}\n\n` +
-    `用户「${userRealName}」发了一条朋友圈动态：「${post.content || '[图片]'}」。\n` +
-    `请以「${charName}」的身份，针对这条动态写一条符合人设的评论。要求：1~2句，口语化，符合角色性格和你们的关系，不要写死板客套话，不要加引号或前缀，只输出评论内容本身。`;
+    `用户「${userRealName}」发了一条朋友圈动态：「${post.content || '[图片]'}」。\n`;
+  if (post.mentions && post.mentions.length > 0) {
+    sys += `这条动态 @ 了：${post.mentions.join('、')}。\n`;
+  }
+  if (isAutoTrigger) {
+    sys += `你恰好刷到了这条动态，请以「${charName}」的身份，针对这条动态写一条符合人设的评论。要求：1~2句，口语化，符合角色性格和你们的关系，不要写死板客套话，不要加引号或前缀。如果内容合适，你可以自然地 @ 你的NPC朋友（格式如 @名字）。只输出评论内容本身。`;
+  } else {
+    sys += `用户在动态里 @ 了你。请以「${charName}」的身份，针对这条动态写一条符合人设的评论。要求：1~2句，口语化，符合角色性格和你们的关系，不要写死板客套话，不要加引号或前缀。只输出评论内容本身。`;
+  }
+
+  try {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({ model: cfg.model, messages: [{ role: 'user', content: sys }], temperature: cfg.temperature || 0.8, max_tokens: 256 })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    let text = '';
+    if (typeof c === 'string') text = c;
+    else if (Array.isArray(c)) text = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    text = (text || '').trim();
+    if (!text) return null;
+    
+    let replyTo = null;
+    const atMatch = text.match(/^@([^\s：:]+)[\s：:]/);
+    if (atMatch) {
+      replyTo = atMatch[1];
+    }
+    
+    return { text, replyTo };
+  } catch (e) {
+    console.warn('生成朋友圈评论失败', e);
+    return null;
+  }
+}
+
+async function generateNpcMomentComment(npc, post) {
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return null;
+  const sys = `你正在扮演NPC「${npc.name}」，你与主角的关系是「${npc.relation}」。你的设定是：${npc.description}。\n` +
+    `主角发了一条朋友圈动态：「${post.content || '[图片]'}」。\n` +
+    (post.author ? `这条动态的作者是：${post.author}。\n` : '') +
+    `请以「${npc.name}」的口吻写一条评论。要求：简短口语化，符合你的人设和关系，不要加前缀。只输出评论内容本身。`;
   try {
     const url = normalizeChatEndpoint(cfg.endpoint);
     const res = await fetch(url, {
@@ -10293,7 +10431,7 @@ async function generateCharMomentComment(chat, post) {
     if (!text) return null;
     return text;
   } catch (e) {
-    console.warn('生成朋友圈评论失败', e);
+    console.warn('生成NPC朋友圈评论失败', e);
     return null;
   }
 }
@@ -10332,7 +10470,16 @@ function openPublishScreen() {
       mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
       customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>';
     } else {
-      const buildList = (c) => { c.innerHTML = personaList.map((p) => `<div class="mention-item" onclick="toggleMention(this)">${escapeHtml(p.name || '未命名')}</div>`).join(''); };
+      // 收集所有人设和NPC用于 @
+      const allMentions = [];
+      personaList.forEach(p => {
+        if (p.name) allMentions.push(p.name);
+        if (Array.isArray(p.npcs)) {
+          p.npcs.forEach(npc => { if (npc.name) allMentions.push(npc.name); });
+        }
+      });
+      const uniqueMentions = Array.from(new Set(allMentions));
+      const buildList = (c) => { c.innerHTML = uniqueMentions.map((name) => `<div class="mention-item" onclick="toggleMention(this)">${escapeHtml(name)}</div>`).join(''); };
       buildList(mentionList);
       buildList(customList);
     }
@@ -10395,26 +10542,88 @@ async function publishPost() {
   renderMomentsPosts();
   closePublishScreen();
   pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
-  // 对每个被@的角色生成符合人设的评论
-  for (const mentionName of mentions) {
-    const chat = jianxunChats.find(c => (c.customRemark || c.name) === mentionName);
-    if (!chat) continue;
-    const commentText = await generateCharMomentComment(chat, newPost);
-    if (commentText) {
-      const post = momentsPosts.find(p => p.id === newPost.id);
-      if (post) {
-        post.comments.push({
-          id: genId(),
-          user: chat.customRemark || chat.name || mentionName,
-          text: commentText,
-          isChar: true,
-          charId: chat.id
-        });
-        await saveMomentsPosts();
-        renderMomentsPosts();
+  
+  // 处理 @ 的人设和NPC
+  if (mentions.length > 0) {
+    for (const mentionName of mentions) {
+      // 检查是不是 Char
+      const chat = jianxunChats.find(c => (c.customRemark || c.name) === mentionName);
+      if (chat) {
+        const result = await generateCharMomentComment(chat, newPost);
+        if (result) {
+          const post = momentsPosts.find(p => p.id === newPost.id);
+          if (post) {
+            post.comments.push({
+              id: genId(),
+              user: chat.customRemark || chat.name || mentionName,
+              text: result.text,
+              isChar: true,
+              charId: chat.id,
+              replyTo: result.replyTo
+            });
+            await saveMomentsPosts();
+            renderMomentsPosts();
+          }
+        }
+        continue;
+      }
+      // 检查是不是 NPC
+      for (const p of personaList) {
+        if (Array.isArray(p.npcs)) {
+          const npc = p.npcs.find(n => n.name === mentionName);
+          if (npc) {
+            const npcText = await generateNpcMomentComment(npc, newPost);
+            if (npcText) {
+              const post = momentsPosts.find(p => p.id === newPost.id);
+              if (post) {
+                post.comments.push({
+                  id: genId(),
+                  user: npc.name,
+                  text: npcText,
+                  isChar: false,
+                  npcId: npc.id
+                });
+                await saveMomentsPosts();
+                renderMomentsPosts();
+              }
+            }
+            break;
+          }
+        }
       }
     }
   }
+
+  // 如果有开启了主动发朋友圈的 Char（不管有没有被 @），根据概率让他们来评论
+  for (const chat of jianxunChats) {
+    if (chat.charPostMoment === true) {
+      if (mentions.includes(chat.customRemark || chat.name)) continue; // 刚处理过的跳过
+      // 频率越高越容易评论
+      const freq = chat.charPostMomentFrequency || 'medium';
+      let prob = 0.5;
+      if (freq === 'high') prob = 0.85;
+      if (freq === 'low') prob = 0.2;
+      if (Math.random() < prob) {
+        const result = await generateCharMomentComment(chat, newPost);
+        if (result) {
+          const post = momentsPosts.find(p => p.id === newPost.id);
+          if (post) {
+            post.comments.push({
+              id: genId(),
+              user: chat.customRemark || chat.name || 'TA',
+              text: result.text,
+              isChar: true,
+              charId: chat.id,
+              replyTo: result.replyTo
+            });
+            await saveMomentsPosts();
+            renderMomentsPosts();
+          }
+        }
+      }
+    }
+  }
+
   if (mentions.length > 0) {
     alert(`发布成功！已提醒 ${mentions.join('、')} 查看此动态。`);
   } else alert('发布成功！');
@@ -10428,12 +10637,18 @@ async function deletePost(postId) {
   pushAwareness('用户删除了一条朋友圈动态' + (target && target.content ? '："' + target.content.slice(0, 30) + '"' : ''));
 }
 let currentCommentPostId = null;
-function openCommentModal(postId) {
+let currentReplyToUser = null;
+function openCommentModal(postId, replyTo = null) {
   currentCommentPostId = postId;
-  document.getElementById('commentContent').value = '';
+  currentReplyToUser = replyTo;
+  const ta = document.getElementById('commentContent');
+  if (ta) {
+    ta.value = replyTo ? `@${replyTo} ` : '';
+    ta.focus();
+  }
   document.getElementById('jxCommentModal').classList.add('show');
 }
-function closeCommentModal() { document.getElementById('jxCommentModal').classList.remove('show'); }
+function closeCommentModal() { document.getElementById('jxCommentModal').classList.remove('show'); currentReplyToUser = null; }
 async function sendComment() {
   const text = document.getElementById('commentContent').value.trim();
   if (!text) return;
@@ -10443,14 +10658,42 @@ async function sendComment() {
   const post = momentsPosts.find(p => p.id === currentCommentPostId);
   if (post) {
     if (!post.comments) post.comments = [];
-    post.comments.push({ id: genId(), user: currentName, text: text, isChar: false });
+    post.comments.push({ 
+      id: genId(), 
+      user: currentName, 
+      text: text, 
+      isChar: false,
+      replyTo: currentReplyToUser
+    });
     await saveMomentsPosts();
     renderMomentsPosts();
     closeCommentModal();
     pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
-    if (post.author) {
-      const chat = jianxunChats.find(c => (c.customRemark || c.name) === post.author);
+    
+    // 如果回复了 char，触发 char 回复
+    let targetCharName = null;
+    if (currentReplyToUser) {
+      targetCharName = currentReplyToUser;
+    } else if (post.author) {
+      targetCharName = post.author;
+    }
+
+    if (targetCharName) {
+      const chat = jianxunChats.find(c => (c.customRemark || c.name) === targetCharName);
       if (chat) setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
+    }
+    
+    // 如果回复了 NPC，触发 NPC 回复
+    if (currentReplyToUser) {
+      for (const p of personaList) {
+        if (Array.isArray(p.npcs)) {
+          const npc = p.npcs.find(n => n.name === currentReplyToUser);
+          if (npc) {
+            setTimeout(() => replyAsNpcToComment(npc, post.id, text), 900 + Math.random() * 800);
+            break;
+          }
+        }
+      }
     }
   }
 }
@@ -10491,11 +10734,54 @@ async function replyToMomentsComment(chat, postId, userComment) {
       user: charName,
       text: text,
       isChar: true,
-      charId: chat.id
+      charId: chat.id,
+      replyTo: userRealName
     });
     await saveMomentsPosts();
     renderMomentsPosts();
   } catch (e) { console.warn('回复朋友圈评论失败', e); }
+}
+
+async function replyAsNpcToComment(npc, postId, userComment) {
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
+  let post = momentsPosts.find(p => p.id === postId);
+  if (!post) return;
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const userRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
+  const sys = `你正在扮演NPC「${npc.name}」，你的设定是：${npc.description}。\n` +
+    `「${userRealName}」在朋友圈评论了你：「${userComment}」。\n` +
+    `请用 1~2 句简短、符合你人设的话回复。只输出内容本身。`;
+  try {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({ model: cfg.model, messages: [{ role: 'user', content: sys }], temperature: cfg.temperature || 0.8, max_tokens: 256 })
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    let text = '';
+    if (typeof c === 'string') text = c;
+    else if (Array.isArray(c)) text = c.map(x => (typeof x === 'string' ? x : (x && x.text) || '')).join('');
+    text = (text || '').trim();
+    if (!text) return;
+    post = momentsPosts.find(x => x.id === postId);
+    if (!post) return;
+    if (!post.comments) post.comments = [];
+    post.comments.push({
+      id: genId(),
+      user: npc.name,
+      text: text,
+      isChar: false,
+      npcId: npc.id,
+      replyTo: userRealName
+    });
+    await saveMomentsPosts();
+    renderMomentsPosts();
+  } catch (e) { console.warn('NPC回复朋友圈评论失败', e); }
 }
 
 initGlobalFontSizeControl();
