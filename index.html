@@ -280,13 +280,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-post-actions svg.liked{fill:#ff4757}
 .jx-post-visibility{font-size:11px;color:#ccc;display:flex;align-items:center}
 .jx-post-comments{background:#f7f7f7;border-radius:4px;padding:8px 10px;margin-top:8px;font-size:13px}
-.jx-comment-item{margin-bottom:4px;line-height:1.4;display:flex;align-items:flex-start;gap:4px;}
+.jx-comment-item{margin-bottom:4px;line-height:1.4;display:flex;align-items:flex-start;gap:4px;cursor:pointer;padding:4px 6px;border-radius:4px;transition:background .15s;}
+.jx-comment-item:active{background:#e5e5e5;}
 .jx-comment-item:last-child{margin-bottom:0}
 .jx-comment-user{color:#576b95;font-weight:500;flex-shrink:0;}
 .jx-comment-text{color:#333;flex:1;word-break:break-word;}
 .jx-comment-actions{margin-left:auto;display:flex;gap:4px;flex-shrink:0;}
 .jx-comment-action-btn{font-size:11px;color:#999;cursor:pointer;padding:0 4px;border-radius:3px;white-space:nowrap;}
-.jx-comment-action-btn:active{background:#e0e0e0;}
+.jx-comment-action-btn:active{background:#dcdcdc;}
 .jx-contacts-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#fff;position:sticky;top:0;z-index:10}
 .jx-contacts-header .title{font-size:17px;font-weight:600;color:#000;flex:1;text-align:center}
 .jx-contacts-header .icon{font-size:22px;color:#333;width:24px;height:24px;fill:#333}
@@ -2559,6 +2560,29 @@ https://xxx.com/a.png
       </div>
     </div>
 
+    <!-- 新增：编辑NPC的独立弹窗 -->
+    <div class="jx-modal" id="npcEditModal">
+      <div class="jx-modal-content" style="max-width: 340px; text-align: left;">
+        <h3 style="text-align: center; margin-bottom: 15px;">编辑 NPC</h3>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>NPC 名字</label>
+          <input type="text" id="npcNameInput" placeholder="输入名字">
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>与角色关系</label>
+          <input type="text" id="npcRelationInput" placeholder="如：朋友、同事、发小">
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>详细人设/介绍</label>
+          <textarea id="npcDescInput" placeholder="输入NPC背景、性格、外貌等详细设定..." style="height: 120px; resize: vertical;"></textarea>
+        </div>
+        <div class="form-actions" style="margin-top: 10px;">
+          <button class="btn btn-cancel" onclick="closeNpcEditModal()">取消</button>
+          <button class="btn btn-save" onclick="saveNpcEdit()">保存</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -4023,7 +4047,7 @@ async function ultraCompressImage(base64, maxDim = 400, quality = 0.5) {
   }
   musicBgInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.9).then((base64) => {
+    compressImageFile(file, 1920, 0.95).then((base64) => {
       if (!base64) return;
       musicBgArea.style.backgroundImage = `url(${base64})`;
       musicBgArea.style.backgroundSize = 'cover';
@@ -4561,6 +4585,7 @@ let personaList = [];
 let editingPersonaId = null;
 let tempAvatarBase64 = '';
 let tempNpcs = [];
+let currentNpcEditIndex = -1;
 
 function loadPersonaList() {
   const data = localStorage.getItem(PERSONA_KEY);
@@ -4613,28 +4638,58 @@ function renderNpcList() {
     return;
   }
   container.innerHTML = tempNpcs.map((npc, i) => `
-    <div style="display:flex; justify-content:space-between; align-items:center; background:#f7f8fa; padding:8px 12px; border-radius:6px; border:1px solid #eee;">
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#f7f8fa; padding:10px 12px; border-radius:6px; border:1px solid #eee; cursor:pointer;" onclick="editNpcFromPersona(${i})">
       <div style="flex:1; overflow:hidden;">
-        <div style="font-size:13px; font-weight:500; color:#333;">${escapeHtml(npc.name)} <span style="font-size:11px; color:#888; font-weight:normal;">(${escapeHtml(npc.relation)})</span></div>
-        <div style="font-size:11px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${escapeHtml(npc.description)}</div>
+        <div style="font-size:13px; font-weight:500; color:#333;">${escapeHtml(npc.name)} <span style="font-size:11px; color:#888; font-weight:normal;">(${escapeHtml(npc.relation || '未设定关系')})</span></div>
+        <div style="font-size:11px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:4px;">${escapeHtml(npc.description || '暂无描述')}</div>
       </div>
-      <button class="btn btn-danger" style="flex:none; padding:4px 8px; font-size:11px; margin-left:8px;" onclick="deleteNpcFromPersona(${i})">删除</button>
+      <button class="btn btn-danger" style="flex:none; padding:4px 8px; font-size:11px; margin-left:8px;" onclick="event.stopPropagation(); deleteNpcFromPersona(${i})">删除</button>
     </div>
   `).join('');
 }
 
 function addNpcToPersona() {
-  const name = prompt('请输入 NPC 名字：');
-  if (!name || !name.trim()) return;
-  const relation = prompt('请输入 NPC 与该角色的关系（如：朋友、同事、前任）：');
-  if (relation === null) return;
-  const description = prompt('请输入 NPC 的介绍/人设：');
-  if (description === null) return;
-  tempNpcs.push({ id: genId(), name: name.trim(), relation: relation.trim(), description: description.trim() });
+  currentNpcEditIndex = -1;
+  document.getElementById('npcNameInput').value = '';
+  document.getElementById('npcRelationInput').value = '';
+  document.getElementById('npcDescInput').value = '';
+  document.getElementById('npcEditModal').classList.add('show');
+}
+
+function editNpcFromPersona(index) {
+  currentNpcEditIndex = index;
+  const npc = tempNpcs[index];
+  if (!npc) return;
+  document.getElementById('npcNameInput').value = npc.name || '';
+  document.getElementById('npcRelationInput').value = npc.relation || '';
+  document.getElementById('npcDescInput').value = npc.description || '';
+  document.getElementById('npcEditModal').classList.add('show');
+}
+
+function closeNpcEditModal() {
+  document.getElementById('npcEditModal').classList.remove('show');
+}
+
+function saveNpcEdit() {
+  const name = document.getElementById('npcNameInput').value.trim();
+  const relation = document.getElementById('npcRelationInput').value.trim();
+  const description = document.getElementById('npcDescInput').value.trim();
+  if (!name) { alert('NPC 名字不能为空'); return; }
+  
+  const npcData = { id: genId(), name, relation, description };
+  
+  if (currentNpcEditIndex >= 0) {
+    tempNpcs[currentNpcEditIndex] = { ...tempNpcs[currentNpcEditIndex], name, relation, description };
+  } else {
+    tempNpcs.push(npcData);
+  }
+  
   renderNpcList();
+  closeNpcEditModal();
 }
 
 function deleteNpcFromPersona(index) {
+  if (!confirm('确定要删除这个 NPC 吗？')) return;
   tempNpcs.splice(index, 1);
   renderNpcList();
 }
@@ -5036,7 +5091,7 @@ function deleteEntry() {
   changeBtn.addEventListener('click', () => input.click());
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1920, 0.95).then((base64) => {
+    compressImageFile(file, 2560, 1.0).then((base64) => {
       if (!base64) return;
       document.getElementById('mainScreen').style.backgroundImage = `url(${base64})`;
       document.getElementById('mainScreen').style.backgroundSize = 'cover';
@@ -8730,7 +8785,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   
   if (charPostMoment) {
     sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈（多图2,3；纯文字写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
-    sp += `**如果你想在聊天里提到"我去发个朋友圈"，请务必同时输出 [[POST_MOMENT:...]] 标记，否则系统不会帮你发，用户也看不到！**\n`;
+    sp += `**⚠️极其重要：如果你想在聊天里说"我去发个朋友圈"或者"你看我朋友圈"，请务必在回复中同时输出 [[POST_MOMENT:文字内容|...]] 标记！如果你不输出标记，系统就不会真的帮你发，用户刷新朋友圈也看不到！必须同时输出！**\n`;
     sp += `**当你在朋友圈评论用户时，可以自然地 @ 人设中提到的 NPC（如 [[COMMENT_MOMENT:1|内容|@NPC名]]）。**\n`;
   } else {
     sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
@@ -9960,7 +10015,7 @@ function changeChatBg() {
   input.accept = 'image/*';
   input.onchange = (e) => {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1920, 0.95).then((base64) => {
+    compressImageFile(file, 2560, 1.0).then((base64) => {
       if (!base64) return;
       const chat = jianxunChats.find(c => c.id === currentChatId);
       if (chat) {
@@ -10079,7 +10134,7 @@ function loadMomentsData() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 1200, 0.9).then((base64) => {
+    compressImageFile(file, 1920, 0.95).then((base64) => {
       if (!base64) return;
       const hdr = document.getElementById('jxMomentsHeader');
       hdr.style.backgroundImage = `url(${base64})`;
@@ -10231,7 +10286,9 @@ function renderMomentsPosts() {
       if (c.replyTo) {
         replyPrefix = `回复 <span style="color:#576b95;">@${escapeHtml(c.replyTo)}</span>：`;
       }
-      return `<div class="jx-comment-item"><span class="jx-comment-user">${escapeHtml(c.user)}${replyPrefix ? ' ' : '：'}</span>${replyPrefix ? replyPrefix : ''}<span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}</div>`;
+      return `<div class="jx-comment-item" style="cursor:pointer;" onclick="replyToComment('${post.id}', '${escapeHtml(c.user)}')">
+        <span class="jx-comment-user">${escapeHtml(c.user)}${replyPrefix ? ' ' : '：'}</span>${replyPrefix ? replyPrefix : ''}<span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}
+      </div>`;
     }).join('') : ''}</div>`;
     let visibilityIcon = '';
     let visibilityText = '';
