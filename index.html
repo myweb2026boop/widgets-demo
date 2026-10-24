@@ -263,9 +263,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-moments-join-date{font-size:12px;color:#999;margin-bottom:4px;display:block}
 .jx-moments-post-count{font-size:12px;color:#999;display:block;margin-bottom:4px}
 .jx-moments-add-btn{position:absolute;bottom:18px;right:24px;width:28px;height:28px;border-radius:50%;background:#000;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10;padding-bottom:2px}
-.jx-moments-notify-btn{position:absolute;bottom:18px;right:64px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.95);color:#333;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10;position:absolute}
-.jx-moments-notify-btn svg{width:16px;height:16px;fill:#333}
-.jx-moments-notify-btn .jx-moments-notify-dot{position:absolute;top:-2px;right:-2px;min-width:14px;height:14px;line-height:14px;font-size:9px;color:#fff;background:#ff3b30;border-radius:7px;padding:0 3px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+.jx-moments-notify-btn{position:absolute;top:16px;left:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);color:#333;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10;}
+.jx-moments-notify-btn svg{width:20px;height:20px;fill:#333}
+.jx-moments-notify-btn .jx-moments-notify-dot{position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;line-height:16px;font-size:10px;color:#fff;background:#ff3b30;border-radius:8px;padding:0 4px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.25);box-sizing:border-box;}
 .jx-moments-posts{padding:16px;background:#fff;min-height:100px}
 .jx-post{margin-bottom:24px;border-bottom:1px solid #f5f5f5;padding-bottom:16px;position:relative}
 .jx-post:last-child{border-bottom:none}
@@ -2029,7 +2029,7 @@ https://xxx.com/a.png
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll" style="padding: 16px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的"面具"来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
         <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
         <div id="jxMaskList"></div>
         <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
@@ -7406,7 +7406,11 @@ function renderJianxunChatList() {
     const aPinned = a.pinned ? 1 : 0;
     const bPinned = b.pinned ? 1 : 0;
     if (aPinned !== bPinned) return bPinned - aPinned;
-    return (b.lastMessageTime || 0) - (a.lastMessageTime || 0);
+    const aLastMsg = a.messages && a.messages.length > 0 ? a.messages[a.messages.length - 1] : null;
+    const bLastMsg = b.messages && b.messages.length > 0 ? b.messages[b.messages.length - 1] : null;
+    const aTime = aLastMsg && aLastMsg.time ? aLastMsg.time : (a.lastMessageTime || 0);
+    const bTime = bLastMsg && bLastMsg.time ? bLastMsg.time : (b.lastMessageTime || 0);
+    return bTime - aTime;
   });
   list.innerHTML = sortedChats.map((chat) => {
     const avatarUrl = chat.avatar || '';
@@ -8851,7 +8855,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   if (charPostMoment) {
     sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈。**编号指的是上方【可引用图片】列表的编号**（比如想发最新的用户照片用"2"，想发第2和第3张用"2,3"；纯文字就留空编号位，写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
     sp += `**⚠️极其重要：如果你想在聊天里说"我去发个朋友圈"或者"你看我朋友圈"，请务必在回复中同时输出 [[POST_MOMENT:文字内容|图片编号...]] 标记！如果你不输出标记，系统就不会真的帮你发，用户刷新朋友圈也看不到！必须同时输出！**\n`;
-    sp += `**发朋友圈时可以带用户之前发的图片！只要你想要，就可以引用上方【可引用图片】里的照片作为配图。**\n`;
+    sp += `**发朋友圈时完全可以使用上方【可引用图片】里的照片作为配图！只需写出对应的编号即可。如果想配图，大胆地用。**\n`;
     sp += `**当你在朋友圈评论用户时，可以自然地 @ 人设中提到的 NPC（如 [[COMMENT_MOMENT:1|内容|@NPC名]]）。**\n`;
   } else {
     sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
@@ -8915,6 +8919,71 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   }
 
   sp += '\n现在以角色身份自然回复用户。';
+  return sp;
+}
+
+function buildMomentsCommentSystemPrompt(chat, post) {
+  const persona = personaList.find(p => p.name === chat.name);
+  const activeMask = getActiveMaskForChat(chat);
+  const userRealName = activeMask ? getMaskRealName(activeMask) : (localStorage.getItem('moments_name') || '用户');
+  const charName = chat.customRemark || chat.name || '未知';
+
+  let sp = `【系统设定】你是真人，请在评论朋友圈时保持真实人类的说话风格，口语化、简短。不要像AI一样回复长篇大论或过度礼貌。\n`;
+  sp += `你的身份是「${charName}」。\n`;
+  if (persona) {
+    if (persona.gender) sp += `性别：${persona.gender}\n`;
+    if (persona.age) sp += `年龄：${persona.age}\n`;
+    if (persona.details) sp += `详细人设：${persona.details}\n`;
+    if (Array.isArray(persona.npcs) && persona.npcs.length > 0) {
+      sp += `你的社交圈（NPC）：\n`;
+      persona.npcs.forEach(npc => { sp += `- ${npc.name}（${npc.relation}）：${npc.description}\n`; });
+    }
+  }
+
+  // 世界书
+  const wb = buildWorldBookPrompt(chat);
+  if (wb) sp += wb;
+
+  // 记忆
+  const mem = buildMemoryPrompt(chat);
+  if (mem) sp += mem;
+
+  // 最近聊天记录
+  const recentMessages = chat.messages.filter(m => m.content !== '__typing__').slice(-8).map(m => {
+    const who = m.role === 'me' ? userRealName : charName;
+    let text = '';
+    if (m.type === 'image') text = '[图片]';
+    else if (m.type === 'sticker') text = '[表情]';
+    else if (m.type === 'transfer') text = '[转账]';
+    else if (m.type === 'familyCard') text = '[亲属卡]';
+    else if (m.type === 'card') text = '[名片]';
+    else if (m.type === 'html') text = '[HTML]';
+    else if (m.type === 'merged') text = '[聊天记录]';
+    else if (m.type === 'coupleProposal') text = '[换情头申请]';
+    else if (m.type === 'music') text = '[音乐]';
+    else text = String(m.content || '').slice(0, 100);
+    return `${who}：${text}`;
+  }).join('\n');
+  if (recentMessages) {
+    sp += `\n【你们最近的聊天上下文】\n${recentMessages}\n`;
+  }
+
+  const rtp = buildRealTimePrompt(chat);
+  if (rtp) sp += rtp;
+
+  const likes = Array.isArray(post.likes) ? post.likes : (post.liked ? [getMaskDisplayName(activeMask)] : []);
+  
+  sp += `\n【朋友圈动态】\n`;
+  sp += `发布者：${post.author || userRealName}\n`;
+  sp += `内容：${post.content || '[图片]'}\n`;
+  if (post.images && post.images.length > 0) sp += `（包含 ${post.images.length} 张图片）\n`;
+  if (post.mentions && post.mentions.length > 0) sp += `提到了：${post.mentions.join('、')}\n`;
+  if (likes.length > 0) sp += `当前点赞：${likes.join('、')}\n`;
+  if (post.comments && post.comments.length > 0) {
+    sp += `已有评论：\n`;
+    post.comments.forEach(c => { sp += `- ${c.user}：${c.text}\n`; });
+  }
+
   return sp;
 }
 
@@ -9796,7 +9865,7 @@ setInterval(async () => {
     const now = Date.now();
     for (const chat of jianxunChats) {
       if (!chat.allowActive || chat._replying) continue;
-      if (_activeChatCooldown[chat.id] && now - _activeChatCooldown[chat.id] < 180000) continue;
+      if (_activeChatCooldown[chat.id] && now - _activeChatCooldown[chat.id] < 1800000) continue;
       
       const realMsgs = chat.messages.filter(m => m.content !== '__typing__');
       if (realMsgs.length === 0) continue;
@@ -9807,7 +9876,7 @@ setInterval(async () => {
       const lastTime = lastMsg.time || chat.lastMessageTime || now;
       const timeSinceLast = now - lastTime;
       
-      if (timeSinceLast > 45000 && timeSinceLast < 600000) {
+      if (timeSinceLast > 180000 && timeSinceLast < 1800000) {
         _activeChatCooldown[chat.id] = now;
         triggerCharReply(chat, true);
         break;
@@ -10436,9 +10505,6 @@ function jumpToMomentPost(postId) {
   setTimeout(() => {
     const postsContainer = document.getElementById('jx-moments-posts');
     if (!postsContainer) return;
-    const targetPost = postsContainer.querySelector(`[data-post-id="${postId}"]`) || (Array.from(postsContainer.querySelectorAll('.jx-post')).find(el => {
-      return el.innerHTML.indexOf(postId) >= 0;
-    }));
     const postEls = postsContainer.querySelectorAll('.jx-post');
     let foundEl = null;
     postEls.forEach(el => {
@@ -10496,7 +10562,7 @@ function renderMomentsPosts() {
       if (c.replyTo) {
         replyPrefix = `回复 <span style="color:#576b95;">@${escapeHtml(c.replyTo)}</span>：`;
       }
-      return `<div class="jx-comment-item" style="cursor:pointer;" onclick="replyToComment('${post.id}', '${escapeHtml(c.user).replace(/'/g, "\\'")}')">
+      return `<div class="jx-comment-item" data-post-id="${post.id}" data-reply-user="${escapeHtml(c.user)}" style="cursor:pointer;">
         <span class="jx-comment-user">${escapeHtml(c.user)}${replyPrefix ? ' ' : '：'}</span>${replyPrefix ? replyPrefix : ''}<span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}
       </div>`;
     }).join('') : ''}</div>`;
@@ -10547,16 +10613,21 @@ function renderMomentsPosts() {
           }
           return;
         }
+        if (target.classList && target.classList.contains('jx-comment-item')) {
+          const postId = target.getAttribute('data-post-id');
+          const replyUser = target.getAttribute('data-reply-user');
+          if (postId) {
+            e.stopPropagation();
+            if (replyUser) {
+              openCommentModal(postId, replyUser);
+            }
+          }
+          return;
+        }
         target = target.parentNode;
       }
     });
   }
-}
-
-function replyToComment(postId, userName) {
-  const post = momentsPosts.find(p => p.id === postId);
-  if (!post) return;
-  openCommentModal(postId, userName);
 }
 
 function editMomentComment(postId, commentId) {
@@ -10605,50 +10676,14 @@ async function generateCharMomentComment(chat, post) {
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return null;
   const charName = chat.customRemark || chat.name || 'TA';
-  const currentMaskId = getCurrentMaskId();
-  const mask = jxMasks.find(m => m.id === currentMaskId);
-  const userRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
-  const persona = personaList.find(p => p.name === chat.name);
-  let personaDesc = '';
-  if (persona) {
-    personaDesc = `角色设定：${persona.name || ''}，${persona.gender || ''}，${persona.age || ''}，${persona.details || ''}`;
-    if (Array.isArray(persona.npcs) && persona.npcs.length > 0) {
-      personaDesc += `\n你的NPC社交圈：\n`;
-      persona.npcs.forEach(npc => {
-        personaDesc += `- ${npc.name}（${npc.relation}）：${npc.description}\n`;
-      });
-    }
-  }
-  const recentMessages = chat.messages.slice(-5).map(m => {
-    const who = m.role === 'me' ? userRealName : charName;
-    let text = '';
-    if (m.type === 'image') text = '[图片]';
-    else if (m.type === 'sticker') text = '[表情]';
-    else if (m.type === 'transfer') text = '[转账]';
-    else if (m.type === 'familyCard') text = '[亲属卡]';
-    else if (m.type === 'card') text = '[名片]';
-    else if (m.type === 'html') text = '[HTML]';
-    else if (m.type === 'merged') text = '[聊天记录]';
-    else if (m.type === 'coupleProposal') text = '[换情头申请]';
-    else if (m.type === 'music') text = '[音乐]';
-    else text = String(m.content || '').slice(0, 80);
-    return `${who}：${text}`;
-  }).join('\n');
-  const memories = (chat.memories || []).map(m => m.content).join('\n');
-  
   const isAutoTrigger = !post.mentions || !post.mentions.includes(charName);
-  let sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
-    `${personaDesc}\n` +
-    `当前聊天上下文（最近5条）：\n${recentMessages}\n` +
-    `你的长期记忆：\n${memories || '（暂无）'}\n\n` +
-    `用户「${userRealName}」发了一条朋友圈动态：「${post.content || '[图片]'}」。\n`;
-  if (post.mentions && post.mentions.length > 0) {
-    sys += `这条动态 @ 了：${post.mentions.join('、')}。\n`;
-  }
+  
+  let sys = buildMomentsCommentSystemPrompt(chat, post);
+  sys += `\n【任务】\n`;
   if (isAutoTrigger) {
-    sys += `你恰好刷到了这条动态，请以「${charName}」的身份，针对这条动态写一条符合人设的评论。要求：1~2句，口语化，符合角色性格和你们的关系，不要写死板客套话，不要加引号或前缀。如果内容合适，你可以自然地 @ 你的NPC朋友（格式如 @名字）。只输出评论内容本身。`;
+    sys += `你恰好刷到了这条动态，请针对它写一条符合人设的评论。要求：1~2句，口语化，简短自然，不要写死板客套话。如果内容合适，你可以自然地 @ 你的NPC朋友（格式如 @名字）。只输出评论内容本身。`;
   } else {
-    sys += `用户在动态里 @ 了你。请以「${charName}」的身份，针对这条动态写一条符合人设的评论。要求：1~2句，口语化，符合角色性格和你们的关系，不要写死板客套话，不要加引号或前缀。只输出评论内容本身。`;
+    sys += `这条动态 @ 了你。请针对它写一条符合人设的评论。要求：1~2句，口语化，简短自然，不要写死板客套话。只输出评论内容本身。`;
   }
 
   try {
@@ -10683,9 +10718,10 @@ async function generateCharMomentComment(chat, post) {
 async function generateNpcMomentComment(npc, post) {
   const cfg = loadApiConfig();
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return null;
-  const sys = `你正在扮演NPC「${npc.name}」，你与主角的关系是「${npc.relation}」。你的设定是：${npc.description}。\n` +
-    `主角发了一条朋友圈动态：「${post.content || '[图片]'}」。\n` +
-    (post.author ? `这条动态的作者是：${post.author}。\n` : '') +
+  const persona = personaList.find(p => Array.isArray(p.npcs) && p.npcs.some(n => n.id === npc.id || n.name === npc.name));
+  const ownerName = persona ? persona.name : '主角';
+  const sys = `你正在扮演NPC「${npc.name}」，你与「${ownerName}」的关系是「${npc.relation}」。你的设定是：${npc.description}。\n` +
+    `「${ownerName}」发了一条朋友圈动态：「${post.content || '[图片]'}」。\n` +
     `请以「${npc.name}」的口吻写一条评论。要求：简短口语化，符合你的人设和关系，不要加前缀。只输出评论内容本身。`;
   try {
     const url = normalizeChatEndpoint(cfg.endpoint);
@@ -10992,15 +11028,18 @@ async function replyToMomentsComment(chat, postId, userComment) {
   if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
   let post = momentsPosts.find(p => p.id === postId);
   if (!post) return;
+  
   const charName = chat.customRemark || chat.name || 'TA';
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
   const userRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
-  const sys = `你正在扮演「${charName}」，性格、口吻要符合人设。\n` +
-    `你之前发过一条朋友圈：「${post.content || '[图片]'}」。\n` +
-    `现在「${userRealName}」在这条动态下评论了你：「${userComment}」。\n` +
-    `请用 1~2 句简短、口语化的话回复这条评论，符合你的性格。\n` +
-    `只输出评论内容本身，不要加引号、不要解释、不要带"回复："这样的前缀。`;
+
+  let sys = buildMomentsCommentSystemPrompt(chat, post);
+  sys += `\n【任务】\n`;
+  sys += `「${userRealName}」在你的这条动态下评论了你：「${userComment}」。\n`;
+  sys += `请以「${charName}」的身份，用 1~2 句非常简短、口语化的话回复这条评论。符合你的性格和你们的关系。\n`;
+  sys += `只输出评论内容本身，绝对不要加引号、不要解释、不要带"回复："这样的前缀，不要长篇大论！\n`;
+
   try {
     const url = normalizeChatEndpoint(cfg.endpoint);
     const res = await fetch(url, {
@@ -11047,7 +11086,9 @@ async function replyAsNpcToComment(npc, postId, userComment) {
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
   const userRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
-  const sys = `你正在扮演NPC「${npc.name}」，你的设定是：${npc.description}。\n` +
+  const persona = personaList.find(p => Array.isArray(p.npcs) && p.npcs.some(n => n.id === npc.id || n.name === npc.name));
+  const ownerName = persona ? persona.name : '主角';
+  const sys = `你正在扮演NPC「${npc.name}」，你与「${ownerName}」的关系是「${npc.relation}」。你的设定是：${npc.description}。\n` +
     `「${userRealName}」在朋友圈评论了你：「${userComment}」。\n` +
     `请用 1~2 句简短、符合你人设的话回复。只输出内容本身。`;
   try {
