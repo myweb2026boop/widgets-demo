@@ -233,9 +233,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-tab-content{flex:1;overflow-y:auto;display:none;padding-bottom:70px}
 .jx-tab-content.active{display:block}
 .jx-bottom-nav{position:absolute;bottom:0;left:0;right:0;height:60px;background:#f7f7f7;border-top:1px solid #e5e5e5;display:flex;justify-content:space-around;align-items:center;z-index:999;padding-bottom:env(safe-area-inset-bottom);box-sizing:content-box}
-.jx-nav-item{display:flex;flex-direction:column;align-items:center;color:#7a7e83;font-size:10px;flex:1;padding:8px 0;cursor:pointer}
+.jx-nav-item{display:flex;flex-direction:column;align-items:center;color:#7a7e83;font-size:10px;flex:1;padding:8px 0;cursor:pointer;position:relative}
 .jx-nav-item.active{color:#07c160}
 .jx-nav-item svg{width:26px;height:26px;margin-bottom:2px;fill:currentColor}
+.jx-nav-badge{position:absolute;top:2px;right:50%;transform:translateX(16px);min-width:16px;height:16px;border-radius:8px;background:#ff3b30;color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0 4px;box-sizing:border-box;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.jx-nav-badge.dot{padding:0;min-width:9px;width:9px;height:9px;border-radius:50%;line-height:9px;top:6px;}
 .jx-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#fff;position:sticky;top:0;z-index:10}
 .jx-header .left{font-size:16px;color:#333;cursor:pointer}
 .jx-header .title{font-size:17px;font-weight:600;color:#000}
@@ -261,6 +263,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-moments-join-date{font-size:12px;color:#999;margin-bottom:4px;display:block}
 .jx-moments-post-count{font-size:12px;color:#999;display:block;margin-bottom:4px}
 .jx-moments-add-btn{position:absolute;bottom:18px;right:24px;width:28px;height:28px;border-radius:50%;background:#000;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10;padding-bottom:2px}
+.jx-moments-notify-btn{position:absolute;bottom:18px;right:64px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.95);color:#333;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:10;position:absolute}
+.jx-moments-notify-btn svg{width:16px;height:16px;fill:#333}
+.jx-moments-notify-btn .jx-moments-notify-dot{position:absolute;top:-2px;right:-2px;min-width:14px;height:14px;line-height:14px;font-size:9px;color:#fff;background:#ff3b30;border-radius:7px;padding:0 3px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.25);}
 .jx-moments-posts{padding:16px;background:#fff;min-height:100px}
 .jx-post{margin-bottom:24px;border-bottom:1px solid #f5f5f5;padding-bottom:16px;position:relative}
 .jx-post:last-child{border-bottom:none}
@@ -1148,6 +1153,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-split-textarea{background:#2c2c2e;border-color:#3a3a3c;color:#eee}
 .phone-case.dark-mode .jx-split-textarea:focus{background:#2c2c2e;border-color:#07c160}
 .phone-case.dark-mode .jx-split-actions .cancel{background:#2c2c2e;color:#ddd}
+/* 朋友圈消息面板 */
+#jxMomentsNotifyScreen{display:none;flex-direction:column;background:#f7f8fa;height:100%;width:100%;position:absolute;top:0;left:0;z-index:1002}
+#jxMomentsNotifyScreen.active{display:flex}
+.jx-notify-item{background:#fff;border-radius:10px;margin:8px 12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer}
+.jx-notify-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.jx-notify-avatar{width:32px;height:32px;border-radius:6px;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.jx-notify-avatar img{width:100%;height:100%;object-fit:cover}
+.jx-notify-name{font-size:14px;color:#576b95;font-weight:500}
+.jx-notify-type{font-size:11px;color:#999;margin-left:auto}
+.jx-notify-content{font-size:13px;color:#333;line-height:1.5;background:#f7f7f7;padding:8px 10px;border-radius:6px;margin-top:6px}
+.jx-notify-empty{text-align:center;padding:60px 20px;color:#999;font-size:14px}
+.jx-notify-clear-bar{display:flex;justify-content:flex-end;padding:8px 16px}
+.jx-notify-clear-btn{font-size:12px;color:#999;padding:6px 12px;border:1px solid #e0e0e0;border-radius:14px;background:#fff;cursor:pointer}
+.phone-case.dark-mode #jxMomentsNotifyScreen{background:#121212}
+.phone-case.dark-mode .jx-notify-item{background:#1c1c1e;box-shadow:none}
+.phone-case.dark-mode .jx-notify-content{background:#2c2c2e;color:#ddd}
+.phone-case.dark-mode .jx-notify-name{color:#82a7e0}
+.phone-case.dark-mode .jx-notify-clear-btn{background:#1c1c1e;border-color:#2c2c2e;color:#aaa}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1656,6 +1679,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
       <div id="jx-moments" class="jx-tab-content">
         <div class="jx-moments-header" id="jxMomentsHeader" onclick="document.getElementById('momentsBgInput').click()">
           <input type="file" id="momentsBgInput" accept="image/*" style="display: none;">
+          <div class="jx-moments-notify-btn" id="jxMomentsNotifyBtn" onclick="event.stopPropagation();openMomentsNotifyScreen()" style="display:none;">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            <span class="jx-moments-notify-dot" id="jxMomentsNotifyDot">0</span>
+          </div>
         </div>
         <div class="jx-moments-user-info">
           <div class="jx-moments-avatar" onclick="document.getElementById('momentsAvatarInput').click()">
@@ -1736,7 +1763,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 
       <div class="jx-bottom-nav">
         <div class="jx-nav-item active" onclick="switchJianxunTab('jx-chats', this)"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>主页</span></div>
-        <div class="jx-nav-item" onclick="switchJianxunTab('jx-moments', this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg><span>朋友圈</span></div>
+        <div class="jx-nav-item" id="jxMomentsNavItem" onclick="switchJianxunTab('jx-moments', this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg><span>朋友圈</span><span class="jx-nav-badge" id="jxMomentsNavBadge" style="display:none;">0</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-contacts', this)"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>通讯录</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-me', this)"><svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg><span>我</span></div>
       </div>
@@ -1834,6 +1861,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
         <input type="text" id="jxChatSearchInput" placeholder="搜索聊天记录..." oninput="doChatSearch(this.value)" style="width:100%; border:1px solid #ddd; border-radius:8px; padding:10px 14px; font-size:14px; outline:none; box-sizing:border-box; font-family:inherit;">
       </div>
       <div class="jx-info-scroll" id="jxChatSearchResults" style="padding: 12px 0;"></div>
+    </div>
+
+    <div id="jxMomentsNotifyScreen">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeMomentsNotifyScreen()">‹</span>
+        <span class="title">朋友圈消息</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-info-scroll" id="jxMomentsNotifyList"></div>
     </div>
 
     <div id="jxWalletScreen" style="display: none; flex-direction: column; background: #f7f8fa; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 1007;">
@@ -1993,7 +2029,7 @@ https://xxx.com/a.png
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll" style="padding: 16px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的"面具"来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
         <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
         <div id="jxMaskList"></div>
         <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
@@ -2560,7 +2596,6 @@ https://xxx.com/a.png
       </div>
     </div>
 
-    <!-- 新增：编辑NPC的独立弹窗 -->
     <div class="jx-modal" id="npcEditModal">
       <div class="jx-modal-content" style="max-width: 340px; text-align: left;">
         <h3 style="text-align: center; margin-bottom: 15px;">编辑 NPC</h3>
@@ -2678,6 +2713,7 @@ const BEAUTIFY_PRESETS_KEY = 'beautify_presets';
 const BEAUTIFY_PRESETS_IDB_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 const CHAR_POST_MOMENT_KEY = 'char_post_moment_enabled';
+const MOMENTS_UNREAD_KEY = 'moments_unread_v2';
 
 /* ============ 美化预设 IndexedDB ============ */
 let _beautifyPresetsCache = null;
@@ -3533,22 +3569,31 @@ function buildRealTimePrompt(chat) {
   let sp = `\n【真实时间感知】你能感知真实世界的时间，你认知中的时间与下面的真实时间完全一致：${timeStr}（${period}）。`;
   
   if (chat && chat.messages && chat.messages.length > 0) {
-    const lastMsg = chat.messages[chat.messages.length - 1];
-    if (lastMsg.time) {
-      const diffMs = now.getTime() - lastMsg.time;
+    let lastUserMsg = null;
+    for (let i = chat.messages.length - 1; i >= 0; i--) {
+      if (chat.messages[i].role === 'me' && chat.messages[i].content !== '__typing__') {
+        lastUserMsg = chat.messages[i];
+        break;
+      }
+    }
+    if (lastUserMsg && lastUserMsg.time) {
+      const diffMs = now.getTime() - lastUserMsg.time;
       const diffMins = Math.floor(diffMs / 60000);
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
-      if (diffDays > 0) {
-        sp += `你和用户的最后一次对话是在 ${diffDays} 天前。`;
+      if (diffDays >= 1) {
+        sp += `\n【⚠️ 时间跨度警告 · 极其重要】用户的上一条消息是 ${diffDays} 天前发的！你和用户之间隔了很长很长时间。**你必须真实地表现出对这段漫长间隔的感知**：\n  ◆ 不要装作"刚才还在聊"的样子，不要假装什么都没发生。\n  ◆ 自然地流露出时间感：可能是一句"好久没聊了"、"最近怎么样"、"这几天都没见你上线"、"是不是把我忘了"、"突然想起你"之类。\n  ◆ 也要做好用户可能只是消失了一段时间的心理准备，保持你的性格特点（有的角色会委屈、有的会淡定、有的会生气、有的会装作无所谓）。\n  ◆ 如果你之前和用户在聊某个话题，现在要有意识地提到"之前说的那个事怎么样了"这类跨越时间的自然承接。\n`;
+        if (diffDays >= 7) sp += `  ◆ 已经超过一周了，这算是一段相当长的时间，应当明确让对方感觉到你已经意识到"很久不见了"。\n`;
       } else if (diffHours > 0) {
-        sp += `你和用户的最后一次对话是在 ${diffHours} 小时前。`;
+        sp += `\n【⏰ 时间间隔提醒】用户的上一条消息是 ${diffHours} 小时前发的，你和用户之间隔了好几个小时才收到新消息。你要自然地表现出对这种时间差的理解——可能是"忙完了？"、关心对方是不是有什么事、调侃一句"还知道回来呀"等等，符合你的人设风格。不要无视这个时间跨度。\n`;
+      } else if (diffMins > 30) {
+        sp += `\n【⏰ 时间间隔提醒】用户的上一条消息是 ${diffMins} 分钟前发的，隔了一段时间。可以自然地体现这种时间差，比如"忙完了？"之类的。\n`;
       } else if (diffMins > 5) {
-        sp += `你和用户的最后一次对话是在 ${diffMins} 分钟前。`;
+        sp += `\n【⏰ 时间间隔】用户的上一条消息是 ${diffMins} 分钟前发的，隔了一小会儿才回复你。可以稍微体现一下，但不必过度。\n`;
       }
     }
   }
-  sp += '你可以自然地在合适的情境下根据时间调整言行（比如深夜让对方早点休息、早上问一句睡得好不好、中午聊吃了什么等），但不要刻意反复报时间，也不要生硬地强调"现在是X点"。\n';
+  sp += '\n你可以在合适的情境下根据时间调整言行（比如深夜让对方早点休息、早上问一句睡得好不好、中午聊吃了什么等），但不要刻意反复报时间，也不要生硬地强调"现在是X点"。\n';
   return sp;
 }
 
@@ -5325,7 +5370,6 @@ async function exportAllData() {
     try {
       const zip = new JSZip();
       
-      // 1. LocalStorage
       const localData = {};
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -5337,7 +5381,6 @@ async function exportAllData() {
       }
       zip.file('localStorage.json', JSON.stringify(localData));
       
-      // 2. IndexedDB - Chats
       const chatData = await idbGet(STORE_CHATS, 'main') || [];
       const chatChunks = [];
       let currentChunk = [];
@@ -5369,7 +5412,6 @@ async function exportAllData() {
         }
         
         currentChunk.push(chat);
-        // 分块，避免单个JSON过大
         if (currentChunk.length >= 3) {
             chatChunks.push(currentChunk);
             currentChunk = [];
@@ -5381,7 +5423,6 @@ async function exportAllData() {
          zip.file(`chats/chats_${idx}.json`, JSON.stringify(chunk));
       });
 
-      // 3. IndexedDB - Moments
       const momentData = await idbGet(STORE_CHATS, 'moments') || [];
       for (let i = 0; i < momentData.length; i++) {
         const post = momentData[i];
@@ -5394,18 +5435,15 @@ async function exportAllData() {
       }
       zip.file('moments.json', JSON.stringify(momentData));
 
-      // 4. Beautify Presets
       const beautifyPresetsData = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
       zip.file('beautify_presets.json', JSON.stringify(beautifyPresetsData));
 
-      // 5. Font
       const fontData = await getFontFromDB();
       if (fontData && fontData.data) {
           zip.file('font.ttf', fontData.data);
           zip.file('font_meta.json', JSON.stringify({ origSize: fontData.origSize }));
       }
 
-      // 6. Music
       const musicSongs = await musicDBGetAll();
       const musicMeta = [];
       for (const s of musicSongs) {
@@ -5413,7 +5451,7 @@ async function exportAllData() {
              const base64Data = s.url.split(',')[1];
              zip.file(`music/${s.id}.bin`, base64Data, {base64: true});
              const meta = { ...s };
-             delete meta.url; // URL 太大，不放在 meta
+             delete meta.url;
              musicMeta.push(meta);
           } else {
              musicMeta.push(s); 
@@ -5421,7 +5459,6 @@ async function exportAllData() {
       }
       zip.file('music_meta.json', JSON.stringify(musicMeta));
 
-      // 生成 zip
       const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }, (metadata) => {
           overlay.innerHTML = `<div style="margin-bottom:16px;">打包中... ${metadata.percent.toFixed(1)}%</div><div style="width:30px;height:30px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>`;
       });
@@ -5507,7 +5544,6 @@ async function importAllData(file) {
   try {
     const zip = await JSZip.loadAsync(file);
     
-    // 1. LocalStorage
     const lsFile = zip.file('localStorage.json');
     if (lsFile) {
        const lsStr = await lsFile.async('string');
@@ -5517,7 +5553,6 @@ async function importAllData(file) {
        }
     }
 
-    // 2. Font
     const fontFile = zip.file('font.ttf');
     if (fontFile) {
         const fontBuffer = await fontFile.async('arraybuffer');
@@ -5533,7 +5568,6 @@ async function importAllData(file) {
         await deleteFontFromDB();
     }
 
-    // 3. Chats
     const chatFiles = zip.file(/^chats\/chats_\d+\.json$/);
     let allChats = [];
     for (const f of chatFiles) {
@@ -5547,7 +5581,6 @@ async function importAllData(file) {
         await idbSet(STORE_CHATS, 'main', allChats);
     }
 
-    // 4. Moments
     const momentFile = zip.file('moments.json');
     if (momentFile) {
         const str = await momentFile.async('string');
@@ -5555,7 +5588,6 @@ async function importAllData(file) {
         await idbSet(STORE_CHATS, 'moments', data);
     }
 
-    // 5. Beautify Presets
     const beautifyFile = zip.file('beautify_presets.json');
     if (beautifyFile) {
         const str = await beautifyFile.async('string');
@@ -5563,7 +5595,6 @@ async function importAllData(file) {
         await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, data);
     }
 
-    // 6. Images
     const imgFile = zip.file('images.json');
     if (imgFile) {
         const str = await imgFile.async('string');
@@ -5575,7 +5606,6 @@ async function importAllData(file) {
         }
     }
 
-    // 7. Music
     const musicMetaFile = zip.file('music_meta.json');
     if (musicMetaFile) {
         await musicDBClear();
@@ -6831,6 +6861,7 @@ async function switchMask(maskId) {
   loadMomentsData();
   loadJxMeProfile();
   renderMaskList();
+  renderMomentsUnreadBadge();
   alert('已切换身份');
 }
 
@@ -6954,20 +6985,41 @@ function getCharImageRefs(chat) {
   const avatarAware = loadAvatarAwareSetting();
   const activeMask = getActiveMaskForChat(chat);
   const userAvatar = chat.myAvatar || (activeMask ? activeMask.avatar : '') || localStorage.getItem('moments_avatar');
+  
   if (avatarAware && userAvatar) {
     refs.push({ id: 'avatar_current', data: userAvatar, isAvatar: true, time: 0, desc: '用户当前的头像（个人头像，非照片）' });
   }
+  
+  const collected = [];
+  const seenData = new Set();
+  if (userAvatar) seenData.add(userAvatar);
+  
   const pool = Array.isArray(chat.imagePool) ? chat.imagePool : [];
-  const filtered = pool.filter(img => {
-    if (!img || !img.data) return false;
+  pool.forEach(img => {
+    if (!img || !img.data) return;
     if (img.isAvatar) {
-      if (!avatarAware) return false;
-      if (userAvatar && img.data === userAvatar) return false;
+      if (!avatarAware) return;
+      if (seenData.has(img.data)) return;
+      seenData.add(img.data);
+      collected.push({ id: img.id || genId(), data: img.data, isAvatar: true, time: img.time || 0, desc: img.desc || '历史头像' });
+    } else {
+      if (seenData.has(img.data)) return;
+      seenData.add(img.data);
+      collected.push({ id: img.id || genId(), data: img.data, isAvatar: false, time: img.time || 0, desc: img.desc || '用户发来的图片' });
     }
-    return true;
   });
-  filtered.sort((a, b) => (b.time || 0) - (a.time || 0));
-  filtered.forEach(img => refs.push(img));
+  
+  if (Array.isArray(chat.messages)) {
+    chat.messages.forEach(m => {
+      if (m.type === 'image' && m.image && !seenData.has(m.image)) {
+        seenData.add(m.image);
+        collected.push({ id: m.id || genId(), data: m.image, isAvatar: false, time: m.time || 0, desc: '用户发来的图片' });
+      }
+    });
+  }
+  
+  collected.sort((a, b) => (b.time || 0) - (a.time || 0));
+  collected.slice(0, 12).forEach(img => refs.push(img));
   return refs;
 }
 
@@ -7176,6 +7228,7 @@ async function openJianxunApp() {
   renderJianxunContacts();
   await loadMomentsPosts();
   renderMomentsPosts();
+  renderMomentsUnreadBadge();
   loadJxMeProfile();
 }
 function switchJianxunTab(tabId, navElement) {
@@ -7187,7 +7240,7 @@ function switchJianxunTab(tabId, navElement) {
   else {
     const navs = document.querySelectorAll('#jianxunScreen .jx-nav-item');
     if (tabId === 'jx-chats' && navs[0]) navs[0].classList.add('active');
-    if (tabId === 'jx-moments' && navs[1]) { navs[1].classList.add('active'); loadMomentsPosts().then(renderMomentsPosts); }
+    if (tabId === 'jx-moments' && navs[1]) { navs[1].classList.add('active'); loadMomentsPosts().then(() => { renderMomentsPosts(); renderMomentsUnreadBadge(); }); }
     if (tabId === 'jx-contacts' && navs[2]) { navs[2].classList.add('active'); loadPersonaList(); renderJianxunContacts(); }
     if (tabId === 'jx-me' && navs[3]) { navs[3].classList.add('active'); loadJxMeProfile(); }
   }
@@ -7349,7 +7402,12 @@ function renderJianxunChatList() {
     list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">暂无聊天记录<br>点击右上角"+"添加人设</div>';
     return;
   }
-  const sortedChats = [...jianxunChats].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+  const sortedChats = [...jianxunChats].sort((a, b) => {
+    const aPinned = a.pinned ? 1 : 0;
+    const bPinned = b.pinned ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return (b.lastMessageTime || 0) - (a.lastMessageTime || 0);
+  });
   list.innerHTML = sortedChats.map((chat) => {
     const avatarUrl = chat.avatar || '';
     const nameText = chat.customRemark || chat.name || defaultName;
@@ -7369,10 +7427,11 @@ function renderJianxunChatList() {
       else if (lastMsgObj.type === 'system') lastMsg = lastMsgObj.content || '';
       else lastMsg = lastMsgObj.content || '[图片]';
     }
+    const timeText = lastMsgObj && lastMsgObj.time ? formatChatTimestamp(lastMsgObj.time) : '刚刚';
     return `<div class="jx-chat-item" onclick="openChat('${chat.id}')">
       <div class="jx-chat-avatar">${avatarUrl ? `<img src="${avatarUrl}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`}</div>
       <div class="jx-chat-info">
-        <div class="jx-chat-info-top"><span class="jx-chat-name">${escapeHtml(nameText)}</span><span class="jx-chat-time">刚刚</span></div>
+        <div class="jx-chat-info-top"><span class="jx-chat-name">${escapeHtml(nameText)}</span><span class="jx-chat-time">${escapeHtml(timeText)}</span></div>
         <span class="jx-chat-msg">${escapeHtml(lastMsg)}</span>
       </div>
     </div>`;
@@ -7883,7 +7942,7 @@ function voiceSend() {
       chat.imagePool.push({ id: genId(), data: base64, time: Date.now(), desc: '用户发来的图片' });
       const avatars = chat.imagePool.filter(img => img.isAvatar);
       let photos = chat.imagePool.filter(img => !img.isAvatar);
-      if (photos.length > 6) photos = photos.slice(-6);
+      if (photos.length > 12) photos = photos.slice(-12);
       chat.imagePool = avatars.concat(photos);
       saveJianxunChats();
       renderChatMessages();
@@ -8613,7 +8672,6 @@ function buildHtmlPrompt(chat) {
   list.forEach((h, i) => { sp += `${i + 1}.${h.name}\n`; });
   sp += '要展示时，请在回复中单独占一行输出 [[HTML:组件名称]]，系统会自动将其渲染为可视化的 HTML 卡片。\n';
   sp += '使用规则：只在语境合适时自然触发（例如用户请求、话题契合、情绪/场景需要、或角色人设契合时），不要滥用、不要每次回复都展示。\n';
-  sp += '例如用户问"你能画个小卡片吗"、聊到某个主题正好有匹配的组件、或角色想用可视化方式表达时，都可以使用。\n';
   return sp;
 }
 function buildAvatarLibPrompt() {
@@ -8719,7 +8777,15 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
 
   if (isProactive) {
-    sp += `\n【系统提示】用户已经有一段时间没有回复了。现在你想主动开启一个新话题、分享一些符合你人设的内容，或者发送一条日常消息。不要回复用户，只需发送一条新消息。\n`;
+    sp += `\n【⚠️ 主动消息提示 · 重要 ⚠️】用户已经有一段时间没有回复你了。现在轮到你主动开启话题。\n`;
+    sp += `严格要求：\n`;
+    sp += `1. **绝对不要重复**你最近已说过的话或问过的问题。仔细查看最近的聊天记录，尤其是你最后几条发言，避免内容撞车。\n`;
+    sp += `2. 可以是一个**全新**的日常话题、分享一件小事、一个随想、一句关心，或者只是打个招呼（比如"在吗"、"吃饭了吗"、"今天遇到一件挺有意思的事…"）。\n`;
+    sp += `3. 保持简短、口语化，符合你之前的人设和语气，不要戏剧化，不要长篇大论。\n`;
+    sp += `4. 如果你发现聊天记录中你最近连续多次主动发消息（好几句都是你发的而用户没回），**这次更要注意换个完全不同的角度**，不要每次都问相似的问题。\n`;
+    sp += `5. 不要每次都用同样的开场。看看聊天记录，换一种表达方式。\n`;
+    sp += `6. 如果实在想不出新话题，可以只发一两句很短的、自然的、不重复的话。宁可短也不要重复。\n`;
+    sp += `7. 这次输出不要使用任何引用标记、不要提及"系统"或"提示"这类词汇，就当是你自己想着想着想找用户说话。\n\n`;
   }
 
   const wb = buildWorldBookPrompt(chat);
@@ -8772,20 +8838,20 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
   if (avatarAware) {
     sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
-    sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为** —— 当你根据自己的人设/喜好，觉得用户头像或照片里的某处正好有你想借用/挪用的元素，或者当下聊天氛围让你想换个头像时，可以自己挑选并执行。\n';
+    sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为**\n';
     sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
-    sp += '  例：[[CROP_AVATAR:1|br|0.4]] 取用户头像右下角一块\n';
     sp += '[[USE_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换你自己的聊天头像。\n';
     sp += '[[SET_USER_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换用户的聊天头像（用户会感知到是你换的）。\n';
-    sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头（你换上A图，用户换上B图）。\n';
+    sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头。\n';
   }
   sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
   sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
-  sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。系统会自动找到最近一条匹配的用户消息，把引用内容显示在你的气泡上方。只在你想明确回应某句话时使用。\n';
+  sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。\n';
   
   if (charPostMoment) {
-    sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈（多图2,3；纯文字写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
-    sp += `**⚠️极其重要：如果你想在聊天里说"我去发个朋友圈"或者"你看我朋友圈"，请务必在回复中同时输出 [[POST_MOMENT:文字内容|...]] 标记！如果你不输出标记，系统就不会真的帮你发，用户刷新朋友圈也看不到！必须同时输出！**\n`;
+    sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈。**编号指的是上方【可引用图片】列表的编号**（比如想发最新的用户照片用"2"，想发第2和第3张用"2,3"；纯文字就留空编号位，写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
+    sp += `**⚠️极其重要：如果你想在聊天里说"我去发个朋友圈"或者"你看我朋友圈"，请务必在回复中同时输出 [[POST_MOMENT:文字内容|图片编号...]] 标记！如果你不输出标记，系统就不会真的帮你发，用户刷新朋友圈也看不到！必须同时输出！**\n`;
+    sp += `**发朋友圈时可以带用户之前发的图片！只要你想要，就可以引用上方【可引用图片】里的照片作为配图。**\n`;
     sp += `**当你在朋友圈评论用户时，可以自然地 @ 人设中提到的 NPC（如 [[COMMENT_MOMENT:1|内容|@NPC名]]）。**\n`;
   } else {
     sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
@@ -8795,21 +8861,21 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += '[[COMMENT_MOMENT:编号|内容|@A]] 评论朋友圈（第三项可选，@某人或NPC）\n';
   sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
   sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
-  sp += '[[ACCEPT_FAMILY_CARD]] 接受用户送给你的最近一张待处理的亲属卡（必须是你本人真实愿意接受时才使用）\n';
-  sp += '[[REFUND_FAMILY_CARD]] 退还用户送给你的最近一张待处理的亲属卡（必须是你本人不愿意接受时才使用）\n';
+  sp += '[[ACCEPT_FAMILY_CARD]] 接受用户送给你的最近一张待处理的亲属卡\n';
+  sp += '[[REFUND_FAMILY_CARD]] 退还用户送给你的最近一张待处理的亲属卡\n';
   sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡（用户明确要求退还/解绑时）\n';
   sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
   sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
   sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
   sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
-  sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。列表里没有的歌就不要分享。\n';
-  sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请（当用户分享音乐给你，且你打算接受时使用）\n';
+  sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。\n';
+  sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请\n';
   sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
   
   if (avatarAware) {
-    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为 —— 用户没有要求，但根据你的人设和当时聊天氛围觉得合适时，也可以自行使用（不必每次都换，只在心情/情境契合时用）。PROPOSE_COUPLE 应克制使用，只在氛围合适或用户提及时发起。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。\n';
+    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为。PROPOSE_COUPLE 应克制使用。\n';
   } else {
-    sp += '规则：标记嵌在自然文字里；不要滥用。SEND_MUSIC 只能从本地音乐列表里挑，列表为空时不要发送音乐。ACCEPT_FAMILY_CARD / REFUND_FAMILY_CARD 必须基于你本人的真实意愿判断（不是系统默认替你选择），用户送你亲属卡时你要么使用 ACCEPT_FAMILY_CARD 明确接受，要么使用 REFUND_FAMILY_CARD 明确退还，不要沉默，也不要假装已经接受。QUOTE 标记应自然使用，只在确实需要引用用户此前某句话来回应时使用，不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
+    sp += '规则：标记嵌在自然文字里；不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
   }
 
   sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
@@ -9114,10 +9180,6 @@ async function executeCharAction(chat, action) {
         if (currentChatId === chat.id) {
           renderChatMessages(true);
           renderJianxunChatList();
-          const infoImg = document.getElementById('jxInfoAvatarImg');
-          if (infoImg && document.getElementById('jxChatInfoScreen').classList.contains('active')) infoImg.src = base64;
-          const titleEl = document.getElementById('jxChatTitle');
-          if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
         }
       }
     }
@@ -9362,6 +9424,13 @@ async function executeCharAction(chat, action) {
     });
     await saveMomentsPosts();
     renderMomentsPosts();
+    addMomentsUnread({
+      type: 'post',
+      postId: momentsPosts[0].id,
+      fromName: charName,
+      text: text || '[图片]',
+      preview: (text || '[新动态]').slice(0, 40)
+    });
     if (notify) {
       chat.messages.push({
         id: genId(), role: 'char', type: 'system',
@@ -9384,6 +9453,13 @@ async function executeCharAction(chat, action) {
     if (!post.likes.includes(charName)) post.likes.push(charName);
     await saveMomentsPosts();
     renderMomentsPosts();
+    addMomentsUnread({
+      type: 'like',
+      postId: post.id,
+      fromName: charName,
+      text: '',
+      preview: charName + ' 赞了你的动态'
+    });
     return;
   }
   if (action.type === 'COMMENT_MOMENT') {
@@ -9408,6 +9484,13 @@ async function executeCharAction(chat, action) {
     });
     await saveMomentsPosts();
     renderMomentsPosts();
+    addMomentsUnread({
+      type: 'comment',
+      postId: post.id,
+      fromName: charName,
+      text: text,
+      preview: charName + '：' + text.slice(0, 40)
+    });
     return;
   }
   if (action.type === 'SEND_MUSIC') {
@@ -9638,6 +9721,7 @@ async function triggerCharReply(chat, isProactive = false) {
     chat._pendingHtmls = [];
   } finally {
     chat._replying = false;
+    chat.lastMessageTime = Date.now();
     await saveJianxunChats();
     if (currentChatId === chat.id) renderChatMessages();
     renderJianxunChatList();
@@ -9701,6 +9785,9 @@ function requestNotificationPermission() {
 }
 setTimeout(requestNotificationPermission, 2000);
 
+/* ============ 主动消息定时器（改进版） ============ */
+const _activeChatCooldown = {};
+
 setInterval(async () => {
   try {
     if (document.hidden) return;
@@ -9708,14 +9795,22 @@ setInterval(async () => {
     if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
     const now = Date.now();
     for (const chat of jianxunChats) {
-      if (chat.allowActive && !chat._replying) {
-        const lastMsg = chat.messages.filter(m => m.content !== '__typing__').pop();
-        const lastTime = lastMsg && lastMsg.time ? lastMsg.time : (chat.lastMessageTime || now);
-        const timeSinceLast = now - lastTime;
-        if (timeSinceLast > 60000) {
-          triggerCharReply(chat, true);
-          break;
-        }
+      if (!chat.allowActive || chat._replying) continue;
+      if (_activeChatCooldown[chat.id] && now - _activeChatCooldown[chat.id] < 180000) continue;
+      
+      const realMsgs = chat.messages.filter(m => m.content !== '__typing__');
+      if (realMsgs.length === 0) continue;
+      const lastMsg = realMsgs[realMsgs.length - 1];
+      
+      if (lastMsg.role === 'char') continue;
+      
+      const lastTime = lastMsg.time || chat.lastMessageTime || now;
+      const timeSinceLast = now - lastTime;
+      
+      if (timeSinceLast > 45000 && timeSinceLast < 600000) {
+        _activeChatCooldown[chat.id] = now;
+        triggerCharReply(chat, true);
+        break;
       }
     }
   } catch (e) {
@@ -10246,6 +10341,121 @@ async function saveMomentsPosts() {
     await idbSet(STORE_CHATS, 'moments', allPosts);
   } catch(e) {}
 }
+
+/* ============ 朋友圈未读管理 ============ */
+function loadMomentsUnread() {
+  try {
+    const raw = localStorage.getItem(MOMENTS_UNREAD_KEY + '_' + getCurrentMaskId());
+    const v = raw ? JSON.parse(raw) : [];
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+function saveMomentsUnread(list) {
+  try {
+    localStorage.setItem(MOMENTS_UNREAD_KEY + '_' + getCurrentMaskId(), JSON.stringify(list));
+    renderMomentsUnreadBadge();
+  } catch (e) {}
+}
+function addMomentsUnread(data) {
+  const list = loadMomentsUnread();
+  list.unshift({
+    id: genId(),
+    type: data.type || 'post',
+    postId: data.postId || '',
+    fromName: data.fromName || '',
+    text: data.text || '',
+    preview: data.preview || '',
+    time: Date.now()
+  });
+  while (list.length > 100) list.pop();
+  saveMomentsUnread(list);
+}
+function renderMomentsUnreadBadge() {
+  const list = loadMomentsUnread();
+  const unreadCount = list.length;
+  const navBadge = document.getElementById('jxMomentsNavBadge');
+  const notifyBtn = document.getElementById('jxMomentsNotifyBtn');
+  const notifyDot = document.getElementById('jxMomentsNotifyDot');
+  if (navBadge) {
+    if (unreadCount > 0) {
+      navBadge.style.display = 'block';
+      navBadge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    } else {
+      navBadge.style.display = 'none';
+    }
+  }
+  if (notifyBtn) {
+    if (unreadCount > 0) {
+      notifyBtn.style.display = 'flex';
+      if (notifyDot) notifyDot.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    } else {
+      notifyBtn.style.display = 'none';
+    }
+  }
+}
+function openMomentsNotifyScreen() {
+  const screen = document.getElementById('jxMomentsNotifyScreen');
+  const list = document.getElementById('jxMomentsNotifyList');
+  if (!screen || !list) return;
+  const unreadList = loadMomentsUnread();
+  if (unreadList.length === 0) {
+    list.innerHTML = '<div class="jx-notify-empty">暂无朋友圈消息</div>';
+  } else {
+    let html = `<div class="jx-notify-clear-bar"><button class="jx-notify-clear-btn" onclick="clearAllMomentsUnread()">全部已读</button></div>`;
+    html += unreadList.map(u => {
+      let typeText = '动态';
+      let typeIcon = '📝';
+      if (u.type === 'comment') { typeText = '评论'; typeIcon = '💬'; }
+      else if (u.type === 'like') { typeText = '赞'; typeIcon = '❤️'; }
+      else if (u.type === 'mention') { typeText = '@你'; typeIcon = '@'; }
+      else if (u.type === 'reply') { typeText = '回复'; typeIcon = '↩️'; }
+      return `<div class="jx-notify-item" onclick="jumpToMomentPost('${u.postId}')">
+        <div class="jx-notify-header">
+          <div class="jx-notify-avatar">${typeIcon}</div>
+          <span class="jx-notify-name">${escapeHtml(u.fromName || '')}</span>
+          <span class="jx-notify-type">${typeText} · ${formatChatTimestamp(u.time)}</span>
+        </div>
+        <div class="jx-notify-content">${escapeHtml(u.preview || u.text || '')}</div>
+      </div>`;
+    }).join('');
+    list.innerHTML = html;
+  }
+  screen.classList.add('active');
+}
+function closeMomentsNotifyScreen() {
+  const screen = document.getElementById('jxMomentsNotifyScreen');
+  if (screen) screen.classList.remove('active');
+}
+function clearAllMomentsUnread() {
+  saveMomentsUnread([]);
+  openMomentsNotifyScreen();
+}
+function jumpToMomentPost(postId) {
+  closeMomentsNotifyScreen();
+  switchJianxunTab('jx-moments', document.querySelectorAll('#jianxunScreen .jx-nav-item')[1]);
+  setTimeout(() => {
+    const postsContainer = document.getElementById('jx-moments-posts');
+    if (!postsContainer) return;
+    const targetPost = postsContainer.querySelector(`[data-post-id="${postId}"]`) || (Array.from(postsContainer.querySelectorAll('.jx-post')).find(el => {
+      return el.innerHTML.indexOf(postId) >= 0;
+    }));
+    const postEls = postsContainer.querySelectorAll('.jx-post');
+    let foundEl = null;
+    postEls.forEach(el => {
+      const delBtn = el.querySelector('.jx-post-delete-btn');
+      if (delBtn && delBtn.getAttribute('onclick') && delBtn.getAttribute('onclick').indexOf(postId) >= 0) {
+        foundEl = el;
+      }
+    });
+    if (foundEl) {
+      foundEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      foundEl.style.transition = 'background .3s';
+      foundEl.style.background = 'rgba(255,235,59,.15)';
+      setTimeout(() => { foundEl.style.background = ''; }, 1500);
+    }
+  }, 200);
+}
+
 function renderMomentsPosts() {
   const container = document.getElementById('jx-moments-posts');
   if (!container) return;
@@ -10286,7 +10496,7 @@ function renderMomentsPosts() {
       if (c.replyTo) {
         replyPrefix = `回复 <span style="color:#576b95;">@${escapeHtml(c.replyTo)}</span>：`;
       }
-      return `<div class="jx-comment-item" style="cursor:pointer;" onclick="replyToComment('${post.id}', '${escapeHtml(c.user)}')">
+      return `<div class="jx-comment-item" style="cursor:pointer;" onclick="replyToComment('${post.id}', '${escapeHtml(c.user).replace(/'/g, "\\'")}')">
         <span class="jx-comment-user">${escapeHtml(c.user)}${replyPrefix ? ' ' : '：'}</span>${replyPrefix ? replyPrefix : ''}<span class="jx-comment-text">${escapeHtml(c.text)}</span>${actions}
       </div>`;
     }).join('') : ''}</div>`;
@@ -10303,7 +10513,7 @@ function renderMomentsPosts() {
       visibilityText = '公开';
     }
     const deleteBtnIcon = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`;
-    return `<div class="jx-post">
+    return `<div class="jx-post" data-post-id="${post.id}">
       <div class="jx-post-header">
         <div class="jx-post-avatar">${authorAvatar ? `<img src="${authorAvatar}" style="width:100%;height:100%;object-fit:cover;">` : ''}</div>
         <div class="jx-post-user">${escapeHtml(authorName)}</div>
@@ -10341,6 +10551,12 @@ function renderMomentsPosts() {
       }
     });
   }
+}
+
+function replyToComment(postId, userName) {
+  const post = momentsPosts.find(p => p.id === postId);
+  if (!post) return;
+  openCommentModal(postId, userName);
 }
 
 function editMomentComment(postId, commentId) {
@@ -10527,7 +10743,6 @@ function openPublishScreen() {
       mentionList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可提醒</span>';
       customList.innerHTML = '<span style="font-size:12px;color:#999;">暂无人设可选</span>';
     } else {
-      // 收集所有人设和NPC用于 @
       const allMentions = [];
       personaList.forEach(p => {
         if (p.name) allMentions.push(p.name);
@@ -10600,10 +10815,8 @@ async function publishPost() {
   closePublishScreen();
   pushAwareness('用户发布了一条朋友圈动态："' + (content || '[图片]').slice(0, 40) + '"' + (tempPostImages.length ? '（含' + tempPostImages.length + '张图片）' : ''));
   
-  // 处理 @ 的人设和NPC
   if (mentions.length > 0) {
     for (const mentionName of mentions) {
-      // 检查是不是 Char
       const chat = jianxunChats.find(c => (c.customRemark || c.name) === mentionName);
       if (chat) {
         const result = await generateCharMomentComment(chat, newPost);
@@ -10620,11 +10833,17 @@ async function publishPost() {
             });
             await saveMomentsPosts();
             renderMomentsPosts();
+            addMomentsUnread({
+              type: 'mention',
+              postId: post.id,
+              fromName: chat.customRemark || chat.name || mentionName,
+              text: result.text,
+              preview: chat.customRemark || chat.name || mentionName + '：' + result.text.slice(0, 40)
+            });
           }
         }
         continue;
       }
-      // 检查是不是 NPC
       for (const p of personaList) {
         if (Array.isArray(p.npcs)) {
           const npc = p.npcs.find(n => n.name === mentionName);
@@ -10651,11 +10870,9 @@ async function publishPost() {
     }
   }
 
-  // 如果有开启了主动发朋友圈的 Char（不管有没有被 @），根据概率让他们来评论
   for (const chat of jianxunChats) {
     if (chat.charPostMoment === true) {
-      if (mentions.includes(chat.customRemark || chat.name)) continue; // 刚处理过的跳过
-      // 频率越高越容易评论
+      if (mentions.includes(chat.customRemark || chat.name)) continue;
       const freq = chat.charPostMomentFrequency || 'medium';
       let prob = 0.5;
       if (freq === 'high') prob = 0.85;
@@ -10675,6 +10892,13 @@ async function publishPost() {
             });
             await saveMomentsPosts();
             renderMomentsPosts();
+            addMomentsUnread({
+              type: 'comment',
+              postId: post.id,
+              fromName: chat.customRemark || chat.name || 'TA',
+              text: result.text,
+              preview: (chat.customRemark || chat.name || 'TA') + '：' + result.text.slice(0, 40)
+            });
           }
         }
       }
@@ -10707,8 +10931,19 @@ function openCommentModal(postId, replyTo = null) {
 }
 function closeCommentModal() { document.getElementById('jxCommentModal').classList.remove('show'); currentReplyToUser = null; }
 async function sendComment() {
-  const text = document.getElementById('commentContent').value.trim();
-  if (!text) return;
+  const fullText = document.getElementById('commentContent').value.trim();
+  if (!fullText) return;
+  
+  let text = fullText;
+  let replyToTarget = currentReplyToUser;
+  if (currentReplyToUser) {
+    const prefix = `@${currentReplyToUser}`;
+    if (text.startsWith(prefix)) {
+      text = text.slice(prefix.length).replace(/^[\s:：]+/, '').trim();
+    }
+  }
+  if (!text) { alert('请输入评论内容'); return; }
+  
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
   const currentName = getMaskDisplayName(mask);
@@ -10720,17 +10955,16 @@ async function sendComment() {
       user: currentName, 
       text: text, 
       isChar: false,
-      replyTo: currentReplyToUser
+      replyTo: replyToTarget
     });
     await saveMomentsPosts();
     renderMomentsPosts();
     closeCommentModal();
     pushAwareness('用户评论了' + (post.author ? ('「' + post.author + '」') : '') + '的朋友圈动态："' + text.slice(0, 40) + '"');
     
-    // 如果回复了 char，触发 char 回复
     let targetCharName = null;
-    if (currentReplyToUser) {
-      targetCharName = currentReplyToUser;
+    if (replyToTarget) {
+      targetCharName = replyToTarget;
     } else if (post.author) {
       targetCharName = post.author;
     }
@@ -10740,11 +10974,10 @@ async function sendComment() {
       if (chat) setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
     }
     
-    // 如果回复了 NPC，触发 NPC 回复
-    if (currentReplyToUser) {
+    if (replyToTarget) {
       for (const p of personaList) {
         if (Array.isArray(p.npcs)) {
-          const npc = p.npcs.find(n => n.name === currentReplyToUser);
+          const npc = p.npcs.find(n => n.name === replyToTarget);
           if (npc) {
             setTimeout(() => replyAsNpcToComment(npc, post.id, text), 900 + Math.random() * 800);
             break;
@@ -10796,6 +11029,13 @@ async function replyToMomentsComment(chat, postId, userComment) {
     });
     await saveMomentsPosts();
     renderMomentsPosts();
+    addMomentsUnread({
+      type: 'reply',
+      postId: post.id,
+      fromName: charName,
+      text: text,
+      preview: charName + ' 回复了你：' + text.slice(0, 40)
+    });
   } catch (e) { console.warn('回复朋友圈评论失败', e); }
 }
 
@@ -10838,16 +11078,25 @@ async function replyAsNpcToComment(npc, postId, userComment) {
     });
     await saveMomentsPosts();
     renderMomentsPosts();
+    addMomentsUnread({
+      type: 'reply',
+      postId: post.id,
+      fromName: npc.name,
+      text: text,
+      preview: npc.name + ' 回复了你：' + text.slice(0, 40)
+    });
   } catch (e) { console.warn('NPC回复朋友圈评论失败', e); }
 }
 
 initGlobalFontSizeControl();
 
-// 初始化美化预设
 initBeautifyPresets().then(() => {
   updatePresetList();
   updateBeautifyPresetList();
 });
+
+// 初始化朋友圈未读红点
+renderMomentsUnreadBadge();
 
 </script>
 
