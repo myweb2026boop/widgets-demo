@@ -670,7 +670,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-edit-modal.show{display:flex}
 .jx-edit-modal-content{background:#fff;width:90%;max-width:380px;border-radius:12px;padding:20px;text-align:left;display:flex;flex-direction:column}
 .jx-edit-modal-content h3{font-size:16px;margin-bottom:15px;color:#333}
-.jx-edit-textarea{width:100%;height:150px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;resize:none;outline:none;font-family:inherit;line-height:1.5;margin-bottom:15px;white-space:pre-wrap;word-break:break-all}
+.jx-edit-textarea{width:100%;height:300px;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;resize:vertical;outline:none;font-family:inherit;line-height:1.5;margin-bottom:15px;white-space:pre-wrap;word-break:break-all}
 .jx-edit-actions{display:flex;gap:10px}
 .jx-edit-actions button{flex:1;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer}
 .jx-edit-actions .cancel{background:#f0f0f0;color:#333}
@@ -2213,6 +2213,28 @@ https://xxx.com/a.png
             <div class="value"><span id="jxHtmlText">未启用</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
+        
+        <div class="jx-info-block">
+          <div class="jx-info-item">
+            <span class="label">线下剧情模式</span>
+            <div class="jx-switch" id="jxOfflineSwitch" onclick="toggleOfflineMode()"></div>
+          </div>
+          <div id="jxOfflineSettings" style="display: none;">
+            <div class="jx-info-item" onclick="changeOfflineLength()">
+              <span class="label">线下剧情字数设定</span>
+              <div class="value"><span id="jxOfflineLengthText">300字</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="jx-info-item" onclick="editOfflineStyle()">
+              <span class="label">线下剧情文风</span>
+              <div class="value"><span id="jxOfflineStyleText">未设置</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+            </div>
+            <div class="jx-info-item" onclick="bindOfflineWorldBook()">
+              <span class="label">绑定线下世界书</span>
+              <div class="value"><span id="jxOfflineWorldBookText">未绑定</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+            </div>
+          </div>
+        </div>
+
         <div class="jx-info-block">
           <div class="jx-info-item">
             <span class="label">自动总结记忆</span>
@@ -2386,6 +2408,7 @@ https://xxx.com/a.png
 
     <div class="jx-msg-menu" id="jxMsgMenu">
       <div class="jx-msg-menu-inner">
+        <div class="jx-msg-menu-item" onclick="menuCopy()">复制</div>
         <div class="jx-msg-menu-item" onclick="menuFavorite()">收藏</div>
         <div class="jx-msg-menu-item" onclick="menuDelete()">删除</div>
         <div class="jx-msg-menu-item" onclick="menuEdit()">编辑</div>
@@ -7141,6 +7164,13 @@ async function loadJianxunChats() {
     }
     if (chat.boundStickers !== undefined) delete chat.boundStickers;
     if (!Array.isArray(chat.enabledHtmls)) chat.enabledHtmls = [];
+    
+    // 初始化线下模式配置
+    if (chat.isOffline === undefined) chat.isOffline = false;
+    if (chat.offlineLength === undefined) chat.offlineLength = 300;
+    if (chat.offlineStyle === undefined) chat.offlineStyle = '';
+    if (!Array.isArray(chat.offlineWorldBook)) chat.offlineWorldBook = [];
+    
     chat.messages.forEach(m => { if (!m.id) m.id = genId(); if (!m.time) m.time = Date.now(); });
     if (!chat.lastMessageTime) chat.lastMessageTime = Date.now();
   });
@@ -8408,6 +8438,36 @@ function renderFavoritesList() {
 let menuMsgId = null;
 function openMsgMenu(msgId) { menuMsgId = msgId; document.getElementById('jxMsgMenu').classList.add('show'); }
 function closeMsgMenu() { document.getElementById('jxMsgMenu').classList.remove('show'); menuMsgId = null; }
+function menuCopy() {
+  const id = menuMsgId;
+  closeMsgMenu();
+  if (!id) return;
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = chat.messages.find(m => m.id === id);
+  if (!msg) return;
+  let textToCopy = msg.content || '';
+  if (msg.type === 'image') textToCopy = '[图片]';
+  else if (msg.type === 'sticker') textToCopy = '[表情]';
+  else if (msg.type === 'transfer') textToCopy = `[转账 ¥${(msg.amount || 0).toFixed(2)}]`;
+  else if (msg.type === 'familyCard') textToCopy = `[亲属卡 ¥${(msg.limit || 0).toFixed(2)}]`;
+  else if (msg.type === 'card' && msg.card) textToCopy = `[名片] ${msg.card.name}`;
+  else if (msg.type === 'music') textToCopy = `[音乐] ${msg.musicData.title}`;
+  
+  if (!textToCopy || textToCopy === '__typing__') return;
+  
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    alert('已复制到剪贴板');
+  }).catch(err => {
+    const ta = document.createElement('textarea');
+    ta.value = textToCopy;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('已复制到剪贴板');
+  });
+}
 function menuDelete() {
   const id = menuMsgId;
   closeMsgMenu();
@@ -8734,11 +8794,24 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const userAvatar = chat.myAvatar || (activeMask ? activeMask.avatar : '') || (localStorage.getItem('moments_avatar') || '');
   const charName = chat.customRemark || chat.name || '未知';
 
-  let sp = `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n\n`;
-  sp += `【去戏剧化与低唤醒表达 (De-dramatization & Low-Arousal Expression)】彻底摒弃轻小说或网文中的夸张修辞。${charName} 的语言表达必须是平淡的、日常的、接地气的。严禁使用脱离现实的抓马描述。\n\n`;
-  sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
-  sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
-  sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
+  let sp = '';
+
+  if (chat.isOffline) {
+    sp += `【线下剧情模式】\n`;
+    sp += `你当前正与用户进行面对面的真实互动。请停止一切作为“微信聊天机器人”的行为，不要使用碎片化短句。\n`;
+    sp += `你的每一次回复必须是一段完整、连贯、沉浸式的剧情演绎，包含详尽的动作、神态、心理描写以及自然的对话。\n`;
+    sp += `【字数与格式】回复字数控制在 ${chat.offlineLength || 300} 字左右。不要使用“角色名：”或“我：”这种剧本格式，请直接输出叙事段落。模仿用户发消息的格式，如果是引号对话就融入剧情中。\n`;
+    if (chat.offlineStyle) {
+      sp += `【文风要求】请严格遵循以下文风：${chat.offlineStyle}\n`;
+    }
+    sp += `\n【禁止行为】绝对禁止使用任何像 [[SPLIT]]、[[POST_MOMENT]] 这类控制微信界面的标记，只需要输出纯文本剧情。\n\n`;
+  } else {
+    sp += `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n\n`;
+    sp += `【去戏剧化与低唤醒表达 (De-dramatization & Low-Arousal Expression)】彻底摒弃轻小说或网文中的夸张修辞。${charName} 的语言表达必须是平淡的、日常的、接地气的。严禁使用脱离现实的抓马描述。\n\n`;
+    sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
+    sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
+    sp += `【认知谦逊 (Epistemic Humility)】契合度与边界：自然而然地展现出对你自身认知边界的了解，允许自己不完美、存在认知盲区。你的所有言行必须是基于你的背景、经历、立场和关系的合理反应。永远不要超出自己的认知、经验和能力边界。\n\n`;
+  }
 
   if (avatarAware) {
     sp += `【头像感知 · 已开启】你能感知用户的头像与照片，可以自然使用头像相关功能：\n`;
@@ -8756,7 +8829,9 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     sp += `  ◆ 即便用户直接问"你看我头像好看吗"这类问题，也要么不回应头像本身，要么用"我没太注意"、"头像对我来说只是个符号"等自然话语轻轻带过——绝不要展开评论或讨论头像的具体内容。\n\n`;
   }
 
-  sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（极其重要）**：请务必把回复拆成多条独立短消息。**你必须主动使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分（每 1~2 句用一次）。如果不使用 [[SPLIT]] 标记，系统仍然会尝试按标点和长度自动切分，但可能不如你亲手切分自然。为了最佳效果，请务必自觉使用 [[SPLIT]]。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
+  if (!chat.isOffline) {
+    sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（极其重要）**：请务必把回复拆成多条独立短消息。**你必须主动使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分（每 1~2 句用一次）。如果不使用 [[SPLIT]] 标记，系统仍然会尝试按标点和长度自动切分，但可能不如你亲手切分自然。为了最佳效果，请务必自觉使用 [[SPLIT]]。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
+  }
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
   if (persona) {
@@ -8780,7 +8855,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   sp += `· 记住：用户告诉你的"真实名字"才是真名。网名只是账号显示名。绝对不要把网名当作用户的真实姓名来使用。\n`;
   if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
 
-  if (isProactive) {
+  if (isProactive && !chat.isOffline) {
     sp += `\n【⚠️ 主动消息提示 · 重要 ⚠️】用户已经有一段时间没有回复你了。现在轮到你主动开启话题。\n`;
     sp += `严格要求：\n`;
     sp += `1. **绝对不要重复**你最近已说过的话或问过的问题。仔细查看最近的聊天记录，尤其是你最后几条发言，避免内容撞车。\n`;
@@ -8792,17 +8867,27 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     sp += `7. 这次输出不要使用任何引用标记、不要提及"系统"或"提示"这类词汇，就当是你自己想着想着想找用户说话。\n\n`;
   }
 
-  const wb = buildWorldBookPrompt(chat);
-  if (wb) sp += wb;
+  if (chat.isOffline) {
+    const bound = Array.isArray(chat.offlineWorldBook) ? chat.offlineWorldBook : [];
+    const relevant = worldBookEntries.filter(e => e.enabled && bound.includes(e.id));
+    if (relevant.length > 0) {
+      sp += `\n【线下专属世界观 / 背景设定】\n${relevant.map(e => e.content).join('\n\n')}\n`;
+    }
+  } else {
+    const wb = buildWorldBookPrompt(chat);
+    if (wb) sp += wb;
+  }
 
   const mem = buildMemoryPrompt(chat);
   if (mem) sp += mem;
 
-  const stp = buildStickerPrompt(chat);
-  if (stp) sp += stp;
+  if (!chat.isOffline) {
+    const stp = buildStickerPrompt(chat);
+    if (stp) sp += stp;
 
-  const htp = buildHtmlPrompt(chat);
-  if (htp) sp += htp;
+    const htp = buildHtmlPrompt(chat);
+    if (htp) sp += htp;
+  }
 
   if (avatarAware) {
     const alp = buildAvatarLibPrompt();
@@ -8812,14 +8897,16 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   const rtp = buildRealTimePrompt(chat);
   if (rtp) sp += rtp;
 
-  if (Array.isArray(playlist) && playlist.length > 0) {
-    sp += '\n【可用本地音乐】（用户已上传到音乐App，你只能从以下列表里选歌分享给用户）\n';
-    playlist.forEach((s, i) => {
-      sp += `${i + 1}.《${s.name}》- ${s.artist || '本地音乐'}\n`;
-    });
-    sp += '分享时使用 [[SEND_MUSIC:歌名|歌手||]]，歌名必须严格是上面列表里的。列表里没有的歌就不要分享音乐。\n';
-  } else {
-    sp += '\n【可用本地音乐】（用户还没有在「音乐」App 里上传任何歌曲，你暂时无法分享音乐）\n';
+  if (!chat.isOffline) {
+    if (Array.isArray(playlist) && playlist.length > 0) {
+      sp += '\n【可用本地音乐】（用户已上传到音乐App，你只能从以下列表里选歌分享给用户）\n';
+      playlist.forEach((s, i) => {
+        sp += `${i + 1}.《${s.name}》- ${s.artist || '本地音乐'}\n`;
+      });
+      sp += '分享时使用 [[SEND_MUSIC:歌名|歌手||]]，歌名必须严格是上面列表里的。列表里没有的歌就不要分享音乐。\n';
+    } else {
+      sp += '\n【可用本地音乐】（用户还没有在「音乐」App 里上传任何歌曲，你暂时无法分享音乐）\n';
+    }
   }
 
   if (avatarAware) {
@@ -8839,83 +8926,87 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     }
   }
 
-  sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
-  if (avatarAware) {
-    sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
-    sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为**\n';
-    sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
-    sp += '[[USE_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换你自己的聊天头像。\n';
-    sp += '[[SET_USER_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换用户的聊天头像（用户会感知到是你换的）。\n';
-    sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头。\n';
-  }
-  sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
-  sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
-  sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。\n';
-  
-  if (charPostMoment) {
-    sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈。**编号指的是上方【可引用图片】列表的编号**（比如想发最新的用户照片用"2"，想发第2和第3张用"2,3"；纯文字就留空编号位，写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
-    sp += `**⚠️极其重要：如果你想在聊天里说"我去发个朋友圈"或者"你看我朋友圈"，请务必在回复中同时输出 [[POST_MOMENT:文字内容|图片编号...]] 标记！如果你不输出标记，系统就不会真的帮你发，用户刷新朋友圈也看不到！必须同时输出！**\n`;
-    sp += `**发朋友圈时完全可以使用上方【可引用图片】里的照片作为配图！只需写出对应的编号即可。如果想配图，大胆地用。**\n`;
-    sp += `**当你在朋友圈评论用户时，可以自然地 @ 人设中提到的 NPC（如 [[COMMENT_MOMENT:1|内容|@NPC名]]）。**\n`;
-  } else {
-    sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
-  }
-  
-  sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
-  sp += '[[COMMENT_MOMENT:编号|内容|@A]] 评论朋友圈（第三项可选，@某人或NPC）\n';
-  sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
-  sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
-  sp += '[[ACCEPT_FAMILY_CARD]] 接受用户送给你的最近一张待处理的亲属卡\n';
-  sp += '[[REFUND_FAMILY_CARD]] 退还用户送给你的最近一张待处理的亲属卡\n';
-  sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡（用户明确要求退还/解绑时）\n';
-  sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
-  sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
-  sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
-  sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
-  sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。\n';
-  sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请\n';
-  sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
-  
-  if (avatarAware) {
-    sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为。PROPOSE_COUPLE 应克制使用。\n';
-  } else {
-    sp += '规则：标记嵌在自然文字里；不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
-  }
+  if (!chat.isOffline) {
+    sp += '\n【隐藏动作】标记直接嵌在正文里，用户看不到标记本身：\n';
+    if (avatarAware) {
+      sp += '[[SET_AVATAR:编号]] 把某图整张设为你的聊天头像\n';
+      sp += '[[CROP_AVATAR:编号|区域|占比]] 从某图截取一块（边角料）作为你的聊天头像。**这是你可以主动决定的行为**\n';
+      sp += '  参数：编号（从1起，见上方图片列表）；区域 tl/tr/bl/br/center/random（默认 random）；占比 0.2~1（默认 0.5）。\n';
+      sp += '[[USE_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换你自己的聊天头像。\n';
+      sp += '[[SET_USER_AVATAR:头像名]] 从「头像库」中选择一张单人头像，更换用户的聊天头像（用户会感知到是你换的）。\n';
+      sp += '[[PROPOSE_COUPLE:情头名]] 从「头像库」中选择一组情头，向用户发送换情头申请。用户同意后，你们双方会自动换上这组情头。\n';
+    }
+    sp += '[[SEND_CONTACT:名字]] 发送名片给用户（名字对应人设库中的角色，如果存在同名角色则使用其头像，否则使用默认头像）\n';
+    sp += '[[HTML:组件名称]] 展示一个 HTML 组件（必须在「可用 HTML 组件」列表中且已被用户勾选启用）\n';
+    sp += '[[QUOTE:要引用的用户消息原文片段]] 引用用户之前说过的一句话，让你的回复更连贯自然。\n';
+    
+    if (charPostMoment) {
+      sp += `[[POST_MOMENT:文字|编号|notify|@A,@B]] 发朋友圈。**编号指的是上方【可引用图片】列表的编号**（比如想发最新的用户照片用"2"，想发第2和第3张用"2,3"；纯文字就留空编号位，写"文字|"；第三项可选填 notify 表示提醒用户观看；第四项可选填 @名字 表示艾特人或NPC）。**你发朋友圈的频率是${frequencyText}，请根据心情和聊天上下文自然决定是否发**。\n`;
+      sp += `**⚠️极其重要：如果你想在聊天里说"我去发个朋友圈"或者"你看我朋友圈"，请务必在回复中同时输出 [[POST_MOMENT:文字内容|图片编号...]] 标记！如果你不输出标记，系统就不会真的帮你发，用户刷新朋友圈也看不到！必须同时输出！**\n`;
+      sp += `**发朋友圈时完全可以使用上方【可引用图片】里的照片作为配图！只需写出对应的编号即可。如果想配图，大胆地用。**\n`;
+      sp += `**当你在朋友圈评论用户时，可以自然地 @ 人设中提到的 NPC（如 [[COMMENT_MOMENT:1|内容|@NPC名]]）。**\n`;
+    } else {
+      sp += '⚠ 系统限制：你当前被禁止主动发布朋友圈动态。即使聊天情境合适，也**绝对不要**使用 [[POST_MOMENT]] 标记。但你依然可以正常读取用户的朋友圈，并进行点赞 ([[LIKE_MOMENT:编号]]) 和评论 ([[COMMENT_MOMENT:编号|内容]])。\n';
+    }
+    
+    sp += '[[LIKE_MOMENT:编号]] 赞朋友圈\n';
+    sp += '[[COMMENT_MOMENT:编号|内容|@A]] 评论朋友圈（第三项可选，@某人或NPC）\n';
+    sp += '[[TRANSFER:金额|备注]] 转账给用户（谨慎）\n';
+    sp += '[[SEND_CARD:额度|备注]] 送亲属卡（谨慎）\n';
+    sp += '[[ACCEPT_FAMILY_CARD]] 接受用户送给你的最近一张待处理的亲属卡\n';
+    sp += '[[REFUND_FAMILY_CARD]] 退还用户送给你的最近一张待处理的亲属卡\n';
+    sp += '[[REMOVE_CARD:received]] 收回你送的亲属卡（用户明确要求退还/解绑时）\n';
+    sp += '[[REMOVE_CARD:given]] 退还用户送你的亲属卡（用户明确要求退卡时）\n';
+    sp += '[[ACCEPT_TRANSFER]] 收下用户最近一笔待处理的转账\n';
+    sp += '[[REFUND_TRANSFER]] 退回用户最近一笔待处理的转账\n';
+    sp += '[[SET_REMARK:新备注]] 修改用户对你的备注名，系统会自动在聊天界面提示用户\n';
+    sp += '[[SEND_MUSIC:歌名|歌手||]] 分享歌曲给用户。**只能从上面"可用本地音乐"列表里选歌**，系统会在本地匹配并发送。\n';
+    sp += '[[ACCEPT_LISTEN]] 接受用户发来的音乐一起听邀请\n';
+    sp += '[[SPLIT]] 单独一行，把消息分成多条；**每次回复都必须自然使用这个标记**！\n';
+    
+    if (avatarAware) {
+      sp += '规则：标记嵌在自然文字里；用户说"那张图"通常指图片2；不要滥用。CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR 属于**你主动可以决定**的行为。PROPOSE_COUPLE 应克制使用。\n';
+    } else {
+      sp += '规则：标记嵌在自然文字里；不要滥用。**绝对不要使用任何头像相关的标记（SET_AVATAR / CROP_AVATAR / USE_AVATAR / SET_USER_AVATAR / PROPOSE_COUPLE）。**\n';
+    }
 
-  sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
+    sp += '\n【排版】长文本直接换行排版即可；但**绝不能**整段回复不拆分，务必用 [[SPLIT]] 拆成多条气泡。\n';
+  }
 
   const globalPrompt = loadGlobalPrompt().trim();
   if (globalPrompt) sp += '\n【用户附加指示 · 优先级高，请务必遵守】\n' + globalPrompt + '\n';
 
-  const bills = loadBills();
-  if (bills.length > 0) {
-    sp += '\n【近期钱包】\n';
-    bills.slice(0, 4).forEach(b => {
-      const dir = b.direction === 'in' ? '收到' : '支出';
-      const t = b.type === 'card' ? '亲属卡' : (b.type === 'recharge' ? '充值' : (b.type === 'withdraw' ? '提现' : '转账'));
-      sp += `${b.peerName} ${dir}¥${(b.amount || 0).toFixed(2)}(${t}${b.note ? ',' + b.note : ''})\n`;
-    });
-  }
+  if (!chat.isOffline) {
+    const bills = loadBills();
+    if (bills.length > 0) {
+      sp += '\n【近期钱包】\n';
+      bills.slice(0, 4).forEach(b => {
+        const dir = b.direction === 'in' ? '收到' : '支出';
+        const t = b.type === 'card' ? '亲属卡' : (b.type === 'recharge' ? '充值' : (b.type === 'withdraw' ? '提现' : '转账'));
+        sp += `${b.peerName} ${dir}¥${(b.amount || 0).toFixed(2)}(${t}${b.note ? ',' + b.note : ''})\n`;
+      });
+    }
 
-  const allCards = getRecv().concat(getGiven());
-  const related = allCards.filter(c => (c.fromCharId && c.fromCharId === chat.id) || (c.toCharId && c.toCharId === chat.id));
-  if (related.length > 0) {
-    sp += '\n【与你相关的亲属卡】\n';
-    related.forEach(c => {
-      const rem = Math.max(0, (c.limit || 0) - (c.used || 0));
-      if (c.fromCharId) sp += `- 你送用户亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
-      else sp += `- 用户送你亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
-    });
-  }
+    const allCards = getRecv().concat(getGiven());
+    const related = allCards.filter(c => (c.fromCharId && c.fromCharId === chat.id) || (c.toCharId && c.toCharId === chat.id));
+    if (related.length > 0) {
+      sp += '\n【与你相关的亲属卡】\n';
+      related.forEach(c => {
+        const rem = Math.max(0, (c.limit || 0) - (c.used || 0));
+        if (c.fromCharId) sp += `- 你送用户亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
+        else sp += `- 用户送你亲属卡，额度¥${(c.limit || 0).toFixed(2)}，已用¥${(c.used || 0).toFixed(2)}，余¥${rem.toFixed(2)}\n`;
+      });
+    }
 
-  const mp = buildMomentsPrompt();
-  if (mp) sp += mp;
+    const mp = buildMomentsPrompt();
+    if (mp) sp += mp;
 
-  const log = loadAwarenessLog();
-  const filteredLog = avatarAware ? log : log.filter(e => !/头像/.test(e.text || ''));
-  if (filteredLog.length > 0) {
-    sp += '\n【用户近期操作】（你都知道，可自然提及，不必每次提）\n';
-    filteredLog.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
+    const log = loadAwarenessLog();
+    const filteredLog = avatarAware ? log : log.filter(e => !/头像/.test(e.text || ''));
+    if (filteredLog.length > 0) {
+      sp += '\n【用户近期操作】（你都知道，可自然提及，不必每次提）\n';
+      filteredLog.slice(-6).forEach(e => { sp += `- ${e.text}\n`; });
+    }
   }
 
   sp += '\n现在以角色身份自然回复用户。';
@@ -9123,6 +9214,55 @@ async function summarizeChatMemory(chat, isManual) {
     console.warn('自动总结失败', e);
     if (isManual) alert('总结失败：' + (e.message || '未知错误'));
   } finally { chat._summarizing = false; }
+}
+
+async function summarizeOfflineMode(chat) {
+  if (!chat.messages || chat.messages.length === 0) return;
+  const recent = chat.messages.slice(-20).filter(m => m.content !== '__typing__');
+  if (recent.length < 2) return;
+  const cfg = loadApiConfig();
+  if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
+  
+  const charName = chat.customRemark || chat.name || 'TA';
+  const currentMaskId = getCurrentMaskId();
+  const mask = jxMasks.find(m => m.id === currentMaskId);
+  const myRealName = mask ? getMaskRealName(mask) : (localStorage.getItem('moments_name') || '用户');
+  
+  let convo = '';
+  recent.forEach(m => {
+    const who = m.role === 'me' ? myRealName : charName;
+    convo += `${who}：${m.content}\n`;
+  });
+  
+  const sysPrompt = `你是「${charName}」的记忆整理助手。刚刚你和「${myRealName}」进行了一段线下剧情互动。以下是你们的对话/行动记录。\n` +
+    `请提取出这段线下互动中值得长期记住的关键信息（发生的事件、用户的表现、重要的决定、情感变化等），总结成简短的要点。` +
+    `用简洁的第三人称陈述句总结成 2~5 条要点，每条一行，以「-」开头。只输出要点本身。`;
+    
+  try {
+    const url = normalizeChatEndpoint(cfg.endpoint);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify({ model: cfg.model, messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: convo }], temperature: 0.3, max_tokens: 800 })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      let summary = String(c || '').trim();
+      if (summary) {
+        if (!Array.isArray(chat.memories)) chat.memories = [];
+        chat.memories.push({
+          id: genId(),
+          time: Date.now(),
+          content: '【线下剧情总结】\n' + summary,
+          rangeStart: chat.messages.length - recent.length,
+          rangeEnd: chat.messages.length
+        });
+        saveJianxunChats();
+        if (currentChatId === chat.id) renderMemoryList();
+      }
+    }
+  } catch(e) { console.warn('线下剧情总结失败', e); }
 }
 
 async function parseAndExecuteActions(chat, rawText) {
@@ -9485,17 +9625,45 @@ async function executeCharAction(chat, action) {
     if (mentionsStr) {
       mentions = mentionsStr.split(/[,，、\s]+/).map(s => s.replace(/^@/, '').trim()).filter(Boolean);
     }
-    momentsPosts.unshift({
+    const newPost = {
       id: genId(), content: text, images: imgs, time: '刚刚', visibility: 'public',
       mentions: mentions, customVisibles: [], likes: [], comments: [],
       author: charName, authorAvatar: chat.avatar || '',
       maskId: currentMaskId
-    });
+    };
+    momentsPosts.unshift(newPost);
     await saveMomentsPosts();
     renderMomentsPosts();
+    
+    // 让同人设的 NPC 去评论
+    const persona = personaList.find(p => p.name === chat.name);
+    if (persona && Array.isArray(persona.npcs)) {
+      for (const npc of persona.npcs) {
+        if (Math.random() < 0.4) {
+          setTimeout(async () => {
+            const targetPost = momentsPosts.find(x => x.id === newPost.id);
+            if (!targetPost) return;
+            const npcText = await generateNpcMomentComment(npc, targetPost);
+            if (npcText) {
+              targetPost.comments = targetPost.comments || [];
+              targetPost.comments.push({
+                id: genId(),
+                user: npc.name,
+                text: npcText,
+                isChar: false,
+                npcId: npc.id
+              });
+              await saveMomentsPosts();
+              renderMomentsPosts();
+            }
+          }, 2000 + Math.random() * 3000);
+        }
+      }
+    }
+
     addMomentsUnread({
       type: 'post',
-      postId: momentsPosts[0].id,
+      postId: newPost.id,
       fromName: charName,
       text: text || '[图片]',
       preview: (text || '[新动态]').slice(0, 40)
@@ -9647,11 +9815,16 @@ async function generateCharReply(chat, isProactive = false) {
   return clean || raw;
 }
 
-function parseReplyIntoBubbles(rawText) {
-  let segments = [];
+function parseReplyIntoBubbles(rawText, isOffline = false) {
   let trimmed = String(rawText || '').trim();
   if (!trimmed) return [];
+  
+  if (isOffline) {
+    return [trimmed];
+  }
+
   trimmed = trimmed.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+  let segments = [];
   if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
     try {
       const parsed = JSON.parse(trimmed);
@@ -9732,7 +9905,7 @@ async function triggerCharReply(chat, isProactive = false) {
     if (idx >= 0) chat.messages.splice(idx, 1);
     const rawReply = String(reply == null ? '' : reply).trim();
     if (rawReply) {
-      const segments = parseReplyIntoBubbles(rawReply);
+      const segments = parseReplyIntoBubbles(rawReply, chat.isOffline);
       if (segments.length > 0) {
         segments.forEach((seg, sIdx) => { 
           const msg = { id: genId(), role: 'char', type: 'text', content: seg, time: Date.now() };
@@ -9798,7 +9971,7 @@ async function triggerCharReply(chat, isProactive = false) {
       const titleEl = document.getElementById('jxChatTitle');
       if (titleEl) titleEl.innerText = chat.customRemark || chat.name || '聊天';
     }
-    if (chat.memoryEnabled !== false && (chat.memoryInterval || 20) > 0) {
+    if (chat.memoryEnabled !== false && (chat.memoryInterval || 20) > 0 && !chat.isOffline) {
       const sinceLast = chat.messages.length - (chat.lastSummarizedCount || 0);
       if (sinceLast >= (chat.memoryInterval || 20)) setTimeout(() => { summarizeChatMemory(chat).catch(e => console.warn(e)); }, 1000);
     }
@@ -9864,7 +10037,7 @@ setInterval(async () => {
     if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) return;
     const now = Date.now();
     for (const chat of jianxunChats) {
-      if (!chat.allowActive || chat._replying) continue;
+      if (!chat.allowActive || chat._replying || chat.isOffline) continue;
       if (_activeChatCooldown[chat.id] && now - _activeChatCooldown[chat.id] < 1800000) continue;
       
       const realMsgs = chat.messages.filter(m => m.content !== '__typing__');
@@ -9917,6 +10090,21 @@ function openChatInfo() {
   if (memSwitch) memSwitch.className = 'jx-switch' + (chat.memoryEnabled !== false ? ' on' : '');
   const memIntEl = document.getElementById('jxMemoryIntervalText');
   if (memIntEl) memIntEl.textContent = (chat.memoryInterval || 20) + '条';
+  
+  const offlineSwitch = document.getElementById('jxOfflineSwitch');
+  if (offlineSwitch) offlineSwitch.className = 'jx-switch' + (chat.isOffline ? ' on' : '');
+  const offlineSettings = document.getElementById('jxOfflineSettings');
+  if (offlineSettings) offlineSettings.style.display = chat.isOffline ? 'block' : 'none';
+  const offlineLengthText = document.getElementById('jxOfflineLengthText');
+  if (offlineLengthText) offlineLengthText.textContent = (chat.offlineLength || 300) + '字';
+  const offlineStyleText = document.getElementById('jxOfflineStyleText');
+  if (offlineStyleText) offlineStyleText.textContent = chat.offlineStyle ? '已设置' : '未设置';
+  const offlineWorldBookText = document.getElementById('jxOfflineWorldBookText');
+  if (offlineWorldBookText) {
+    const count = Array.isArray(chat.offlineWorldBook) ? chat.offlineWorldBook.length : 0;
+    offlineWorldBookText.textContent = count > 0 ? `已绑定 ${count} 本` : '未绑定';
+  }
+
   memorySectionExpanded = false;
   const memList = document.getElementById('jxMemoryList');
   const memArrow = document.getElementById('jxMemoryArrow');
@@ -9926,6 +10114,96 @@ function openChatInfo() {
   document.getElementById('jxChatInfoScreen').classList.add('active');
 }
 function closeChatInfo() { document.getElementById('jxChatInfoScreen').classList.remove('active'); }
+
+function toggleOfflineMode() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const newState = !chat.isOffline;
+  chat.isOffline = newState;
+  document.getElementById('jxOfflineSwitch').className = 'jx-switch' + (chat.isOffline ? ' on' : '');
+  document.getElementById('jxOfflineSettings').style.display = chat.isOffline ? 'block' : 'none';
+  saveJianxunChats();
+  
+  if (!newState) {
+    const cf = loadApiConfig();
+    if (cf && cf.endpoint && cf.key && cf.model) {
+      alert('已关闭线下模式，正在自动总结刚才的剧情存入记忆...');
+      summarizeOfflineMode(chat);
+    }
+  }
+}
+
+function changeOfflineLength() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const cur = chat.offlineLength || 300;
+  const val = prompt('请输入线下剧情的字数要求（例如 300、500、800）：', cur);
+  if (val !== null) {
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num > 0) {
+      chat.offlineLength = num;
+      document.getElementById('jxOfflineLengthText').textContent = num + '字';
+      saveJianxunChats();
+    }
+  }
+}
+
+function editOfflineStyle() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const val = prompt('请输入线下剧情的文风要求（如：细腻的心理描写、武侠风、恐怖悬疑等）：', chat.offlineStyle || '');
+  if (val !== null) {
+    chat.offlineStyle = val.trim();
+    document.getElementById('jxOfflineStyleText').textContent = chat.offlineStyle ? '已设置' : '未设置';
+    saveJianxunChats();
+  }
+}
+
+function bindOfflineWorldBook() {
+  loadWorldBook();
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const list = document.getElementById('worldBookSelectList');
+  if (worldBookEntries.length === 0) {
+    list.innerHTML = '<div style="padding:40px 20px; text-align:center; color:#999; font-size:14px;">暂无世界书条目</div>';
+  } else {
+    list.innerHTML = worldBookEntries.map(entry => {
+      const isSelected = Array.isArray(chat.offlineWorldBook) && chat.offlineWorldBook.includes(entry.id);
+      return `<div class="jx-modal-item" onclick="toggleOfflineWbSelection(this)" data-id="${entry.id}" style="justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding: 14px 0;">
+        <div style="display:flex; align-items:center; overflow:hidden; flex:1;">
+          <span style="font-size:14px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">${escapeHtml(entry.name)}</span>
+        </div>
+        <div class="wb-checkbox ${isSelected ? 'checked' : ''}"></div>
+      </div>`;
+    }).join('');
+  }
+  const footerBtn = document.querySelector('#wbSelectFooter button');
+  footerBtn.setAttribute('onclick', 'confirmOfflineWorldBookBinding()');
+  document.getElementById('worldBookSelectScreen').classList.add('active');
+}
+
+function toggleOfflineWbSelection(el) {
+  const checkbox = el.querySelector('.wb-checkbox');
+  if (checkbox) checkbox.classList.toggle('checked');
+}
+
+function confirmOfflineWorldBookBinding() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const selectedIds = [];
+  document.querySelectorAll('#worldBookSelectList .jx-modal-item').forEach(el => {
+    const checkbox = el.querySelector('.wb-checkbox');
+    if (checkbox && checkbox.classList.contains('checked')) selectedIds.push(el.getAttribute('data-id'));
+  });
+  chat.offlineWorldBook = selectedIds;
+  saveJianxunChats();
+  document.getElementById('jxOfflineWorldBookText').textContent = selectedIds.length > 0 ? `已绑定 ${selectedIds.length} 本` : '未绑定';
+  closeWorldBookSelectScreen();
+  setTimeout(() => {
+    const footerBtn = document.querySelector('#wbSelectFooter button');
+    if (footerBtn) footerBtn.setAttribute('onclick', 'confirmWorldBookBinding()');
+  }, 100);
+}
 
 function changeCharPostMomentFrequency() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -10072,6 +10350,8 @@ function bindWorldBook() {
       </div>`;
     }).join('');
   }
+  const footerBtn = document.querySelector('#wbSelectFooter button');
+  footerBtn.setAttribute('onclick', 'confirmWorldBookBinding()');
   document.getElementById('worldBookSelectScreen').classList.add('active');
 }
 function toggleWorldBookSelection(el) { const checkbox = el.querySelector('.wb-checkbox'); if (checkbox) checkbox.classList.toggle('checked'); }
@@ -10264,6 +10544,7 @@ function addPersonaToChat(index) {
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
     userAvatarByChar: false,
     maskId: currentMaskId,
+    isOffline: false, offlineLength: 300, offlineStyle: '', offlineWorldBook: [],
     lastMessageTime: Date.now()
   });
   saveJianxunChats();
@@ -10906,6 +11187,7 @@ async function publishPost() {
     }
   }
 
+  // 未 @ 的人设 char 随机评论
   for (const chat of jianxunChats) {
     if (chat.charPostMoment === true) {
       if (mentions.includes(chat.customRemark || chat.name)) continue;
@@ -10935,6 +11217,32 @@ async function publishPost() {
               text: result.text,
               preview: (chat.customRemark || chat.name || 'TA') + '：' + result.text.slice(0, 40)
             });
+          }
+        }
+      }
+    }
+  }
+
+  // NPC 自动评论
+  for (const p of personaList) {
+    if (Array.isArray(p.npcs)) {
+      for (const npc of p.npcs) {
+        if (mentions.includes(npc.name)) continue;
+        if (Math.random() < 0.4) {
+          const npcText = await generateNpcMomentComment(npc, newPost);
+          if (npcText) {
+            const post = momentsPosts.find(x => x.id === newPost.id);
+            if (post) {
+              post.comments.push({
+                id: genId(),
+                user: npc.name,
+                text: npcText,
+                isChar: false,
+                npcId: npc.id
+              });
+              await saveMomentsPosts();
+              renderMomentsPosts();
+            }
           }
         }
       }
