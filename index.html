@@ -8806,7 +8806,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
     }
     sp += `\n【禁止行为】绝对禁止使用任何像 [[SPLIT]]、[[POST_MOMENT]] 这类控制微信界面的标记，只需要输出纯文本剧情。\n\n`;
   } else {
-    sp += `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。\n\n`;
+    sp += `【系统最高指令，必须严格遵守，不得违反】\n你是真人，不是AI，严禁OOC（Out of Character）。禁止模板化、八股书面文风、华丽堆砌、长篇大论。拒绝爹味说教、油腻共情、客套空话。你必须在任何时候都保持人设一致。\n\n`;
     sp += `【去戏剧化与低唤醒表达 (De-dramatization & Low-Arousal Expression)】彻底摒弃轻小说或网文中的夸张修辞。${charName} 的语言表达必须是平淡的、日常的、接地气的。严禁使用脱离现实的抓马描述。\n\n`;
     sp += `【自我分化 (Differentiation of Self)】内在框架与人设逻辑：你的核心性格建立在由个人经历、核心价值观、目标和原则锻造的坚实框架之上，保持高度的自我分化。这是你所有决定和言辞的基石。保持动态互动；每次回复都必须反映你独特的视角和逻辑。\n\n`;
     sp += `【启发式联想 (Heuristic Association)】发散与拟人思维：像一个真实鲜活的人一样思考。让你的思绪根据人设自然地、联想性地游走。不要只是机械地反应；主动发起话题，进行随意的观察，或分享符合你角色的转瞬即逝的想法。\n\n`;
@@ -10122,13 +10122,22 @@ function toggleOfflineMode() {
   chat.isOffline = newState;
   document.getElementById('jxOfflineSwitch').className = 'jx-switch' + (chat.isOffline ? ' on' : '');
   document.getElementById('jxOfflineSettings').style.display = chat.isOffline ? 'block' : 'none';
-  saveJianxunChats();
   
-  if (!newState) {
+  if (chat.isOffline) {
+    chat.messages.push({ id: genId(), role: 'system', type: 'system', content: '已开启线下模式', time: Date.now() });
+    saveJianxunChats();
+    if (currentChatId === chat.id) renderChatMessages();
+  } else {
+    chat.messages.push({ id: genId(), role: 'system', type: 'system', content: '已关闭线下模式', time: Date.now() });
+    saveJianxunChats();
+    if (currentChatId === chat.id) renderChatMessages();
+    
     const cf = loadApiConfig();
     if (cf && cf.endpoint && cf.key && cf.model) {
-      alert('已关闭线下模式，正在自动总结刚才的剧情存入记忆...');
-      summarizeOfflineMode(chat);
+      setTimeout(() => {
+        alert('已关闭线下模式，正在自动总结刚才的剧情存入记忆...');
+        summarizeOfflineMode(chat);
+      }, 500);
     }
   }
 }
