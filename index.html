@@ -4061,6 +4061,38 @@ function compressImageFile(file, maxDim, quality) {
   });
 }
 
+/* ========== 新增：对已有 base64 图像再压缩（用于兜底压缩头像，保证能存得下） ========== */
+function compressBase64Image(base64, maxDim, quality) {
+  return new Promise((resolve) => {
+    if (!base64 || typeof base64 !== 'string' || !base64.startsWith('data:image')) { resolve(base64); return; }
+    const img = new Image();
+    img.onload = () => {
+      try {
+        let w = img.width, h = img.height;
+        if (!w || !h) { resolve(base64); return; }
+        if (w > maxDim || h > maxDim) {
+          const scale = maxDim / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const result = canvas.toDataURL('image/jpeg', quality);
+        resolve(result && result.length < base64.length ? result : base64);
+      } catch (e) { resolve(base64); }
+    };
+    img.onerror = () => resolve(base64);
+    img.src = base64;
+  });
+}
+
 async function ultraCompressImage(base64, maxDim = 400, quality = 0.5) {
     if (!base64 || !base64.startsWith('data:image')) return base64;
     if (base64.length < 30000) return base64;
@@ -4694,6 +4726,7 @@ async function ensurePersonaLoadedFromIDB() {
   } catch (e) { console.warn('人设 IndexedDB 预加载失败', e); }
 }
 
+/* ====== 同步写 localStorage（尽力而为）+ 异步写 IndexedDB（主存储） ====== */
 function savePersonaListToStorage() {
   let lsOk = true;
   try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); }
@@ -4702,40 +4735,61 @@ function savePersonaListToStorage() {
   return lsOk;
 }
 
+/* ====== 异步保存（等待 IndexedDB 完成 + 校验，用于人设/名片添加等关键路径） ====== */
+async function savePersonaListAsync(list) {
+  const arr = Array.isArray(list) ? list : personaList;
+  let idbOk = false;
+  try { idbOk = await idbSet(STORE_CHATS, PERSONA_IDB_KEY, arr); } catch (e) { console.warn('人设 IndexedDB 保存异常', e); }
+  let lsOk = false;
+  try { localStorage.setItem(PERSONA_KEY, JSON.stringify(arr)); lsOk = true; } catch (e) { console.warn('人设 localStorage 保存失败（容量不足）', e); }
+  return { idbOk, lsOk };
+}
+
 loadPersonaList();
 ensurePersonaLoadedFromIDB();
 
 function renderPersonaList() {
-  const container = document.getElementById('personaList');
-  const emptyState = document.getElementById('personaEmptyState');
-  if (!container || !emptyState) return;
-  container.innerHTML = '';
-  if (personaList.length === 0) {
-    emptyState.style.display = 'block';
-    container.style.display = 'none';
-    const view = document.getElementById('personaEditView');
-    if (view) view.classList.remove('active');
-    return;
+  try {
+    const container = document.getElementById('personaList');
+    const emptyState = document.getElementById('personaEmptyState');
+    if (!container || !emptyState) return;
+    container.innerHTML = '';
+    if (personaList.length === 0) {
+      emptyState.style.display = 'block';
+      container.style.display = 'none';
+      const view = document.getElementById('personaEditView');
+      if (view) view.classList.remove('active');
+      return;
+    }
+    emptyState.style.display = 'none';
+    container.style.display = 'flex';
+    personaList.forEach((persona, index) => {
+      try {
+        const card = document.createElement('div');
+        card.className = 'persona-card';
+        card.onclick = () => openPersonaEdit(index);
+        let avatarHtml = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        if (persona.avatar) {
+          const safeAvatar = String(persona.avatar).replace(/"/g, '&quot;').replace(/'/g, '%27');
+          avatarHtml = `<img src="${safeAvatar}" alt="Avatar">`;
+        }
+        card.innerHTML = `
+          <div class="avatar">${avatarHtml}</div>
+          <div class="info">
+            <h4>${escapeHtml(persona.name || '未命名角色')}</h4>
+            <p>${escapeHtml(persona.nickname || '无网名')} · ${escapeHtml(persona.gender || '未知')} · ${escapeHtml(persona.age || '未知年龄')}</p>
+            <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${escapeHtml(persona.details || '暂无详细描述')}</p>
+          </div>
+          <div class="arrow">›</div>
+        `;
+        container.appendChild(card);
+      } catch (cardErr) {
+        console.warn('渲染人设卡片失败（index=' + index + '）', cardErr);
+      }
+    });
+  } catch (e) {
+    console.error('渲染人设列表失败', e);
   }
-  emptyState.style.display = 'none';
-  container.style.display = 'flex';
-  personaList.forEach((persona, index) => {
-    const card = document.createElement('div');
-    card.className = 'persona-card';
-    card.onclick = () => openPersonaEdit(index);
-    let avatarHtml = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-    if (persona.avatar) avatarHtml = `<img src="${persona.avatar}" alt="Avatar">`;
-    card.innerHTML = `
-      <div class="avatar">${avatarHtml}</div>
-      <div class="info">
-        <h4>${escapeHtml(persona.name || '未命名角色')}</h4>
-        <p>${escapeHtml(persona.nickname || '无网名')} · ${escapeHtml(persona.gender || '未知')} · ${escapeHtml(persona.age || '未知年龄')}</p>
-        <p style="margin-top: 4px; font-size: 11px; color: #bbb; white-space: pre-wrap;">${escapeHtml(persona.details || '暂无详细描述')}</p>
-      </div>
-      <div class="arrow">›</div>
-    `;
-    container.appendChild(card);
-  });
 }
 
 function renderNpcList() {
@@ -4849,26 +4903,95 @@ function cancelPersonaEdit() {
   document.getElementById('personaEditView').classList.remove('active');
   renderPersonaList();
 }
-function savePersona() {
+
+/* ====== 保存人设（核心修复：先压缩头像，再异步等待 IndexedDB 保存 + localStorage 尽力而为） ====== */
+let _savingPersona = false;
+async function savePersona() {
+  if (_savingPersona) return;
+  _savingPersona = true;
   try {
-    const name = document.getElementById('personaName').value.trim();
-    const nickname = document.getElementById('personaNickname').value.trim();
-    const gender = document.getElementById('personaGender').value.trim();
-    const age = document.getElementById('personaAge').value.trim();
-    const details = document.getElementById('personaDetails').value;
+    const nameEl = document.getElementById('personaName');
+    const nicknameEl = document.getElementById('personaNickname');
+    const genderEl = document.getElementById('personaGender');
+    const ageEl = document.getElementById('personaAge');
+    const detailsEl = document.getElementById('personaDetails');
+    if (!nameEl) { alert('页面异常，请刷新后重试'); return; }
+
+    const name = nameEl.value.trim();
+    const nickname = nicknameEl ? nicknameEl.value.trim() : '';
+    const gender = genderEl ? genderEl.value.trim() : '';
+    const age = ageEl ? ageEl.value.trim() : '';
+    const details = detailsEl ? detailsEl.value : '';
+
     if (!name) { alert('请至少填写名字'); return; }
-    const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details, npcs: tempNpcs };
-    if (editingPersonaId === null) personaList.push(personaData);
-    else personaList[editingPersonaId] = personaData;
-    const lsOk = savePersonaListToStorage();
+
+    // 关键修复：头像数据过大是导致 localStorage/IndexedDB 保存失败的根源。
+    // 这里对人设头像做一次兜底强压缩，确保任何头像都能被安全存储。
+    let avatarToSave = tempAvatarBase64 || '';
+    if (avatarToSave && avatarToSave.length > 15000) {
+      try {
+        avatarToSave = await compressBase64Image(avatarToSave, 96, 0.7);
+        tempAvatarBase64 = avatarToSave;
+      } catch (e) {
+        console.warn('头像二次压缩失败', e);
+      }
+    }
+
+    const personaData = { avatar: avatarToSave, name, nickname, gender, age, details, npcs: tempNpcs };
+
+    // 在副本上操作，避免保存失败污染内存
+    const newList = personaList.slice();
+    if (editingPersonaId === null) newList.push(personaData);
+    else newList[editingPersonaId] = personaData;
+
+    // 先写 IndexedDB（主存储），等待写入完成并校验
+    let idbOk = false;
+    try {
+      idbOk = await idbSet(STORE_CHATS, PERSONA_IDB_KEY, newList);
+    } catch (e) {
+      console.warn('人设写入 IndexedDB 失败', e);
+      idbOk = false;
+    }
+
+    // 再写 localStorage（尽力而为，容量不足也不影响主流程）
+    let lsOk = false;
+    try {
+      localStorage.setItem(PERSONA_KEY, JSON.stringify(newList));
+      lsOk = true;
+    } catch (e) {
+      console.warn('人设写入 localStorage 失败（容量不足）', e);
+    }
+
+    if (!idbOk && !lsOk) {
+      alert('保存失败：本地存储空间严重不足。\n建议：前往「设置 → 清理数据」清理部分聊天图片，或导出全部数据备份后清理。');
+      return;
+    }
+
+    // 校验 IndexedDB 写入是否成功
+    let verifyOk = idbOk;
+    if (idbOk) {
+      try {
+        const verify = await idbGet(STORE_CHATS, PERSONA_IDB_KEY);
+        verifyOk = Array.isArray(verify) && verify.length === newList.length;
+      } catch (e) { verifyOk = false; }
+    }
+
+    if (!verifyOk && !lsOk) {
+      alert('保存校验失败：数据可能未持久化，请重试。');
+      return;
+    }
+
+    // 更新内存数据
+    personaList = newList;
+    _personaLoaded = true;
+
     cancelPersonaEdit();
     renderPersonaList();
-    if (!lsOk) {
-      console.warn('人设已保存至 IndexedDB（localStorage 空间不足）');
-    }
   } catch (e) {
     console.error('保存人设失败', e);
     alert('保存人设失败：' + (e && e.message ? e.message : '未知错误'));
+  } finally {
+    _savingPersona = false;
   }
 }
 function deletePersona() {
@@ -4949,7 +5072,8 @@ function deletePersona() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.85).then((base64) => {
+    // 头像压缩到 128px、0.75 质量（更小，避免保存失败）
+    compressImageFile(file, 128, 0.75).then((base64) => {
       if (!base64) return;
       tempAvatarBase64 = base64;
       document.getElementById('personaAvatarImg').src = tempAvatarBase64;
@@ -7096,7 +7220,7 @@ function deleteMask() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    compressImageFile(file, 180, 0.85).then((base64) => {
+    compressImageFile(file, 128, 0.75).then((base64) => {
       if (!base64) return;
       tempMaskAvatarBase64 = base64;
       document.getElementById('maskAvatarImg').src = base64;
@@ -7931,7 +8055,7 @@ function sendContactCard(type, idxOrName) {
   renderJianxunChatList();
 }
 
-function handleContactCardClick(card) {
+async function handleContactCardClick(card) {
   if (!card || !card.name) return;
   if (card.isUser) { alert('这是你自己的名片'); return; }
   const exists = jianxunChats.find(c => (c.name === card.name) || (c.customRemark === card.name));
@@ -7950,7 +8074,7 @@ function handleContactCardClick(card) {
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
     personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '', npcs: [] });
-    savePersonaListToStorage();
+    try { await savePersonaListAsync(personaList); } catch (e) {}
   }
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
