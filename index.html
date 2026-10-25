@@ -2737,6 +2737,9 @@ const BEAUTIFY_PRESETS_IDB_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 const CHAR_POST_MOMENT_KEY = 'char_post_moment_enabled';
 const MOMENTS_UNREAD_KEY = 'moments_unread_v2';
+/* 人设 / 世界书 的 IndexedDB 键（用于绕开 localStorage 容量限制） */
+const PERSONA_IDB_KEY = 'persona_list_v2';
+const WORLDBOOK_IDB_KEY = 'worldbook_entries_v2';
 
 /* ============ 美化预设 IndexedDB ============ */
 let _beautifyPresetsCache = null;
@@ -4655,15 +4658,52 @@ let tempAvatarBase64 = '';
 let tempNpcs = [];
 let currentNpcEditIndex = -1;
 
+/* ===== 人设存储：内存缓存 + IndexedDB 主存储 + localStorage 兼容 ===== */
+let _personaLoaded = false;
+let _personaIDBLoaded = false;
+
+function normalizePersonaArray(arr) {
+  if (!Array.isArray(arr)) return [];
+  arr.forEach(p => { if (!p) return; if (!Array.isArray(p.npcs)) p.npcs = []; });
+  return arr;
+}
+
 function loadPersonaList() {
+  if (_personaLoaded) return;
   const data = localStorage.getItem(PERSONA_KEY);
   if (data) { try { personaList = JSON.parse(data); } catch(e) { personaList = []; } } else { personaList = []; }
-  if (!Array.isArray(personaList)) personaList = [];
-  personaList.forEach(p => {
-    if (!Array.isArray(p.npcs)) p.npcs = [];
-  });
+  personaList = normalizePersonaArray(personaList);
+  _personaLoaded = true;
 }
+
+async function ensurePersonaLoadedFromIDB() {
+  if (_personaIDBLoaded) return;
+  _personaIDBLoaded = true;
+  try {
+    const data = await idbGet(STORE_CHATS, PERSONA_IDB_KEY);
+    if (Array.isArray(data) && data.length > 0) {
+      personaList = normalizePersonaArray(data);
+      _personaLoaded = true;
+      try {
+        const view = document.getElementById('personaEditView');
+        if (view && !view.classList.contains('active')) renderPersonaList();
+      } catch (e) {}
+    } else if (_personaLoaded && Array.isArray(personaList) && personaList.length > 0) {
+      await idbSet(STORE_CHATS, PERSONA_IDB_KEY, personaList);
+    }
+  } catch (e) { console.warn('人设 IndexedDB 预加载失败', e); }
+}
+
+function savePersonaListToStorage() {
+  let lsOk = true;
+  try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); }
+  catch (e) { lsOk = false; console.warn('人设写入 localStorage 失败（容量不足），已转存 IndexedDB', e); }
+  try { idbSet(STORE_CHATS, PERSONA_IDB_KEY, personaList); } catch (e) {}
+  return lsOk;
+}
+
 loadPersonaList();
+ensurePersonaLoadedFromIDB();
 
 function renderPersonaList() {
   const container = document.getElementById('personaList');
@@ -4810,23 +4850,32 @@ function cancelPersonaEdit() {
   renderPersonaList();
 }
 function savePersona() {
-  const name = document.getElementById('personaName').value.trim();
-  const nickname = document.getElementById('personaNickname').value.trim();
-  const gender = document.getElementById('personaGender').value.trim();
-  const age = document.getElementById('personaAge').value.trim();
-  const details = document.getElementById('personaDetails').value;
-  if (!name) { alert('请至少填写名字'); return; }
-  const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details, npcs: tempNpcs };
-  if (editingPersonaId === null) personaList.push(personaData);
-  else personaList[editingPersonaId] = personaData;
-  localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
-  cancelPersonaEdit();
+  try {
+    const name = document.getElementById('personaName').value.trim();
+    const nickname = document.getElementById('personaNickname').value.trim();
+    const gender = document.getElementById('personaGender').value.trim();
+    const age = document.getElementById('personaAge').value.trim();
+    const details = document.getElementById('personaDetails').value;
+    if (!name) { alert('请至少填写名字'); return; }
+    const personaData = { avatar: tempAvatarBase64, name, nickname, gender, age, details, npcs: tempNpcs };
+    if (editingPersonaId === null) personaList.push(personaData);
+    else personaList[editingPersonaId] = personaData;
+    const lsOk = savePersonaListToStorage();
+    cancelPersonaEdit();
+    renderPersonaList();
+    if (!lsOk) {
+      console.warn('人设已保存至 IndexedDB（localStorage 空间不足）');
+    }
+  } catch (e) {
+    console.error('保存人设失败', e);
+    alert('保存人设失败：' + (e && e.message ? e.message : '未知错误'));
+  }
 }
 function deletePersona() {
   if (editingPersonaId === null) return;
   if (!confirm('确定要删除这个人设吗？')) return;
   personaList.splice(editingPersonaId, 1);
-  localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList));
+  savePersonaListToStorage();
   cancelPersonaEdit();
 }
 (function initPersonaFileInput() {
@@ -4915,13 +4964,12 @@ let worldBookEntries = [];
 let editingEntryId = null;
 let worldBookSearchKeyword = '';
 let _wbPendingScroll = null;
-function loadWorldBook() {
-  try {
-    const raw = localStorage.getItem(WORLDBOOK_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    worldBookEntries = Array.isArray(parsed) ? parsed : [];
-  } catch (e) { worldBookEntries = []; }
-  worldBookEntries.forEach(e => {
+let _worldbookLoaded = false;
+let _worldbookIDBLoaded = false;
+
+function normalizeWorldBookArray(arr) {
+  if (!Array.isArray(arr)) return [];
+  arr.forEach(e => {
     if (!e.id) e.id = genId();
     if (typeof e.enabled !== 'boolean') e.enabled = true;
     if (typeof e.depth !== 'number' || isNaN(e.depth)) e.depth = 4;
@@ -4930,11 +4978,49 @@ function loadWorldBook() {
     if (!e.binding) e.binding = 'global';
     if (!e.localTarget) e.localTarget = '';
   });
+  return arr;
 }
+
+function loadWorldBook() {
+  if (_worldbookLoaded) return;
+  try {
+    const raw = localStorage.getItem(WORLDBOOK_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    worldBookEntries = normalizeWorldBookArray(parsed);
+  } catch (e) { worldBookEntries = []; }
+  _worldbookLoaded = true;
+}
+
+async function ensureWorldBookLoadedFromIDB() {
+  if (_worldbookIDBLoaded) return;
+  _worldbookIDBLoaded = true;
+  try {
+    const data = await idbGet(STORE_CHATS, WORLDBOOK_IDB_KEY);
+    if (Array.isArray(data) && data.length > 0) {
+      worldBookEntries = normalizeWorldBookArray(data);
+      _worldbookLoaded = true;
+      try {
+        if (document.getElementById('worldBookScreen') && document.getElementById('worldBookScreen').classList.contains('active')) {
+          renderWorldBookList();
+        }
+      } catch (e) {}
+    } else if (_worldbookLoaded && Array.isArray(worldBookEntries) && worldBookEntries.length > 0) {
+      await idbSet(STORE_CHATS, WORLDBOOK_IDB_KEY, worldBookEntries);
+    }
+  } catch (e) { console.warn('世界书 IndexedDB 预加载失败', e); }
+}
+
 function saveWorldBook() {
+  let lsOk = true;
   try { localStorage.setItem(WORLDBOOK_KEY, JSON.stringify(worldBookEntries)); }
-  catch (e) {}
+  catch (e) { lsOk = false; console.warn('世界书写入 localStorage 失败（容量不足），已转存 IndexedDB', e); }
+  try { idbSet(STORE_CHATS, WORLDBOOK_IDB_KEY, worldBookEntries); } catch (e) {}
+  return lsOk;
 }
+
+loadWorldBook();
+ensureWorldBookLoadedFromIDB();
+
 function onWorldBookSearch(val) {
   worldBookSearchKeyword = String(val || '');
   _wbPendingScroll = 0;
@@ -5391,6 +5477,11 @@ async function exportAllData() {
 
   setTimeout(async () => {
     try {
+      loadPersonaList();
+      loadWorldBook();
+      try { await ensurePersonaLoadedFromIDB(); } catch(e) {}
+      try { await ensureWorldBookLoadedFromIDB(); } catch(e) {}
+
       const zip = new JSZip();
       
       const localData = {};
@@ -5403,6 +5494,10 @@ async function exportAllData() {
         localData[key] = val;
       }
       zip.file('localStorage.json', JSON.stringify(localData));
+
+      /* 人设与世界书单独打包一份，避免 localStorage 容量不足导致丢失 */
+      try { zip.file('persona_list.json', JSON.stringify(personaList)); } catch (e) {}
+      try { zip.file('worldbook_entries.json', JSON.stringify(worldBookEntries)); } catch (e) {}
       
       const chatData = await idbGet(STORE_CHATS, 'main') || [];
       const chatChunks = [];
@@ -5602,6 +5697,30 @@ async function importAllData(file) {
         const chatKeys = await idbGetAllKeys(STORE_CHATS);
         for (const k of chatKeys) await idbDelete(STORE_CHATS, k);
         await idbSet(STORE_CHATS, 'main', allChats);
+    }
+
+    /* 恢复人设（优先 zip 内的独立文件，避免 localStorage 容量限制） */
+    const personaFile = zip.file('persona_list.json');
+    if (personaFile) {
+      try {
+        const str = await personaFile.async('string');
+        const list = JSON.parse(str);
+        if (Array.isArray(list)) {
+          try { localStorage.setItem(PERSONA_KEY, JSON.stringify(list)); } catch(e) {}
+          await idbSet(STORE_CHATS, PERSONA_IDB_KEY, list);
+        }
+      } catch (e) { console.warn('恢复人设失败', e); }
+    }
+    const wbFile = zip.file('worldbook_entries.json');
+    if (wbFile) {
+      try {
+        const str = await wbFile.async('string');
+        const list = JSON.parse(str);
+        if (Array.isArray(list)) {
+          try { localStorage.setItem(WORLDBOOK_KEY, JSON.stringify(list)); } catch(e) {}
+          await idbSet(STORE_CHATS, WORLDBOOK_IDB_KEY, list);
+        }
+      } catch (e) { console.warn('恢复世界书失败', e); }
     }
 
     const momentFile = zip.file('moments.json');
@@ -7831,7 +7950,7 @@ function handleContactCardClick(card) {
   const personaExists = personaList.find(p => p.name === card.name);
   if (!personaExists) {
     personaList.push({ avatar: card.avatar || '', name: card.name, nickname: '', gender: '', age: '', details: '', npcs: [] });
-    try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); } catch (e) {}
+    savePersonaListToStorage();
   }
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
