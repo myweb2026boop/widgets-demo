@@ -278,7 +278,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-post-content{font-size:15px;color:#333;line-height:1.6;margin-bottom:12px;white-space:pre-wrap}
 .jx-post-content span.mention{color:#576b95;cursor:pointer;}
 .jx-post-images{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
-.jx-post-images img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px;cursor:pointer;}
+.jx-post-images img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px}
 .jx-post-footer{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#b2b2b2;margin-bottom:8px}
 .jx-post-actions{display:flex;gap:16px}
 .jx-post-actions svg{width:18px;height:18px;fill:#b2b2b2;cursor:pointer}
@@ -466,7 +466,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .mention-item.selected{background:#07c160;color:#fff}
 #worldBookSelectScreen.active{display:flex!important}
 #htmlSelectScreen.active{display:flex!important}
-#jxChatBeautifyScreen.active{display:flex!important}
 .wb-checkbox{width:22px;height:22px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;box-sizing:border-box}
 .wb-checkbox.checked{background-color:#07c160;border-color:#07c160}
 .wb-checkbox.checked::after{content:'';width:6px;height:11px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);margin-bottom:2px}
@@ -608,8 +607,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-info-item .label{color:#ddd}
 .phone-case.dark-mode .jx-info-header-name{color:#eee}
 .phone-case.dark-mode .jx-info-header-block{border-bottom-color:#2c2c2e}
-.phone-case.dark-mode #worldBookSelectScreen,.phone-case.dark-mode #htmlSelectScreen,.phone-case.dark-mode #jxMaskScreen,.phone-case.dark-mode #jxMaskEditScreen,.phone-case.dark-mode #jxChatBeautifyScreen{background:#121212}
-.phone-case.dark-mode #worldBookSelectList,.phone-case.dark-mode #htmlSelectList,.phone-case.dark-mode #jxMaskList,.phone-case.dark-mode #jxChatBeautifyList{background:#1c1c1e!important}
+.phone-case.dark-mode #worldBookSelectScreen,.phone-case.dark-mode #htmlSelectScreen,.phone-case.dark-mode #jxMaskScreen,.phone-case.dark-mode #jxMaskEditScreen{background:#121212}
+.phone-case.dark-mode #worldBookSelectList,.phone-case.dark-mode #htmlSelectList,.phone-case.dark-mode #jxMaskList{background:#1c1c1e!important}
 .phone-case.dark-mode #wbSelectFooter,.phone-case.dark-mode #htmlSelectFooter{background:#1c1c1e!important;border-top-color:#2c2c2e!important}
 .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item,.phone-case.dark-mode #htmlSelectScreen .jx-modal-item{border-bottom-color:#2c2c2e!important}
 .phone-case.dark-mode #worldBookSelectScreen .jx-modal-item span,.phone-case.dark-mode #htmlSelectScreen .jx-modal-item span{color:#eee}
@@ -837,7 +836,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .jx-tm-amount-row input{flex:1;border:none;outline:none;font-size:28px;font-weight:500;color:#333;min-width:0;background:transparent}
 .jx-tm-amount-row input::placeholder{color:#ccc}
 .jx-tm-note-row{display:flex;align-items:center;border-bottom:1px solid #eee;padding-bottom:8px}
-.jx-tm-note-row input{flex:1;border:none;outline:none;font-size .jx-tm-note-row input{flex:1;border:none;outline:none;font-size:14px;color:#333;min-width:0;background:transparent}
+.jx-tm-note-row input{flex:1;border:none;outline:none;font-size:14px;color:#333;min-width:0;background:transparent}
 .jx-tm-note-row input::placeholder{color:#bbb}
 .jx-tm-pay{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:14px;color:#333;cursor:pointer}
 .jx-tm-pay .value{color:#888;display:flex;align-items:center;gap:4px}
@@ -1895,7 +1894,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
               <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
             </div>
             <span class="text">银行卡</span>
-            <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
           </div>
           <div class="jx-wallet-menu-item" onclick="openRelativeCardScreen(false)">
             <div class="jx-wallet-menu-icon" style="background:#f56c8a;">
@@ -2030,7 +2029,7 @@ https://xxx.com/a.png
         <span style="width: 28px;"></span>
       </div>
       <div class="jx-info-scroll" style="padding: 16px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的"面具"来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
+        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">创建不同的“面具”来作为你在聊天中的身份。每个身份拥有独立的聊天记录和朋友圈。绑定给特定角色的身份，其聊天列表和朋友圈会互相隔离。点击卡片切换身份，点击编辑按钮管理。</p>
         <button class="btn btn-primary" style="width:100%; padding:12px; margin-bottom:16px;" onclick="openMaskEdit(null)">创建新身份</button>
         <div id="jxMaskList"></div>
         <div class="empty-state" id="jxMaskEmptyState">暂无身份，点击上方按钮创建</div>
@@ -2078,35 +2077,6 @@ https://xxx.com/a.png
       <div class="jx-info-scroll" style="padding: 16px;">
         <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">选择切换到的身份账号，每个账号有独立的聊天列表和朋友圈。</p>
         <div id="jxSwitchMaskList"></div>
-      </div>
-    </div>
-
-    <div id="jxChatBeautifyScreen" style="display:none;flex-direction:column;background:#f7f8fa;height:100%;width:100%;position:absolute;top:0;left:0;z-index:1002;">
-      <div class="persona-header">
-        <button class="back-btn" onclick="closeChatBeautifyScreen()">← 返回</button>
-        <h3>聊天专属美化</h3>
-        <span style="width: 48px;"></span>
-      </div>
-      <div style="flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 80px;">
-        <p style="font-size:12px; color:#666; margin-bottom:16px; line-height:1.5;">为当前角色绑定一个专属的美化预设。绑定后，进入此角色的聊天界面会自动套用该预设的 CSS 样式；其他未绑定的角色继续使用全局美化。也可单独设置本聊天的背景图。</p>
-        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-          <h4 style="font-size:14px;color:#333;margin-bottom:10px;font-weight:600;">绑定专属美化预设</h4>
-          <select id="chatBeautifySelect" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;outline:none;font-family:inherit;margin-bottom:10px;">
-            <option value="">-- 使用全局默认美化 --</option>
-          </select>
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="saveChatBeautifyBinding()" style="padding:11px;">保存绑定</button>
-            <button class="btn btn-outline" onclick="clearChatBeautifyBinding()" style="padding:11px;">清除绑定</button>
-          </div>
-        </div>
-        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-          <h4 style="font-size:14px;color:#333;margin-bottom:10px;font-weight:600;">当前聊天背景</h4>
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="changeChatBg()" style="padding:11px;">更换背景图</button>
-            <button class="btn btn-danger" onclick="clearChatBg()" style="padding:11px;">清除背景图</button>
-          </div>
-        </div>
-        <div id="chatBeautifyInfo" style="font-size:12px;color:#888;line-height:1.6;background:#f7f8fa;border:1px solid #eee;border-radius:8px;padding:10px 12px;"></div>
       </div>
     </div>
 
@@ -2241,10 +2211,6 @@ https://xxx.com/a.png
           <div class="jx-info-item" onclick="openHtmlSelectScreen()">
             <span class="label">启用 HTML 功能</span>
             <div class="value"><span id="jxHtmlText">未启用</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
-          </div>
-          <div class="jx-info-item" onclick="openChatBeautifyScreen()">
-            <span class="label">专属美化预设</span>
-            <div class="value"><span id="jxChatBeautifyText">未绑定</span> <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
         
@@ -2771,7 +2737,6 @@ const BEAUTIFY_PRESETS_IDB_KEY = 'beautify_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 const CHAR_POST_MOMENT_KEY = 'char_post_moment_enabled';
 const MOMENTS_UNREAD_KEY = 'moments_unread_v2';
-const CHAT_BEAUTIFY_BINDING_KEY = 'chat_beautify_binding_v1';
 /* 人设 / 世界书 的 IndexedDB 键（用于绕开 localStorage 容量限制） */
 const PERSONA_IDB_KEY = 'persona_list_v2';
 const WORLDBOOK_IDB_KEY = 'worldbook_entries_v2';
@@ -2823,69 +2788,6 @@ async function saveBeautifyPresetsAsync(presets) {
     console.warn('预设保存到 IndexedDB 失败', e);
     return false;
   }
-}
-
-/* ============ 每个角色的专属美化预设绑定 ============ */
-let _chatBeautifyBindingCache = null;
-
-function loadChatBeautifyBindings() {
-  if (_chatBeautifyBindingCache) return _chatBeautifyBindingCache;
-  try {
-    const raw = localStorage.getItem(CHAT_BEAUTIFY_BINDING_KEY);
-    const parsed = raw ? JSON.parse(raw) : {};
-    _chatBeautifyBindingCache = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
-  } catch (e) {
-    _chatBeautifyBindingCache = {};
-  }
-  return _chatBeautifyBindingCache;
-}
-function saveChatBeautifyBindings(obj) {
-  _chatBeautifyBindingCache = obj || {};
-  try { localStorage.setItem(CHAT_BEAUTIFY_BINDING_KEY, JSON.stringify(_chatBeautifyBindingCache)); } catch (e) {}
-}
-function getChatBeautifyPresetId(chatId) {
-  const map = loadChatBeautifyBindings();
-  return map[chatId] || '';
-}
-function setChatBeautifyPresetId(chatId, presetId) {
-  const map = loadChatBeautifyBindings();
-  if (presetId) map[chatId] = presetId;
-  else delete map[chatId];
-  saveChatBeautifyBindings(map);
-}
-
-/* 记录当前“全局默认”已应用的样式快照，便于从聊天专属预设切回默认时准确恢复 */
-let _globalDefaultCssSnapshot = null;
-let _globalDefaultFontSizeSnapshot = null;
-
-/* 聊天专属美化的独立样式标签（避免污染全局 #userCustomStyle） */
-let _chatBeautifyStyleEl = null;
-function getChatBeautifyStyleEl() {
-  if (!_chatBeautifyStyleEl) {
-    _chatBeautifyStyleEl = document.getElementById('chatBeautifyStyle');
-    if (!_chatBeautifyStyleEl) {
-      _chatBeautifyStyleEl = document.createElement('style');
-      _chatBeautifyStyleEl.id = 'chatBeautifyStyle';
-      document.head.appendChild(_chatBeautifyStyleEl);
-    }
-  }
-  return _chatBeautifyStyleEl;
-}
-
-/* 应用聊天专属美化：preset 为 null 表示恢复全局默认 */
-async function applyChatBeautifyPreset(chatId) {
-  const el = getChatBeautifyStyleEl();
-  const presetId = getChatBeautifyPresetId(chatId);
-  if (!presetId) { el.textContent = ''; return; }
-  await initBeautifyPresets();
-  const preset = getBeautifyPresetsSync().find(p => p.id === presetId);
-  if (!preset) { el.textContent = ''; return; }
-  el.textContent = preset.css || '';
-}
-
-function clearChatBeautifyPreset() {
-  const el = getChatBeautifyStyleEl();
-  if (el) el.textContent = '';
 }
 
 /* ============ 音乐持久化存储 ============ */
@@ -3077,7 +2979,7 @@ function buildFontSizeRulesCache() {
     for (let i = 0; i < sheets.length; i++) {
       const sheet = sheets[i];
       const ownerNode = sheet.ownerNode;
-      if (ownerNode && (ownerNode.id === 'globalFontSizeStyle' || ownerNode.id === 'userCustomStyle' || ownerNode.id === 'chatBeautifyStyle')) continue;
+      if (ownerNode && (ownerNode.id === 'globalFontSizeStyle' || ownerNode.id === 'userCustomStyle')) continue;
       let cssRules;
       try { cssRules = sheet.cssRules || sheet.rules; } catch (e) { continue; }
       if (!cssRules) continue;
@@ -4046,7 +3948,7 @@ if (localStorage.getItem('app_name_instagram') && !localStorage.getItem('app_nam
   localStorage.setItem('app_name_avatarlib', localStorage.getItem('app_name_instagram'));
   localStorage.removeItem('app_name_instagram');
 }
-if (localStorage.getItem('app_icon_instagram') && if (localStorage.getItem('app_icon_instagram') && !localStorage.getItem('app_icon_avatarlib')) {
+if (localStorage.getItem('app_icon_instagram') && !localStorage.getItem('app_icon_avatarlib')) {
   localStorage.setItem('app_icon_avatarlib', localStorage.getItem('app_icon_instagram'));
   localStorage.removeItem('app_icon_instagram');
 }
@@ -4159,6 +4061,7 @@ function compressImageFile(file, maxDim, quality) {
   });
 }
 
+/* ========== 新增：对已有 base64 图像再压缩（用于兜底压缩头像，保证能存得下） ========== */
 function compressBase64Image(base64, maxDim, quality) {
   return new Promise((resolve) => {
     if (!base64 || typeof base64 !== 'string' || !base64.startsWith('data:image')) { resolve(base64); return; }
@@ -4823,6 +4726,7 @@ async function ensurePersonaLoadedFromIDB() {
   } catch (e) { console.warn('人设 IndexedDB 预加载失败', e); }
 }
 
+/* ====== 同步写 localStorage（尽力而为）+ 异步写 IndexedDB（主存储） ====== */
 function savePersonaListToStorage() {
   let lsOk = true;
   try { localStorage.setItem(PERSONA_KEY, JSON.stringify(personaList)); }
@@ -4831,6 +4735,7 @@ function savePersonaListToStorage() {
   return lsOk;
 }
 
+/* ====== 异步保存（等待 IndexedDB 完成 + 校验，用于人设/名片添加等关键路径） ====== */
 async function savePersonaListAsync(list) {
   const arr = Array.isArray(list) ? list : personaList;
   let idbOk = false;
@@ -4999,6 +4904,7 @@ function cancelPersonaEdit() {
   renderPersonaList();
 }
 
+/* ====== 保存人设（核心修复：先压缩头像，再异步等待 IndexedDB 保存 + localStorage 尽力而为） ====== */
 let _savingPersona = false;
 async function savePersona() {
   if (_savingPersona) return;
@@ -5019,6 +4925,8 @@ async function savePersona() {
 
     if (!name) { alert('请至少填写名字'); return; }
 
+    // 关键修复：头像数据过大是导致 localStorage/IndexedDB 保存失败的根源。
+    // 这里对人设头像做一次兜底强压缩，确保任何头像都能被安全存储。
     let avatarToSave = tempAvatarBase64 || '';
     if (avatarToSave && avatarToSave.length > 15000) {
       try {
@@ -5031,10 +4939,12 @@ async function savePersona() {
 
     const personaData = { avatar: avatarToSave, name, nickname, gender, age, details, npcs: tempNpcs };
 
+    // 在副本上操作，避免保存失败污染内存
     const newList = personaList.slice();
     if (editingPersonaId === null) newList.push(personaData);
     else newList[editingPersonaId] = personaData;
 
+    // 先写 IndexedDB（主存储），等待写入完成并校验
     let idbOk = false;
     try {
       idbOk = await idbSet(STORE_CHATS, PERSONA_IDB_KEY, newList);
@@ -5043,6 +4953,7 @@ async function savePersona() {
       idbOk = false;
     }
 
+    // 再写 localStorage（尽力而为，容量不足也不影响主流程）
     let lsOk = false;
     try {
       localStorage.setItem(PERSONA_KEY, JSON.stringify(newList));
@@ -5056,6 +4967,7 @@ async function savePersona() {
       return;
     }
 
+    // 校验 IndexedDB 写入是否成功
     let verifyOk = idbOk;
     if (idbOk) {
       try {
@@ -5069,6 +4981,7 @@ async function savePersona() {
       return;
     }
 
+    // 更新内存数据
     personaList = newList;
     _personaLoaded = true;
 
@@ -5159,6 +5072,7 @@ function deletePersona() {
   if (!input) return;
   input.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
+    // 头像压缩到 128px、0.75 质量（更小，避免保存失败）
     compressImageFile(file, 128, 0.75).then((base64) => {
       if (!base64) return;
       tempAvatarBase64 = base64;
@@ -5604,19 +5518,6 @@ function updatePresetList() {
     opt.textContent = p.name || '未命名预设';
     presetSelect.appendChild(opt);
   });
-  // 同步填充聊天专属美化下拉框
-  const chatSel = document.getElementById('chatBeautifySelect');
-  if (chatSel) {
-    const currentVal = chatSel.value;
-    chatSel.innerHTML = '<option value="">-- 使用全局默认美化 --</option>';
-    presets.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.name || '未命名预设';
-      chatSel.appendChild(opt);
-    });
-    if (currentVal) chatSel.value = currentVal;
-  }
 }
 
 (function initPresetBtn() {
@@ -5718,6 +5619,7 @@ async function exportAllData() {
       }
       zip.file('localStorage.json', JSON.stringify(localData));
 
+      /* 人设与世界书单独打包一份，避免 localStorage 容量不足导致丢失 */
       try { zip.file('persona_list.json', JSON.stringify(personaList)); } catch (e) {}
       try { zip.file('worldbook_entries.json', JSON.stringify(worldBookEntries)); } catch (e) {}
       
@@ -5837,7 +5739,7 @@ async function exportBeautifyData() {
                 'app_name_clock', 'app_name_avatarlib', 'app_icon_beautify', 'app_icon_wechat',
                 'app_icon_qqmusic', 'app_icon_persona', 'app_icon_book', 'app_icon_play',
                 'app_icon_clock', 'app_icon_avatarlib', 'uploaded_icon_1', 'uploaded_icon_2',
-                'saved_wallpaper', 'chat_beautify_binding_v1'
+                'saved_wallpaper'
             ];
             const localData = {};
             for (let i = 0; i < keysToExport.length; i++) {
@@ -5917,13 +5819,11 @@ async function importAllData(file) {
     }
     if (allChats.length > 0) {
         const chatKeys = await idbGetAllKeys(STORE_CHATS);
-        for (const k of chatKeys) {
-            if (k === BEAUTIFY_PRESETS_IDB_KEY || k === PERSONA_IDB_KEY || k === WORLDBOOK_IDB_KEY || k === 'moments') continue;
-            await idbDelete(STORE_CHATS, k);
-        }
+        for (const k of chatKeys) await idbDelete(STORE_CHATS, k);
         await idbSet(STORE_CHATS, 'main', allChats);
     }
 
+    /* 恢复人设（优先 zip 内的独立文件，避免 localStorage 容量限制） */
     const personaFile = zip.file('persona_list.json');
     if (personaFile) {
       try {
@@ -6874,7 +6774,8 @@ function renderBills() {
       const d2 = new Date(b.time);
       const timeStr = `${String(d2.getHours()).padStart(2,'0')}:${String(d2.getMinutes()).padStart(2,'0')}`;
       let iconSvg, iconCls;
-      if (b.type === 'card') { iconCls = 'card'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v if (b.type === 'recharge') { iconCls = 'recharge'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>'; }
+      if (b.type === 'card') { iconCls = 'card'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>'; }
+      else if (b.type === 'recharge') { iconCls = 'recharge'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>'; }
       else if (b.type === 'withdraw') { iconCls = 'withdraw'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>'; }
       else if (b.direction === 'in') { iconCls = 'in'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>'; }
       else { iconCls = 'out'; iconSvg = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>'; }
@@ -7507,6 +7408,7 @@ async function loadJianxunChats() {
     if (chat.boundStickers !== undefined) delete chat.boundStickers;
     if (!Array.isArray(chat.enabledHtmls)) chat.enabledHtmls = [];
     
+    // 初始化线下模式配置
     if (chat.isOffline === undefined) chat.isOffline = false;
     if (chat.offlineLength === undefined) chat.offlineLength = 300;
     if (chat.offlineStyle === undefined) chat.offlineStyle = '';
@@ -7829,8 +7731,6 @@ async function openChat(id) {
     document.getElementById('jxChatScreen').style.backgroundImage = 'none';
     document.getElementById('jxChatScreen').style.backgroundColor = '';
   }
-  // 应用当前聊天专属美化
-  await applyChatBeautifyPreset(id);
   document.getElementById('jxChatScreen').classList.add('active');
   document.getElementById('jxChatInput').value = '';
   document.getElementById('jxChatInput').style.height = '36px';
@@ -7886,94 +7786,6 @@ function renderQuotePreview() {
 }
 function clearQuote() { currentQuote = null; renderQuotePreview(); }
 function menuQuote() { const id = menuMsgId; closeMsgMenu(); if (!id) return; startQuote(id); }
-
-/* ========== 聊天专属美化 ========== */
-function openChatBeautifyScreen() {
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  const sel = document.getElementById('chatBeautifySelect');
-  if (sel) {
-    sel.innerHTML = '<option value="">-- 使用全局默认美化 --</option>';
-    getBeautifyPresetsSync().forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = p.name || '未命名预设';
-      sel.appendChild(opt);
-    });
-    const boundPresetId = getChatBeautifyPresetId(chat.id);
-    sel.value = boundPresetId || '';
-  }
-  const infoEl = document.getElementById('chatBeautifyInfo');
-  if (infoEl) {
-    const boundPresetId = getChatBeautifyPresetId(chat.id);
-    if (boundPresetId) {
-      const p = getBeautifyPresetsSync().find(x => x.id === boundPresetId);
-      if (p) infoEl.innerHTML = `当前已绑定预设：<b>${escapeHtml(p.name || '未命名')}</b>（仅在本聊天中生效，不会影响其他聊天和全局外观）`;
-      else infoEl.innerHTML = '当前绑定的预设已不存在，请重新选择或清除绑定。';
-    } else {
-      infoEl.innerHTML = '当前未绑定专属预设，使用<b>全局默认美化</b>。绑定后，进入本聊天时将自动套用该预设的 CSS，离开本聊天不影响全局。';
-    }
-  }
-  document.getElementById('jxChatBeautifyScreen').classList.add('active');
-}
-function closeChatBeautifyScreen() {
-  document.getElementById('jxChatBeautifyScreen').classList.remove('active');
-  // 同步更新聊天详情中的状态文本
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  const el = document.getElementById('jxChatBeautifyText');
-  if (chat && el) {
-    const boundPresetId = getChatBeautifyPresetId(chat.id);
-    if (boundPresetId) {
-      const p = getBeautifyPresetsSync().find(x => x.id === boundPresetId);
-      el.textContent = p ? (p.name || '已绑定') : '已绑定';
-    } else {
-      el.textContent = '未绑定';
-    }
-  }
-}
-async function saveChatBeautifyBinding() {
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  const sel = document.getElementById('chatBeautifySelect');
-  if (!sel) return;
-  const presetId = sel.value;
-  setChatBeautifyPresetId(chat.id, presetId);
-  await applyChatBeautifyPreset(chat.id);
-  // 更新信息文本
-  const infoEl = document.getElementById('chatBeautifyInfo');
-  if (infoEl) {
-    if (presetId) {
-      const p = getBeautifyPresetsSync().find(x => x.id === presetId);
-      infoEl.innerHTML = `已绑定预设：<b>${escapeHtml(p ? (p.name || '未命名') : '未知')}</b>，仅在本聊天中生效。`;
-    } else {
-      infoEl.innerHTML = '已切换为使用<b>全局默认美化</b>。';
-    }
-  }
-  alert('已保存聊天专属美化绑定');
-}
-async function clearChatBeautifyBinding() {
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  if (!confirm('确定清除本聊天的专属美化绑定吗？之后将使用全局默认美化。')) return;
-  setChatBeautifyPresetId(chat.id, '');
-  clearChatBeautifyPreset();
-  const sel = document.getElementById('chatBeautifySelect');
-  if (sel) sel.value = '';
-  const infoEl = document.getElementById('chatBeautifyInfo');
-  if (infoEl) infoEl.innerHTML = '已清除绑定，本聊天恢复使用<b>全局默认美化</b>。';
-  alert('已清除聊天专属美化');
-}
-function clearChatBg() {
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  if (!chat) return;
-  if (!confirm('确定清除当前聊天的背景图吗？')) return;
-  chat.chatBg = '';
-  saveJianxunChats();
-  const sc = document.getElementById('jxChatScreen');
-  sc.style.backgroundImage = 'none';
-  sc.style.backgroundColor = '';
-  alert('已清除聊天背景');
-}
 
 function renderChatMessages(keepScrollPos) {
   if (!currentChatId) return;
@@ -8191,7 +8003,9 @@ function renderChatMessages(keepScrollPos) {
   attachMsgLongPress(container);
   if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
   else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
-} function toolContactCard() {
+}
+
+function toolContactCard() {
   hideChatTools();
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -9259,11 +9073,7 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   }
 
   if (!chat.isOffline) {
-    const maxReply = chat.maxReply || 1;
-    sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n`;
-    sp += `6. **消息拆分（极其重要）**：请务必把回复拆成多条独立短消息。**你必须主动使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分（每 1~2 句用一次）。如果不使用 [[SPLIT]] 标记，系统仍然会尝试按标点和长度自动切分，但可能不如你亲手切分自然。为了最佳效果，请务必自觉使用 [[SPLIT]]。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。\n`;
-    sp += `7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n`;
-    sp += `8. **一次最多回复句数限制（重要）**：本次回复请严格控制在你最多拆分出 ${maxReply} 条独立气泡之内，也就是说你**最多只能输出 ${maxReply} 段内容**（相邻的短句请尽量合并成一段，或者只保留最核心的 1 段）。千万不要超出这个数量！\n\n`;
+    sp += `其他行为准则：\n1. 语言：模仿普通人聊天发消息，短句为主，口语自然，会有简短停顿，不强行润色，不刻意优美。不用规整排比，不写作文式句子。\n2. 人设：严格完全遵守【世界书+人设档案】所有设定，绝不OOC。\n3. 禁止行为：不要机械总结、不要套话、不要反复安慰式空话；不要每段都工整排版；拒绝生硬华丽辞藻堆砌。\n4. 回复逻辑：像人即时思考，想到什么说什么，语气贴合当下情绪。可以简短，不用强行拉长篇幅。\n5. 输出格式：模拟真人的打字习惯：保持对话口语化、高度碎片化（碎句），并确保回复的气泡长短随机、丰富多样。\n6. **消息拆分（极其重要）**：请务必把回复拆成多条独立短消息。**你必须主动使用 [[SPLIT]] 标记**在自然停顿、思路落点、情绪变化处切分（每 1~2 句用一次）。如果不使用 [[SPLIT]] 标记，系统仍然会尝试按标点和长度自动切分，但可能不如你亲手切分自然。为了最佳效果，请务必自觉使用 [[SPLIT]]。允许错字、漏字、补充、改口、残句、迟来的反应和新的情绪。\n7. 备选格式：若你实在不想用 [[SPLIT]] 标记，可以返回 JSON 数组格式如 ["第一条消息", "第二条消息"]，或者用 [char的消息：xxx] 包裹每条消息。系统会自动解析并逐条发送。\n\n`;
   }
 
   sp += `【角色设定】\n你是「${charName}」，在仿微信App"简讯"中和用户聊天。\n`;
@@ -10316,16 +10126,6 @@ function parseReplyIntoBubbles(rawText, isOffline = false) {
     if (parts.length > 1) segments = parts;
   }
   
-  // 应用最大回复句数限制
-  const chat = jianxunChats.find(c => c.id === currentChatId);
-  const maxReply = (chat && chat.maxReply) ? chat.maxReply : 1;
-  if (segments.length > maxReply) {
-    // 把超出的内容合并到最后一条
-    const head = segments.slice(0, maxReply - 1);
-    const tail = segments.slice(maxReply - 1).join(' ');
-    segments = head.concat([tail]);
-  }
-  
   return segments.map(s => s.trim()).filter(s => s.length > 0);
 }
 
@@ -10470,7 +10270,7 @@ function requestNotificationPermission() {
 }
 setTimeout(requestNotificationPermission, 2000);
 
-/* ============ 主动消息定时器 ============ */
+/* ============ 主动消息定时器（改进版） ============ */
 const _activeChatCooldown = {};
 
 setInterval(async () => {
@@ -10485,7 +10285,7 @@ setInterval(async () => {
       
       const realMsgs = chat.messages.filter(m => m.content !== '__typing__');
       if (realMsgs.length === 0) continue;
-      const lastMsg = realMsgs[realMsgs.length -const lastMsg = realMsgs[realMsgs.length - 1];
+      const lastMsg = realMsgs[realMsgs.length - 1];
       
       if (lastMsg.role === 'char') continue;
       
@@ -10510,8 +10310,6 @@ async function closeChatScreen() {
   clearQuote();
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
-  // 离开聊天时清除专属美化，避免污染其他界面
-  clearChatBeautifyPreset();
   renderJianxunChatList();
 }
 function openChatInfo() {
@@ -10548,18 +10346,6 @@ function openChatInfo() {
   if (offlineWorldBookText) {
     const count = Array.isArray(chat.offlineWorldBook) ? chat.offlineWorldBook.length : 0;
     offlineWorldBookText.textContent = count > 0 ? `已绑定 ${count} 本` : '未绑定';
-  }
-
-  // 专属美化状态文本
-  const cbEl = document.getElementById('jxChatBeautifyText');
-  if (cbEl) {
-    const boundPresetId = getChatBeautifyPresetId(chat.id);
-    if (boundPresetId) {
-      const p = getBeautifyPresetsSync().find(x => x.id === boundPresetId);
-      cbEl.textContent = p ? (p.name || '已绑定') : '已绑定';
-    } else {
-      cbEl.textContent = '未绑定';
-    }
   }
 
   memorySectionExpanded = false;
@@ -10770,7 +10556,7 @@ function toggleSetting(key) {
 function changeMaxReply() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
-  const val = prompt('请输入一次最多回复句数（角色每次回复被拆分成的最大气泡数）：', chat.maxReply || 1);
+  const val = prompt('请输入一次最多回复句数：', chat.maxReply || 1);
   if (val !== null && val.trim() !== '') {
     const num = parseInt(val, 10);
     if (!isNaN(num) && num >= 1) {
@@ -11621,7 +11407,7 @@ async function publishPost() {
               postId: post.id,
               fromName: chat.customRemark || chat.name || mentionName,
               text: result.text,
-              preview: (chat.customRemark || chat.name || mentionName) + '：' + result.text.slice(0, 40)
+              preview: chat.customRemark || chat.name || mentionName + '：' + result.text.slice(0, 40)
             });
           }
         }
@@ -11653,13 +11439,10 @@ async function publishPost() {
     }
   }
 
-  // 未 @ 的人设 char 随机评论（但仅在可见范围内）
+  // 未 @ 的人设 char 随机评论
   for (const chat of jianxunChats) {
     if (chat.charPostMoment === true) {
       if (mentions.includes(chat.customRemark || chat.name)) continue;
-      // 可见性判断：如果动态是 private，char 不可见；如果是 custom，只有被列出的人可见
-      if (visibility === 'private') continue;
-      if (visibility === 'custom' && !customVisibles.includes(chat.customRemark || chat.name)) continue;
       const freq = chat.charPostMomentFrequency || 'medium';
       let prob = 0.5;
       if (freq === 'high') prob = 0.85;
@@ -11692,16 +11475,9 @@ async function publishPost() {
     }
   }
 
-  // NPC 自动评论（NPC 属于角色，只在其可见时评论）
+  // NPC 自动评论
   for (const p of personaList) {
     if (Array.isArray(p.npcs)) {
-      const ownerChat = jianxunChats.find(c => c.name === p.name);
-      if (visibility === 'private') continue;
-      if (visibility === 'custom') {
-        if (!ownerChat) continue;
-        const ownerVisibleName = ownerChat.customRemark || ownerChat.name;
-        if (!customVisibles.includes(ownerVisibleName)) continue;
-      }
       for (const npc of p.npcs) {
         if (mentions.includes(npc.name)) continue;
         if (Math.random() < 0.4) {
