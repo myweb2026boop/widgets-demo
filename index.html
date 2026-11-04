@@ -2754,7 +2754,6 @@ const CSS_EDITOR_PRESETS_IDB_KEY = 'css_editor_presets';
 const AVATAR_AWARE_KEY = 'jx_avatar_aware';
 const CHAR_POST_MOMENT_KEY = 'char_post_moment_enabled';
 const MOMENTS_UNREAD_KEY = 'moments_unread_v2';
-/* 人设 / 世界书 的 IndexedDB 键（用于绕开 localStorage 容量限制） */
 const PERSONA_IDB_KEY = 'persona_list_v2';
 const WORLDBOOK_IDB_KEY = 'worldbook_entries_v2';
 
@@ -4111,7 +4110,6 @@ function compressImageFile(file, maxDim, quality) {
   });
 }
 
-/* ========== 对已有 base64 图像再压缩 ========== */
 function compressBase64Image(base64, maxDim, quality) {
   return new Promise((resolve) => {
     if (!base64 || typeof base64 !== 'string' || !base64.startsWith('data:image')) { resolve(base64); return; }
@@ -4220,8 +4218,6 @@ async function ultraCompressImage(base64, maxDim = 400, quality = 0.5) {
   });
   vinylCoverInput.addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
-    // 修复：将唱片封面压缩参数提高，保证 220px 圆形显示区内足够清晰。
-    // 采用 520px、0.92 质量，既能保证清晰度又不会占用过多存储空间。
     compressImageFile(file, 520, 0.92).then((base64) => {
       if (!base64) return;
       vinylCoverImg.src = base64; vinylCoverImg.style.display = 'block'; vinylCoverSvg.style.display = 'none';
@@ -4277,7 +4273,6 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-/* ============ 音乐列表渲染 ============ */
 function renderMusicList() {
   const emptyEl = document.getElementById('musicListEmpty');
   const container = document.getElementById('musicListContainer');
@@ -4742,7 +4737,6 @@ let tempAvatarBase64 = '';
 let tempNpcs = [];
 let currentNpcEditIndex = -1;
 
-/* ===== 人设存储：内存缓存 + IndexedDB 主存储 + localStorage 兼容 ===== */
 let _personaLoaded = false;
 let _personaIDBLoaded = false;
 
@@ -6950,7 +6944,6 @@ function openMergedView(msgId) {
 }
 function closeMergedView() { document.getElementById('jxMergedViewScreen').style.display = 'none'; }
 
-/* ============ 查找聊天内容 ============ */
 function openChatSearch() {
   const input = document.getElementById('jxChatSearchInput');
   if (input) input.value = '';
@@ -8911,7 +8904,6 @@ async function translateText(text, cfg) {
   return '';
 }
 
-/* ============ 手动拆分消息 ============ */
 let splittingMsgId = null;
 function menuSplit() {
   const id = menuMsgId;
@@ -9570,11 +9562,19 @@ async function summarizeOfflineMode(chat) {
   } catch(e) { console.warn('线下剧情总结失败', e); }
 }
 
+/* 修复：头像感知关闭时，在解析阶段就过滤掉所有头像相关动作，确保完全不会执行 */
 async function parseAndExecuteActions(chat, rawText) {
+  const avatarAware = loadAvatarAwareSetting();
+  const blockedTypes = ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'];
   const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|ACCEPT_FAMILY_CARD|REFUND_FAMILY_CARD|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN|QUOTE)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
-  while ((m = re.exec(rawText)) !== null) actions.push({ type: m[1], payload: m[2] });
+  while ((m = re.exec(rawText)) !== null) {
+    const type = m[1];
+    // 头像感知关闭时，直接跳过所有头像相关动作
+    if (!avatarAware && blockedTypes.includes(type)) continue;
+    actions.push({ type, payload: m[2] });
+  }
   const clean = rawText.replace(re, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
   for (const a of actions) {
     try { await executeCharAction(chat, a); } catch (e) { console.warn('动作执行失败', e); }
@@ -10341,7 +10341,6 @@ function requestNotificationPermission() {
 }
 setTimeout(requestNotificationPermission, 2000);
 
-/* ============ 主动消息定时器（改进版） ============ */
 const _activeChatCooldown = {};
 
 setInterval(async () => {
@@ -10573,7 +10572,6 @@ function changeOfflineLength() {
   }
 }
 
-/* 修复：改为自定义弹窗，内容可编辑，不再用浏览器原生 prompt 的窄小输入框 */
 function editOfflineStyle() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return;
@@ -11127,7 +11125,6 @@ async function saveMomentsPosts() {
   } catch(e) {}
 }
 
-/* ============ 朋友圈未读管理 ============ */
 function loadMomentsUnread() {
   try {
     const raw = localStorage.getItem(MOMENTS_UNREAD_KEY + '_' + getCurrentMaskId());
