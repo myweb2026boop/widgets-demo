@@ -1171,6 +1171,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .phone-case.dark-mode .jx-notify-content{background:#2c2c2e;color:#ddd}
 .phone-case.dark-mode .jx-notify-name{color:#82a7e0}
 .phone-case.dark-mode .jx-notify-clear-btn{background:#1c1c1e;border-color:#2c2c2e;color:#aaa}
+/* 好友状态提示 */
+.jx-friend-status-bar{display:none;padding:10px 16px;background:#f0f0f0;border-top:1px solid #dcdcdc;text-align:center;color:#888;font-size:14px;flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.jx-friend-status-bar.show{display:block}
+.jx-friend-status-bar .btn-add-friend{background:#07c160;color:#fff;border:none;border-radius:4px;padding:6px 14px;font-size:14px;margin-left:10px;cursor:pointer}
+/* 新的朋友界面 */
+#jxNewFriendsScreen{display:none;flex-direction:column;background:#f7f8fa;height:100%;width:100%;position:absolute;top:0;left:0;z-index:1002}
+#jxNewFriendsScreen.active{display:flex}
+.jx-new-friends-list{flex:1;overflow-y:auto;padding:16px}
+.jx-friend-req-card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;gap:12px}
+.jx-friend-req-avatar{width:48px;height:48px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#f0f0f0}
+.jx-friend-req-avatar img{width:100%;height:100%;object-fit:cover}
+.jx-friend-req-info{flex:1;min-width:0}
+.jx-friend-req-name{font-size:16px;color:#333;font-weight:500;margin-bottom:4px}
+.jx-friend-req-msg{font-size:13px;color:#666;background:#f7f7f7;padding:6px 10px;border-radius:4px;margin-bottom:8px;word-break:break-word}
+.jx-friend-req-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.jx-friend-req-actions button{padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;border:none}
+.jx-friend-req-actions .btn-accept{background:#07c160;color:#fff}
+.jx-friend-req-actions .btn-reject{background:#f0f0f0;color:#333}
+.jx-friend-req-actions .btn-reply{background:#fff;color:#07c160;border:1px solid #07c160}
+.jx-friend-req-actions .btn-accept:active,.jx-friend-req-actions .btn-reject:active,.jx-friend-req-actions .btn-reply:active{opacity:0.8}
+.jx-friend-req-status{font-size:12px;color:#999;text-align:right;margin-top:8px}
+.jx-friend-req-reply{font-size:12px;color:#576b95;margin-top:4px;text-align:right;}
+.phone-case.dark-mode #jxNewFriendsScreen{background:#121212}
+.phone-case.dark-mode .jx-friend-req-card{background:#1c1c1e;box-shadow:none}
+.phone-case.dark-mode .jx-friend-req-name{color:#eee}
+.phone-case.dark-mode .jx-friend-req-msg{background:#2c2c2e;color:#aaa}
+.phone-case.dark-mode .jx-friend-req-actions .btn-reject{background:#2c2c2e;color:#ddd}
+.phone-case.dark-mode .jx-friend-req-actions .btn-reply{background:#1c1c1e;color:#07c160;border-color:#07c160}
+.phone-case.dark-mode .jx-friend-req-reply{color:#82a7e0}
+.phone-case.dark-mode .jx-friend-status-bar{background:#1c1c1e;border-top-color:#2c2c2e;color:#888}
+.jx-contact-badge{background:#ff3b30;color:#fff;border-radius:8px;padding:0 4px;font-size:10px;line-height:16px;min-width:16px;text-align:center;margin-left:8px}
 </style>
 <style id="userCustomStyle"></style>
 </head>
@@ -1708,7 +1739,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           搜索
         </div>
         <div class="jx-contacts-block" style="margin-top: 8px;">
-          <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>新的朋友</div>
+          <div class="jx-contact-item" onclick="openNewFriendsScreen()" style="cursor:pointer;"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>新的朋友 <span id="newFriendsBadge" class="jx-contact-badge" style="display:none;">0</span></div>
           <div class="jx-contact-item"><svg class="jx-contact-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>群组</div>
         </div>
         <div id="jxContactList" style="margin-top: 8px;"></div>
@@ -1765,6 +1796,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
         <div class="jx-nav-item" id="jxMomentsNavItem" onclick="switchJianxunTab('jx-moments', this)"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg><span>朋友圈</span><span class="jx-nav-badge" id="jxMomentsNavBadge" style="display:none;">0</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-contacts', this)"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>通讯录</span></div>
         <div class="jx-nav-item" onclick="switchJianxunTab('jx-me', this)"><svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg><span>我</span></div>
+      </div>
+    </div>
+
+    <div id="jxNewFriendsScreen">
+      <div class="jx-info-top-bar">
+        <span class="back-btn" onclick="closeNewFriendsScreen()">‹</span>
+        <span class="title">新的朋友</span>
+        <span style="width: 28px;"></span>
+      </div>
+      <div class="jx-new-friends-list" id="jxNewFriendsList">
+        <div class="empty-state">暂无新的朋友</div>
       </div>
     </div>
 
@@ -2113,6 +2155,11 @@ https://xxx.com/a.png
         <button class="send-btn" id="jxChatSendBtn" onclick="sendMessage()">发送</button>
       </div>
 
+      <div class="jx-friend-status-bar" id="jxFriendStatusBar">
+        <span id="jxFriendStatusText">您已删除对方</span>
+        <button class="btn-add-friend" onclick="sendFriendRequestFromChat()">发送好友申请</button>
+      </div>
+
       <div class="jx-chat-tools" id="jxChatTools">
         <div class="jx-chat-tool-item" onclick="toolAlbum()">
           <div class="jx-chat-tool-icon" style="background:#e3f2fd; border-color:#e3f2fd;">
@@ -2284,8 +2331,18 @@ https://xxx.com/a.png
           </div>
         </div>
         <div class="jx-info-block">
-          <div class="jx-info-item jx-danger-item" onclick="deleteChat()">
-            <span class="label jx-danger-text">删除联系人</span>
+          <div class="jx-info-item" onclick="doBlockFriend(currentChatId)">
+            <span class="label">加入黑名单</span>
+            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+          <div class="jx-info-item jx-danger-item" onclick="doDeleteFriend(currentChatId)">
+            <span class="label jx-danger-text">删除好友</span>
+            <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
+          </div>
+        </div>
+        <div class="jx-info-block">
+          <div class="jx-info-item jx-danger-item" onclick="hardDeleteChat()">
+            <span class="label jx-danger-text">彻底删除聊天及记录</span>
             <div class="value"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></div>
           </div>
         </div>
@@ -2755,6 +2812,7 @@ const CHAR_POST_MOMENT_KEY = 'char_post_moment_enabled';
 const MOMENTS_UNREAD_KEY = 'moments_unread_v2';
 const PERSONA_IDB_KEY = 'persona_list_v2';
 const WORLDBOOK_IDB_KEY = 'worldbook_entries_v2';
+const FRIEND_REQUESTS_KEY = 'jx_friend_requests';
 
 /* ============ 桌面预设 IndexedDB ============ */
 let _desktopPresetsCache = null;
@@ -7456,6 +7514,7 @@ async function loadJianxunChats() {
       c.maskId = currentMaskId;
       migrated = true;
     }
+    if (!c.friendStatus) { c.friendStatus = 'normal'; migrated = true; }
   });
   if (migrated) {
     try { await idbSet(STORE_CHATS, 'main', allChats); } catch (e) {}
@@ -7481,6 +7540,7 @@ async function loadJianxunChats() {
     if (!Array.isArray(chat.memories)) chat.memories = [];
     if (typeof chat.lastSummarizedCount !== 'number') chat.lastSummarizedCount = 0;
     if (!chat.maskId) chat.maskId = currentMaskId;
+    if (!chat.friendStatus) chat.friendStatus = 'normal';
     delete chat._replying;
     delete chat._summarizing;
     if (chat.boundWorldBook === undefined || chat.boundWorldBook === '') chat.boundWorldBook = [];
@@ -7597,6 +7657,7 @@ async function openJianxunApp() {
   renderMomentsPosts();
   renderMomentsUnreadBadge();
   loadJxMeProfile();
+  updateNewFriendsBadge();
 }
 function switchJianxunTab(tabId, navElement) {
   document.querySelectorAll('#jianxunScreen .jx-tab-content').forEach(el => el.classList.remove('active'));
@@ -7726,7 +7787,8 @@ function renderJianxunContacts() {
   loadPersonaList();
   const list = document.getElementById('jxContactList');
   if (!list) return;
-  const chatNames = new Set(jianxunChats.map(c => c.name));
+  const activeChats = jianxunChats.filter(c => c.friendStatus === 'normal' || !c.friendStatus);
+  const chatNames = new Set(activeChats.map(c => c.name));
   const contacts = personaList.filter(p => chatNames.has(p.name));
   if (contacts.length === 0) {
     list.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#999; font-size:14px;">通讯录为空<br>请先去「简讯」右上角+添加角色</div>';
@@ -7765,11 +7827,14 @@ function renderJianxunChatList() {
   const currentMaskId = getCurrentMaskId();
   const mask = jxMasks.find(m => m.id === currentMaskId);
   const defaultName = getMaskDisplayName(mask);
-  if (jianxunChats.length === 0) {
+  
+  const activeChats = jianxunChats.filter(c => c.friendStatus === 'normal' || !c.friendStatus);
+
+  if (activeChats.length === 0) {
     list.innerHTML = '<div style="text-align:center; padding:60px 20px; color:#999; font-size:14px;">暂无聊天记录<br>点击右上角"+"添加人设</div>';
     return;
   }
-  const sortedChats = [...jianxunChats].sort((a, b) => {
+  const sortedChats = [...activeChats].sort((a, b) => {
     const aPinned = a.pinned ? 1 : 0;
     const bPinned = b.pinned ? 1 : 0;
     if (aPinned !== bPinned) return bPinned - aPinned;
@@ -7822,6 +7887,36 @@ function scrollChatToBottom(container) {
   });
 }
 
+function updateChatFriendStatusUI(chat) {
+  const bar = document.getElementById('jxFriendStatusBar');
+  const inputBar = document.getElementById('jxChatInputBar');
+  const text = document.getElementById('jxFriendStatusText');
+  const btn = bar.querySelector('.btn-add-friend');
+  
+  if (!chat || chat.friendStatus === 'normal' || !chat.friendStatus) {
+    if (bar) bar.classList.remove('show');
+    if (inputBar) inputBar.style.display = 'flex';
+    return;
+  }
+  
+  if (bar) bar.classList.add('show');
+  if (inputBar) inputBar.style.display = 'none';
+  
+  if (chat.friendStatus === 'user_deleted') {
+    text.innerText = `您已删除${chat.customRemark || chat.name}，对方暂时不是您的好友`;
+    btn.innerText = '重新添加对方';
+  } else if (chat.friendStatus === 'user_blocked') {
+    text.innerText = `您已拉黑${chat.customRemark || chat.name}`;
+    btn.innerText = '取消拉黑并发送好友申请';
+  } else if (chat.friendStatus === 'char_deleted') {
+    text.innerText = `对方暂时不是您的好友`;
+    btn.innerText = '发送好友申请';
+  } else if (chat.friendStatus === 'char_blocked') {
+    text.innerText = `消息已发出，但被对方拒收了`;
+    btn.innerText = '发送好友申请';
+  }
+}
+
 async function openChat(id) {
   currentChatId = id;
   const chat = jianxunChats.find(c => c.id === id);
@@ -7851,6 +7946,7 @@ async function openChat(id) {
     screen.style.backgroundColor = '';
   }
 
+  updateChatFriendStatusUI(chat);
   renderChatMessages();
 
   await applyChatCssPreset(chat);
@@ -7907,6 +8003,9 @@ function renderChatMessages(keepScrollPos) {
   const container = document.getElementById('jxChatMessages');
   if (!container) return;
   const prevScrollTop = keepScrollPos ? container.scrollTop : null;
+  
+  updateChatFriendStatusUI(chat);
+
   if (chat.messages.length === 0) {
     container.innerHTML = `<div class="jx-chat-empty">开始和 ${escapeHtml(chat.customRemark || chat.name || 'TA')} 聊天吧</div>`;
     return;
@@ -8174,7 +8273,7 @@ function sendContactCard(type, idxOrName) {
 async function handleContactCardClick(card) {
   if (!card || !card.name) return;
   if (card.isUser) { alert('这是你自己的名片'); return; }
-  const exists = jianxunChats.find(c => (c.name === card.name) || (c.customRemark === card.name));
+  const exists = jianxunChats.find(c => ((c.name === card.name) || (c.customRemark === card.name)) && (c.friendStatus === 'normal' || !c.friendStatus));
   if (exists) {
     if (confirm(`「${card.name}」已在你的聊天列表中，是否打开聊天？`)) {
       document.getElementById('jxChatScreen').classList.remove('active');
@@ -8204,6 +8303,7 @@ async function handleContactCardClick(card) {
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
     userAvatarByChar: false,
     maskId: currentMaskId,
+    friendStatus: 'normal',
     lastMessageTime: Date.now()
   };
   jianxunChats.push(newChat);
@@ -8286,6 +8386,10 @@ function sendMessage() {
   if (!content) return false;
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (!chat) return false;
+  if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) {
+    alert('你们当前不是好友关系，无法发送消息。请先发送好友申请。');
+    return false;
+  }
   const quoteSnapshot = currentQuote ? { ...currentQuote } : null;
   const msg = { id: genId(), role: 'me', type: 'text', content: content, time: Date.now() };
   if (quoteSnapshot) msg.quote = { ...quoteSnapshot };
@@ -8307,6 +8411,10 @@ function voiceSend() {
     if (!cfg || !cfg.endpoint || !cfg.key || !cfg.model) { alert('请先在「设置 → API 配置」中完成配置，角色才能回复哦～'); return; }
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
+    if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) {
+      alert('你们当前不是好友关系，无法发送消息。');
+      return;
+    }
     if (chat._replying) { alert('角色正在回复中，请稍候...'); return; }
     const input = document.getElementById('jxChatInput');
     const content = input ? input.value.trim() : '';
@@ -8328,6 +8436,10 @@ function voiceSend() {
     if (!file) return;
     const chat = jianxunChats.find(c => c.id === currentChatId);
     if (!chat) return;
+    if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) {
+      alert('你们当前不是好友关系，无法发送消息。');
+      return;
+    }
     compressImageFile(file, 800, 0.75).then((base64) => {
       if (!base64) return;
       chat.messages.push({ id: genId(), role: 'me', type: 'image', image: base64, content: '[图片]', time: Date.now() });
@@ -8416,9 +8528,14 @@ function toggleStickerPackBind(packId) {
 }
 function sendSticker(id) {
   const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) {
+    alert('你们当前不是好友关系，无法发送消息。');
+    return;
+  }
   const stickers = loadStickers();
   const s = stickers.find(x => x.id === id);
-  if (!chat || !s) return;
+  if (!s) return;
   chat.messages.push({ id: genId(), role: 'me', type: 'sticker', image: s.url, stickerName: s.name || '', content: '[表情]', time: Date.now() });
   chat.lastMessageTime = Date.now();
   saveJianxunChats();
@@ -8903,7 +9020,8 @@ function exitMultiSelect(silent) {
   selectedMsgIds.clear();
   const ib = document.getElementById('jxChatInputBar');
   const mb = document.getElementById('jxMultiBar');
-  if (ib) ib.style.display = 'flex';
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (ib) ib.style.display = (chat && chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) ? 'none' : 'flex';
   if (mb) mb.classList.remove('show');
   if (!silent) renderChatMessages(true);
 }
@@ -8920,7 +9038,7 @@ function deleteSelected() {
 }
 function forwardSelected() {
   if (selectedMsgIds.size === 0) { alert('请先选择消息'); return; }
-  const targets = jianxunChats.filter(c => c.id !== currentChatId);
+  const targets = jianxunChats.filter(c => c.id !== currentChatId && (c.friendStatus === 'normal' || !c.friendStatus));
   if (targets.length === 0) { alert('没有其他聊天可以转发'); return; }
   const list = document.getElementById('forwardTargetList');
   list.innerHTML = targets.map(c => `
@@ -9230,6 +9348,32 @@ function buildCharSystemPrompt(chat, isProactive = false) {
   if (userWxId) sp += `· 微信号：${userWxId}\n`;
   sp += `· 记住：用户告诉你的"真实名字"才是真名。网名只是账号显示名。绝对不要把网名当作用户的真实姓名来使用。\n`;
   if (activeMask && activeMask.details) sp += `用户当前使用的身份描述：${activeMask.details}\n`;
+
+  if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) {
+    sp += `\n【⚠️ 好友状态异常 ⚠️】\n`;
+    if (chat.friendStatus === 'char_deleted') {
+      sp += `你目前已经把用户删除了（或者解除了好友关系），你们现在不是好友状态。你无法接收或发送消息，除非通过好友申请重新添加。\n`;
+    } else if (chat.friendStatus === 'char_blocked') {
+      sp += `你目前已经把用户拉黑了。你收不到对方的消息，对方也收不到你的消息，除非将对方解除拉黑。\n`;
+    } else if (chat.friendStatus === 'user_deleted') {
+      sp += `用户目前已经把你删除了（解除了好友关系），你们现在不是好友状态。你发消息对方收不到，除非对方重新添加你。\n`;
+    } else if (chat.friendStatus === 'user_blocked') {
+      sp += `用户目前已经把你拉黑了。你发消息对方收不到，对方发消息你也收不到，除非对方解除黑名单。\n`;
+    }
+    sp += `关于好友操作的说明：如果你们当前是正常好友状态，但你因为极度生气、失望或符合人设的情况，想要主动删除或拉黑用户，可以使用隐藏动作标记。\n`;
+    sp += `[[DELETE_FRIEND]] 主动删除对方（解除好友关系，聊天记录保留）\n`;
+    sp += `[[BLOCK_FRIEND]] 主动拉黑对方（拒收所有消息）\n`;
+    sp += `[[ACCEPT_FRIEND]] 当你收到用户的好友申请且同意时使用\n`;
+    sp += `[[REJECT_FRIEND:留言]] 拒绝用户的好友申请并回复留言\n`;
+    sp += `[[SEND_FRIEND_REQUEST:留言]] 主动向用户发送好友申请（仅限好友状态异常时使用）\n`;
+  } else {
+    sp += `\n【好友关系】你们目前是正常的好友状态。\n`;
+    sp += `关于好友操作的说明：如果用户的行为严重触碰了你的底线，或者根据当前极其恶劣的聊天上下文、你极度愤怒或符合人设的情况下，你**可以主动**选择删除或拉黑用户。请极其慎重地决定！\n`;
+    sp += `[[DELETE_FRIEND]] 主动删除对方（解除好友关系，聊天记录保留，对方可以通过发好友申请加回你）\n`;
+    sp += `[[BLOCK_FRIEND]] 主动拉黑对方（拒收所有消息，对方无法发消息给你）\n`;
+    sp += `[[ACCEPT_FRIEND]] 当你收到用户的好友申请且同意时使用\n`;
+    sp += `[[REJECT_FRIEND:留言]] 拒绝用户的好友申请并回复留言\n`;
+  }
 
   if (isProactive && !chat.isOffline) {
     sp += `\n【⚠️ 主动消息提示 · 重要 ⚠️】用户已经有一段时间没有回复你了。现在轮到你主动开启话题。\n`;
@@ -9642,7 +9786,7 @@ async function summarizeOfflineMode(chat) {
 async function parseAndExecuteActions(chat, rawText) {
   const avatarAware = loadAvatarAwareSetting();
   const blockedTypes = ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'];
-  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|ACCEPT_FAMILY_CARD|REFUND_FAMILY_CARD|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN|QUOTE)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
+  const re = /\[\[\s*(SET_AVATAR|CROP_AVATAR|POST_MOMENT|STICKER|LIKE_MOMENT|COMMENT_MOMENT|TRANSFER|SEND_CARD|REMOVE_CARD|ACCEPT_TRANSFER|REFUND_TRANSFER|ACCEPT_FAMILY_CARD|REFUND_FAMILY_CARD|HTML|SEND_CONTACT|SET_REMARK|USE_AVATAR|SET_USER_AVATAR|PROPOSE_COUPLE|SEND_MUSIC|ACCEPT_LISTEN|QUOTE|DELETE_FRIEND|BLOCK_FRIEND|ACCEPT_FRIEND|REJECT_FRIEND|SEND_FRIEND_REQUEST)\s*[:：]?\s*([\s\S]*?)(?:\s*\]\]|\s*\])/g;
   const actions = [];
   let m;
   while ((m = re.exec(rawText)) !== null) {
@@ -9699,6 +9843,101 @@ function cropImageRegion(base64Src, region, ratio) {
 async function executeCharAction(chat, action) {
   const avatarAware = loadAvatarAwareSetting();
   if (!avatarAware && ['SET_AVATAR', 'CROP_AVATAR', 'USE_AVATAR', 'SET_USER_AVATAR', 'PROPOSE_COUPLE'].includes(action.type)) {
+    return;
+  }
+
+  if (action.type === 'DELETE_FRIEND') {
+    chat.friendStatus = 'char_deleted';
+    chat.messages.push({ id: genId(), role: 'char', type: 'system', content: `对方已解除好友关系`, time: Date.now() });
+    saveJianxunChats();
+    if (currentChatId === chat.id) {
+      updateChatFriendStatusUI(chat);
+      renderChatMessages(true);
+    }
+    renderJianxunChatList();
+    renderJianxunContacts();
+    return;
+  }
+  if (action.type === 'BLOCK_FRIEND') {
+    chat.friendStatus = 'char_blocked';
+    chat.messages.push({ id: genId(), role: 'char', type: 'system', content: `你已被拉黑`, time: Date.now() });
+    saveJianxunChats();
+    if (currentChatId === chat.id) {
+      updateChatFriendStatusUI(chat);
+      renderChatMessages(true);
+    }
+    renderJianxunChatList();
+    renderJianxunContacts();
+    return;
+  }
+  if (action.type === 'ACCEPT_FRIEND') {
+    chat.friendStatus = 'normal';
+    chat.messages.push({ id: genId(), role: 'char', type: 'system', content: `你们已成功添加好友`, time: Date.now() });
+    saveJianxunChats();
+    
+    const reqs = loadFriendRequests();
+    reqs.forEach(r => {
+      if (r.chatId === chat.id && r.status === 'pending') {
+        r.status = 'accepted';
+      }
+    });
+    saveFriendRequests(reqs);
+
+    if (currentChatId === chat.id) {
+      updateChatFriendStatusUI(chat);
+      renderChatMessages(true);
+    }
+    renderJianxunChatList();
+    renderJianxunContacts();
+    return;
+  }
+  if (action.type === 'REJECT_FRIEND') {
+    const reply = String(action.payload || '').trim();
+    const reqs = loadFriendRequests();
+    let targetReq = null;
+    for (let i = reqs.length - 1; i >= 0; i--) {
+      if (reqs[i].chatId === chat.id && reqs[i].status === 'pending') {
+        targetReq = reqs[i];
+        targetReq.status = 'rejected';
+        targetReq.reply = reply || '';
+        break;
+      }
+    }
+    if (targetReq) {
+      saveFriendRequests(reqs);
+      chat.messages.push({ id: genId(), role: 'char', type: 'system', content: `对方拒绝了你的好友申请${reply ? '，并留言：' + reply : ''}`, time: Date.now() });
+      saveJianxunChats();
+      if (currentChatId === chat.id) renderChatMessages(true);
+    }
+    return;
+  }
+  if (action.type === 'SEND_FRIEND_REQUEST') {
+    const msg = String(action.payload || '').trim() || '请求添加你为好友';
+    if (!Array.isArray(chat.messages)) chat.messages = [];
+    
+    if (chat.friendStatus === 'char_deleted' || chat.friendStatus === 'char_blocked') {
+      chat.friendStatus = 'user_deleted';
+    }
+
+    const req = {
+      id: genId(),
+      chatId: chat.id,
+      fromChar: true,
+      message: msg,
+      status: 'pending',
+      reply: '',
+      time: Date.now()
+    };
+    const reqs = loadFriendRequests();
+    reqs.push(req);
+    saveFriendRequests(reqs);
+    
+    chat.messages.push({ id: genId(), role: 'char', type: 'system', content: `对方请求添加你为好友：${msg}`, time: Date.now() });
+    saveJianxunChats();
+    
+    updateNewFriendsBadge();
+    if (currentChatId === chat.id) renderChatMessages(true);
+    renderJianxunChatList();
     return;
   }
 
@@ -10268,6 +10507,7 @@ function parseReplyIntoBubbles(rawText, isOffline = false) {
 
 async function triggerCharReply(chat, isProactive = false) {
   if (chat._replying) return;
+  if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) return;
   chat._replying = true;
   chat._pendingStickers = [];
   chat._pendingHtmls = [];
@@ -10427,6 +10667,7 @@ setInterval(async () => {
     const now = Date.now();
     for (const chat of jianxunChats) {
       if (!chat.allowActive || chat._replying || chat.isOffline) continue;
+      if (chat.friendStatus !== 'normal' && chat.friendStatus !== undefined) continue;
       if (_activeChatCooldown[chat.id] && now - _activeChatCooldown[chat.id] < 1800000) continue;
       
       const realMsgs = chat.messages.filter(m => m.content !== '__typing__');
@@ -10516,6 +10757,270 @@ function openChatInfo() {
   document.getElementById('jxChatInfoScreen').classList.add('active');
 }
 function closeChatInfo() { document.getElementById('jxChatInfoScreen').classList.remove('active'); }
+
+function doBlockFriend(chatId) {
+  if (!chatId) return;
+  if (!confirm('确定要加入黑名单吗？加入后将不再接收对方消息。')) return;
+  const chat = jianxunChats.find(c => c.id === chatId);
+  if (!chat) return;
+  chat.friendStatus = 'user_blocked';
+  chat.messages.push({ id: genId(), role: 'system', type: 'system', content: `你已将对方加入黑名单`, time: Date.now() });
+  saveJianxunChats();
+  updateChatFriendStatusUI(chat);
+  renderChatMessages(true);
+  renderJianxunChatList();
+  renderJianxunContacts();
+  alert('已加入黑名单');
+}
+
+function doDeleteFriend(chatId) {
+  if (!chatId) return;
+  if (!confirm('确定要删除该好友吗？（聊天记录将保留，对方可通过好友申请加回）')) return;
+  const chat = jianxunChats.find(c => c.id === chatId);
+  if (!chat) return;
+  chat.friendStatus = 'user_deleted';
+  chat.messages.push({ id: genId(), role: 'system', type: 'system', content: `你已解除好友关系`, time: Date.now() });
+  saveJianxunChats();
+  updateChatFriendStatusUI(chat);
+  renderChatMessages(true);
+  renderJianxunChatList();
+  renderJianxunContacts();
+  alert('已删除好友');
+}
+
+function hardDeleteChat() {
+  if (!confirm('确定要彻底删除该联系人及所有聊天记录吗？此操作不可恢复！')) return;
+  const idToDelete = currentChatId;
+  if (!idToDelete) return;
+  
+  jianxunChats = jianxunChats.filter(c => c.id !== idToDelete);
+  currentChatId = null;
+  
+  closeChatInfo();
+  document.getElementById('jxChatScreen').classList.remove('active');
+  
+  renderJianxunChatList();
+  renderJianxunContacts();
+  
+  saveJianxunChats().then(() => {
+    idbGet(STORE_CHATS, 'main').then(verify => {
+      if (Array.isArray(verify)) {
+        const cm = getCurrentMaskId();
+        const cleaned = verify.filter(c => !(c.id === idToDelete && c.maskId === cm));
+        idbSet(STORE_CHATS, 'main', cleaned);
+      }
+    });
+  });
+}
+
+function openNewFriendsScreen() {
+  document.getElementById('jxNewFriendsScreen').classList.add('active');
+  renderNewFriendsList();
+}
+function closeNewFriendsScreen() {
+  document.getElementById('jxNewFriendsScreen').classList.remove('active');
+}
+function loadFriendRequests() {
+  try {
+    const raw = localStorage.getItem(FRIEND_REQUESTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function saveFriendRequests(list) {
+  try { localStorage.setItem(FRIEND_REQUESTS_KEY, JSON.stringify(list)); } catch (e) {}
+  updateNewFriendsBadge();
+}
+function updateNewFriendsBadge() {
+  const reqs = loadFriendRequests();
+  const pendingCount = reqs.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('newFriendsBadge');
+  if (badge) {
+    if (pendingCount > 0) {
+      badge.style.display = 'inline-block';
+      badge.innerText = pendingCount > 99 ? '99+' : pendingCount;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+}
+function renderNewFriendsList() {
+  const list = document.getElementById('jxNewFriendsList');
+  if (!list) return;
+  const reqs = loadFriendRequests();
+  if (reqs.length === 0) {
+    list.innerHTML = '<div class="empty-state">暂无新的朋友</div>';
+    return;
+  }
+  
+  const sortedReqs = [...reqs].sort((a, b) => b.time - a.time);
+  
+  list.innerHTML = sortedReqs.map(req => {
+    const chat = jianxunChats.find(c => c.id === req.chatId);
+    const charName = chat ? (chat.customRemark || chat.name) : '未知角色';
+    const charAvatar = chat ? chat.avatar : '';
+    const avatarHtml = charAvatar ? `<img src="${charAvatar}">` : `<svg viewBox="0 0 24 24" fill="#ccc" width="24" height="24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+    
+    let actionHtml = '';
+    if (req.fromChar) {
+      if (req.status === 'pending') {
+        actionHtml = `
+          <div class="jx-friend-req-actions">
+            <button class="btn-reply" onclick="replyFriendRequest('${req.id}')">回复</button>
+            <button class="btn-reject" onclick="rejectFriendRequest('${req.id}')">拒绝</button>
+            <button class="btn-accept" onclick="acceptFriendRequest('${req.id}')">同意</button>
+          </div>
+        `;
+      } else if (req.status === 'accepted') {
+        actionHtml = `<div class="jx-friend-req-status">已添加</div>`;
+      } else if (req.status === 'rejected') {
+        actionHtml = `<div class="jx-friend-req-status">已拒绝</div>`;
+      }
+    } else {
+      if (req.status === 'pending') {
+        actionHtml = `<div class="jx-friend-req-status">等待对方验证</div>`;
+      } else if (req.status === 'accepted') {
+        actionHtml = `<div class="jx-friend-req-status">已添加</div>`;
+      } else if (req.status === 'rejected') {
+        actionHtml = `<div class="jx-friend-req-status">对方已拒绝</div>`;
+      }
+    }
+    
+    let replyHtml = '';
+    if (req.reply) {
+      replyHtml = `<div class="jx-friend-req-reply">我的留言: ${escapeHtml(req.reply)}</div>`;
+    }
+    
+    return `<div class="jx-friend-req-card">
+      <div class="jx-friend-req-avatar">${avatarHtml}</div>
+      <div class="jx-friend-req-info">
+        <div class="jx-friend-req-name">${escapeHtml(charName)}</div>
+        <div class="jx-friend-req-msg">${escapeHtml(req.message)}</div>
+        ${replyHtml}
+        ${actionHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function replyFriendRequest(reqId) {
+  const reply = prompt('请输入回复留言（对方会看到）：');
+  if (reply === null) return;
+  const reqs = loadFriendRequests();
+  const req = reqs.find(r => r.id === reqId);
+  if (req) {
+    req.reply = reply.trim();
+    saveFriendRequests(reqs);
+    renderNewFriendsList();
+    alert('回复已保存，您可以继续选择同意或拒绝。');
+  }
+}
+function rejectFriendRequest(reqId) {
+  const reqs = loadFriendRequests();
+  const req = reqs.find(r => r.id === reqId);
+  if (!req) return;
+  req.status = 'rejected';
+  saveFriendRequests(reqs);
+  
+  const chat = jianxunChats.find(c => c.id === req.chatId);
+  if (chat) {
+    const replyMsg = req.reply ? `，留言：${req.reply}` : '';
+    chat.messages.push({ id: genId(), role: 'system', type: 'system', content: `你拒绝了对方的好友申请${replyMsg}`, time: Date.now() });
+    chat.friendStatus = 'user_deleted'; // 拒绝了申请，保持非好友状态
+    saveJianxunChats();
+  }
+  renderNewFriendsList();
+  alert('已拒绝');
+}
+function acceptFriendRequest(reqId) {
+  const reqs = loadFriendRequests();
+  const req = reqs.find(r => r.id === reqId);
+  if (!req) return;
+  req.status = 'accepted';
+  saveFriendRequests(reqs);
+  
+  const chat = jianxunChats.find(c => c.id === req.chatId);
+  if (chat) {
+    chat.friendStatus = 'normal';
+    chat.messages.push({ id: genId(), role: 'system', type: 'system', content: `你们已成功添加好友`, time: Date.now() });
+    saveJianxunChats();
+    updateChatFriendStatusUI(chat);
+    renderChatMessages(true);
+    renderJianxunChatList();
+    renderJianxunContacts();
+  }
+  renderNewFriendsList();
+  alert('已同意添加好友');
+}
+
+function sendFriendRequestFromChat() {
+  const chat = jianxunChats.find(c => c.id === currentChatId);
+  if (!chat) return;
+  const msg = prompt('请输入好友申请留言：', '我是' + getMaskDisplayName(getActiveMaskForChat(chat)));
+  if (msg === null) return;
+  
+  if (chat.friendStatus === 'user_blocked') {
+    chat.friendStatus = 'user_deleted'; // 解除拉黑
+  } else if (chat.friendStatus === 'char_blocked') {
+    // 对方拉黑用户，无法主动加好友，提示
+    alert('对方已拉黑你，无法发送好友申请');
+    return;
+  }
+  
+  const req = {
+    id: genId(),
+    chatId: chat.id,
+    fromChar: false,
+    message: msg.trim() || '请求添加你为好友',
+    status: 'pending',
+    reply: '',
+    time: Date.now()
+  };
+  const reqs = loadFriendRequests();
+  reqs.push(req);
+  saveFriendRequests(reqs);
+  
+  chat.messages.push({ id: genId(), role: 'me', type: 'system', content: `你发送了好友申请：${req.message}`, time: Date.now() });
+  saveJianxunChats();
+  
+  if (currentChatId === chat.id) renderChatMessages(true);
+  renderJianxunChatList();
+  
+  // 触发 AI 回复（让 AI 决定是否同意好友申请，或者用固定逻辑）
+  alert('好友申请已发送，请等待对方验证。');
+  // 这里为了模拟，可以延迟一段时间后让 AI 自动处理，或者直接让用户通过 switch 身份模拟。
+  // 简单点：如果是 AI，可以通过 prompt 或者直接让用户自己决定。
+  // 由于没有后端，我们默认对方会收到（在用户视角下，直接生成一条 AI 消息太突兀，不如等到下次对话时判定）。
+  // 这里作为演示，简单处理：直接让 AI 处理申请（如果在线）。
+  setTimeout(async () => {
+    // 模拟角色收到申请后决定是否同意
+    const cfg = loadApiConfig();
+    if (cfg && cfg.endpoint && cfg.key && cfg.model) {
+      const sys = `你收到了来自用户的好友申请，留言是：“${req.message}”。根据你的人设和你们之前的上下文，你决定：\n1. 同意，输出 [[ACCEPT_FRIEND]]\n2. 拒绝并回复留言，输出 [[REJECT_FRIEND:留言内容]]\n请只输出一个动作标记。`;
+      try {
+        const url = normalizeChatEndpoint(cfg.endpoint);
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+          body: JSON.stringify({ model: cfg.model, messages: [{ role: 'system', content: buildCharSystemPrompt(chat) + '\n' + sys }], temperature: cfg.temperature, max_tokens: 256 })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+          if (c) {
+            const clean = await parseAndExecuteActions(chat, c);
+            saveJianxunChats();
+            if (currentChatId === chat.id) {
+              updateChatFriendStatusUI(chat);
+              renderChatMessages(true);
+            }
+            renderJianxunChatList();
+            renderJianxunContacts();
+          }
+        }
+      } catch(e) {}
+    }
+  }, 1500);
+}
 
 function changeChatCssPreset() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
@@ -10994,37 +11499,7 @@ function clearChatHistory() {
   const chat = jianxunChats.find(c => c.id === currentChatId);
   if (chat) { chat.messages = []; chat.lastSummarizedCount = 0; saveJianxunChats(); renderChatMessages(); renderJianxunChatList(); closeChatInfo(); }
 }
-async function deleteChat() {
-  if (!confirm('确定要删除该联系人及聊天记录吗？此操作不可恢复。')) return;
-  
-  const idToDelete = currentChatId;
-  if (!idToDelete) return;
-  
-  jianxunChats = jianxunChats.filter(c => c.id !== idToDelete);
-  currentChatId = null;
-  
-  closeChatInfo();
-  document.getElementById('jxChatScreen').classList.remove('active');
-  
-  renderJianxunChatList();
-  renderJianxunContacts();
-  
-  await saveJianxunChats();
-  
-  try {
-    const verify = await idbGet(STORE_CHATS, 'main') || [];
-    if (Array.isArray(verify)) {
-      const cm = getCurrentMaskId();
-      const stillThere = verify.find(c => c.id === idToDelete && c.maskId === cm);
-      if (stillThere) {
-        const cleaned = verify.filter(c => !(c.id === idToDelete && c.maskId === cm));
-        await idbSet(STORE_CHATS, 'main', cleaned);
-      }
-    }
-  } catch (e) {
-    console.warn('deleteChat 校验强删失败', e);
-  }
-}
+
 function showPersonaSelector() {
   try {
     loadPersonaList();
@@ -11045,12 +11520,25 @@ function showPersonaSelector() {
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
 function addPersonaToChat(index) {
   const persona = personaList[index]; if (!persona) return;
-  const exists = jianxunChats.find(c => c.name === persona.name);
+  const exists = jianxunChats.find(c => c.name === persona.name && (c.friendStatus === 'normal' || !c.friendStatus));
   if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
   const imagePool = [];
   const userAvatar = localStorage.getItem('moments_avatar');
   if (userAvatar) imagePool.push({ id: genId(), data: userAvatar, time: Date.now(), isAvatar: true, desc: '用户当前的头像（用户自选的）' });
   const currentMaskId = getCurrentMaskId();
+  
+  const existingDeleted = jianxunChats.find(c => c.name === persona.name);
+  if (existingDeleted) {
+    existingDeleted.friendStatus = 'normal';
+    existingDeleted.messages.push({ id: genId(), role: 'system', type: 'system', content: '你们已重新成为好友', time: Date.now() });
+    saveJianxunChats();
+    renderJianxunChatList();
+    renderJianxunContacts();
+    closePersonaSelector();
+    alert('已重新添加为好友');
+    return;
+  }
+
   jianxunChats.push({
     id: genId(), name: persona.name || '未命名', avatar: persona.avatar || '',
     messages: [], pinned: false, allowActive: false, charPostMoment: loadCharPostMomentSetting(), charPostMomentFrequency: 'medium', maxReply: 1, customRemark: '',
@@ -11058,6 +11546,7 @@ function addPersonaToChat(index) {
     memoryEnabled: true, memoryInterval: 20, memories: [], lastSummarizedCount: 0,
     userAvatarByChar: false,
     maskId: currentMaskId,
+    friendStatus: 'normal',
     isOffline: false, offlineLength: 300, offlineStyle: '', offlineWorldBook: [],
     boundCssPresetId: '',
     lastMessageTime: Date.now()
@@ -11654,7 +12143,7 @@ async function publishPost() {
   
   if (mentions.length > 0) {
     for (const mentionName of mentions) {
-      const chat = jianxunChats.find(c => (c.customRemark || c.name) === mentionName);
+      const chat = jianxunChats.find(c => (c.customRemark || c.name) === mentionName && (c.friendStatus === 'normal' || !c.friendStatus));
       if (chat) {
         const result = await generateCharMomentComment(chat, newPost);
         if (result) {
@@ -11708,7 +12197,7 @@ async function publishPost() {
   }
 
   for (const chat of jianxunChats) {
-    if (chat.charPostMoment === true) {
+    if (chat.charPostMoment === true && (chat.friendStatus === 'normal' || !chat.friendStatus)) {
       if (!isMomentVisibleToChar(newPost, chat)) continue;
       if (mentions.includes(chat.customRemark || chat.name)) continue;
       const freq = chat.charPostMomentFrequency || 'medium';
@@ -11835,7 +12324,7 @@ async function sendComment() {
     }
 
     if (targetCharName) {
-      const chat = jianxunChats.find(c => (c.customRemark || c.name) === targetCharName);
+      const chat = jianxunChats.find(c => (c.customRemark || c.name) === targetCharName && (c.friendStatus === 'normal' || !c.friendStatus));
       if (chat && isMomentVisibleToChar(post, chat)) {
         setTimeout(() => replyToMomentsComment(chat, post.id, text), 900 + Math.random() * 800);
       }
@@ -11970,6 +12459,7 @@ initCssEditorPresets().then(() => {
 });
 
 renderMomentsUnreadBadge();
+updateNewFriendsBadge();
 
 </script>
 
