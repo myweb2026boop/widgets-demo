@@ -11510,13 +11510,22 @@ function openPublishScreen() {
 function closePublishScreen() { document.getElementById('jxPublishScreen').classList.remove('active'); }
 function toggleMention(el) { el.classList.toggle('selected'); }
 function toggleCustomVisibility() { document.getElementById('publishCustomVisibility').style.display = document.getElementById('publishVisibility').value === 'custom' ? 'block' : 'none'; }
+
+// ============ 【关键修复】朋友圈发照片 ============
+// 之前的 bug：在读取 FileList 之前就把 input.value = '' 清空了 FileList，
+// 导致 Array.from(files) 得到空数组，永远无法添加图片。
+// 修复：先 Array.from(files) 再清空 input.value。
 async function handlePublishImageSelect(e) {
   const files = e.target.files;
   if (!files || !files.length) return;
-  e.target.value = '';
+  // 必须先复制 FileList，再清空 value
   const fileArray = Array.from(files);
+  e.target.value = '';
+  if (fileArray.length === 0) return;
   const container = document.getElementById('publishImagesContainer');
+  if (!container) return;
   for (const file of fileArray) {
+    if (!file || !file.type || !file.type.startsWith('image/')) continue;
     const base64 = await compressImageFile(file, 800, 0.75);
     if (!base64) continue;
     const idx = tempPostImages.length;
@@ -11529,6 +11538,7 @@ async function handlePublishImageSelect(e) {
     else container.appendChild(imgWrapper);
   }
 }
+
 function removePublishImage(el, index) {
   tempPostImages.splice(index, 1);
   el.parentElement.remove();
