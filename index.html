@@ -1514,7 +1514,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
             <button class="btn btn-primary" id="loadDesktopPresetBtn">应用预设</button>
             <button class="btn btn-danger" id="deleteDesktopPresetBtn">删除预设</button>
           </div>
-          <p style="font-size:12px;color:#666;margin-top:8px;">保存当前桌面外观（壁纸、图标、App名字、夜间模式等）为预设，不包含聊天界面的样式。</p>
         </div>
       </div>
     </div>
@@ -2769,6 +2768,8 @@ async function initDesktopPresets() {
     try {
       let presets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
       if (!Array.isArray(presets)) presets = [];
+      // 只保留桌面预设（包含 data 字段），过滤掉历史遗留的聊天界面预设（css/fontB64）
+      presets = presets.filter(p => p && p.data && typeof p.data === 'object');
       _desktopPresetsCache = presets;
     } catch (e) {
       _desktopPresetsCache = [];
@@ -2785,7 +2786,15 @@ function getDesktopPresetsSync() {
 async function saveDesktopPresetsAsync(presets) {
   _desktopPresetsCache = Array.isArray(presets) ? presets : [];
   try {
-    const ok = await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, _desktopPresetsCache);
+    // 读取现有的，保留旧的 CSS 预设数据（没有 data 字段的），避免覆盖丢失
+    let existing = [];
+    try {
+      existing = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY) || [];
+    } catch (e) { existing = []; }
+    if (!Array.isArray(existing)) existing = [];
+    const cssOnly = existing.filter(p => p && !(p.data && typeof p.data === 'object'));
+    const merged = cssOnly.concat(_desktopPresetsCache);
+    const ok = await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, merged);
     return ok;
   } catch (e) {
     console.warn('桌面预设保存失败', e);
@@ -2810,7 +2819,7 @@ async function initCssEditorPresets() {
       if (presets.length === 0) {
         let oldPresets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
         if (Array.isArray(oldPresets) && oldPresets.length > 0) {
-          const cssPresets = oldPresets.filter(p => p.css !== undefined || p.fontB64 !== undefined);
+          const cssPresets = oldPresets.filter(p => p && (p.css !== undefined || p.fontB64 !== undefined));
           if (cssPresets.length > 0) {
             presets = cssPresets;
             await idbSet(STORE_CHATS, CSS_EDITOR_PRESETS_IDB_KEY, presets);
