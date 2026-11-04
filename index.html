@@ -2931,6 +2931,7 @@ let _appliedFontFace = null;
 let _appliedFontUrl = null;
 let _fontSizeRulesCache = null;
 let _fontSizeStyleEl = null;
+let _globalFontAppliedKey = null;
 
 function applyUserCustomCss() {
   try {
@@ -3002,6 +3003,9 @@ function b642ab(b64) {
 async function applyGlobalFont() {
   try {
     const fontData = await getFontFromDB();
+    const key = (fontData && fontData.data) ? (fontData.time || 1) : null;
+    if (_globalFontAppliedKey === key) return;
+    _globalFontAppliedKey = key;
     if (!fontData || !fontData.data) return;
     if (_appliedFontFace) { try { document.fonts.delete(_appliedFontFace); } catch (e) {} _appliedFontFace = null; }
     if (_appliedFontUrl) { try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {} _appliedFontUrl = null; }
@@ -3147,6 +3151,7 @@ async function updateFontUI() {
 function resetGlobalFont() {
   if (!confirm('确定恢复系统默认字体吗？')) return;
   deleteFontFromDB().then(() => {
+    _globalFontAppliedKey = null;
     if (_appliedFontFace) { try { document.fonts.delete(_appliedFontFace); } catch (e) {} _appliedFontFace = null; }
     if (_appliedFontUrl) { try { URL.revokeObjectURL(_appliedFontUrl); } catch (e) {} _appliedFontUrl = null; }
     document.documentElement.style.fontFamily = '';
@@ -3167,6 +3172,7 @@ function resetGlobalFont() {
       const arrayBuffer = await file.arrayBuffer();
       const origSize = arrayBuffer.byteLength;
       await saveFontToDB(arrayBuffer, origSize);
+      _globalFontAppliedKey = null;
       await applyGlobalFont();
       await updateFontUI();
       alert('字体已应用！\n\n原始大小：' + formatBytes(origSize) + '\n已使用 IndexedDB 原生存储，无任何容量限制。');
@@ -3346,6 +3352,7 @@ async function applyBeautifyPreset() {
   } else {
     await deleteFontFromDB();
   }
+  _globalFontAppliedKey = null;
   await applyGlobalFont();
 
   if (preset.fontSize) {
@@ -3373,6 +3380,7 @@ async function applyBeautifyPresetById(id) {
   } else {
     await deleteFontFromDB();
   }
+  _globalFontAppliedKey = null;
   await applyGlobalFont();
   if (preset.fontSize) setGlobalFontSize(preset.fontSize);
   else setGlobalFontSize(100);
@@ -7754,23 +7762,30 @@ function renderJianxunChatList() {
   }).join('');
 }
 
+let _activeChatPresetKey = null;
+
+function scrollChatToBottom(container) {
+  if (!container) return;
+  const doScroll = () => { container.scrollTop = container.scrollHeight; };
+  doScroll();
+  requestAnimationFrame(() => { doScroll(); requestAnimationFrame(doScroll); });
+  const imgs = container.querySelectorAll('img');
+  imgs.forEach(img => {
+    if (!img.complete) img.addEventListener('load', doScroll, { once: true });
+  });
+}
+
 async function openChat(id) {
   currentChatId = id;
   const chat = jianxunChats.find(c => c.id === id);
   if (!chat) return;
+
+  const screen = document.getElementById('jxChatScreen');
+  const container = document.getElementById('jxChatMessages');
+
+  screen.classList.add('active');
+
   document.getElementById('jxChatTitle').innerText = chat.customRemark || chat.name || '聊天';
-  renderChatMessages();
-  if (chat.chatBg) {
-    const sc = document.getElementById('jxChatScreen');
-    sc.style.backgroundImage = `url(${chat.chatBg})`;
-    sc.style.backgroundSize = 'cover';
-    sc.style.backgroundPosition = 'center';
-    sc.style.backgroundRepeat = 'no-repeat';
-  } else {
-    document.getElementById('jxChatScreen').style.backgroundImage = 'none';
-    document.getElementById('jxChatScreen').style.backgroundColor = '';
-  }
-  document.getElementById('jxChatScreen').classList.add('active');
   document.getElementById('jxChatInput').value = '';
   document.getElementById('jxChatInput').style.height = '36px';
   document.getElementById('jxStickerPanel').classList.remove('show');
@@ -7778,11 +7793,22 @@ async function openChat(id) {
   if (tools) tools.classList.remove('show');
   clearQuote();
   exitMultiSelect(true);
+
+  if (chat.chatBg) {
+    screen.style.backgroundImage = `url(${chat.chatBg})`;
+    screen.style.backgroundSize = 'cover';
+    screen.style.backgroundPosition = 'center';
+    screen.style.backgroundRepeat = 'no-repeat';
+  } else {
+    screen.style.backgroundImage = 'none';
+    screen.style.backgroundColor = '';
+  }
+
+  renderChatMessages();
+
   await applyChatCssPreset(chat);
-  setTimeout(() => {
-    const msgContainer = document.getElementById('jxChatMessages');
-    if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
-  }, 50);
+
+  scrollChatToBottom(container);
 }
 
 let multiSelectMode = false;
@@ -8041,8 +8067,11 @@ function renderChatMessages(keepScrollPos) {
   });
 
   attachMsgLongPress(container);
-  if (keepScrollPos && prevScrollTop !== null) setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
-  else setTimeout(() => { container.scrollTop = container.scrollHeight; }, 10);
+  if (keepScrollPos && prevScrollTop !== null) {
+    setTimeout(() => { container.scrollTop = prevScrollTop; }, 10);
+  } else {
+    scrollChatToBottom(container);
+  }
 }
 
 function toolContactCard() {
@@ -10381,6 +10410,7 @@ async function closeChatScreen() {
   exitMultiSelect(true);
   document.getElementById('jxChatScreen').classList.remove('active');
   await restoreGlobalAppearance();
+  _activeChatPresetKey = '__global__';
   renderJianxunChatList();
 }
 function openChatInfo() {
@@ -10518,10 +10548,15 @@ async function restoreGlobalAppearance() {
 }
 
 async function applyChatCssPreset(chat) {
-  if (!chat) { await restoreGlobalAppearance(); return; }
-  if (chat.boundCssPresetId) {
+  if (!chat) return;
+  const presetId = chat.boundCssPresetId || '';
+  const key = presetId || '__global__';
+  if (_activeChatPresetKey === key) return;
+  _activeChatPresetKey = key;
+
+  if (presetId) {
     const presets = getCssEditorPresetsSync();
-    const preset = presets.find(p => p.id === chat.boundCssPresetId);
+    const preset = presets.find(p => p.id === presetId);
     if (preset) {
       await applyCssPresetToDocument(preset);
       return;
@@ -11511,14 +11546,9 @@ function closePublishScreen() { document.getElementById('jxPublishScreen').class
 function toggleMention(el) { el.classList.toggle('selected'); }
 function toggleCustomVisibility() { document.getElementById('publishCustomVisibility').style.display = document.getElementById('publishVisibility').value === 'custom' ? 'block' : 'none'; }
 
-// ============ 【关键修复】朋友圈发照片 ============
-// 之前的 bug：在读取 FileList 之前就把 input.value = '' 清空了 FileList，
-// 导致 Array.from(files) 得到空数组，永远无法添加图片。
-// 修复：先 Array.from(files) 再清空 input.value。
 async function handlePublishImageSelect(e) {
   const files = e.target.files;
   if (!files || !files.length) return;
-  // 必须先复制 FileList，再清空 value
   const fileArray = Array.from(files);
   e.target.value = '';
   if (fileArray.length === 0) return;
