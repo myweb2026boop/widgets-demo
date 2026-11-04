@@ -1503,19 +1503,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
           <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg> 全屏模式</h4>
           <button class="btn btn-primary" id="fullscreenToggleBtn" style="width:100%">开启/关闭全屏</button>
         </div>
-        <div class="section-card">
-          <h4><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> 美化预设管理</h4>
-          <div class="preset-input-row">
-            <input type="text" id="presetNameInput" placeholder="输入预设名称">
-            <button class="btn btn-success" id="savePresetBtn">保存预设</button>
-          </div>
-          <div class="preset-select-row">
-            <select id="presetSelect"><option value="">-- 选择预设 --</option></select>
-            <button class="btn btn-primary" id="loadPresetBtn">应用预设</button>
-            <button class="btn btn-danger" id="deletePresetBtn">删除预设</button>
-          </div>
-          <p style="font-size:12px;color:#666;margin-top:8px;">保存当前美化设置（CSS样式 + 字体 + 字号）为预设，下次可一键应用。</p>
-        </div>
       </div>
     </div>
 
@@ -2771,19 +2758,6 @@ async function initBeautifyPresets() {
     try {
       let presets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
       if (!Array.isArray(presets)) presets = [];
-      if (presets.length === 0) {
-        try {
-          const raw = localStorage.getItem(BEAUTIFY_PRESETS_KEY);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              presets = parsed;
-              await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, presets);
-            }
-          }
-        } catch(e) {}
-      }
-      try { localStorage.removeItem(BEAUTIFY_PRESETS_KEY); } catch(e) {}
       _beautifyPresetsCache = presets;
     } catch (e) {
       _beautifyPresetsCache = [];
@@ -2797,17 +2771,6 @@ function getBeautifyPresetsSync() {
   return Array.isArray(_beautifyPresetsCache) ? _beautifyPresetsCache : [];
 }
 
-async function saveBeautifyPresetsAsync(presets) {
-  _beautifyPresetsCache = Array.isArray(presets) ? presets : [];
-  try {
-    const ok = await idbSet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY, _beautifyPresetsCache);
-    return ok;
-  } catch (e) {
-    console.warn('预设保存到 IndexedDB 失败', e);
-    return false;
-  }
-}
-
 async function initCssEditorPresets() {
   if (_cssEditorPresetsReadyPromise) return _cssEditorPresetsReadyPromise;
   _cssEditorPresetsReadyPromise = (async () => {
@@ -2816,6 +2779,22 @@ async function initCssEditorPresets() {
     try {
       let presets = await idbGet(STORE_CHATS, CSS_EDITOR_PRESETS_IDB_KEY);
       if (!Array.isArray(presets)) presets = [];
+      
+      // 数据抢救：把误存在美化App里的预设合并到全局美化预设中
+      let oldPresets = await idbGet(STORE_CHATS, BEAUTIFY_PRESETS_IDB_KEY);
+      if (Array.isArray(oldPresets) && oldPresets.length > 0) {
+        let changed = false;
+        oldPresets.forEach(op => {
+          if (op && op.id && !presets.find(p => p.id === op.id)) {
+            presets.push(op);
+            changed = true;
+          }
+        });
+        if (changed) {
+          await idbSet(STORE_CHATS, CSS_EDITOR_PRESETS_IDB_KEY, presets);
+        }
+      }
+      
       _cssEditorPresetsCache = presets;
     } catch (e) {
       _cssEditorPresetsCache = [];
@@ -3594,9 +3573,6 @@ function openScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(screenId);
   if (el) el.classList.add('active');
-  if (screenId === 'beautifyScreen') {
-    initBeautifyPresets().then(() => updatePresetList());
-  }
 }
 function closeScreen(currentScreenId, targetScreenId) {
   targetScreenId = targetScreenId || 'mainScreen';
@@ -5549,75 +5525,6 @@ function triggerAppIconUpload(appId, previewElement) {
   };
   input.click();
 }
-
-function updatePresetList() {
-  const presetSelect = document.getElementById('presetSelect');
-  if (!presetSelect) return;
-  presetSelect.innerHTML = '<option value="">-- 选择预设 --</option>';
-  const presets = getBeautifyPresetsSync();
-  presets.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name || '未命名预设';
-    presetSelect.appendChild(opt);
-  });
-}
-
-(function initPresetBtn() {
-  const saveBtn = document.getElementById('savePresetBtn');
-  const loadBtn = document.getElementById('loadPresetBtn');
-  const delBtn = document.getElementById('deletePresetBtn');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
-    const nameInput = document.getElementById('presetNameInput');
-    const name = (nameInput.value || '').trim();
-    if (!name) { alert('请输入预设名称'); return; }
-    const ta = document.getElementById('cssEditorTextarea');
-    const css = (ta && ta.value) || localStorage.getItem(USER_CSS_KEY) || '';
-    const fontSize = getGlobalFontSizeScale();
-    getFontFromDB().then(async fontData => {
-      let fontB64 = null, fontOrigSize = 0;
-      if (fontData && fontData.data) {
-        try { fontB64 = ab2b64(fontData.data); fontOrigSize = fontData.origSize || 0; } catch(e){}
-      }
-      await initBeautifyPresets();
-      const presets = getBeautifyPresetsSync().slice();
-      const newPreset = {
-        id: genId(),
-        name: name,
-        css: css,
-        fontSize: fontSize,
-        fontB64: fontB64,
-        fontOrigSize: fontOrigSize,
-        time: Date.now()
-      };
-      presets.push(newPreset);
-      const ok = await saveBeautifyPresetsAsync(presets);
-      if (ok) {
-        alert('美化预设已保存：' + name);
-        nameInput.value = '';
-        updatePresetList();
-        const sel1 = document.getElementById('presetSelect');
-        if (sel1) sel1.value = newPreset.id;
-      } else {
-        alert('保存失败，请稍后再试');
-      }
-    }).catch(err => {
-      alert('读取字体失败：' + (err.message || '未知错误'));
-    });
-  });
-  if (loadBtn) loadBtn.addEventListener('click', async () => {
-    const presetSelect = document.getElementById('presetSelect');
-    if (!presetSelect || !presetSelect.value) { alert('请选择要应用的美化预设'); return; }
-    const id = presetSelect.value;
-    await initBeautifyPresets();
-    const presets = getBeautifyPresetsSync();
-    const preset = presets.find(p => p.id === id);
-    if (!preset) { alert('未找到该预设'); return; }
-    if (!confirm('确定应用预设「' + preset.name + '」吗？当前美化设置将被替换。')) return;
-    applyBeautifyPresetById(id);
-  });
-  if (delBtn) delBtn.addEventListener('click', deleteBeautifyPreset);
-})();
 
 function showLoadingOverlay(text) {
   const div = document.createElement('div');
