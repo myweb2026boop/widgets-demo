@@ -10943,7 +10943,21 @@ function updateNewFriendsBadge() {
 function renderNewFriendsList() {
   const list = document.getElementById('jxNewFriendsList');
   if (!list) return;
-  const reqs = loadFriendRequests();
+  
+  // 自动清理已通过的 pending 状态
+  let reqs = loadFriendRequests();
+  let changed = false;
+  reqs.forEach(req => {
+    const chat = jianxunChats.find(c => c.id === req.chatId);
+    if (chat && (chat.friendStatus === 'normal' || !chat.friendStatus)) {
+      if (req.status === 'pending') {
+        req.status = 'accepted';
+        changed = true;
+      }
+    }
+  });
+  if (changed) saveFriendRequests(reqs);
+
   if (reqs.length === 0) {
     list.innerHTML = '<div class="empty-state">暂无新的朋友</div>';
     return;
@@ -11064,6 +11078,15 @@ function acceptFriendRequest(reqId) {
   if (chat) {
     chat.friendStatus = 'normal';
     chat.messages.push({ id: genId(), role: 'system', type: 'system', content: `你们已成功添加好友`, time: Date.now() });
+    
+    // 清理该聊天下所有其他的 pending 请求
+    reqs.forEach(r => {
+      if (r.chatId === chat.id && r.status === 'pending') {
+        r.status = 'accepted';
+      }
+    });
+    saveFriendRequests(reqs);
+
     saveJianxunChats();
     updateChatFriendStatusUI(chat);
     renderChatMessages(true);
@@ -11103,6 +11126,14 @@ async function submitFriendRequest() {
   
   closeFriendRequestModal();
   
+  const reqs = loadFriendRequests();
+  // 防重复发送
+  const existing = reqs.find(r => r.chatId === chat.id && r.fromChar === false && r.status === 'pending');
+  if (existing) {
+    alert('你已发送好友申请，请耐心等待对方处理，或者去聊天界面继续沟通。');
+    return;
+  }
+  
   if (chat.friendStatus === 'user_blocked') {
     chat.friendStatus = 'user_deleted'; // 取消拉黑后转为被删状态
   }
@@ -11119,7 +11150,6 @@ async function submitFriendRequest() {
     reply: '',
     time: Date.now()
   };
-  const reqs = loadFriendRequests();
   reqs.push(req);
   saveFriendRequests(reqs);
   
@@ -11131,11 +11161,11 @@ async function submitFriendRequest() {
   renderJianxunChatList();
   updateNewFriendsBadge();
   
-  // 触发 AI 处理
+  // 触发 AI 处理（增加容错兜底）
   setTimeout(async () => {
     const cfg = loadApiConfig();
     if (cfg && cfg.endpoint && cfg.key && cfg.model) {
-      const sys = `你收到了来自用户的好友申请，留言是：“${msg}”。根据你的人设和你们之前的上下文，你决定：\n1. 同意，输出 [[ACCEPT_FRIEND]]\n2. 拒绝并回复留言，输出 [[REJECT_FRIEND:留言内容]]\n请只输出一个动作标记。`;
+      const sys = `你收到了来自用户的好友申请，留言是：“${msg}”。根据你的人设和你们之前的上下文，你决定：\n1. 同意，输出 [[ACCEPT_FRIEND]]\n2. 拒绝并回复留言，输出 [[REJECT_FRIEND:留言内容]]\n请只输出一个动作标记。如果不反感，请直接输出 [[ACCEPT_FRIEND]]。`;
       try {
         const url = normalizeChatEndpoint(cfg.endpoint);
         const res = await fetch(url, {
@@ -11147,15 +11177,79 @@ async function submitFriendRequest() {
           const data = await res.json();
           const c = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
           if (c) {
-            await parseAndExecuteActions(chat, c);
-            saveJianxunChats();
-            updateChatFriendStatusUI(chat);
-            renderChatMessages(true);
-            renderJianxunChatList();
-            renderNewFriendsList();
+            let hasAction = false;
+            if (c.includes('[[ACCEPT_FRIEND]]') || c.includes('[[REJECT_FRIEND')) {
+              hasAction = true;
+            }
+            if (!hasAction) {
+              // AI没有输出动作标记，默认直接通过，并将AI的文字作为文本消息
+              chat.friendStatus = 'normal';
+              if (c.trim()) {
+                chat.messages.push({ id: genId(), role: 'char', type: 'text', content: c.trim(), time: Date.now() });
+              }
+              const r_list = loadFriendRequests();
+              r_list.forEach(r => { if (r.chatId === chat.id && r.status === 'pending') r.status = 'accepted'; });
+              saveFriendRequests(r_list);
+              saveJianxunChats();
+              updateChatFriendStatusUI(chat);
+              renderChatMessages(true);
+              renderJianxunChatList();
+              renderNewFriendsList();
+            } else {
+              await parseAndExecuteActions(chat, c);
+              saveJianxunChats();
+              updateChatFriendStatusUI(chat);
+              renderChatMessages(true);
+              renderJianxunChatList();
+              renderNewFriendsList();
+            }
+          } else {
+             // 空返回也默认通过
+             chat.friendStatus = 'normal';
+             const r_list = loadFriendRequests();
+             r_list.forEach(r => { if (r.chatId === chat.id && r.status === 'pending') r.status = 'accepted'; });
+             saveFriendRequests(r_list);
+             saveJianxunChats();
+             updateChatFriendStatusUI(chat);
+             renderChatMessages(true);
+             renderJianxunChatList();
+             renderNewFriendsList();
           }
+        } else {
+             // HTTP错误也默认通过
+             chat.friendStatus = 'normal';
+             const r_list = loadFriendRequests();
+             r_list.forEach(r => { if (r.chatId === chat.id && r.status === 'pending') r.status = 'accepted'; });
+             saveFriendRequests(r_list);
+             saveJianxunChats();
+             updateChatFriendStatusUI(chat);
+             renderChatMessages(true);
+             renderJianxunChatList();
+             renderNewFriendsList();
         }
-      } catch(e) {}
+      } catch(e) {
+        // 网络错误也默认通过，防止卡死
+        chat.friendStatus = 'normal';
+        const r_list = loadFriendRequests();
+        r_list.forEach(r => { if (r.chatId === chat.id && r.status === 'pending') r.status = 'accepted'; });
+        saveFriendRequests(r_list);
+        saveJianxunChats();
+        updateChatFriendStatusUI(chat);
+        renderChatMessages(true);
+        renderJianxunChatList();
+        renderNewFriendsList();
+      }
+    } else {
+      // 未配置 API 也默认通过
+      chat.friendStatus = 'normal';
+      const r_list = loadFriendRequests();
+      r_list.forEach(r => { if (r.chatId === chat.id && r.status === 'pending') r.status = 'accepted'; });
+      saveFriendRequests(r_list);
+      saveJianxunChats();
+      updateChatFriendStatusUI(chat);
+      renderChatMessages(true);
+      renderJianxunChatList();
+      renderNewFriendsList();
     }
   }, 1500);
 }
@@ -11656,7 +11750,7 @@ function showPersonaSelector() {
   } catch (e) { alert('打开联系人失败：' + (e && e.message ? e.message : '未知错误')); }
 }
 function closePersonaSelector() { document.getElementById('personaSelectorModal').classList.remove('show'); }
-function addPersonaToChat(index) {
+async function addPersonaToChat(index) {
   const persona = personaList[index]; if (!persona) return;
   const exists = jianxunChats.find(c => c.name === persona.name && (c.friendStatus === 'normal' || !c.friendStatus));
   if (exists) { alert('该人设已经在聊天列表中了'); closePersonaSelector(); return; }
@@ -11669,6 +11763,15 @@ function addPersonaToChat(index) {
   if (existingDeleted) {
     existingDeleted.friendStatus = 'normal';
     existingDeleted.messages.push({ id: genId(), role: 'system', type: 'system', content: '你们已重新成为好友', time: Date.now() });
+    
+    // 清理 pending 请求
+    const reqs = loadFriendRequests();
+    let updated = false;
+    reqs.forEach(r => {
+      if (r.chatId === existingDeleted.id && r.status === 'pending') { r.status = 'accepted'; updated = true; }
+    });
+    if (updated) saveFriendRequests(reqs);
+
     saveJianxunChats();
     renderJianxunChatList();
     renderJianxunContacts();
@@ -12600,6 +12703,5 @@ renderMomentsUnreadBadge();
 updateNewFriendsBadge();
 
 </script>
-
 </body>
 </html>
